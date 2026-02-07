@@ -1,0 +1,145 @@
+*File used to test the Plot Variable Functions from the fvsUtil R package.
+*BA_: basal area per acre
+*TPA_: trees per acre
+*QMD_: quadratic mean diameter
+*RSDI_: Reineke SDI (entire stand)
+*ZSDI_: Zeide SDI
+*TCUFT_: Total cubic foot volume per acre
+*MCUFT_: Merchantable cubic foot volume per acre
+*SCUFT_: Sawlog cubic foot volume per acre
+*BDFT_: Boardfoot volume per acre
+*CC_: Percent canopy cover
+*TOPHT_: Top height 
+*BAWTD_: Basal area weighted diameter
+*BAWTD_: Basal area weighted height
+*AVGHT_: TPA weighted average height
+*BAG5: basal area per acre for trees >= 5"
+*TPAG5: trees per acre for trees >= 5"
+*QMDG5: quadratic mean diameter for trees >= 5"
+*RSDIG5: Reineke SDI for trees >= 5"
+*ZSDIG5: Zeide SDI for trees >= 5"
+*TCUFTG5: Total cubic foot volume per acre for trees >= 5"
+*CCG5: Percent canopy cover for trees >= 5"
+*AVGHTG5: TPA weighted average height for trees >= 5"
+*BAL5: basal area per acre for trees < 5"
+*TPAL5: trees per acre for trees < 5"
+*QMDL5: quadratic mean diameter for trees < 5"
+*RSDIL5: Reineke SDI for trees < 5"
+*ZSDIL5: Zeide SDI for trees < 5"
+*TCUFTL5: Total cubic foot volume per acre for trees < 5"
+*CCL5: Percent canopy cover for trees < 5"
+*AVGHTL5: TPA weighted average height for trees < 5"
+*BAG50: basal area per acre for trees >= 50'
+*TPAG50: trees per acre for trees >= 50'
+*QMDG50: quadratic mean diameter for trees >= 50'
+*RSDIG50: Reineke SDI for trees >= 50'
+*ZSDIG50: Zeide SDI for trees >= 50'
+*TCUFTG50: Total cubic foot volume per acre for trees >= 50'
+*CCG50: Percent canopy cover for trees >= 50'
+*AVGHTG50: TPA weighted average height for trees >= 50'
+*BAL50: basal area per acre for trees < 50'
+*TPAL50: trees per acre for trees < 50'
+*QMDL50: quadratic mean diameter for trees < 50'
+*RSDIL50: Reineke SDI for trees < 50'
+*ZSDIL50: Zeide SDI for trees < 50'
+*TCUFTL50: Total cubic foot volume per acre for trees < 50'
+*CCL50: Percent canopy cover for trees < 50'
+*BA5T10: basal area per acre for trees >= 5" and < 10"
+*TPA5T10: trees per acre for trees >= 5" and < 10"
+*QMD5T10: quadratic mean diameter for trees >= 5" and < 10"
+*RSDI5T10: Reineke SDI for trees >= 5" and < 10"
+*ZSDI5T10: Zeide SDI for trees >= 5" and < 10"
+*TCUF5T10: Total cubic foot volume per acre for trees >= 5" and < 10"
+*CC5T10: Percent canopy cover for trees >= 5" and < 10"
+*BA50100: basal area per acre for trees >= 50' and < 100'
+*TPA50100: trees per acre for trees >= 50' and < 100'
+*QMD50100: quadratic mean diameter for trees >= 50' and < 100'
+*RSD50100: Reineke SDI for trees >= 50' and < 100'
+*ZSD50100: Zeide SDI for trees >= 50' and < 100'
+*TCU50100: Total cubic foot volume per acre for trees >= 50' and < 100'
+*CC50100: Percent canopy cover for trees >= 50' and < 100'
+*BASP: basal area per acre of SPTEST
+*TPASP: trees per acre of SPTEST
+*QMDSP: QMD of SPTEST
+*RSDISP: Reineke SDI of SPTEST
+*ZSDISP: Zeide SDI of SPTEST
+*TCUFTSP: total cubic foot volume of SPTEST
+*MCUFTSP: merchantable cubic foot volume of SPTEST
+*SCUFTSP: sawlog cubic foot volume of SPTEST
+*BDFTSP: boardfoot volume of SPTEST
+*CCSP: percent canopy cover of SPTEST
+*AVGHTSP: average height of SPTEST
+
+*Create test species group
+SpGroup       SPTEST
+DF GF AF
+
+Compute            0
+BA_=SPMCDBH(2,All,0,0,200,0,500,0,0)
+TPA_=SPMCDBH(1,All,0,0,200,0,500,0,0)
+QMD_=SPMCDBH(5,All,0,0,200,0,500,0,0)
+RSDI_=SPMCDBH(11,All,0,0,200,0,500,0,0)
+ZSDI_=SPMCDBH(13,All,0,0,200,0,500,0,0)
+TCUFT_=SPMCDBH(3,All,0,0,200,0,500,0,0)
+MCUFT_=SPMCDBH(9,All,0,0,200,0,500,0,0)
+SCUFT_=SPMCDBH(15,All,0,0,200,0,500,0,0)
+BDFT_=SPMCDBH(4,All,0,0,200,0,500,0,0)
+CC_=SPMCDBH(7,All,0,0,200,0,500,0,0)
+TOPHT_=BTopHt
+AVGHT_=SPMCDBH(6,All,0,0,200,0,500,0,0)
+BAWTD_=BDBHwtBA
+BAWTH_=BHTWTBA
+BAG5=SPMCDBH(2,All,0,5,200,0,500,0,0)
+TPAG5=SPMCDBH(1,All,0,5,200,0,500,0,0)
+QMDG5=SPMCDBH(5,All,0,5,200,0,500,0,0)
+RSDIG5=SPMCDBH(11,All,0,5,200,0,500,0,0)
+ZSDIG5=SPMCDBH(13,All,0,5,200,0,500,0,0)
+TCUFTG5=SPMCDBH(3,All,0,5,200,0,500,0,0)
+CCG5=SPMCDBH(7,All,0,5,200,0,500,0,0)
+BAL5=SPMCDBH(2,All,0,0,5,0,500,0,0)
+TPAL5=SPMCDBH(1,All,0,0,5,0,500,0,0)
+QMDL5=SPMCDBH(5,All,0,0,5,0,500,0,0)
+RSDIL5=SPMCDBH(11,All,0,0,5,0,500,0,0)
+ZSDIL5=SPMCDBH(13,All,0,0,5,0,500,0,0)
+TCUFTL5=SPMCDBH(3,All,0,0,5,0,500,0,0)
+CCL5=SPMCDBH(7,All,0,0,5,0,500,0,0)
+BAG50=SPMCDBH(2,All,0,0,200,50,500,0,0)
+TPAG50=SPMCDBH(1,All,0,0,200,50,500,0,0)
+QMDG50=SPMCDBH(5,All,0,0,200,50,500,0,0)
+RSDIG50=SPMCDBH(11,All,0,0,200,50,500,0,0)
+ZSDIG50=SPMCDBH(13,All,0,0,200,50,500,0,0)
+TCUFTG50=SPMCDBH(3,All,0,0,200,50,500,0,0)
+CCG50=SPMCDBH(7,All,0,0,200,50,500,0,0)
+BAL50=SPMCDBH(2,All,0,0,200,0,50,0,0)
+TPAL50=SPMCDBH(1,All,0,0,200,0,50,0,0)
+QMDL50=SPMCDBH(5,All,0,0,200,0,50,0,0)
+RSDIL50=SPMCDBH(11,All,0,0,200,0,50,0,0)
+ZSDIL50=SPMCDBH(13,All,0,0,200,0,50,0,0)
+TCUFTL50=SPMCDBH(3,All,0,0,200,0,50,0,0)
+CCL50=SPMCDBH(7,All,0,0,200,0,50,0,0)
+BA5T10=SPMCDBH(2,All,0,5,10,0,500,0,0)
+TPA5T10=SPMCDBH(1,All,0,5,10,0,500,0,0)
+QMD5T10=SPMCDBH(5,All,0,5,10,0,500,0,0)
+RSDI5T10=SPMCDBH(11,All,0,5,10,0,500,0,0)
+ZSDI5T10=SPMCDBH(13,All,0,5,10,0,500,0,0)
+TCUF5T10=SPMCDBH(3,All,0,5,10,0,500,0,0)
+CCG5T10=SPMCDBH(7,All,0,5,10,0,500,0,0)
+BA50100=SPMCDBH(2,All,0,0,200,50,100,0,0)
+TPA50100=SPMCDBH(1,All,0,0,200,50,100,0,0)
+QMD50100=SPMCDBH(5,All,0,0,200,50,100,0,0)
+RSD50100=SPMCDBH(11,All,0,0,200,50,100,0,0)
+ZSD50100=SPMCDBH(13,All,0,0,200,50,100,0,0)
+TCU50100=SPMCDBH(3,All,0,0,200,50,100,0,0)
+CC50100=SPMCDBH(7,All,0,0,200,50,100,0,0)
+BASP=SPMCDBH(2,SPTEST,0,0,200,0,500,0,0)
+TPASP=SPMCDBH(1,SPTEST,0,0,200,0,500,0,0)
+QMDSP=SPMCDBH(5,SPTEST,0,0,200,0,500,0,0)
+RSDISP=SPMCDBH(11,SPTEST,0,0,200,0,500,0,0)
+ZSDISP=SPMCDBH(13,SPTEST,0,0,200,0,500,0,0)
+TCUFTSP=SPMCDBH(3,SPTEST,0,0,200,0,500,0,0)
+MCUFTSP=SPMCDBH(9,SPTEST,0,0,200,0,500,0,0)
+SCUFTSP=SPMCDBH(15,SPTEST,0,0,200,0,500,0,0)
+BDFTSP=SPMCDBH(4,SPTEST,0,0,200,0,500,0,0)
+CCSP=SPMCDBH(7,SPTEST,0,0,200,0,500,0,0)
+AVGHTSP=SPMCDBH(6,SPTEST,0,0,200,0,500,0,0)
+END

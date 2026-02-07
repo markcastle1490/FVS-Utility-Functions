@@ -1,0 +1,21 @@
+Package: fvsUtil
+Title: FVS Utility Functions
+Version: 0.2.0
+Authors@R: 
+    person("Mark",
+           "Castle",
+           role = c("aut", "cre"),
+           email = "mark.castle.1415@gmail.com")
+Description: This package provides a suite of utility functions related to
+ the Forest Vegetation Simulator (FVS).
+License: MIT
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+LazyData: true
+Depends: 
+    R (>= 4.0.0)
+Imports: 
+    RSQLite,
+    utils,
+    httr
+Encoding: UTF-8
