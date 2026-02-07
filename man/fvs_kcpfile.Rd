@@ -4,13 +4,13 @@
 \alias{fvs_kcpfile}
 \title{fvs_kcpfile}
 \usage{
-fvs_kcpfile(kcpFile, keyWords = list())
+fvs_kcpfile(kcpfile, keywords = list())
 }
 \arguments{
-\item{kcpFile:}{Character string corresponding to file path of keyword component file (.kcp)
+\item{kcpfile:}{Character string corresponding to file path of keyword component file (.kcp)
 being created.}
 
-\item{keyWords:}{Optional character vector, list, or list of character vectors containing
+\item{keywords:}{Optional character vector, list, or list of character vectors containing
 properly formatted FVS keywords or variables to define with event monitor
 function call that will be included in keyword file for each stand.}
 }

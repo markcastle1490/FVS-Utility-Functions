@@ -5,18 +5,18 @@
 \title{run_key}
 \usage{
 run_key(
-  dllPath = "C:/FVS/FVSSoftware/FVSbin",
-  varCode = "ie",
-  keyFile = "C:/FVS.key",
+  dll_path = "C:/FVS/FVSSoftware/FVSbin",
+  var_code = "ie",
+  keyfile = "C:/FVS.key",
   verbose = FALSE
 )
 }
 \arguments{
-\item{dllPath:}{Character string corresponding to directory where FVS dlls are stored}
+\item{dll_path:}{Character string corresponding to directory where FVS dlls are stored}
 
-\item{varCode:}{Two character string corresponding to FVS variant ("IE", "CS", etc.).}
+\item{var_code:}{Two character string corresponding to FVS variant ("IE", "CS", etc.).}
 
-\item{keyFile:}{Character string corresponding to directory and file name for a single FVS
+\item{keyfile:}{Character string corresponding to directory and file name for a single FVS
 keyword file.}
 
 \item{verbose:}{Logical variable used to determine if debug output should be echoed to

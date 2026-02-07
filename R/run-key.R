@@ -6,13 +6,13 @@
 #'FVS variant dll (.dll) using the rFVS API. The rFVS package has to be 
 #'installed for this function to work properly.
 #
-#'@param dllPath: 
+#'@param dll_path: 
 #'Character string corresponding to directory where FVS dlls are stored
 #
-#'@param varCode: 
+#'@param var_code: 
 #'Two character string corresponding to FVS variant ("IE", "CS", etc.).
 #
-#'@param keyFile: 
+#'@param keyfile: 
 #'Character string corresponding to directory and file name for a single FVS
 #'keyword file.
 #
@@ -24,63 +24,63 @@
 ################################################################################
 
 #'@export
-run_key = function(dllPath = "C:/FVS/FVSSoftware/FVSbin",
-                   varCode = "ie",
-                   keyFile = "C:/FVS.key",
+run_key = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
+                   var_code = "ie",
+                   keyfile = "C:/FVS.key",
                    verbose = FALSE)
 {
-  #Change \\ to / in dllPath argument
-  dllPath = gsub("\\\\", "/", dllPath)
+  #Change \\ to / in dll_path argument
+  dll_path = gsub("\\\\", "/", dll_path)
   
-  #Change \\ to / in keyFile argument
-  keyFile = gsub("\\\\", "/", keyFile)
+  #Change \\ to / in keyfile argument
+  keyfile = gsub("\\\\", "/", keyfile)
   
-  #Check for existence of dllPath
-  if (!(file.exists(dllPath))){
-    stop(paste("dllPath not found. Make sure directory path is spelled",
+  #Check for existence of dll_path
+  if (!(file.exists(dll_path))){
+    stop(paste("dll_path not found. Make sure directory path is spelled",
                " correctly."))
   }
   
-  #Check for existence of keyFile
-  if (!(file.exists(keyFile))){
-    stop(paste("keyFile not found. Make sure directory path and file name are",
+  #Check for existence of keyfile
+  if (!(file.exists(keyfile))){
+    stop(paste("keyfile not found. Make sure directory path and file name are",
                " spelled correctly."))
   }
   
   #Grab the the directory where the keyword file is stored
-  keyDir = gsub("/[^/]+$", "", keyFile)
+  keydir = gsub("/[^/]+$", "", keyfile)
   
-  #Make varCode lowercase
-  varCode = tolower(varCode)
+  #Make var_code lowercase
+  var_code = tolower(var_code)
   
   #Create dll name
-  varCode = paste0("FVS", varCode)
+  var_code = paste0("FVS", var_code)
   
   #Load variant dll and specify directory path to dll in bin folder
-  rFVS::fvsLoad(varCode, bin = dllPath)
+  rFVS::fvsLoad(var_code, bin = dll_path)
   
   #Set keyword file to command line
-  rFVS::fvsSetCmdLine(paste0("--keywordfile=", keyFile))
+  rFVS::fvsSetCmdLine(paste0("--keywordfile=", keyfile))
   
   #Set working directory for the simulation
-  setwd(keyDir)
+  setwd(keydir)
   
   #Initialize return code
-  retCode = 0
+  retcode = 0
   
   if(verbose)
   {
-    cat("dllPath:", dllPath, "\n")
-    cat("fvsdll:",  varCode, "\n")
-    cat("keyFile:", keyFile, "\n")
+    cat("dll_path:", dll_path, "\n")
+    cat("fvsdll:",  var_code, "\n")
+    cat("keyfile:", keyfile, "\n")
   }
   
   #Keep running FVS until a return code other than 0, is returned.
-  while(retCode == 0)
+  while(retcode == 0)
   {
-    retCode = rFVS::fvsRun()
+    retcode = rFVS::fvsRun()
     
-    if(verbose) cat("FVS return code:", retCode, "\n")
+    if(verbose) cat("FVS return code:", retcode, "\n")
   }
   
   #=============================================================================
@@ -88,10 +88,10 @@ run_key = function(dllPath = "C:/FVS/FVSSoftware/FVSbin",
   #=============================================================================
   
   #Get fvs dll
-  fvs.loaded = as.character(get(".FVSLOADEDLIBRARY",envir=.GlobalEnv)[['ldf']])
+  fvs_loaded = as.character(get(".FVSLOADEDLIBRARY",envir=.GlobalEnv)[['ldf']])
   
   #Unload
-  dyn.unload(fvs.loaded)
+  dyn.unload(fvs_loaded)
   
   #Remove R object
   remove(".FVSLOADEDLIBRARY",envir=.GlobalEnv)

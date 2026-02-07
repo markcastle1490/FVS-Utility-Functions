@@ -4,7 +4,7 @@
 \alias{delotab_keys}
 \title{delotab_keys}
 \usage{
-delotab_keys(delotab = c())
+delotab_keys(delotab = NULL)
 }
 \arguments{
 \item{delotab:}{Vector of integer values that contain any values from 1-4.}

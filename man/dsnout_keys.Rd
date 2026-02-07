@@ -4,10 +4,10 @@
 \alias{dsnout_keys}
 \title{dsnout_keys}
 \usage{
-dsnout_keys(dbOut = "FVSOut.db")
+dsnout_keys(dbout = "FVSOut.db")
 }
 \arguments{
-\item{dbOut:}{Name of FVS output database that includes file extension (.db or .sqlite). By
+\item{dbout:}{Name of FVS output database that includes file extension (.db or .sqlite). By
 default this argument is set to "FVS_Data.db".}
 }
 \value{

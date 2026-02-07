@@ -5,83 +5,83 @@
 \title{fvs_keyfile}
 \usage{
 fvs_keyfile(
-  keyFile,
-  standID,
-  invYear,
-  standCN = NULL,
-  standKeys = NULL,
-  keyWords = NULL,
-  startYear = NULL,
-  endYear = NULL,
-  cycleLength = 10,
-  cycleAt = NULL,
-  dbIn = NULL,
-  standInit = "FVS_StandInit",
-  treeInit = "FVS_TreeInit",
-  standType = 1,
-  dbOut = NULL,
+  keyfile,
+  standid,
+  invyear,
+  standcn = NULL,
+  stand_keys = NULL,
+  keywords = NULL,
+  start_year = NULL,
+  end_year = NULL,
+  cycle_length = 10,
+  cycle_at = NULL,
+  dbin = NULL,
+  standinit = "FVS_standinit",
+  treeinit = "FVS_treeinit",
+  stand_type = 1,
+  dbout = NULL,
   delotab = c(1, 2)
 )
 }
 \arguments{
-\item{keyFile:}{Character string corresponding to directory path and file name of keyword file
+\item{keyfile:}{Character string corresponding to directory path and file name of keyword file
 being created.}
 
-\item{standID:}{Character vector of stand identification numbers.}
+\item{standid:}{Character vector of stand identification numbers.}
 
-\item{invYear:}{Numeric vector of inventory years for each stand in standID and or standCN
+\item{invyear:}{Numeric vector of inventory years for each stand in standid and or standcn
 arguments.}
 
-\item{standCN:}{Optional character vector of stand control numbers. If values are not defined
-for this argument, then the value from standID will be used as the stand
+\item{standcn:}{Optional character vector of stand control numbers. If values are not defined
+for this argument, then the value from standid will be used as the stand
 control number in the output keyword file.}
 
-\item{keyWords:}{Optional character vector, list, or list of character vectors containing
+\item{keywords:}{Optional character vector, list, or list of character vectors containing
 properly formatted FVS keywords or variables to define with event monitor
 function call that will be included in keyword file for each stand.}
 
-\item{standKeys:}{Optional character vector containing a set of properly formatted keywords or
+\item{stand_keys:}{Optional character vector containing a set of properly formatted keywords or
 variables to define with event monitor function call for specific stands in
-the standID argument. These keywords will be added for the given stand in the
+the standid argument. These keywords will be added for the given stand in the
 output keyword file. If this argument is used, it should match the length of
-the standID argument.}
+the standid argument.}
 
-\item{startYear:}{Common start year for simulation. If startYear and endYear are not NULL, then
+\item{start_year:}{Common start year for simulation. If start_year and end_year are not NULL, then
 function will attempt to add time keyword sequence (see time_keys function).}
 
-\item{endYear:}{Common end year for simulation. If startYear and endYear are not NULL, then
+\item{end_year:}{Common end year for simulation. If start_year and end_year are not NULL, then
 function will attempt to add TIMEIMT and NUMCYCLE keyword sequence (see
 time_keys function).}
 
-\item{cycleLength:}{Default cycle length assumed for simulation. Only used when startYear and
-endYear are not NULL.}
+\item{cycle_length:}{Default cycle length assumed for simulation. Only used when start_year and
+end_year are not NULL.}
 
-\item{cycleAt:}{Numeric vector containing additional reporting years (those that do not occur
-on default cycle boundaries based on startYear, endYear and 'cycleLength
-arguments). Only used when startYear and endYear are not NULL.}
+\item{cycle_at:}{Numeric vector containing additional reporting years (those that do not occur
+on default cycle boundaries based on start_year, end_year and 'cycle_length
+arguments). Only used when start_year and end_year are not NULL.}
 
-\item{dbIn:}{Character string for name of FVS input database that includes file extension
+\item{dbin:}{Character string for name of FVS input database that includes file extension
 (.db, .sqlite). If this value is not NULL, the function will attempt to add a
 DSNIN keyword sequence.}
 
-\item{standInit:}{Character string corresponding to name table where stand information will be
-read from. Typically this would be "FVS_StandInit" of "FVS_PlotInit" but could
-be "FVS_StandInit_Plot", "FVS_StandInit_Cond", etc. when FIA data is in use.
-This is an optional argument and will only be used if dbIn is not NULL.}
+\item{standinit:}{Character string corresponding to name table where stand information will be
+read from. Typically this would be "FVS_standinit" of "FVS_PlotInit" but could
+be "FVS_standinit_Plot", "FVS_standinit_Cond", etc. when FIA data is in use.
+This is an optional argument and will only be used if dbin is not NULL.}
 
-\item{treeInit:}{Character string corresponding to name table where tree information will be
-read from. Typically this would be "FVS_TreeInit" but could be
-"FVS_TreeInit_Plot", "FVS_TreeInit_Cond", etc. when FIA data is in use. This
-is an optional argument and will only be used if dbIn is not NULL.}
+\item{treeinit:}{Character string corresponding to name table where tree information will be
+read from. Typically this would be "FVS_treeinit" but could be
+"FVS_treeinit_Plot", "FVS_treeinit_Cond", etc. when FIA data is in use. This
+is an optional argument and will only be used if dbin is not NULL.}
 
-\item{standType:}{Integer value that determines what stand ID will be used to read data from
-dbIn when dbIn is not NULL.
+\item{stand_type:}{Integer value that determines what stand ID will be used to read data from
+dbin when dbin is not NULL.
 
 0 = Stand_CN
 
 1 = Stand_ID}
 
-\item{dbOut:}{Name of FVS output database that includes file extension (.db or .sqlite).
+\item{dbout:}{Name of FVS output database that includes file extension (.db or .sqlite).
 If this value is not NULL, the function will attempt to add a DSNOUT keyword
 sequence.}
 

@@ -5,78 +5,78 @@
 #'This function creates a keyword file based on user defined set of keywords for
 #'a set of stands IDs and inventory years. 
 #'
-#'@param keyFile:     
+#'@param keyfile:     
 #'Character string corresponding to directory path and file name of keyword file
 #'being created.
 #'
-#'@param standID:     
+#'@param standid:     
 #'Character vector of stand identification numbers.
 #'
-#'@param invYear:     
-#'Numeric vector of inventory years for each stand in standID and or standCN 
+#'@param invyear:     
+#'Numeric vector of inventory years for each stand in standid and or standcn 
 #'arguments.
 #'
-#'@param standCN:
+#'@param standcn:
 #'Optional character vector of stand control numbers. If values are not defined
-#'for this argument, then the value from standID will be used as the stand 
+#'for this argument, then the value from standid will be used as the stand 
 #'control number in the output keyword file.
 #'
-#'@param keyWords:
+#'@param keywords:
 #'Optional character vector, list, or list of character vectors containing 
 #'properly formatted FVS keywords or variables to define with event monitor 
 #'function call that will be included in keyword file for each stand.
 #'
-#'@param standKeys:
+#'@param stand_keys:
 #'Optional character vector containing a set of properly formatted keywords or
 #'variables to define with event monitor function call for specific stands in 
-#'the standID argument. These keywords will be added for the given stand in the
+#'the standid argument. These keywords will be added for the given stand in the
 #'output keyword file. If this argument is used, it should match the length of 
-#'the standID argument.
+#'the standid argument.
 #'
-#'@param startYear:   
-#'Common start year for simulation. If startYear and endYear are not NULL, then
+#'@param start_year:   
+#'Common start year for simulation. If start_year and end_year are not NULL, then
 #'function will attempt to add time keyword sequence (see time_keys function).
 #'
-#'@param endYear:     
-#'Common end year for simulation. If startYear and endYear are not NULL, then
+#'@param end_year:     
+#'Common end year for simulation. If start_year and end_year are not NULL, then
 #'function will attempt to add TIMEIMT and NUMCYCLE keyword sequence (see 
 #'time_keys function).
 #'
-#'@param cycleLength: 
-#'Default cycle length assumed for simulation. Only used when startYear and 
-#'endYear are not NULL.
+#'@param cycle_length: 
+#'Default cycle length assumed for simulation. Only used when start_year and 
+#'end_year are not NULL.
 #'
-#'@param cycleAt: 
+#'@param cycle_at: 
 #'Numeric vector containing additional reporting years (those that do not occur
-#'on default cycle boundaries based on startYear, endYear and 'cycleLength 
-#'arguments). Only used when startYear and endYear are not NULL.
+#'on default cycle boundaries based on start_year, end_year and 'cycle_length 
+#'arguments). Only used when start_year and end_year are not NULL.
 #'
-#'@param dbIn: 
+#'@param dbin: 
 #'Character string for name of FVS input database that includes file extension
 #'(.db, .sqlite). If this value is not NULL, the function will attempt to add a 
 #'DSNIN keyword sequence.
 #'
-#'@param standInit:   
+#'@param standinit:   
 #'Character string corresponding to name table where stand information will be 
-#'read from. Typically this would be "FVS_StandInit" of "FVS_PlotInit" but could
-#'be "FVS_StandInit_Plot", "FVS_StandInit_Cond", etc. when FIA data is in use.
-#'This is an optional argument and will only be used if dbIn is not NULL.
+#'read from. Typically this would be "FVS_standinit" of "FVS_PlotInit" but could
+#'be "FVS_standinit_Plot", "FVS_standinit_Cond", etc. when FIA data is in use.
+#'This is an optional argument and will only be used if dbin is not NULL.
 #'
-#'@param treeInit:    
+#'@param treeinit:    
 #'Character string corresponding to name table where tree information will be 
-#'read from. Typically this would be "FVS_TreeInit" but could be 
-#'"FVS_TreeInit_Plot", "FVS_TreeInit_Cond", etc. when FIA data is in use. This
-#'is an optional argument and will only be used if dbIn is not NULL.
+#'read from. Typically this would be "FVS_treeinit" but could be 
+#'"FVS_treeinit_Plot", "FVS_treeinit_Cond", etc. when FIA data is in use. This
+#'is an optional argument and will only be used if dbin is not NULL.
 #'
-#'@param standType:   
+#'@param stand_type:   
 #'Integer value that determines what stand ID will be used to read data from 
-#'dbIn when dbIn is not NULL.
+#'dbin when dbin is not NULL.
 #'
 #'0 = Stand_CN
 #'
 #'1 = Stand_ID
 #
-#'@param dbOut:        
+#'@param dbout:        
 #'Name of FVS output database that includes file extension (.db or .sqlite). 
 #'If this value is not NULL, the function will attempt to add a DSNOUT keyword
 #'sequence.
@@ -93,107 +93,107 @@
 ################################################################################
 
 #'@export
-fvs_keyfile <- function(keyFile,
-                        standID,
-                        invYear,
-                        standCN = NULL,
-                        standKeys = NULL,
-                        keyWords = NULL,
-                        startYear = NULL,
-                        endYear = NULL,
-                        cycleLength = 10,
-                        cycleAt = NULL,
-                        dbIn = NULL,
-                        standInit = "FVS_StandInit",
-                        treeInit = "FVS_TreeInit",
-                        standType = 1,
-                        dbOut = NULL,
+fvs_keyfile <- function(keyfile,
+                        standid,
+                        invyear,
+                        standcn = NULL,
+                        stand_keys = NULL,
+                        keywords = NULL,
+                        start_year = NULL,
+                        end_year = NULL,
+                        cycle_length = 10,
+                        cycle_at = NULL,
+                        dbin = NULL,
+                        standinit = "FVS_standinit",
+                        treeinit = "FVS_treeinit",
+                        stand_type = 1,
+                        dbout = NULL,
                         delotab = c(1, 2))
 {
 
-  #If keyFile exists already,  delete it
-  if(file.exists(keyFile)) unlink(keyFile)
+  #If keyfile exists already,  delete it
+  if(file.exists(keyfile)) unlink(keyfile)
   
-  #Switch \\\\ to / in keyFile
-  keyFile <- gsub("\\\\", "/", keyFile)
+  #Switch \\\\ to / in keyfile
+  keyfile <- gsub("\\\\", "/", keyfile)
   
   #Extract path to output by extract all characters before the last / in output.
-  outPath <- gsub("/[^/]+$", "", keyFile)
+  outpath <- gsub("/[^/]+$", "", keyfile)
   
   #Test existence of output path and if it does not exist report error.
-  if (!(file.exists(outPath))){
-    stop(paste("Path to output:", outPath, "was not found.",
+  if (!(file.exists(outpath))){
+    stop(paste("Path to output:", outpath, "was not found.",
                "Make sure directory path to output is spelled correctly."))
   }
   
   #Extract file extension for output argument.
-  fileExtOut<-sub("(.*)\\.","",keyFile)
+  fileext_out<-sub("(.*)\\.","",keyfile)
   
   #Test if output file extension is valid (.key).
-  if(!fileExtOut %in% c("key"))
+  if(!fileext_out %in% c("key"))
   {
     stop(paste("Output argument does not have a valid file extension. File",
                "extension must be .key."))
   }
   
-  #If invYear or standID are empty, stop with an error
-  if(length(invYear) <= 0 || length(standID) <= 0)
+  #If invyear or standid are empty, stop with an error
+  if(length(invyear) <= 0 || length(standid) <= 0)
   {
-    stop(paste("Values are required for invYear and standID."))
+    stop(paste("Values are required for invyear and standid."))
   }
   
-  #If invYear and standID are not the same length, stop with an error
-  if(length(invYear) != length(standID))
+  #If invyear and standid are not the same length, stop with an error
+  if(length(invyear) != length(standid))
   {
-    stop(paste("Length of invYear and standID arguments must be the same."))
+    stop(paste("Length of invyear and standid arguments must be the same."))
   }
   
   #Create output file and sink
-  sink(file = keyFile)
+  sink(file = keyfile)
   
   #Loop across stands
-  for(i in 1:length(standID))
+  for(i in 1:length(standid))
   {
     #Get stand ID and inventory year
-    stand_id <- standID[[i]] 
-    inv_year <- invYear[[i]]
+    stand_id <- standid[[i]] 
+    inv_year <- invyear[[i]]
     
-    #Get standCN if length is not zero and bounds of standCN vector has not 
+    #Get standcn if length is not zero and bounds of standcn vector has not 
     #been exceeded
-    if(length(standCN) > 0 && i <= length(standCN))
+    if(length(standcn) > 0 && i <= length(standcn))
     {
-      stand_cn <- standCN[[i]]
+      stand_cn <- standcn[[i]]
     }
     else
     {
       stand_cn <- stand_id
     }
 
-    #Setup standIdent and StandCN keywords and add to keyword file
-    standKey <- paste("StdIdent",
-                      stand_id,
-                      "StandCN",
-                      stand_cn,
-                      sep = "\n")  
+    #Setup standident and standcn keywords and add to keyword file
+    stand_key <- paste("STDIDENT",
+                       stand_id,
+                       "STANDCN",
+                       stand_cn,
+                       sep = "\n")  
     
-    #Write standIdent and StandCN keywords
-    cat(standKey, "\n", "\n")
+    #Write standident and standcn keywords
+    cat(stand_key, "\n", "\n")
     
     #Create INVYR keyword
-    invyrKey <- fvs_keyword(params = list("INVYEAR", inv_year),
-                           type = 1)
+    invyr_key <- fvs_keyword(params = list("INVYEAR", inv_year),
+                             type = 1)
     
     #Write INVYR keywords
-    cat(invyrKey, "\n", "\n")
+    cat(invyr_key, "\n", "\n")
     
     #===========================================================================
     #Determine if output DSNOUT keywords will be produced and added to keyword
     #file
     #===========================================================================
     
-    if(!is.null(dbOut))
+    if(!is.null(dbout))
     {
-      dsnout_keys <- dsnout_keys(dbOut = dbOut)
+      dsnout_keys <- dsnout_keys(dbout = dbout)
       
       cat(dsnout_keys, "\n", "\n")
     }
@@ -202,16 +202,16 @@ fvs_keyfile <- function(keyFile,
     #Determine if timing keywords are produced and added to keyword file
     #===========================================================================
     
-    if(!is.null(startYear) && !is.null(endYear))
+    if(!is.null(start_year) && !is.null(end_year))
     {
       #Get timing keywords
-      time <- time_keys(invYear = invYear,
-                        startYear = startYear,
-                        endYear = endYear,
-                        cycleLength = cycleLength,
-                        cycleAt = cycleAt)
+      time_key <- time_keys(invyear = invyear,
+                            start_year = start_year,
+                            end_year = end_year,
+                            cycle_length = cycle_length,
+                            cycle_at = cycle_at)
       
-      cat(time, "\n", "\n")
+      cat(time_key, "\n", "\n")
     }
     
     #===========================================================================
@@ -225,12 +225,12 @@ fvs_keyfile <- function(keyFile,
     }
     
     #===========================================================================
-    #Write any keywords provided in keyWords argument
+    #Write any keywords provided in keywords argument
     #===========================================================================
     
-    if(length(keyWords) > 0)
+    if(length(keywords) > 0)
     {
-      for(keyset in keyWords)
+      for(keyset in keywords)
       {
         for(keys in keyset)
         {
@@ -243,12 +243,12 @@ fvs_keyfile <- function(keyFile,
     }
     
     #===========================================================================
-    #Write any stand specific keywords in standKeys argument
+    #Write any stand specific keywords in stand_keys argument
     #===========================================================================
     
-    if(i <= length(standKeys))
+    if(i <= length(stand_keys))
     {
-        stand_key <- as.character(standKeys[i])
+        stand_key <- as.character(stand_keys[i])
         if(!is.na(stand_key) || !is.null(stand_key)) cat(stand_key, "\n", "\n")
     }
     
@@ -257,12 +257,12 @@ fvs_keyfile <- function(keyFile,
     #file
     #===========================================================================
     
-    if(!is.null(dbIn))
+    if(!is.null(dbin))
     {
-      dsnin_keys <- dsnin_keys(dbIn = dbIn,
-                               standType = standType,
-                               standInit = standInit,
-                               treeInit = treeInit)
+      dsnin_keys <- dsnin_keys(dbin = dbin,
+                               stand_type = stand_type,
+                               standinit = standinit,
+                               treeinit = treeinit)
       
       cat(dsnin_keys, "\n", "\n")
     }
@@ -276,7 +276,6 @@ fvs_keyfile <- function(keyFile,
   
   #Close file connection
   sink(file = NULL)
-  
 }
 
 ################################################################################
@@ -286,11 +285,11 @@ fvs_keyfile <- function(keyFile,
 #'
 #'This function creates a kcp file based on user defined set of keywords.
 #
-#'@param kcpFile:     
+#'@param kcpfile:     
 #'Character string corresponding to file path of keyword component file (.kcp)
 #'being created.
 #
-#'@param keyWords:   
+#'@param keywords:   
 #'Optional character vector, list, or list of character vectors containing 
 #'properly formatted FVS keywords or variables to define with event monitor 
 #'function call that will be included in keyword file for each stand.
@@ -300,42 +299,42 @@ fvs_keyfile <- function(keyFile,
 ################################################################################
 
 #'@export
-fvs_kcpfile <- function(kcpFile,
-                        keyWords = list())
+fvs_kcpfile <- function(kcpfile,
+                        keywords = list())
 {
   
-  #If kcpFile exists already,  delete it
-  if(file.exists(kcpFile)) unlink(kcpFile)
+  #If kcpfile exists already,  delete it
+  if(file.exists(kcpfile)) unlink(kcpfile)
   
   #Extract path to output by extract all characters before the last / in output.
-  outPath <- gsub("/[^/]+$", "", kcpFile)
+  outpath <- gsub("/[^/]+$", "", kcpfile)
   
   #Test existence of output path and if it does not exist report error.
-  if (!(file.exists(outPath))){
-    stop(paste("Path to output:", outPath, "was not found.",
+  if (!(file.exists(outpath))){
+    stop(paste("Path to output:", outpath, "was not found.",
                "Make sure directory path to output is spelled correctly."))
   }
   
   #Extract file extension for output argument.
-  fileExtOut<-sub("(.*)\\.","", kcpFile)
+  fileext_out<-sub("(.*)\\.","", kcpfile)
   
   #Test if output file extension is valid (.key).
-  if(!fileExtOut %in% c("kcp"))
+  if(!fileext_out %in% c("kcp"))
   {
     stop(paste("Output argument does not have a valid file extension. File",
                "extension must be .kcp."))
   }
   
   #Create output file and sink
-  sink(file = kcpFile)
+  sink(file = kcpfile)
     
   #===========================================================================
-  #Write any keywords provided in keyWords argument
+  #Write any keywords provided in keywords argument
   #===========================================================================
     
-  if(length(keyWords) > 0)
+  if(length(keywords) > 0)
   {
-    for(keyset in keyWords)
+    for(keyset in keywords)
     {
       for(keys in keyset)
       {
@@ -400,7 +399,7 @@ fvs_kcpfile <- function(kcpFile,
 
 #'@export
 fvs_keyword <- function(params = list(),
-                       type = 1)
+                        type = 1)
 {
   keyword <- ""
   
@@ -495,14 +494,14 @@ fvs_keyword <- function(params = list(),
                           char_params[2])
       
       #Create function arguments with parantheses
-      functionArgs <- paste0("(",
+      function_args <- paste0("(",
                              paste0(char_params[3:length(char_params)],
                                     collapse = ","),
                              ")")
       
       #Create the keyword (function call here)
       keyword <- paste0(event_var,
-                        functionArgs,
+                        function_args,
                         collapse = "")
     }
   }
@@ -525,24 +524,24 @@ fvs_keyword <- function(params = list(),
 #'
 #'This function creates a set of keywords for controlling the length of a FVS
 #'simulation for a given inventory year, common start year, common end year,
-#'default cycle length, and optional cycleAt keywords.
+#'default cycle length, and optional cycle_at keywords.
 #
-#'@param invYear:    
+#'@param invyear:    
 #'Inventory year of stand.
 #
-#'@param cycleLength: 
+#'@param cycle_length: 
 #'Default cycle length assumed for simulation.
 #
-#'@param startYear:  
+#'@param start_year:  
 #'Common start year for simulation.
 #
-#'@param endYear:
+#'@param end_year:
 #'End year for simulation.
 #
-#'@param cycleAt:    
+#'@param cycle_at:    
 #'Vector of years corresponding to additional reporting years that don't 
-#'coincide with default reporting years determined by startYear, endYear, and 
-#'cycleLength.
+#'coincide with default reporting years determined by start_year, end_year, and 
+#'cycle_length.
 #
 #'@param debug:      
 #'Logical variable where if TRUE, debug output will be printed in console.
@@ -554,36 +553,36 @@ fvs_keyword <- function(params = list(),
 ################################################################################
 
 #'@export
-time_keys <- function(invYear = NULL,
-                      startYear = NULL,
-                      endYear = NULL,
-                      cycleLength = NULL,
-                      cycleAt = NULL,
+time_keys <- function(invyear = NULL,
+                      start_year = NULL,
+                      end_year = NULL,
+                      cycle_length = NULL,
+                      cycle_at = NULL,
                       debug = F)
 {
   time_keys_ <- ""
   
   #If any required inputs are NULL, return
-  if(is.null(invYear) || is.null(startYear) || is.null(endYear) || 
-     is.null(cycleLength)) return(time_keys_)
+  if(is.null(invyear) || is.null(start_year) || is.null(end_year) || 
+     is.null(cycle_length)) return(time_keys_)
   
   #if any required inputs are NA values, return
-  if(is.na(invYear) || is.na(startYear) || is.na(endYear) || 
-     is.na(cycleLength)) return(time_keys_)
+  if(is.na(invyear) || is.na(start_year) || is.na(end_year) || 
+     is.na(cycle_length)) return(time_keys_)
   
-  #If startYear is greater than or equal to endYear, then set endYear to 
-  #startYear + 1 default cycle length
-  if(startYear >= endYear) endYear <- startYear + cycleLength
+  #If start_year is greater than or equal to end_year, then set end_year to 
+  #start_year + 1 default cycle length
+  if(start_year >= end_year) end_year <- start_year + cycle_length
   
-  #If invYear is greater than startYear, reset it to startYear
-  if(invYear > startYear) invYear <- startYear
+  #If invyear is greater than start_year, reset it to start_year
+  if(invyear > start_year) invyear <- start_year
   
   #Cast cycle length to integer
-  cycleLength <- as.integer(cycleLength)
+  cycle_length <- as.integer(cycle_length)
   
   #Determine initial number of cycles from inventory year to end year based
   #on a uniform cycle length.
-  numCycles <- ceiling((endYear - invYear)/cycleLength)
+  numCycles <- ceiling((end_year - invyear)/cycle_length)
   
   #Declare years vector. This vector will initially contain the inventory year,
   #start year, end year and all other cycle years based on a common cycle
@@ -592,56 +591,56 @@ time_keys <- function(invYear = NULL,
   years <- vector(mode = "numeric",
                   length = numCycles + 1)
   
-  #Initialize currentYear and pastStart. Set value of year[1] to inventory year.
-  currentYear <- invYear
-  pastStart = FALSE
-  years[1] <- currentYear
+  #Initialize current_year and past_start. Set value of year[1] to inventory year.
+  current_year <- invyear
+  past_start = FALSE
+  years[1] <- current_year
   
-  #Adjust pastStart if inventory year is equal to common start year
-  if(invYear == startYear) pastStart <- TRUE
+  #Adjust past_start if inventory year is equal to common start year
+  if(invyear == start_year) past_start <- TRUE
   
   #Populate years vector
   for(i in 2:length(years))
   {
     
     # #Store inventory year. If inventory year and common start year are the same
-    # #set pastStart to TRUE and proceed to next iteration
+    # #set past_start to TRUE and proceed to next iteration
     # if(i == 1)
     # {
-    #   years[i] <- currentYear
-    #   if(currentYear == startYear) pastStart <- TRUE
+    #   years[i] <- current_year
+    #   if(current_year == start_year) past_start <- TRUE
     #   next
     # }
     
     #Calculate following year assuming default cycle length
-    nextYear <- currentYear + cycleLength
+    next_year <- current_year + cycle_length
     
-    #If we have gone past the startYear after incrementing by cycleLength, set
-    #nextYear to the startYear. pastStart will also be set to TRUE
-    if(!pastStart && nextYear >= startYear)
+    #If we have gone past the start_year after incrementing by cycle_length, set
+    #next_year to the start_year. past_start will also be set to TRUE
+    if(!past_start && next_year >= start_year)
     {
-      nextYear <- startYear
-      pastStart <- TRUE
+      next_year <- start_year
+      past_start <- TRUE
     }
     
-    #If we have gone past the endYear after incrementing by cycleLength, set
-    #nextYear to the endYear.
-    if(nextYear >= endYear)
+    #If we have gone past the end_year after incrementing by cycle_length, set
+    #next_year to the end_year.
+    if(next_year >= end_year)
     {
-      nextYear <- endYear
+      next_year <- end_year
     }
     
-    #Store nextYear in years variable
-    years[i] <- nextYear
+    #Store next_year in years variable
+    years[i] <- next_year
     
-    #nextYear becomes currentYear for next loop iteration
-    currentYear <- nextYear
+    #next_year becomes current_year for next loop iteration
+    current_year <- next_year
   }
   
-  #if cycleAt has values, add them to years and then sort years.
-  if(length(cycleAt) > 0) 
+  #if cycle_at has values, add them to years and then sort years.
+  if(length(cycle_at) > 0) 
   {
-    years <- c(years, cycleAt)
+    years <- c(years, cycle_at)
     years <- sort(years)
   }
   
@@ -650,10 +649,10 @@ time_keys <- function(invYear = NULL,
   #Do debug if requested.
   if(debug)
   {
-    cat("Inventory year:", invYear, "\n")
-    cat("Start year:", startYear, "\n")
-    cat("End year:", endYear, "\n")
-    cat("Default cycle length:", cycleLength, "\n")
+    cat("Inventory year:", invyear, "\n")
+    cat("Start year:", start_year, "\n")
+    cat("End year:", end_year, "\n")
+    cat("Default cycle length:", cycle_length, "\n")
     cat("Years to consider:", "\n")
     for(year in years)
     {
@@ -663,12 +662,12 @@ time_keys <- function(invYear = NULL,
   
   #Create initial TIMEINT for all cycles with a common cycle length.
   time_keys_ <- paste(fvs_keyword(params = list("TIMEINT",
-                                             "0", 
-                                             as.character(cycleLength))),
-                    sep = "\n")
+                                                "0", 
+                                                as.character(cycle_length))),
+                      sep = "\n")
   
-  #Initialize cycleNum to keep track of number of cycles.
-  cycleNum <- 0
+  #Initialize cycle_num to keep track of number of cycles.
+  cycle_num <- 0
   
   #Loop across years and create additional TIMEINT keywords for cycles whose 
   #length in years differs from the default cycle length.
@@ -678,30 +677,30 @@ time_keys <- function(invYear = NULL,
     year1 <- years[i]
     year2 <- years[i + 1]
     
-    #If year1 less than invYear skip (should only occur if a cycleAt value less
+    #If year1 less than invyear skip (should only occur if a cycle_at value less
     #than inventory year was entered)
-    if(year1 < invYear) next
+    if(year1 < invyear) next
     
-    #If year2 greater than endYear skip (should only occur if a cycleAt value 
+    #If year2 greater than end_year skip (should only occur if a cycle_at value 
     #greater than inventory year was entered)
-    if(year2 > endYear) next
+    if(year2 > end_year) next
     
     #If year 1 equals year 2 skip
     if(year1 == year2) next
     
     #Calculate difference between years
-    dif <- (year2 - year1) %% cycleLength
+    dif <- (year2 - year1) %% cycle_length
     
     #If 40 cycles has been exceeded break out of loop
-    if(cycleNum >= 40) break
-    else cycleNum <- cycleNum + 1
+    if(cycle_num >= 40) break
+    else cycle_num <- cycle_num + 1
     
     #If dif != 0 then add another timeInt keyword to time_keys_
     if(dif != 0)
     {
       time_keys_ <- paste(time_keys_,
                         fvs_keyword(params = list("TIMEINT",
-                                                 as.character(cycleNum), 
+                                                 as.character(cycle_num), 
                                                  as.character(dif))),
                         sep = "\n")
     }
@@ -710,7 +709,7 @@ time_keys <- function(invYear = NULL,
   #Add NUMCYCLE keyword
   time_keys_ <- paste(time_keys_,
                     fvs_keyword(params = list("NUMCYCLE",
-                                             as.character(cycleNum))),
+                                             as.character(cycle_num))),
                     sep = "\n")
   
   return(time_keys_)
@@ -724,20 +723,20 @@ time_keys <- function(invYear = NULL,
 #'This function creates a set of keywords for reading in data from an input FVS
 #'database
 #
-#'@param dbIn:       
+#'@param dbin:       
 #'Name of FVS input database that includes file extension (.db or .sqlite).
 #
-#'@param standInit:   
+#'@param standinit:   
 #'Character string corresponding to name table where stand information will be 
-#'read from. Typically this would be "FVS_StandInit" or "FVS_PlotInit" but could
-#'"FVS_StandInit_Plot", "FVS_StandInit_Cond", etc.
+#'read from. Typically this would be "FVS_standinit" or "FVS_PlotInit" but could
+#'"FVS_standinit_Plot", "FVS_standinit_Cond", etc.
 #
-#'@param treeInit:    
+#'@param treeinit:    
 #'Character string corresponding to name table where tree information will be 
-#'read from. Typically this would be "FVS_TreeInit" but could 
-#'"FVS_TreeInit_Plot", "FVS_TreeInit_Cond", etc.
+#'read from. Typically this would be "FVS_treeinit" but could 
+#'"FVS_treeinit_Plot", "FVS_treeinit_Cond", etc.
 #
-#'@param standType:  
+#'@param stand_type:  
 #'Integer value that determine what stand ID will be used to read data from.
 #'
 #'0 = Stand_CN
@@ -746,55 +745,46 @@ time_keys <- function(invYear = NULL,
 #
 #'@return
 #'Character string of keywords with SQL instructions to read data in from
-#'FVS_StandInit and FVS_TreeInit tables.
+#'FVS_standinit and FVS_treeinit tables.
 ################################################################################
 
 #'@export
-dsnin_keys <- function(dbIn = 'FVS_Data.db',
-                       standType = 1,
-                       standInit = "FVS_StandInit",
-                       treeInit = "FVS_TreeInit")
+dsnin_keys <- function(dbin = 'FVS_Data.db',
+                       stand_type = 1,
+                       standinit = "FVS_StandInit",
+                       treeinit = "FVS_TreeInit")
 {
 
-  #Catch bad standType values
-  if(!standType %in% c(0, 1)) standType <- 1
+  #Catch bad stand_type values
+  if(!stand_type %in% c(0, 1)) stand_type <- 1
      
-  #Set the stand column to read data from
-  if(standType == 1) 
+  #If standinit contains "stand", assume we are dealing with a StandInit table
+  if(grepl(pattern = "stand", x = standinit, ignore.case = TRUE))
   {
-    standRead <- "WHERE Stand_ID = '%StandID%'"
+    if(stand_type == 1) stand_read <- "WHERE Stand_ID = '%StandID%'"
+    else stand_read <- "WHERE Stand_CN = '%Stand_CN%'"
   }
   
+  #Otherwise assume a PlotInit table
   else 
   {
-    standRead <- "WHERE Stand_CN = '%Stand_CN%'"
-  }
-  
-  #Change standRead if plot level table is being assumed
-  if(grepl(pattern = "plot", x = standInit, ignore.case = TRUE))
-  {
-    if(standType == 1) standRead <- gsub(pattern = "WHERE Stand_ID",
-                                         replacement = "WHERE StandPlot_ID",
-                                         x = standRead)
-    
-    else standRead <- gsub(pattern = "WHERE Stand_CN",
-                           replacement = "WHERE StandPlot_CN",
-                           x = standRead)
+    if(stand_type == 1) stand_read <- "WHERE StandPlot_ID = '%StandID%'"
+    else stand_read <- "WHERE StandPlot_CN = '%Stand_CN%'"
   }
   
   #Build the db input keywords
   dsnin_keys_ <- paste("DATABASE", 
                        "DSNIN",
-                       dbIn, 
+                       dbin, 
                        "STANDSQL",
                        "SELECT *",
-                       paste("FROM", standInit),
-                       standRead,
+                       paste("FROM", standinit),
+                       stand_read,
                        "ENDSQL",
                        "TREESQL", 
                        "SELECT *",
-                       paste("FROM", treeInit),
-                       standRead,
+                       paste("FROM", treeinit),
+                       stand_read,
                       "ENDSQL",
                       "END", 
                       sep = "\n")
@@ -808,7 +798,7 @@ dsnin_keys <- function(dbIn = 'FVS_Data.db',
 #'@description
 #'This function creates a set of keywords for setting an FVS output database.
 #
-#'@param dbOut: 
+#'@param dbout: 
 #'Name of FVS output database that includes file extension (.db or .sqlite). By
 #'default this argument is set to "FVS_Data.db".
 #
@@ -817,13 +807,13 @@ dsnin_keys <- function(dbIn = 'FVS_Data.db',
 ################################################################################
 
 #'@export
-dsnout_keys <- function(dbOut = 'FVSOut.db')
+dsnout_keys <- function(dbout = 'FVSOut.db')
   
 {
   #Build the db output keywords
   dsnout_keys <- paste("DATABASE", 
                        "DSNOUT",
-                       dbOut, 
+                       dbout, 
                        "END", 
                        sep = "\n")
   
@@ -844,7 +834,7 @@ dsnout_keys <- function(dbOut = 'FVSOut.db')
 ################################################################################
 
 #'@export
-delotab_keys <- function(delotab = c())
+delotab_keys <- function(delotab = NULL)
 {
   keys <- ""
   
@@ -855,7 +845,7 @@ delotab_keys <- function(delotab = c())
   for(delo in delotab)
   {
     #Skip if delotab is not a value from 1-4
-    if(delo < 1 || delo > 4) next
+    if(!delo %in% 1:4) next
     
     #Create DELOTAB keyword and append
     delokey <- fvs_keyword(list("DELOTAB", delo),

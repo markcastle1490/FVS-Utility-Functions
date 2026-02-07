@@ -5,24 +5,24 @@
 \title{dsnin_keys}
 \usage{
 dsnin_keys(
-  dbIn = "FVS_Data.db",
-  standType = 1,
-  standInit = "FVS_StandInit",
-  treeInit = "FVS_TreeInit"
+  dbin = "FVS_Data.db",
+  stand_type = 1,
+  standinit = "FVS_StandInit",
+  treeinit = "FVS_TreeInit"
 )
 }
 \arguments{
-\item{dbIn:}{Name of FVS input database that includes file extension (.db or .sqlite).}
+\item{dbin:}{Name of FVS input database that includes file extension (.db or .sqlite).}
 
-\item{standInit:}{Character string corresponding to name table where stand information will be
-read from. Typically this would be "FVS_StandInit" or "FVS_PlotInit" but could
-"FVS_StandInit_Plot", "FVS_StandInit_Cond", etc.}
+\item{standinit:}{Character string corresponding to name table where stand information will be
+read from. Typically this would be "FVS_standinit" or "FVS_PlotInit" but could
+"FVS_standinit_Plot", "FVS_standinit_Cond", etc.}
 
-\item{treeInit:}{Character string corresponding to name table where tree information will be
-read from. Typically this would be "FVS_TreeInit" but could
-"FVS_TreeInit_Plot", "FVS_TreeInit_Cond", etc.}
+\item{treeinit:}{Character string corresponding to name table where tree information will be
+read from. Typically this would be "FVS_treeinit" but could
+"FVS_treeinit_Plot", "FVS_treeinit_Cond", etc.}
 
-\item{standType:}{Integer value that determine what stand ID will be used to read data from.
+\item{stand_type:}{Integer value that determine what stand ID will be used to read data from.
 
 0 = Stand_CN
 
@@ -30,7 +30,7 @@ read from. Typically this would be "FVS_TreeInit" but could
 }
 \value{
 Character string of keywords with SQL instructions to read data in from
-FVS_StandInit and FVS_TreeInit tables.
+FVS_standinit and FVS_treeinit tables.
 }
 \description{
 This function creates a set of keywords for reading in data from an input FVS
