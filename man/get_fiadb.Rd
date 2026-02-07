@@ -5,10 +5,9 @@
 \title{get_fiadb}
 \usage{
 get_fiadb(
-  output,
+  output = NULL,
   url = "https://apps.fs.usda.gov/fia/datamart/Databases/",
   states = NULL,
-  allStates = FALSE,
   masterDB = FALSE
 )
 }
@@ -22,14 +21,11 @@ changed if FIA changes url to datamart.}
 \item{states:}{Vector of two-character state abbreviations. Valid state codes are listed
 below.
 
-"AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI",
-"ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI",
-"MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC",
-"ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT",
-"VT", "VA", "WA", "WV", "WI", "WY"}
-
-\item{allStates:}{Logical variable used to signify if all individual state sqlite databases
-should be downloaded. If TRUE, this will lead to very long processing time.}
+"AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
+"HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
+"MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
+"NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
+"SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"}
 
 \item{masterDB:}{Logical variable used to signify if master FIA database should be downloaded.
 If TRUE, this will lead to very long processing time.}

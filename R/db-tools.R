@@ -1,117 +1,144 @@
 ################################################################################
-#fvs_gaak
+#'fvs_gaak
+#'@name fvs_gaak
+#'@description
 #
-#This function creates a FVS_GroupAddFilesAndKeyword (GAAK) table with the
-#appropriate SQL statements for a variety of grouping codes.
+#'This function creates a FVS_GroupAddFilesAndKeyword (GAAK) table with the
+#'appropriate SQL statements for a variety of grouping codes.
 #
+#'@param dbIn:
+#'Character string corresponding to filepath or name of database to read from.
+#'File extension (.db, .sqlite) should be included for this value (e.g.
+#'FVS_Data.db).
+#'
+#'@param standType:
+#'Integer value that determine what stand ID will be used to read data from.
+#'
+#'0 = Stand_CN
+#'
+#'1 = Stand_ID
 #
-#dbName: Character string corresponding to name of database used in GAAK table.
-#        By default this value is set to FVS_Data. A .db extension will be
-#        appended to the value specified in dbName.
+#'@param gaakType:
+#'Variable to determine what grouping codes are included in GAAK table.
+#'
+#'1 = Standard FVS grouping codes (All_Stands, All_Plots)
+#'
+#'2 = FIA grouping codes (All_FIA_Conditions, All_FIA_Plots, All_FIA_Subplots)
+#'
+#'3 = Both standard FVS grouping codes and FIA grouping codes
 #
-#type:   Variable to determine what grouping codes are included in GAAK table.
-#        1 = Standard FVS grouping codes (All_Stands, All_Plots)
-#        2 = FIA grouping codes (All_FIA_Conditions, All_FIA_Plots,
-#            All_FIA_Subplots)
-#        3 = Both standard FVS grouping codes and FIA grouping codes
-#        Default value for type argument is 2.
-#
-#Return value
-#
-#Dataframe containing gaak table
+#'@return 
+#'Dataframe containing FVS GAAK table
 ################################################################################
 
-fvs_gaak<-function(dbName="FVS_Data", type = 2)
+fvs_gaak<-function(dbIn ="FVS_Data.db",
+                   standType = 1,
+                   gaakType = 2)
 {
-  #Capture invalid type argument values
-  if(type < 1 | type > 3) type = 2
-
+  #Capture invalid gaakType argument values
+  if(!gaakType %in% c(1, 2, 3)) gaakType = 2
+  
+  #Catch bad standType values
+  if(!standType %in% c(0, 1)) standType <- 1
+  
+  #Set the stand column to read data from
+  if(standType == 1) 
+  {
+    standRead <- "WHERE Stand_ID = '%StandID%'"
+  }
+  
+  else 
+  {
+    standRead <- "WHERE Stand_CN = '%Stand_CN%'"
+  }
+  
   #Create dataframe containing FVS_GroupAddfilesAndKeywords table
   gaak<-data.frame(GROUPS = c("All_Stands","All_Plots","All_FIA_Conditions",
                               "All_FIA_Plots", "All_FIA_Subplots"),
                    ADDFILES = c("","","","",""),
-                   FVSKEYWORDS = c(paste("Database", 
-                                         "DSNin",
-                                         paste0(dbName, ".db"),
-                                         "StandSQL",
+                   FVSKEYWORDS = c(paste("DATABASE", 
+                                         "DSNIN",
+                                         dbIn,
+                                         "STANDSQL",
                                          "SELECT *", 
-                                         "FROM  FVS_StandInit",
-                                         "WHERE Stand_ID = '%StandID%'",
-                                         "EndSQL",
-                                         "TreeSQL", 
+                                         "FROM FVS_StandInit",
+                                         standRead,
+                                         "ENDSQL",
+                                         "TREESQL", 
                                          "SELECT *",
                                          "FROM FVS_TreeInit",
-                                         "WHERE Stand_ID ='%StandID%'",
-                                         "EndSQL", 
+                                         standRead,
+                                         "ENDSQL", 
                                          "END", sep = "\n"),
-                                   paste("Database", 
-                                         "DSNin",
-                                         paste0(dbName, ".db"),
-                                         "StandSQL",
+                                   paste("DATABASE", 
+                                         "DSNIN",
+                                         dbIn,
+                                         "STANDSQL",
                                          "SELECT *",
-                                         "FROM  FVS_PlotInit",
-                                         "WHERE StandPlot_ID = '%StandID%'",
-                                         "EndSQL",
-                                         "TreeSQL",
+                                         "FROM FVS_PlotInit",
+                                         standRead,
+                                         "ENDSQL",
+                                         "TREESQL",
                                          "SELECT *",
                                          "FROM FVS_TreeInit",
-                                         "WHERE StandPlot_ID ='%StandID%'",
-                                         "EndSQL",
+                                         standRead,
+                                         "ENDSQL",
                                          "END", sep = "\n"),
-                                   paste("Database", 
-                                         "DSNin",
-                                         paste0(dbName, ".db"), 
-                                         "StandSQL",
+                                   paste("DATABASE", 
+                                         "DSNIN",
+                                         dbIn, 
+                                         "STANDSQL",
                                          "SELECT *", 
-                                         "FROM  FVS_StandInit_Cond",
-                                         "WHERE Stand_CN = '%Stand_CN%'",
-                                         "EndSQL","TreeSQL",
+                                         "FROM FVS_StandInit_Cond",
+                                         standRead,
+                                         "ENDSQL",
+                                         "TREESQL",
                                          "SELECT *",
                                          "FROM FVS_TreeInit_Cond",
-                                         "WHERE Stand_CN ='%Stand_CN%'",
-                                         "EndSQL", 
+                                         standRead,
+                                         "ENDSQL",
                                          "END", sep = "\n"),
-                                   paste("Database", 
-                                         "DSNin",
-                                         paste0(dbName, ".db"),
-                                         "StandSQL", 
+                                   paste("DATABASE", 
+                                         "DSNIN",
+                                         dbIn,
+                                         "STANDSQL", 
                                          "SELECT *",
-                                         "FROM  FVS_StandInit_Plot",
-                                         "WHERE Stand_CN = '%Stand_CN%'",
-                                         "EndSQL",
-                                         "TreeSQL",
+                                         "FROM FVS_StandInit_Plot",
+                                         standRead,
+                                         "ENDSQL",
+                                         "TREESQL",
                                          "SELECT *",
                                          "FROM FVS_TreeInit_Plot",
-                                         "WHERE Stand_CN ='%Stand_CN%'",
-                                         "EndSQL", 
+                                         standRead,
+                                         "ENDSQL", 
                                          "END", sep = "\n"),
-                                   paste("Database", 
-                                         "DSNin",
-                                         paste0(dbName, ".db"),
-                                         "StandSQL",
+                                   paste("DATABASE", 
+                                         "DSNIN",
+                                         dbIn,
+                                         "STANDSQL",
                                          "SELECT *", 
-                                         "FROM  FVS_PlotInit_Plot",
-                                         "WHERE StandPlot_CN = '%Stand_CN%'",
-                                         "EndSQL",
-                                         "TreeSQL",
+                                         "FROM FVS_PlotInit_Plot",
+                                         standRead,
+                                         "ENDSQL",
+                                         "TREESQL",
                                          "SELECT *",
                                          "FROM FVS_TreeInit_Plot",
-                                         "WHERE StandPlot_CN ='%Stand_CN%'",
-                                         "EndSQL", 
+                                         standRead,
+                                         "ENDSQL", 
                                          "END", sep = "\n")))
-
+  
   #GAAK with just FVS grouping codes
-  if(type == 1)
+  if(gaakType == 1)
   {
-    gaak<-gaak[1:2,]
+    gaak <- gaak[1:2,]
   }
-
+  
   #GAAK with just FIA grouping codes
-  if(type == 2)
+  if(gaakType == 2)
   {
-    gaak<-gaak[3:5,]
+    gaak <- gaak[3:5,]
   }
-
+  
   return(gaak)
 }
 
@@ -631,23 +658,6 @@ db_add_fields <- function(conn,
 #'argument is left as NULL, then function will use all tables from the first
 #'database specified in the dbIn argument.
 #
-#'@param buildGaak:   
-#'Logical variable used to determine if FVS_GROUPADDFILESANDKEYWORDS will be 
-#'written to dbOut. If TRUE, this table will be written to dbOut.
-#
-#'@param gaakType:    
-#'Integer value from 1 - 3 used to determine what kind of GAAK table will be 
-#'written to dbOut if buildGaak is TRUE.
-#'
-#'1 = GAAK table with All_Stands and All_Plots grouping codes.
-#'
-#'2 = GAAK table with All_FIA_Conditions, All_FIA_Plots, All_FIA_Subplots 
-#'    grouping codes.
-#'      
-#'3 = GAAK table with All_Stands, All_Plots, All_FIA_Conditions, 
-#'    All_FIA_Plots, All_FIA_Subplots grouping codes. For more information 
-#'    refer to fvs_gaak function.
-#
 #'@param deleteInput: 
 #'Logical variable used to determine if values in dbIn should be deleted after
 #'db_compile has been called. The primary purpose of this argument is to 
@@ -660,17 +670,15 @@ db_add_fields <- function(conn,
 #'fields in each table written to dbOut will be capitalized.
 #'
 #'@return 
-#'Integer value of 0 invisibly returned.
+#'None
 ################################################################################
 
 #'@export
 db_compile <- function(dbIn = NULL,
-                      dbOut = NULL,
-                      dbTables = NULL,
-                      buildGaak = FALSE,
-                      gaakType = 2,
-                      deleteInput = FALSE,
-                      keepCasing = TRUE)
+                       dbOut = NULL,
+                       dbTables = NULL,
+                       deleteInput = FALSE,
+                       keepCasing = TRUE)
 {
   
   #Test if no values have been specified for dbIn
@@ -681,9 +689,6 @@ db_compile <- function(dbIn = NULL,
   
   #Test if dbTables is null and return with error message.
   #if(is.null(dbTables)) stop(paste("No table names were provided for dbTables."))
-    
-  #Catch erroneous gaakType values
-  if(gaakType < 1 | gaakType > 3) gaakType = 2
   
   #Replace \\ with / in dbIn and dbOut
   dbIn <- gsub("\\\\", "/", dbIn)
@@ -791,23 +796,6 @@ db_compile <- function(dbIn = NULL,
     cat("Finished processing db:", db, "\n", "\n")
   }
   
-  #Determine if GAAK table should be written to dbOut.
-  if(buildGaak)
-  {
-    conOut <- RSQLite::dbConnect(RSQLite::SQLite(),
-                                 dbOut)
-    
-    cat("Writing fvs_gaak table to", dbOut, "\n", "\n")
-    
-    RSQLite::dbWriteTable(conn = conOut,
-                          name = "FVS_GROUPADDFILESANDKEYWORDS",
-                          value = fvs_gaak(type = gaakType),
-                          overwrite = T)
-    
-    #Disconnect from conOut
-    RSQLite::dbDisconnect(conOut)
-  }
-  
   #If deleteInput is TRUE, delete files in dbIN argument.
   if(deleteInput)
   {
@@ -818,7 +806,7 @@ db_compile <- function(dbIn = NULL,
                 recur = FALSE)
   }
   
-  invisible(0)
+  invisible()
 }
 
 ################################################################################

@@ -8,8 +8,6 @@ db_compile(
   dbIn = NULL,
   dbOut = NULL,
   dbTables = NULL,
-  buildGaak = FALSE,
-  gaakType = 2,
   deleteInput = FALSE,
   keepCasing = TRUE
 )
@@ -35,21 +33,6 @@ Examples of valid dbOut formats:
 argument is left as NULL, then function will use all tables from the first
 database specified in the dbIn argument.}
 
-\item{buildGaak:}{Logical variable used to determine if FVS_GROUPADDFILESANDKEYWORDS will be
-written to dbOut. If TRUE, this table will be written to dbOut.}
-
-\item{gaakType:}{Integer value from 1 - 3 used to determine what kind of GAAK table will be
-written to dbOut if buildGaak is TRUE.
-
-1 = GAAK table with All_Stands and All_Plots grouping codes.
-
-2 = GAAK table with All_FIA_Conditions, All_FIA_Plots, All_FIA_Subplots
-grouping codes.
-
-3 = GAAK table with All_Stands, All_Plots, All_FIA_Conditions,
-All_FIA_Plots, All_FIA_Subplots grouping codes. For more information
-refer to fvs_gaak function.}
-
 \item{deleteInput:}{Logical variable used to determine if values in dbIn should be deleted after
 db_compile has been called. The primary purpose of this argument is to
 conserve hard disk space for users who do not want to retain the input
@@ -60,7 +43,7 @@ dbIn should retain original casing. When FALSE, the database table names and
 fields in each table written to dbOut will be capitalized.}
 }
 \value{
-Integer value of 0 invisibly returned.
+None
 }
 \description{
 This function is used to combine the contents of multiple sqlite databases

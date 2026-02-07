@@ -751,9 +751,9 @@ time_keys <- function(invYear = NULL,
 
 #'@export
 dsnin_keys <- function(dbIn = 'FVS_Data.db',
-                     standType = 1,
-                     standInit = "FVS_StandInit",
-                     treeInit = "FVS_TreeInit")
+                       standType = 1,
+                       standInit = "FVS_StandInit",
+                       treeInit = "FVS_TreeInit")
 {
 
   #Catch bad standType values
@@ -762,32 +762,44 @@ dsnin_keys <- function(dbIn = 'FVS_Data.db',
   #Set the stand column to read data from
   if(standType == 1) 
   {
-    standRead <- "Stand_ID = '%StandID%'"
+    standRead <- "WHERE Stand_ID = '%StandID%'"
   }
   
   else 
   {
-    standRead <- "Stand_CN = '%Stand_CN%'"
+    standRead <- "WHERE Stand_CN = '%Stand_CN%'"
+  }
+  
+  #Change standRead if plot level table is being assumed
+  if(grepl(pattern = "plot", x = standInit, ignore.case = TRUE))
+  {
+    if(standType == 1) standRead <- gsub(pattern = "WHERE Stand_ID",
+                                         replacement = "WHERE StandPlot_ID",
+                                         x = standRead)
+    
+    else standRead <- gsub(pattern = "WHERE Stand_CN",
+                           replacement = "WHERE StandPlot_CN",
+                           x = standRead)
   }
   
   #Build the db input keywords
-  dsnin_keys <- paste("Database", 
-                      "DSNin",
-                      dbIn, 
-                      "StandSQL",
-                      "SELECT *",
-                      paste("FROM", standInit),
-                      paste("WHERE", standRead),
-                      "EndSQL",
-                      "TreeSQL", 
-                      "SELECT *",
-                      paste("FROM", treeInit),
-                      paste("WHERE", standRead),
-                     "EndSQL",
-                     "END", 
-                     sep = "\n")
+  dsnin_keys_ <- paste("DATABASE", 
+                       "DSNIN",
+                       dbIn, 
+                       "STANDSQL",
+                       "SELECT *",
+                       paste("FROM", standInit),
+                       standRead,
+                       "ENDSQL",
+                       "TREESQL", 
+                       "SELECT *",
+                       paste("FROM", treeInit),
+                       standRead,
+                      "ENDSQL",
+                      "END", 
+                      sep = "\n")
   
-  return(dsnin_keys)
+  return(dsnin_keys_)
 }
 
 ################################################################################
@@ -809,8 +821,8 @@ dsnout_keys <- function(dbOut = 'FVSOut.db')
   
 {
   #Build the db output keywords
-  dsnout_keys <- paste("Database", 
-                       "DSNOut",
+  dsnout_keys <- paste("DATABASE", 
+                       "DSNOUT",
                        dbOut, 
                        "END", 
                        sep = "\n")
