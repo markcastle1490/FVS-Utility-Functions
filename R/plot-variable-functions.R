@@ -61,7 +61,7 @@ reineke_slope = 1.605
 #' attribute can be calculated for user defined size ranges and for select 
 #' species.
 #' 
-#' @param dbh
+#' @param dbh:
 #' Numeric vector containing DBH values.
 #'
 #' @param expf: 
@@ -72,13 +72,13 @@ reineke_slope = 1.605
 #' provided, then attribute will be calculated between the values specified in
 #' htmin and htmax.
 #'
-#' @param species
+#' @param species:
 #' Optional vector containing species codes. If species are provided then
 #' attribute will be calculated for species entered in select_species argument.
 #' Attribute will be calculated for all species if select_species is left as 
 #' NULL.
 #' 
-#' @param dbhmin
+#' @param dbhmin:
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
 #' This value is inclusive (>=).
 #'
@@ -86,12 +86,12 @@ reineke_slope = 1.605
 #' Numeric value corresponding to upper DBH bound to calculate attribute in. 
 #' This value is exclusive (<).
 #' 
-#' @param hthmin
+#' @param htmin:
 #' Numeric value corresponding to lower tree height bound to calculate attribute
 #' in. This value is inclusive (>=). This argument is only used if ht argument 
 #' is specified.
 #
-#' @param hthmax: 
+#' @param htmax: 
 #' Numeric value corresponding to upper tree height bound to calculate attribute
 #' in. This value is exclusive (<). This argument is only used if ht argument 
 #' is specified.
@@ -153,7 +153,7 @@ ba = function(dbh = NULL,
 #' @param expf: 
 #' Vector of numeric vector containing expansion factors.
 #' 
-#' @param dbh
+#' @param dbh:
 #' Optional numeric vector containing DBH values. If DBH values are provided, 
 #' then attribute will be calculated between the values specified in dbhmin and 
 #' dbhmax.
@@ -169,29 +169,25 @@ ba = function(dbh = NULL,
 #' Attribute will be calculated for all species if select_species is left as 
 #' NULL.
 #
-#' @param dbhmin
+#' @param dbhmin:
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
 #' This value is inclusive (>=).
 #
 #' @param dbhmax: 
 #'Numeric value corresponding to upper DBH bound to calculate attribute in. This
 #'value is exclusive (<).
-#
-#' @param inlcudeHT
-#' Logical variable where if TRUE, attribute can be calculated within total 
-#' tree height bounds (htmin and htmax arguments).
 #' 
-#' @param hthmin
+#' @param htmin:
 #' Numeric value corresponding to lower tree height bound to calculate attribute
 #' in. This value is inclusive (>=). This argument is only used if ht argument 
 #' is specified.
 #
-#' @param hthmax: 
+#' @param htmax: 
 #' Numeric value corresponding to upper tree height bound to calculate attribute
 #' in. This value is exclusive (<). This argument is only used if ht argument 
 #' is specified.
 #' 
-#' @param select_spcies
+#' @param select_spcies:
 #' Optional vector containing species codes. This variable will be used to
 #' select which species get included in calculation of attribute. If left as
 #' NULL, attribute will be calculated using observations from across all 
@@ -246,7 +242,7 @@ tpa = function(expf = NULL,
 #' DBH and expansion factors. This attribute can be calculated for user
 #' defined size ranges and for select species.
 #
-#' @param dbh
+#' @param dbh:
 #' Numeric vector containing DBH values.
 #
 #' @param expf: 
@@ -263,7 +259,7 @@ tpa = function(expf = NULL,
 #' Attribute will be calculated for all species if select_species is left as 
 #' NULL.
 #' 
-#' @param dbhmin
+#' @param dbhmin:
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
 #' This value is inclusive (>=).
 #
@@ -271,17 +267,17 @@ tpa = function(expf = NULL,
 #' Numeric value corresponding to upper DBH bound to calculate attribute in. 
 #' This value is exclusive (<).
 #' 
-#' @param hthmin
+#' @param htmin:
 #' Numeric value corresponding to lower tree height bound to calculate attribute
 #' in. This value is inclusive (>=). This argument is only used if ht argument 
 #' is specified.
 #
-#' @param hthmax: 
+#' @param htmax: 
 #' Numeric value corresponding to upper tree height bound to calculate attribute
 #' in. This value is exclusive (<). This argument is only used if ht argument 
 #' is specified.
 #' 
-#' @param select_species
+#' @param select_species:
 #' Optional vector containing species codes. This variable will be used to
 #' select which species get included in calculation of attribute. If left as
 #' NULL, attribute will be calculated using observations from across all 
@@ -338,7 +334,7 @@ qmd = function(dbh = NULL,
 #' This function calculates Reineke SDI using input vectors containing DBH and
 #' expansion factor values.
 #
-#' @param dbh
+#' @param dbh:
 #' Numeric vector containing DBH values.
 #
 #' @param expf: 
@@ -374,7 +370,7 @@ rsdi = function(dbh = NULL,
 #' expansion factor values. This attribute can be calculated for user defined 
 #' size ranges and for select species.
 #
-#' @param dbh
+#' @param dbh:
 #' Numeric vector containing DBH values.
 #
 #' @param expf: 
@@ -391,7 +387,7 @@ rsdi = function(dbh = NULL,
 #' Attribute will be calculated for all species if select_species is left as 
 #' NULL.
 #' 
-#' @param dbhmin
+#' @param dbhmin:
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. This
 #' value is inclusive (>=).
 #
@@ -399,17 +395,17 @@ rsdi = function(dbh = NULL,
 #' Numeric value corresponding to upper DBH bound to calculate attribute in. This
 #' value is exclusive (<).
 #' 
-#' @param hthmin
+#' @param htmin:
 #' Numeric value corresponding to lower tree height bound to calculate attribute
 #' in. This value is inclusive (>=). This argument is only used if ht argument 
 #' is specified.
 #
-#' @param hthmax: 
+#' @param htmax: 
 #' Numeric value corresponding to upper tree height bound to calculate attribute
 #' in. This value is exclusive (<). This argument is only used if ht argument 
 #' is specified.
 #' 
-#' @param select_species
+#' @param select_species:
 #' Optional vector containing species codes. This variable will be used to
 #' select which species get included in calculation of attribute.
 #' 
@@ -462,13 +458,13 @@ zsdi = function(dbh = NULL,
 #' attribute can be calculated for user defined size ranges and for select 
 #' species.
 #' 
-#' @param crwidth
+#' @param crwidth:
 #' Numeric vector containing crown width (diameter) values.
 #
 #' @param expf: 
 #' Numeric vector containing expansion factors.
 #' 
-#' @param dbh
+#' @param dbh:
 #' Optional numeric vector containing DBH values. If DBH values are provided, 
 #' then attribute will be calculated between the values specified in dbhmin and 
 #' dbhmax.
@@ -484,25 +480,21 @@ zsdi = function(dbh = NULL,
 #' Attribute will be calculated for all species if select_species is left as 
 #' NULL.
 #' 
-#' @param dbhmin
+#' @param dbhmin:
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. This
 #' value is inclusive (>=).
 #' 
-#' @param inlcudeHT
-#' Logical variable where if TRUE, attribute can be calculated within total 
-#' tree height bounds (htmin and htmax arguments).
-#' 
-#' @param hthmin
+#' @param htmin:
 #' Numeric value corresponding to lower tree height bound to calculate attribute
 #' in. This value is inclusive (>=). This argument is only used if ht argument 
 #' is specified.
 #
-#' @param hthmax: 
+#' @param htmax: 
 #' Numeric value corresponding to upper tree height bound to calculate attribute
 #' in. This value is exclusive (<). This argument is only used if ht argument 
 #' is specified.
 #' 
-#' @param select_species
+#' @param select_species:
 #' Optional vector containing species codes. This variable will be used to
 #' select which species get included in calculation of attribute.
 #' 
@@ -672,7 +664,7 @@ bal = function(dbh = NULL,
 #' Attribute will be calculated for all species if select_species is left as 
 #' NULL.
 #
-#' @param dbhmin
+#' @param dbhmin:
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
 #' This value is inclusive (>=).
 #
@@ -680,17 +672,17 @@ bal = function(dbh = NULL,
 #' Numeric value corresponding to upper DBH bound to calculate attribute in. 
 #' This value is exclusive (<).
 #' 
-#' @param hthmin
+#' @param htmin:
 #' Numeric value corresponding to lower tree height bound to calculate attribute
 #' in. This value is inclusive (>=). This argument is only used if ht argument 
 #' is specified.
 #
-#' @param hthmax: 
+#' @param htmax: 
 #' Numeric value corresponding to upper tree height bound to calculate attribute
 #' in. This value is exclusive (<). This argument is only used if ht argument 
 #' is specified.
 #' 
-#' @param select_species
+#' @param select_species:
 #' Optional vector containing species codes. This variable will be used to
 #' select which species get included in calculation of attribute. This argument
 #' will only be used if values are provided for species. d
@@ -764,14 +756,14 @@ rsdi_stage = function(dbh = NULL,
 #'@param ht:     
 #'Numeric vector of tree heights.
 #
-#'@param topTPA:
+#'@param top_tpa:
 #'Amount of TPA to include in top height calculation. Top 40, trees, top 100, 
 #'etc.
 #
-#'@param topPer:
+#'@param top_per:
 #'Percentage of trees to include in the top height calculation. Largest 20% of 
 #'trees, largest 40% of trees etc. If this value is not null then it will 
-#'take precedence over the value in topTPA argument. 
+#'take precedence over the value in top_tpa argument. 
 #
 #'@return 
 #'Top height value.
@@ -781,18 +773,18 @@ rsdi_stage = function(dbh = NULL,
 top_ht = function(dbh = NULL,
                   expf = NULL,
                   ht = NULL,
-                  topTPA = 40,
-                  topPer = NULL)
+                  top_tpa = 40,
+                  top_per = NULL)
 {
   #Initialize top_ht_
   top_ht_ = 0
   
-  #Validate topTPA
-  if(is.null(topTPA) || topTPA < 0) topTPA = 40
+  #Validate top_tpa
+  if(is.null(top_tpa) || top_tpa < 0) top_tpa = 40
   
-  #Validate topPer. If topPer is not null but has an invalid value, set it to 
+  #Validate top_per. If top_per is not null but has an invalid value, set it to 
   #20%.
-  if(!is.null(topPer) && (topPer < 0 || topPer > 100)) topPer = 20
+  if(!is.null(top_per) && (top_per < 0 || top_per > 100)) top_per = 20
   
   #Calculate TPA for the entire stand
   tpa_ = tpa(dbh = dbh, expf = expf)
@@ -801,11 +793,11 @@ top_ht = function(dbh = NULL,
   if(tpa_ <= 0) return(top_ht_)
   
   #Determine amount TPA value that will be included in top height calculation
-  top = topTPA
+  top = top_tpa
   if(top > tpa_) top = tpa_
-  if(!is.null(topPer))
+  if(!is.null(top_per))
   {
-    top = tpa_ * (topPer/100)
+    top = tpa_ * (top_per/100)
   }
   
   #If top >= tpa_, calculate top height for all trees
@@ -856,15 +848,15 @@ top_ht = function(dbh = NULL,
 #' @param expf:     
 #' Numeric vector containing expansion factors values.
 #'
-#' @param topTPA:
+#' @param top_tpa:
 #' Amount of TPA to include in top QMD calculation. Largest 40 trees, Largest 
 #' 100, etc.
 #
-#' @param topPer:
+#' @param top_per:
 #' Percentage of trees to include in the top QMD calculation. If this value is
-#' not null then it will supersede the value in topTPA argument. 
+#' not null then it will supersede the value in top_tpa argument. 
 #'
-#' @param diaType:
+#' @param dia_type:
 #' Integer value used to specify what type of diameter should be calculated.
 #' 1 = QMD
 #' 2 = average diameter weighted by TPA
@@ -876,25 +868,25 @@ top_ht = function(dbh = NULL,
 #'@export
 top_dia = function(dbh = NULL,
                   expf = NULL,
-                  topTPA = 40,
-                  topPer = NULL,
-                  diaType = 1)
+                  top_tpa = 40,
+                  top_per = NULL,
+                  dia_type = 1)
 {
   #Initialize top_dia_
   top_dia_ = 0
   
-  #Validate topTPA
-  if(is.null(topTPA) || topTPA < 0) topTPA = 40
+  #Validate top_tpa
+  if(is.null(top_tpa) || top_tpa < 0) top_tpa = 40
   
-  #Validate topPer. If topPer is not null but has an invalid value, set it to 
+  #Validate top_per. If top_per is not null but has an invalid value, set it to 
   #0.
-  if(!is.null(topPer)) 
+  if(!is.null(top_per)) 
   {
-    if(topPer < 0 || topPer > 100) topPer = 20
+    if(top_per < 0 || top_per > 100) top_per = 20
   }
   
-  #Validate diaType
-  if(!diaType %in% c(1, 2)) diaType = 1
+  #Validate dia_type
+  if(!dia_type %in% c(1, 2)) dia_type = 1
   
   #Calculate TPA for the entire stand
   tpa_ = tpa(dbh = dbh, expf = expf)
@@ -903,15 +895,15 @@ top_dia = function(dbh = NULL,
   if(tpa_ <= 0) return(top_dia_)
   
   #Determine amount TPA value that will be included in top height calculation
-  top = topTPA
+  top = top_tpa
   if(top > tpa_) top = tpa_
-  if(!is.null(topPer))top = tpa_ * (topPer/100)
+  if(!is.null(top_per))top = tpa_ * (top_per/100)
 
   #If top >= tpa_, calculate top diameter for all trees
   if(top >= tpa_)
   {
     #QMD
-    if(diaType == 1)
+    if(dia_type == 1)
     {
       top_dia_ = qmd(dbh = dbh, expf = expf)
     }
@@ -940,7 +932,7 @@ top_dia = function(dbh = NULL,
     tpa_sum = tpa_sum - tpa_dif
     
     #QMD
-    if(diaType == 1) {
+    if(dia_type == 1) {
       dbh_sum = sum((dbh^2*expf)[dbh_order][1:top_exceeded-1], na.rm = TRUE) + 
       (dbh^2)[dbh_order][top_exceeded] * (expf[dbh_order][top_exceeded] - 
                                             tpa_dif)
@@ -971,7 +963,7 @@ top_dia = function(dbh = NULL,
 #' can be a arithmetic average or weighted average. This average can be 
 #' calculated within custom size ranges and for select species.
 #'
-#' @param attr
+#' @param attr:
 #' Numeric vector containing numeric attribute
 #'
 #' @param weight:     
@@ -1001,7 +993,7 @@ top_dia = function(dbh = NULL,
 #' Attribute will be calculated for all species if select_species is left as 
 #' NULL.
 #
-#' @param dbhmin
+#' @param dbhmin:
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
 #' This value is inclusive (>=).
 #
@@ -1009,17 +1001,17 @@ top_dia = function(dbh = NULL,
 #' Numeric value corresponding to upper DBH bound to calculate attribute in. 
 #' This value is exclusive (<).
 #' 
-#' @param hthmin
+#' @param htmin:
 #' Numeric value corresponding to lower tree height bound to calculate attribute
 #' in. This value is inclusive (>=). This argument is only used if ht argument 
 #' is specified.
 #
-#' @param hthmax: 
+#' @param htmax: 
 #' Numeric value corresponding to upper tree height bound to calculate attribute
 #' in. This value is exclusive (<). This argument is only used if ht argument 
 #' is specified.
 #' 
-#' @param select_spcies
+#' @param select_species:
 #' Optional vector containing species codes. This variable will be used to
 #' select which species get included in calculation of attribute. This argument
 #' will only be used if values are provided for species. 
@@ -1095,13 +1087,13 @@ avg_attr = function(attr = NULL,
 #' biomass, carbon, etc.This attribute can be calculated for user defined size 
 #' ranges and for select species.
 #' 
-#' @param attr
+#' @param attr:
 #' Numeric vector containing numeric attribute
 #
 #' @param expf: 
 #' Numeric vector containing expansion factors.
 #' 
-#' @param dbh
+#' @param dbh:
 #' Optional numeric vector containing DBH values. If DBH values are provided, 
 #' then attribute will be calculated between the values specified in dbhmin and 
 #' dbhmax.
@@ -1117,7 +1109,7 @@ avg_attr = function(attr = NULL,
 #' Attribute will be calculated for all species if select_species is left as 
 #' NULL.
 #
-#' @param dbhmin
+#' @param dbhmin:
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
 #' This value is inclusive (>=).
 #
@@ -1125,17 +1117,17 @@ avg_attr = function(attr = NULL,
 #' Numeric value corresponding to upper DBH bound to calculate attribute in. This
 #' value is exclusive (<).
 #' 
-#' @param hthmin
+#' @param htmin:
 #' Numeric value corresponding to lower tree height bound to calculate attribute
 #' in. This value is inclusive (>=). This argument is only used if ht argument 
 #' is specified.
 #
-#' @param hthmax: 
+#' @param htmax: 
 #' Numeric value corresponding to upper tree height bound to calculate attribute
 #' in. This value is exclusive (<). This argument is only used if ht argument 
 #' is specified.
 #' 
-#' @param select_species
+#' @param select_species:
 #' Optional vector containing species codes. This variable will be used to
 #' select which species get included in calculation of attribute.
 #'
@@ -1187,10 +1179,10 @@ expand_attr = function(attr = NULL,
 #' This function determines the median value for an input attribute. This can be
 #' calculated for custom size ranges and for select species.
 #' 
-#' @param attr
+#' @param attr:
 #' Numeric vector containing numeric attribute
 #' 
-#' @param dbh
+#' @param dbh:
 #' Optional numeric vector containing DBH values. If DBH values are provided, 
 #' then attribute will be calculated between the values specified in dbhmin and 
 #' dbhmax.
@@ -1206,7 +1198,7 @@ expand_attr = function(attr = NULL,
 #' Attribute will be calculated for all species if select_species is left as 
 #' NULL.
 #
-#' @param dbhmin
+#' @param dbhmin:
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
 #' This value is inclusive (>=).
 #
@@ -1214,17 +1206,17 @@ expand_attr = function(attr = NULL,
 #' Numeric value corresponding to upper DBH bound to calculate attribute in. This
 #' value is exclusive (<).
 #' 
-#' @param hthmin
+#' @param htmin:
 #' Numeric value corresponding to lower tree height bound to calculate attribute
 #' in. This value is inclusive (>=). This argument is only used if ht argument 
 #' is specified.
 #
-#' @param hthmax: 
+#' @param htmax: 
 #' Numeric value corresponding to upper tree height bound to calculate attribute
 #' in. This value is exclusive (<). This argument is only used if ht argument 
 #' is specified.
 #' 
-#' @param select_species
+#' @param select_species:
 #' Optional vector containing species codes. This variable will be used to
 #' select which species get included in calculation of attribute.
 #'
@@ -1278,10 +1270,10 @@ median_attr = function(attr = NULL,
 #' This function determines the minimum value for an input attribute. This can 
 #' be calculated for custom size ranges and for select species.
 #' 
-#' @param attr
+#' @param attr:
 #' Numeric vector containing numeric attribute
 #' 
-#' @param dbh
+#' @param dbh:
 #' Optional numeric vector containing DBH values. If DBH values are provided, 
 #' then attribute will be calculated between the values specified in dbhmin and 
 #' dbhmax.
@@ -1297,7 +1289,7 @@ median_attr = function(attr = NULL,
 #' Attribute will be calculated for all species if select_species is left as 
 #' NULL.
 #
-#' @param dbhmin
+#' @param dbhmin:
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
 #' This value is inclusive (>=).
 #
@@ -1305,17 +1297,17 @@ median_attr = function(attr = NULL,
 #' Numeric value corresponding to upper DBH bound to calculate attribute in. This
 #' value is exclusive (<).
 #' 
-#' @param hthmin
+#' @param htmin:
 #' Numeric value corresponding to lower tree height bound to calculate attribute
 #' in. This value is inclusive (>=). This argument is only used if ht argument 
 #' is specified.
 #
-#' @param hthmax: 
+#' @param htmax: 
 #' Numeric value corresponding to upper tree height bound to calculate attribute
 #' in. This value is exclusive (<). This argument is only used if ht argument 
 #' is specified.
 #' 
-#' @param select_species
+#' @param select_species:
 #' Optional vector containing species codes. This variable will be used to
 #' select which species get included in calculation of attribute.
 #'
@@ -1369,10 +1361,10 @@ min_attr = function(attr = NULL,
 #' This function determines the maximum value for an input attribute. This can 
 #' be calculated for custom size ranges and for select species.
 #' 
-#' @param attr
+#' @param attr:
 #' Numeric vector containing numeric attribute
 #' 
-#' @param dbh
+#' @param dbh:
 #' Optional numeric vector containing DBH values. If DBH values are provided, 
 #' then attribute will be calculated between the values specified in dbhmin and 
 #' dbhmax.
@@ -1388,7 +1380,7 @@ min_attr = function(attr = NULL,
 #' Attribute will be calculated for all species if select_species is left as 
 #' NULL.
 #
-#' @param dbhmin
+#' @param dbhmin:
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
 #' This value is inclusive (>=).
 #
@@ -1396,17 +1388,17 @@ min_attr = function(attr = NULL,
 #' Numeric value corresponding to upper DBH bound to calculate attribute in. This
 #' value is exclusive (<).
 #' 
-#' @param hthmin
+#' @param htmin:
 #' Numeric value corresponding to lower tree height bound to calculate attribute
 #' in. This value is inclusive (>=). This argument is only used if ht argument 
 #' is specified.
 #
-#' @param hthmax: 
+#' @param htmax: 
 #' Numeric value corresponding to upper tree height bound to calculate attribute
 #' in. This value is exclusive (<). This argument is only used if ht argument 
 #' is specified.
 #' 
-#' @param select_species
+#' @param select_species:
 #' Optional vector containing species codes. This variable will be used to
 #' select which species get included in calculation of attribute.
 #'
@@ -1460,10 +1452,10 @@ max_attr = function(attr = NULL,
 #' This function determines the standard deviation for an input attribute. This
 #' can be calculated for custom size ranges and for select species.
 #' 
-#' @param attr
+#' @param attr:
 #' Numeric vector containing numeric attribute
 #' 
-#' @param dbh
+#' @param dbh:
 #' Optional numeric vector containing DBH values. If DBH values are provided, 
 #' then attribute will be calculated between the values specified in dbhmin and 
 #' dbhmax.
@@ -1479,7 +1471,7 @@ max_attr = function(attr = NULL,
 #' Attribute will be calculated for all species if select_species is left as 
 #' NULL.
 #
-#' @param dbhmin
+#' @param dbhmin:
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
 #' This value is inclusive (>=).
 #
@@ -1487,17 +1479,17 @@ max_attr = function(attr = NULL,
 #' Numeric value corresponding to upper DBH bound to calculate attribute in. This
 #' value is exclusive (<).
 #' 
-#' @param hthmin
+#' @param htmin:
 #' Numeric value corresponding to lower tree height bound to calculate attribute
 #' in. This value is inclusive (>=). This argument is only used if ht argument 
 #' is specified.
 #
-#' @param hthmax: 
+#' @param htmax: 
 #' Numeric value corresponding to upper tree height bound to calculate attribute
 #' in. This value is exclusive (<). This argument is only used if ht argument 
 #' is specified.
 #' 
-#' @param select_species
+#' @param select_species:
 #' Optional vector containing species codes. This variable will be used to
 #' select which species get included in calculation of attribute.
 #'
@@ -1577,7 +1569,7 @@ sd_attr = function(attr = NULL,
 #' Attribute will be calculated for all species if select_species is left as 
 #' NULL.
 #
-#' @param dbhmin
+#' @param dbhmin:
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
 #' This value is inclusive (>=).
 #
@@ -1585,17 +1577,17 @@ sd_attr = function(attr = NULL,
 #' Numeric value corresponding to upper DBH bound to calculate attribute in. 
 #' This value is exclusive (<).
 #' 
-#' @param hthmin
+#' @param htmin:
 #' Numeric value corresponding to lower tree height bound to calculate attribute
 #' in. This value is inclusive (>=). This argument is only used if ht argument 
 #' is specified.
 #
-#' @param hthmax: 
+#' @param htmax: 
 #' Numeric value corresponding to upper tree height bound to calculate attribute
 #' in. This value is exclusive (<). This argument is only used if ht argument 
 #' is specified.
 #' 
-#' @param select_species
+#' @param select_species:
 #' Optional vector containing species codes. This variable will be used to
 #' select which species get included in calculation of attribute.
 #'
@@ -1656,11 +1648,11 @@ quant_attr = function(attr = NULL,
 #' This function counts the number of tree records between specified DBH and HT
 #' ranges and for select species. 
 #' 
-#' @param id
+#' @param id:
 #' Vector containing tree ID values. Technically if you don't have tree ids, you
 #' can pass any vector into this argument.
 #' 
-#' @param dbh
+#' @param dbh:
 #' Optional numeric vector containing DBH values.
 #' 
 #' @param ht:
@@ -1674,7 +1666,7 @@ quant_attr = function(attr = NULL,
 #' Attribute will be calculated for all species if select_species is left as 
 #' NULL.
 #
-#' @param dbhmin
+#' @param dbhmin:
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
 #' This value is inclusive (>=).
 #
@@ -1682,17 +1674,17 @@ quant_attr = function(attr = NULL,
 #' Numeric value corresponding to upper DBH bound to calculate attribute in. This
 #' value is exclusive (<).
 #' 
-#' @param hthmin
+#' @param htmin:
 #' Numeric value corresponding to lower tree height bound to calculate attribute
 #' in. This value is inclusive (>=). This argument is only used if ht argument 
 #' is specified.
 #
-#' @param hthmax: 
+#' @param htmax: 
 #' Numeric value corresponding to upper tree height bound to calculate attribute
 #' in. This value is exclusive (<). This argument is only used if ht argument 
 #' is specified.
 #' 
-#' @param select_species
+#' @param select_species:
 #' Optional vector containing species codes. This variable will be used to
 #' select which species get included in calculation of attribute.
 #'

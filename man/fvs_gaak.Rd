@@ -4,10 +4,10 @@
 \alias{fvs_gaak}
 \title{fvs_gaak}
 \usage{
-fvs_gaak(dbIn = "FVS_Data.db", standType = 1, gaakType = 2)
+fvs_gaak(dbin = "FVS_Data.db", standType = 1, gaak_type = 2)
 }
 \arguments{
-\item{dbIn:}{Character string corresponding to filepath or name of database to read from.
+\item{dbin:}{Character string corresponding to filepath or name of database to read from.
 File extension (.db, .sqlite) should be included for this value (e.g.
 FVS_Data.db).}
 
@@ -17,7 +17,7 @@ FVS_Data.db).}
 
 1 = Stand_ID}
 
-\item{gaakType:}{Variable to determine what grouping codes are included in GAAK table.
+\item{gaak_type:}{Variable to determine what grouping codes are included in GAAK table.
 
 1 = Standard FVS grouping codes (All_Stands, All_Plots)
 

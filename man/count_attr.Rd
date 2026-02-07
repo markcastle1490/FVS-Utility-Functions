@@ -18,16 +18,10 @@ count_records(
 )
 }
 \arguments{
-\item{id}{Vector containing tree ID values. Technically if you don't have tree ids, you
+\item{id:}{Vector containing tree ID values. Technically if you don't have tree ids, you
 can pass any vector into this argument.}
 
-\item{dbh}{Optional numeric vector containing DBH values.}
-
-\item{dbhmin}{Numeric value corresponding to lower DBH bound to calculate attribute in.
-This value is inclusive (>=).}
-
-\item{select_species}{Optional vector containing species codes. This variable will be used to
-select which species get included in calculation of attribute.}
+\item{dbh:}{Optional numeric vector containing DBH values.}
 
 \item{ht:}{Optional vector containing total tree height values. If heights are provided,
 then attribute will be calculated between the values specified in htmin and
@@ -38,16 +32,22 @@ attribute will be calculated for species entered in select_species argument.
 Attribute will be calculated for all species if select_species is left as
 NULL.}
 
+\item{dbhmin:}{Numeric value corresponding to lower DBH bound to calculate attribute in.
+This value is inclusive (>=).}
+
 \item{dbhmax:}{Numeric value corresponding to upper DBH bound to calculate attribute in. This
 value is exclusive (<).}
 
-\item{hthmin}{Numeric value corresponding to lower tree height bound to calculate attribute
+\item{htmin:}{Numeric value corresponding to lower tree height bound to calculate attribute
 in. This value is inclusive (>=). This argument is only used if ht argument
 is specified.}
 
-\item{hthmax:}{Numeric value corresponding to upper tree height bound to calculate attribute
+\item{htmax:}{Numeric value corresponding to upper tree height bound to calculate attribute
 in. This value is exclusive (<). This argument is only used if ht argument
 is specified.}
+
+\item{select_species:}{Optional vector containing species codes. This variable will be used to
+select which species get included in calculation of attribute.}
 }
 \value{
 Numeric count of records.

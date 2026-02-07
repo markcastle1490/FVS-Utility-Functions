@@ -5,19 +5,19 @@
 \title{db_compile_v2}
 \usage{
 db_compile_v2(
-  dbIn = NULL,
-  dbOut = NULL,
-  dbTables = c("FVS_STANDINIT", "FVS_TREEINIT", "FVS_PLOTINIT", "FVS_STANDINIT_PLOT",
+  dbin = NULL,
+  dbout = NULL,
+  db_tables = c("FVS_STANDINIT", "FVS_TREEINIT", "FVS_PLOTINIT", "FVS_STANDINIT_PLOT",
     "FVS_STANDINIT_COND", "FVS_PLOTINIT_PLOT", "FVS_TREEINIT_PLOT", "FVS_TREEINIT_COND"),
-  buildGaak = T,
-  gaakType = 2,
-  deleteInput = F,
-  readChunks = F,
-  rowsToRead = 5000
+  build_gaak = T,
+  gaak_type = 2,
+  delete_input = F,
+  read_chunks = F,
+  rows_to_read = 5000
 )
 }
 \arguments{
-\item{dbIn:}{Character vector of directory paths and file names for SQLite databases to
+\item{dbin:}{Character vector of directory paths and file names for SQLite databases to
 process. Files can either be a SQLite database or zipped folder (.zip)
 which contains a SQLite database(s).
 
@@ -25,15 +25,15 @@ NOTE: .zip files will be unzipped to a temporary folder called
 xxxfvsUtildb_compileUnzipxxx in a temporary directory. The temporary folder
 will be deleted after db_compile has finished writing data to output database.
 
-Examples of valid dbIn formats:
+Examples of valid dbin formats:
 "C:/FIA2FVS_Databases/SQLite_FIADB_AZ/FIADB_AZ.db"'
 "C:/FIA2FVS_Databases/SQLite_FIADB_AZ/ FIADB_AZ.zip"}
 
-\item{dbOut:}{Character string corresponding to SQLite database to write out to.
-Examples of valid dbOut formats:
+\item{dbout:}{Character string corresponding to SQLite database to write out to.
+Examples of valid dbout formats:
 "C:/FIA2FVS_Databases/SQLite_FIADB_AZ/FVS_Data.db",}
 
-\item{dbTables:}{Character vector of database tables to process from argument dbIn.
+\item{db_tables:}{Character vector of database tables to process from argument dbin.
 By default this argument contains the following values:
 
 "FVS_STANDINIT"
@@ -52,12 +52,12 @@ By default this argument contains the following values:
 
 "FVS_TREEINIT_COND"}
 
-\item{buildGaak:}{Logical variable used to determine if FVS_GROUPADDFILESANDKEYWORDS will be
-#written to dbOut. If TRUE, this table will be written to dbOut. By default,
+\item{build_gaak:}{Logical variable used to determine if FVS_GROUPADDFILESANDKEYWORDS will be
+#written to dbout. If TRUE, this table will be written to dbout. By default,
 this argument is set to TRUE.}
 
-\item{gaakType:}{Integer value from 1 - 3 used to determine what kind of GAAK table will be
-written to dbOut if buildGaak is TRUE.
+\item{gaak_type:}{Integer value from 1 - 3 used to determine what kind of GAAK table will be
+written to dbout if build_gaak is TRUE.
 
 1 = GAAK table with All_Stands and All_Plots grouping codes.
 
@@ -68,18 +68,18 @@ grouping codes.
 All_FIA_Plots, All_FIA_Subplots grouping codes. For more information
 refer to fvs_gaak function.}
 
-\item{deleteInput:}{Logical variable used to determine if values in dbIn should be deleted after
+\item{delete_input:}{Logical variable used to determine if values in dbin should be deleted after
 db_compile has been called. By default this argument is set to FALSE. Be
 careful with this argument. The primary purpose of this argument is to
 conserve hard disk space for users who do not want the input databases
-specified in dbIn.}
+specified in dbin.}
 
-\item{readChunks:}{Logical variable used to determine if data from database table should be read
+\item{read_chunks:}{Logical variable used to determine if data from database table should be read
 in chunks. In general, processing time of db_compile increases but less RAM is
 used at one time in R session if this argument is TRUE.}
 
-\item{rowsToRead:}{Integer value corresponding to number of rows to read from a database table if
-readChunks is TRUE.}
+\item{rows_to_read:}{Integer value corresponding to number of rows to read from a database table if
+read_chunks is TRUE.}
 }
 \value{
 Character string indicating that database has been created.

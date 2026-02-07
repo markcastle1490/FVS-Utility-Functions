@@ -4,14 +4,14 @@
 \alias{db_add_fields}
 \title{db_add_fields}
 \usage{
-db_add_fields(conn, tableName, dbFields = c())
+db_add_fields(conn, table_name, db_fields = c())
 }
 \arguments{
 \item{conn:}{Connection to SQLite database.}
 
-\item{tableName:}{Character string corresponding to name of table where fields will added.}
+\item{table_name:}{Character string corresponding to name of table where fields will added.}
 
-\item{dbFields:}{Named character vector or list where names are the names of the fields and
+\item{db_fields:}{Named character vector or list where names are the names of the fields and
 the items in the vector or list are the data types of the fields.}
 }
 \value{

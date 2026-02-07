@@ -4,7 +4,7 @@
 \alias{top_ht}
 \title{top_ht}
 \usage{
-top_ht(dbh = NULL, expf = NULL, ht = NULL, topTPA = 40, topPer = NULL)
+top_ht(dbh = NULL, expf = NULL, ht = NULL, top_tpa = 40, top_per = NULL)
 }
 \arguments{
 \item{dbh:}{Numeric vector containing DBH values.}
@@ -13,12 +13,12 @@ top_ht(dbh = NULL, expf = NULL, ht = NULL, topTPA = 40, topPer = NULL)
 
 \item{ht:}{Numeric vector of tree heights.}
 
-\item{topTPA:}{Amount of TPA to include in top height calculation. Top 40, trees, top 100,
+\item{top_tpa:}{Amount of TPA to include in top height calculation. Top 40, trees, top 100,
 etc.}
 
-\item{topPer:}{Percentage of trees to include in the top height calculation. Largest 20\% of
+\item{top_per:}{Percentage of trees to include in the top height calculation. Largest 20\% of
 trees, largest 40\% of trees etc. If this value is not null then it will
-take precedence over the value in topTPA argument.}
+take precedence over the value in top_tpa argument.}
 }
 \value{
 Top height value.

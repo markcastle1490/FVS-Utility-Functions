@@ -17,17 +17,11 @@ sd_attr(
 )
 }
 \arguments{
-\item{attr}{Numeric vector containing numeric attribute}
+\item{attr:}{Numeric vector containing numeric attribute}
 
-\item{dbh}{Optional numeric vector containing DBH values. If DBH values are provided,
+\item{dbh:}{Optional numeric vector containing DBH values. If DBH values are provided,
 then attribute will be calculated between the values specified in dbhmin and
 dbhmax.}
-
-\item{dbhmin}{Numeric value corresponding to lower DBH bound to calculate attribute in.
-This value is inclusive (>=).}
-
-\item{select_species}{Optional vector containing species codes. This variable will be used to
-select which species get included in calculation of attribute.}
 
 \item{ht:}{Optional numeric vector containing total tree height values. If heights are
 provided, then attribute will be calculated between the values specified in
@@ -38,16 +32,22 @@ attribute will be calculated for species entered in select_species argument.
 Attribute will be calculated for all species if select_species is left as
 NULL.}
 
+\item{dbhmin:}{Numeric value corresponding to lower DBH bound to calculate attribute in.
+This value is inclusive (>=).}
+
 \item{dbhmax:}{Numeric value corresponding to upper DBH bound to calculate attribute in. This
 value is exclusive (<).}
 
-\item{hthmin}{Numeric value corresponding to lower tree height bound to calculate attribute
+\item{htmin:}{Numeric value corresponding to lower tree height bound to calculate attribute
 in. This value is inclusive (>=). This argument is only used if ht argument
 is specified.}
 
-\item{hthmax:}{Numeric value corresponding to upper tree height bound to calculate attribute
+\item{htmax:}{Numeric value corresponding to upper tree height bound to calculate attribute
 in. This value is exclusive (<). This argument is only used if ht argument
 is specified.}
+
+\item{select_species:}{Optional vector containing species codes. This variable will be used to
+select which species get included in calculation of attribute.}
 }
 \value{
 Standard deviation of attribute.

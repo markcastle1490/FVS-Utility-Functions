@@ -16,8 +16,8 @@ fvs_keyfile(
   cycle_length = 10,
   cycle_at = NULL,
   dbin = NULL,
-  standinit = "FVS_standinit",
-  treeinit = "FVS_treeinit",
+  standinit = "FVS_StandInit",
+  treeinit = "FVS_TreeInit",
   stand_type = 1,
   dbout = NULL,
   delotab = c(1, 2)

@@ -5,15 +5,15 @@
 \title{db_compile}
 \usage{
 db_compile(
-  dbIn = NULL,
-  dbOut = NULL,
-  dbTables = NULL,
-  deleteInput = FALSE,
-  keepCasing = TRUE
+  dbin = NULL,
+  dbout = NULL,
+  db_tables = NULL,
+  delete_input = FALSE,
+  keep_casing = TRUE
 )
 }
 \arguments{
-\item{dbIn:}{Character vector of directory paths and file names for SQLite databases to
+\item{dbin:}{Character vector of directory paths and file names for SQLite databases to
 process. Files can either be a SQLite database (.db) or zipped folder (.zip)
 which contains a SQLite database(s).
 
@@ -21,26 +21,26 @@ NOTE: .zip files will be unzipped to a temporary folder called
 xxxfvsUtildb_compileUnzipxxx in current working directory. Temporary folder will
 be deleted after db_compile has finished writing data to output database.
 
-Examples of valid dbIn formats:
+Examples of valid dbin formats:
 "C:/FIA2FVS_Databases/SQLite_FIADB_AZ/FIADB_AZ.db"'
 "C:/FIA2FVS_Databases/SQLite_FIADB_AZ/ FIADB_AZ.zip"}
 
-\item{dbOut:}{Character string corresponding to SQLite database to write out to.
-Examples of valid dbOut formats:
+\item{dbout:}{Character string corresponding to SQLite database to write out to.
+Examples of valid dbout formats:
 "C:/FIA2FVS_Databases/SQLite_FIADB_AZ/FVS_Data.db"}
 
-\item{dbTables:}{Character vector of database tables to process from argument dbIn. If this
+\item{db_tables:}{Character vector of database tables to process from argument dbin. If this
 argument is left as NULL, then function will use all tables from the first
-database specified in the dbIn argument.}
+database specified in the dbin argument.}
 
-\item{deleteInput:}{Logical variable used to determine if values in dbIn should be deleted after
+\item{delete_input:}{Logical variable used to determine if values in dbin should be deleted after
 db_compile has been called. The primary purpose of this argument is to
 conserve hard disk space for users who do not want to retain the input
-databases specified in dbIn.}
+databases specified in dbin.}
 
-\item{keepCasing:}{Logical variable used to determine if the database table names and fields in
-dbIn should retain original casing. When FALSE, the database table names and
-fields in each table written to dbOut will be capitalized.}
+\item{keep_casing:}{Logical variable used to determine if the database table names and fields in
+dbin should retain original casing. When FALSE, the database table names and
+fields in each table written to dbout will be capitalized.}
 }
 \value{
 None

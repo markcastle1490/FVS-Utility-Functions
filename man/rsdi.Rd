@@ -7,7 +7,7 @@
 rsdi(dbh = NULL, expf = NULL)
 }
 \arguments{
-\item{dbh}{Numeric vector containing DBH values.}
+\item{dbh:}{Numeric vector containing DBH values.}
 
 \item{expf:}{Numeric vector containing expansion factors.}
 }

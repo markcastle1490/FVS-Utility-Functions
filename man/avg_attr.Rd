@@ -19,10 +19,7 @@ avg_attr(
 )
 }
 \arguments{
-\item{attr}{Numeric vector containing numeric attribute}
-
-\item{dbhmin}{Numeric value corresponding to lower DBH bound to calculate attribute in.
-This value is inclusive (>=).}
+\item{attr:}{Numeric vector containing numeric attribute}
 
 \item{weight:}{Numeric numeric vector containing a weighting value. This could be an
 expansion factor or tree basal area, or other user defined weight. This
@@ -46,18 +43,21 @@ attribute will be calculated for species entered in select_species argument.
 Attribute will be calculated for all species if select_species is left as
 NULL.}
 
+\item{dbhmin:}{Numeric value corresponding to lower DBH bound to calculate attribute in.
+This value is inclusive (>=).}
+
 \item{dbhmax:}{Numeric value corresponding to upper DBH bound to calculate attribute in.
 This value is exclusive (<).}
 
-\item{hthmin}{Numeric value corresponding to lower tree height bound to calculate attribute
+\item{htmin:}{Numeric value corresponding to lower tree height bound to calculate attribute
 in. This value is inclusive (>=). This argument is only used if ht argument
 is specified.}
 
-\item{hthmax:}{Numeric value corresponding to upper tree height bound to calculate attribute
+\item{htmax:}{Numeric value corresponding to upper tree height bound to calculate attribute
 in. This value is exclusive (<). This argument is only used if ht argument
 is specified.}
 
-\item{select_spcies}{Optional vector containing species codes. This variable will be used to
+\item{select_species:}{Optional vector containing species codes. This variable will be used to
 select which species get included in calculation of attribute. This argument
 will only be used if values are provided for species.}
 }
