@@ -25,22 +25,25 @@
 #'"NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
 #'"SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
 #
-#'@param masterDB:   
+#'@param master_db:   
 #'Logical variable used to signify if master FIA database should be downloaded.
-#'If TRUE, this will lead to very long processing time.
+#'If TRUE, this will lead to long processing time.
 #
 #'@return 
 #'None
 ################################################################################
 
+get_fiadb(output = "C:/FVS/Test Delete Runs",
+          states = "AK")
+
 #'@export
 get_fiadb <- function(output = NULL,
                       url = "https://apps.fs.usda.gov/fia/datamart/Databases/",
                       states = NULL,
-                      masterDB = FALSE)
+                      master_db = FALSE)
 {
-  #Initialize retCode
-  retCode <- 0
+  #Initialize ret_code
+  ret_code <- 0
 
   #Vector of state abbreviations
   state_abbrev <- c("AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
@@ -56,14 +59,14 @@ get_fiadb <- function(output = NULL,
   }
 
   #Check if states is empty, if so return error.
-  if(is.null(states) & !masterDB)
+  if(is.null(states) && !master_db)
   {
     stop(paste("No states specified for download. Enter values in states",
-               "argument or set masterDB to TRUE."))
+               "argument or set master_db to TRUE."))
   }
 
-  #if masterDB is TRUE, redefine states
-  if(masterDB) states <- "ALL"
+  #if master_db is TRUE, redefine states
+  if(master_db) states <- "ALL"
 
   #Capitalize state abbreviations
   states <- toupper(states)
@@ -75,7 +78,7 @@ get_fiadb <- function(output = NULL,
     cat("Processing state:", state, "\n")
 
     #If state is not in  state_abbrev, skip
-    if(!state %in% state_abbrev || !masterDB)
+    if(!state %in% state_abbrev && !master_db)
     {
       cat("Invalid state:",
           state,
@@ -84,68 +87,64 @@ get_fiadb <- function(output = NULL,
       next
     }
 
-    #Create filenameUrl and filenameDisk
+    #Create filename_url and filename_disk
     filename <- paste0("SQLite_FIADB_", state, ".zip")
 
-    #If states is ALL, then create filename for master FIA database.
-    if(masterDB) filename <-"SQLite_FIADB_ENTIRE.zip"
+    #Create file name for master FIA database ,if TRUE
+    if(master_db) filename <-"SQLite_FIADB_ENTIRE.zip"
 
-    filenameUrl <- paste0(url,
+    filename_url <- paste0(url,
                           filename)
 
-    filenameDisk <- paste0(output,
+    filename_disk <- paste0(output,
                            "/",
                            filename)
 
-    #if filenameDisk exists, delete it
-    if(file.exists(filenameDisk)) retCode <- unlink(filenameDisk)
+    #if filename_disk exists, delete it
+    if(file.exists(filename_disk)) ret_code <- unlink(filename_disk)
 
-    #If retCode is 1, stop with error
-    if(retCode == 1)
-      stop("Failed to delete prexisting file:", filenameDisk, "\n")
-
-    cat("Downloading file:",
-        filenameUrl,
-        "to",
-        filenameDisk,
-        "\n")
+    #If ret_code is 1, stop with error
+    if(ret_code == 1)
+      stop("Failed to delete prexisting file:", filename_disk, "\n")
 
     #Download the data
-    httpResponse <-httr::RETRY("GET",
-                         paste0(filenameUrl),
-                         httr::write_disk(filenameDisk),
-                         httr::progress(),
-                         overwrite = T)
-    cat("HTTP STATUS:", httpResponse$status_code, "\n")
+    cat("Downloading file:",
+        filename_url,
+        "to",
+        filename_disk,
+        "\n")
+
+    http_response <-httr::RETRY("GET",
+                                paste0(filename_url),
+                                httr::write_disk(filename_disk),
+                                httr::progress(),
+                                overwrite = T)
+    cat("HTTP STATUS:", http_response$status_code, "\n")
 
     #If status_code is >= 300, something went wrong. Stop execution.
-    if(httpResponse$status_code >= 300)
+    if(http_response$status_code >= 300)
     {
-      stop(paste("HTTP status code signifies success did not occur."))
+      stop(paste("HTTP status code indicates success did not occur."))
     }
 
     #Check if file exists and then extract and delete zipped folder.
-    if(file.exists(filenameDisk))
+    if(file.exists(filename_disk))
     {
       #Extract data
-      cat("Extracting files from:", filenameDisk, "\n")
-      unzip(zipfile = filenameDisk,
+      cat("Extracting files from:", filename_disk, "\n")
+      unzip(zipfile = filename_disk,
             exdir = output)
-      cat("Files extracted from:", filenameDisk, "\n")
+      cat("Files extracted from:", filename_disk, "\n")
 
       #Now delete the zip file
-      cat("Deleting file:", filenameDisk, "\n")
-      retCode <- unlink(filenameDisk)
+      cat("Deleting file:", filename_disk, "\n")
+      ret_code <- unlink(filename_disk)
 
-      #Print message based upon outcome of retCode
-      if(retCode != 1)
-      {
-        cat(filenameDisk, "was deleted sucessfully.", "\n")
-      }
+      #Print message based upon outcome of ret_code
+      if(ret_code != 1)
+        cat(filename_disk, "was deleted sucessfully.", "\n")
       else
-      {
-        cat(filenameDisk, "was not deleted sucessfully.", "\n")
-      }
+        cat(filename_disk, "was not deleted sucessfully.", "\n")
     }
 
     cat("Finished processing state:", state, "\n", "\n")
