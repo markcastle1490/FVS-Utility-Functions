@@ -4,32 +4,23 @@
 \alias{state_lookup}
 \title{state_lookup}
 \usage{
-state_lookup(state = "", from = 0, to = 3)
+state_lookup(state = NULL, to = 3)
 }
 \arguments{
-\item{state:}{Character string of a US state name, FIA state code, or state abbreviation.}
-
-\item{from:}{Integer value signifying the type of state identifier you are converting from.
-
-1 = State name
-
-2 = State code
-
-3 = State abbreviation
-
-0 = Unknown. Argument state could be a state name, state code or state
-abbreviation.}
+\item{state:}{Character string of a US state name (e.g. "New York") or state abbreviation
+(e.g "NY") or a FIPS state code (e.g. 36 for New York). Lookup times will be
+fastest if state is input as FIPS code.}
 
 \item{to:}{Integer value signifying the state identifier to convert to.
 
-1 = State name
+1 = State FIPS code
 
-2 = State code
+2 = State abbreviation
 
-3 = State abbreviation}
+3 = State name}
 }
 \value{
-State name, state code or state abbreviation.
+State FIPS code, state abbreviation, or state name.
 }
 \description{
 This function takes in a US state name, FIA State code, or State abbreviation

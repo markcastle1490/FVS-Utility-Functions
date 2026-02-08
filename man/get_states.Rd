@@ -10,7 +10,6 @@ get_states()
 Dataframe containing state names, FIA state codes, and state abbreviations.
 }
 \description{
-This function returns the state names, FIA state codes, and fia abbreviations
-as a dataframe from those defined in REF_RESEARCH_STATION.csv (from FIA
-DataMart).
+This function returns the state names, FIPS state codes, and two character
+state abbreviations.
 }

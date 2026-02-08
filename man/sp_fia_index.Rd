@@ -13,6 +13,6 @@ sp_fia_index(spcd)
 Numeric index value.
 }
 \description{
-This function is used to obtain an index value (row number) from the 'SPCD
-column of the supportDB dataframe based on a FIA species code.
+This function is used to obtain an index value (row number) from the data
+frame that is returned from sp_get_df function.
 }

@@ -1,96 +1,33 @@
 ################################################################################
-#sp_get_index
-#
-#This a function that is used to obtain an index value based on an incoming
-#species code. The species code can either be a FIA code, USDA plant symbol,
-#or Scientific name.
-#
-#
-#sp:   incoming species code. This can be either an FIA species code, USDA
-#      plant symbol, or scientific name.
-#
-#from: Integer value signifying the type of species you are requesting an
-#      index for.
-#      1 = FIA code
-#      2 = USDA plant symbol
-#      3 = Scientific name
-#      If the value of from argument is anything other than 1 - 3, then a
-#      NA value  will be returned from the function.
-################################################################################
-
-sp_get_index <- function(sp, from)
-{
-  #If from invalid, set to 0
-  if(! from %in% c(0, 1, 2)) from  <- 0
-  
-  #Initialize spIndex
-  spIndex <- NA
-  
-  #Search both FIA and USDA plant symbol
-  if(from == 0)
-  {
-    #Search through FIA species codes
-    spIndex <- match(sp, supportSP$SPCD)
-      
-    #Search through USDA plant symbol if spIndex is still NA
-    if(is.na(spIndex))
-    {
-      spIndex <- match(sp, supportSP$SPECIES_SYMBOL)
-    }
-  }
-    
-  #FIA code
-  else if(from == 1)
-  {
-    spIndex = sp_fia_index(sp)
-  }
-    
-  #PLANT symbol
-  else
-  {
-    spIndex = match(sp, supportSP$SPECIES_SYMBOL)
-  }
-
-  return(spIndex)
-}
-
-#############################################################################
-#'sp_get_data
-#'@name sp_get_data
+#'sp_get_df
+#'@name sp_get_df
 #'@description
 #'
-#'This function returns a dataframe containing SPECIES_REF information for 
-#'FIA species codes (SPCD) less than 1000.
+#'This function returns the support_sp dataframe that contains information from
+#'FIADB.SPECIES_REF for FIA species codes (SPCD) less than 1000. See commons.R
+#'file for more information about support_sp.
 #'
 #'@return
 #'Dataframe with SPECIES_REF fields.
-############################################################################
+################################################################################
 
 #'@export
-sp_get_data <- function()
+sp_get_df <- function()
 {
-  return(supportSP)
+  return(support_sp)
 }
 
 ################################################################################
-#'sp_convert
-#'@name sp_convert
+#'sp_lookup
+#'@name sp_lookup
 #'@description 
-#'This function is used to convert between FIA species codes, USDA plant 
-#'symbols, species scientific name, or sequence number.
+#'This function is used to convert between various species codes and also to 
+#'look up other information pertaining to a specific species based on an input
+#'FIA species code or USDA plant symbol
 #
 #'@param sp:   
-#'Incoming species code. This can be either an FIA species code, USDA plant 
-#'symbol, or scientific name
-#
-#'@param from: 
-#'Integer value signifying the type of species you are converting from.
-#'
-#'0 = FIA code or USDA plant symbol
-#'
-#'1 = FIA code
-#'
-#'2 = USDA plant symbol
+#'Incoming species code. This can be either an FIA species code or USDA plant 
+#'symbol.
 #
 #'@param to:   
 #'Integer value signifying the type of species you are converting to.
@@ -123,79 +60,110 @@ sp_get_data <- function()
 ################################################################################
 
 #'@export
-sp_convert<-function(sp, from, to)
+sp_lookup <- function(sp,
+                      to)
 {
-  #Initialize spTo
-  spTo = NA
+  #Initialize sp_to
+  sp_to = NA
   
   #Check valid to and from values
-  if(!from %in% c(0, 1, 2) | !to %in% c(1:9))
+  if(!to %in% c(1:9))
   {
-    return(spTo)
+    return(sp_to)
   }
 
   #Determine which species codes to search through based on from code
-  spIndex <- sp_get_index(sp, from)
+  sp_index <- sp_get_index(sp)
 
-  #If spIndex is not NA, determine spTo
-  if(!is.na(spIndex))
+  #If sp_index is not NA, determine sp_to
+  if(!is.na(sp_index))
   {
     #FIA code
     if(to == 1)
     {
-      spTo = supportSP$SPCD[spIndex]
+      sp_to = support_sp$SPCD[sp_index]
     }
 
     #USDA plant symbol
     else if(to == 2)
     {
-      spTo = supportSP$SPECIES_SYMBOL[spIndex]
+      sp_to = support_sp$SPECIES_SYMBOL[sp_index]
     }
     
     #Genus
     else if(to == 3)
     {
-      spTo = supportSP$GENUS[spIndex]
+      sp_to = support_sp$GENUS[sp_index]
     }
 
     #Scientific name
     else if(to == 4)
     {
-      spTo = supportSP$SCIENTIFIC_NAME[spIndex]
+      sp_to = support_sp$SCIENTIFIC_NAME[sp_index]
     }
     
     #Common name
     else if(to == 5)
     {
-      spTo = supportSP$COMMON_NAME[spIndex]
+      sp_to = support_sp$COMMON_NAME[sp_index]
     }
     
     #SFTWD_HRDWD
     else if(to == 6)
     {
-      spTo = supportSP$SFTWD_HRDWD[spIndex]
+      sp_to = support_sp$SFTWD_HRDWD[sp_index]
     }
     
     #WOODLAND
     else if(to == 7)
     {
-      spTo = supportSP$WOODLAND[spIndex]
+      sp_to = support_sp$WOODLAND[sp_index]
     }
 
     #JENKINS SPECIES GROUP
     else if(to == 8)
     {
-      spTo = supportSP$JENKINS_SPGRPCD[spIndex]
+      sp_to = support_sp$JENKINS_SPGRPCD[sp_index]
     }
     
     #Sequence number
     else
     {
-      spTo = spIndex
+      sp_to = sp_index
     }
   }
 
-  return(spTo)
+  return(sp_to)
+}
+
+################################################################################
+#'sp_get_index
+#'@name sp_get_index
+#'@description
+#'This a function that is used to obtain a row index value from the support_sp
+#'dataframe (see commons. R) based on an incoming species code. The species code
+#'can either be a FIA code or USDA plant symbol.
+#
+#'@param sp:
+#'Species code. This can be either an FIA species code or UDSA plant symbol.
+#
+#'@return
+#'Numeric row index value from support_sp dataframe.
+################################################################################
+
+sp_get_index <- function(sp)
+{
+  #Initialize sp_index
+  sp_index <- NA
+  
+  #Search both FIA and USDA plant symbol
+  sp_index <- sp_fia_index(sp)
+  
+  #Search through USDA plant symbol if sp_index is still NA
+  if(is.na(sp_index))
+    sp_index <- match(sp, support_sp$SPECIES_SYMBOL)
+  
+  return(sp_index)
 }
 
 ################################################################################
@@ -203,8 +171,8 @@ sp_convert<-function(sp, from, to)
 #'@name sp_fia_index
 #'@description 
 #'
-#'This function is used to obtain an index value (row number) from the 'SPCD 
-#'column of the supportDB dataframe based on a FIA species code.
+#'This function is used to obtain an index value (row number) from the data
+#'frame that is returned from sp_get_df function.
 #
 #'@param spcd: 
 #'Numeric FIA species code.
@@ -216,18 +184,18 @@ sp_convert<-function(sp, from, to)
 #'@export
 sp_fia_index <- function(spcd)
 {
-  #Initialize spIndex
-  spIndex <- NA
+  #Initialize sp_index
+  sp_index <- NA
   
   #Coerce spcd to numeric
-  if(!is.numeric(spcd)) spcd <- as.numeric(spcd)
+  if(!is.numeric(spcd)) spcd <- suppressWarnings(as.numeric(spcd))
   
   #If species is not NA search for index
   if(! is.na(spcd))
   {
     #Do binary search on SPCD column 
-    spIndex <- bin_search(supportSP$SPCD, spcd)
+    sp_index <- bin_search(support_sp$SPCD, spcd)
   }
   
-  return(spIndex)
+  return(sp_index)
 }
