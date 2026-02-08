@@ -33,9 +33,6 @@
 #'None
 ################################################################################
 
-get_fiadb(output = "C:/FVS/Test Delete Runs",
-          states = "AK")
-
 #'@export
 get_fiadb <- function(output = NULL,
                       url = "https://apps.fs.usda.gov/fia/datamart/Databases/",

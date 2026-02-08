@@ -4,13 +4,15 @@
 \alias{fvs_get_locs}
 \title{fvs_get_locs}
 \usage{
-fvs_get_locs()
+fvs_get_locs(var_code = NULL)
+}
+\arguments{
+\item{var_code:}{Character vector of FVS variant codes (e.g. "CA").}
 }
 \value{
-Dataframe containing valid location codes for all variants included in the FVS
-system
+Dataframe containing valid location codes for specified FVS variants.
 }
 \description{
-This function returns of a dataframe containing valid location codes for all
-variants included in the FVS system
+This function returns of a dataframe containing valid location codes for
+specified FVS variants.
 }

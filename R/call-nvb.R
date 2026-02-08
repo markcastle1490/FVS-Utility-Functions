@@ -18,9 +18,7 @@ load_nvel <- function(nvel_path = "C:/FVS_Utility/vollib/vollib.dll")
 {
   #Check for nvel_path existence
   if(!file.exists(nvel_path))
-  {
     stop(paste("File specified in nvel_path argument not found."))
-  }
   
   #If NVEL dll is already loaded it, remove
   if (exists(".NVELLOADEDLIBRARY",envir=.GlobalEnv)) 
@@ -34,9 +32,7 @@ load_nvel <- function(nvel_path = "C:/FVS_Utility/vollib/vollib.dll")
   status = try(dyn.load(nvel_path))
     
   if (class(status) == "try-error") 
-  {
-      stop (paste (nvel_path,"was not loaded successfully."))
-  }
+    stop (paste (nvel_path,"was not loaded successfully."))
   
   #Set name of NVEL dll in global environment
   assign(".NVELLOADEDLIBRARY",

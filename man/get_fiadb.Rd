@@ -8,7 +8,7 @@ get_fiadb(
   output = NULL,
   url = "https://apps.fs.usda.gov/fia/datamart/Databases/",
   states = NULL,
-  masterDB = FALSE
+  master_db = FALSE
 )
 }
 \arguments{
@@ -27,8 +27,8 @@ below.
 "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
 "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"}
 
-\item{masterDB:}{Logical variable used to signify if master FIA database should be downloaded.
-If TRUE, this will lead to very long processing time.}
+\item{master_db:}{Logical variable used to signify if master FIA database should be downloaded.
+If TRUE, this will lead to long processing time.}
 }
 \value{
 None

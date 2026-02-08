@@ -128,7 +128,7 @@ jenkins_bio <- function(spcd,
 
 #'@export
 jenkins_ratios <- function(spcd,
-                          dbh = 1)
+                           dbh = 1)
 {
   #Initialize vector with that will Jenkins component ratios
   ratios <- vector(mode = "numeric",
