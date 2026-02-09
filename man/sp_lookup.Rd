@@ -4,11 +4,22 @@
 \alias{sp_lookup}
 \title{sp_lookup}
 \usage{
-sp_lookup(sp, to)
+sp_lookup(sp = NULL, from = 0, to = 2)
 }
 \arguments{
-\item{sp:}{Incoming species code. This can be either an FIA species code or USDA plant
-symbol.}
+\item{sp:}{Incoming species code. This can be either an FIA species code, USDA plant
+symbol, or specifies scientific name.}
+
+\item{from:}{Option integer value that tells what kind of value is held in sp argument.
+Specifying a value from 1 - 3 will generally speed up lookup times.
+
+0: FIA species code, USDA plant symbol, or scientific name.
+
+1: FIA species code
+
+2: USDA plant symbol
+
+3: Species scientific name}
 
 \item{to:}{Integer value signifying the type of species you are converting to.
 

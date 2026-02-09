@@ -4,12 +4,23 @@
 \alias{state_lookup}
 \title{state_lookup}
 \usage{
-state_lookup(state = NULL, to = 3)
+state_lookup(state = NULL, from = 0, to = 3)
 }
 \arguments{
 \item{state:}{Character string of a US state name (e.g. "New York") or state abbreviation
 (e.g "NY") or a FIPS state code (e.g. 36 for New York). Lookup times will be
 fastest if state is input as FIPS code.}
+
+\item{from:}{Option integer value that tells what kind of value is held in state argument.
+Specifying a value from 1 - 3, will generally speed up lookup times.
+
+0: State FIPS code, abbreviation, or name.
+
+1: State FIPS code
+
+2: State abbreviation
+
+3: State name}
 
 \item{to:}{Integer value signifying the state identifier to convert to.
 
