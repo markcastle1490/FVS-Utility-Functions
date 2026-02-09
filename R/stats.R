@@ -2,10 +2,10 @@
 #'per_dif
 #' @name per_dif
 #' @description
-#' This function is used to calculate percentage difference between two numeric
+#' This function is used to calculate percent difference between two numeric
 #' values, x and y.
 #' 
-#' per_dif_ = abs(x - y) / ((x + y)/2) * 100
+#' percent difference = abs(x - y) / ((x + y)/2) * 100
 #
 #' @param x:
 #' numeric value.
@@ -29,18 +29,14 @@ per_dif <- function(x,
   if(!is.numeric(x)) x = suppressWarnings(is.numeric(x))
   if(!is.numeric(y)) y = suppressWarnings(is.numeric(y))
   
-  #If x or y is less than 0, multiply by -1
-  if(x < 0) x = -x
-  if(y < 0) y = -y
+  #Take absolute value of x and y
+  x = abs(x)
+  y = abs(y)
   
-  #Set valid to FALSE if x and y are NA
-  if(is.na(x)) valid = FALSE
-  if(is.na(y)) valid = FALSE
+  #Set valid to FALSE if needed
+  if(is.na(x) || is.na(y) || (x + y <= 0)) valid = FALSE
   
-  #Set valid to FALSE if sum of x and y is 0
-  if(x + y <= 0) valid = FALSE
-  
-  #Calculate percent difference
+  #Calculate percent difference if valid
   if(valid)
     per_dif_ = abs(x - y) / ((x + y)/2) * 100
   
@@ -54,13 +50,13 @@ per_dif <- function(x,
 #' This function is used to calculate percentage change between two numeric
 #' values, x and y.
 #' 
-#' per_change_ = ((y - x) / abs(x)) * 100
+#' percent change = ((y - x) / abs(x)) * 100
 #
 #' @param x:
-#' numeric value. This is treated as the old/initial value.
+#' numeric value. This is treated as the baseline value.
 #
 #' @param y: 
-#' numeric value. This is treated as the new/end value.
+#' numeric value. This is treated as the new value.
 #
 #' @return 
 #' Percent change between x and y.
@@ -78,11 +74,10 @@ per_change <- function(x,
   if(!is.numeric(x)) x = suppressWarnings(is.numeric(x))
   if(!is.numeric(y)) y = suppressWarnings(is.numeric(y))
   
-  #Set valid to FALSE if x and y are NA
-  if(is.na(x)) valid = FALSE
-  if(is.na(y)) valid = FALSE
-  
-  #Calculate percent change
+  #Set valid to FALSE if needed
+  if(is.na(x) || is.na(y) || x == 0) valid = FALSE
+
+  #Calculate percent change if valid
   if(valid)
     per_change_ = ((y - x) / abs(x)) * 100
   
@@ -102,7 +97,7 @@ per_change <- function(x,
 #' Percent root mean square error (PRMSE)
 #' Mean bias (MBIAS)
 #' Absolute bias (ABIAS)
-#' Relative absolute bias (PABIAS)
+#' Percent absolute bias (PABIAS)
 #' Percent bias (PBIAS)
 #
 #' @param obs:
@@ -117,42 +112,61 @@ per_change <- function(x,
 ################################################################################
 
 #'@export
-error_fun <- function(obs,
-                     pred)
+error_fun <- function(obs = NULL,
+                      pred = NULL)
 {
-  #Define number of obserations
+  #Setup fit_stats data frame
+  fit_stats <- data.frame(N = 0,
+                          BS_MEAN = 0,
+                          PRED_MEAN = 0,
+                          RMSE = 0,
+                          PRMSE = 0,
+                          MBIAS = 0,
+                          PBIAS = 0,
+                          ABIAS = 0,
+                          PABIAS = 0)
+  
+  #Return of obs and pred are null or are unequal in length
+  if(is.null(obs) || is.null(pred) || (length(obs) != length(pred)))
+    return(fit_stats)
+  
+  #Obtain mean observed and predicted
+  mean_obs = mean(obs)
+  mean_pred = mean(pred)
+  
+  #Define number of observations
   n <- length(obs)
   
   #Root mean square error
-  rmse <- sqrt((sum((pred-obs)^2)/(n)))
+  rmse <- sqrt((sum((pred - obs)^2) / (n)))
   
   #Percent root mean square error
-  prmse<- rmse/mean(obs)*100
+  prmse <- rmse / mean_obs * 100
   
   #Mean bias
-  mbias <- sum((pred-obs))/n
+  mbias <- sum((pred - obs)) / n
   
-  #Relative bias
+  #Percent bias
   #pbias= sum(pred-obs)/sum(obs)*100
-  pbias <- (sum((pred-obs) / obs) * 100)/n
+  pbias <- (sum((pred - obs) / obs) * 100) / n
   
   #Absolute bias
-  abias <- sum(abs(pred-obs))/n
+  abias <- sum(abs(pred - obs)) / n
   
-  #Relative absolute bias
+  #Percent absolute bias
   #pabias=sum(abs(pred-obs))/sum(obs)*100
-  pabias <- (sum(abs(pred-obs) / obs) * 100)/n
+  pabias <- (sum(abs(pred - obs) / obs) * 100) / n
   
   #Vector of fit statistics
-  fitStats <- data.frame(N = round(n,0),
-                         OBS_MEAN = round((mean(obs)),4),
-                         PRED_MEAN = round((mean(pred)),4),
-                         RMSE = round(rmse,4),
-                         PRMSE = round(prmse,4),
-                         MBIAS = round(mbias,4),
-                         PBIAS = round(pbias,4),
-                         ABIAS = round(abias,4),
-                         PABIAS = round(pabias,4))
+  fit_stats$N = round(n,0)
+  fit_stats$OBS_MEAN = round(mean_obs, 4)
+  fit_stats$PRED_MEAN = round(mean_pred, 4)
+  fit_stats$RMSE = round(rmse, 4)
+  fit_stats$PRMSE = round(prmse, 4)
+  fit_stats$MBIAS = round(mbias, 4)
+  fit_stats$PBIAS = round(pbias, 4)
+  fit_stats$ABIAS = round(abias, 4)
+  fit_stats$PABIAS = round(pabias, 4)
   
-  return(fitStats)
+  return(fit_stats)
 }
