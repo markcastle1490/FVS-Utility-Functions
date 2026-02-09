@@ -8,7 +8,7 @@ state_lookup(state = NULL, from = 0, to = 3)
 }
 \arguments{
 \item{state:}{Character string of a US state name (e.g. "New York") or state abbreviation
-(e.g "NY") or a FIPS state code (e.g. 36 for New York). Lookup times will be
+(e.g "NY") or a FIPS state code (e.g. 36 for New York). Look up times will be
 fastest if state is input as FIPS code.}
 
 \item{from:}{Option integer value that tells what kind of value is held in state argument.

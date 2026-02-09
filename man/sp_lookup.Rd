@@ -8,10 +8,10 @@ sp_lookup(sp = NULL, from = 0, to = 2)
 }
 \arguments{
 \item{sp:}{Incoming species code. This can be either an FIA species code, USDA plant
-symbol, or specifies scientific name.}
+symbol, or species scientific name.}
 
 \item{from:}{Option integer value that tells what kind of value is held in sp argument.
-Specifying a value from 1 - 3 will generally speed up lookup times.
+Specifying a value from 1 - 3 will generally speed up look up times.
 
 0: FIA species code, USDA plant symbol, or scientific name.
 
@@ -21,7 +21,7 @@ Specifying a value from 1 - 3 will generally speed up lookup times.
 
 3: Species scientific name}
 
-\item{to:}{Integer value signifying the type of species you are converting to.
+\item{to:}{Integer value indicating the type of species information to look up.
 
 1 = FIA code
 
@@ -33,9 +33,9 @@ Specifying a value from 1 - 3 will generally speed up lookup times.
 
 5 = Species common name
 
-6 = Hardwood softwood indicator
+6 = Hardwood softwood indicator ('H' / 'S'; hardwood or softwood)
 
-7 = Woodland species indicator
+7 = Woodland species indicator ('Y' / 'N'; YES or NO)
 
 8 = Jenkins species group
 
@@ -45,12 +45,9 @@ If the value of to argument  is anything other than 1 - 9, then a NA value
 will be returned from the function.}
 }
 \value{
-Character value corresponding to FIA species code, USDA plant symbol, Genus,
-species scientific name, species common name, hardwood softwood indicator,
-woodland species indicator, jenkins species group, sequence number.
+Value corresponding to output provided in to argument.
 }
 \description{
-This function is used to convert between various species codes and also to
-look up other information pertaining to a specific species based on an input
-FIA species code or USDA plant symbol
+This function is used to look up species specific information given an input
+FIA species code, USDA plant symbol, or species scientific name.
 }

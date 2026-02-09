@@ -22,7 +22,7 @@ state_get_df <- function()
 #
 #'@param state:    
 #'Character string of a US state name (e.g. "New York") or state abbreviation
-#'(e.g "NY") or a FIPS state code (e.g. 36 for New York). Lookup times will be
+#'(e.g "NY") or a FIPS state code (e.g. 36 for New York). Look up times will be
 #'fastest if state is input as FIPS code.
 #
 #'@param from:
