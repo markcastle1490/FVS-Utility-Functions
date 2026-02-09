@@ -164,7 +164,7 @@ fvs_gaak<-function(dbin ="FVS_Data.db",
 #'By default, this argument is set to FALSE.
 #
 #'@return
-#'Integer value of 0.
+#'None
 ################################################################################
 
 #'@export
@@ -198,7 +198,7 @@ delete_files <- function(files = c(),
     }
   }
   
-  return()
+  invisible()
 }
 
 ################################################################################
