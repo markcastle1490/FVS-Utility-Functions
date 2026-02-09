@@ -4,6 +4,8 @@
 #' @description
 #' This function is used to calculate percentage difference between two numeric
 #' values, x and y.
+#' 
+#' per_dif_ = abs(x - y) / ((x + y)/2) * 100
 #
 #' @param x:
 #' numeric value.
@@ -17,21 +19,74 @@
 
 #'@export
 per_dif <- function(x,
-                   y)
+                    y)
 {
-  percent_dif <- NA
+  #Initialize per_dif_ and valid
+  per_dif_ = NA
+  valid = TRUE
   
-  #Set x and y to 0 if they are NA or not numeric
-  if(is.na(x) | !is.numeric(x)) x <- 0
-  if(is.na(y) | !is.numeric(y)) y <- 0
+  #Cast to numbers if needed
+  if(!is.numeric(x)) x = suppressWarnings(is.numeric(x))
+  if(!is.numeric(y)) y = suppressWarnings(is.numeric(y))
+  
+  #If x or y is less than 0, multiply by -1
+  if(x < 0) x = -x
+  if(y < 0) y = -y
+  
+  #Set valid to FALSE if x and y are NA
+  if(is.na(x)) valid = FALSE
+  if(is.na(y)) valid = FALSE
+  
+  #Set valid to FALSE if sum of x and y is 0
+  if(x + y <= 0) valid = FALSE
   
   #Calculate percent difference if x and y are not 0
-  if(x != 0 & y != 0)
-  {
-    percent_dif <- abs(x - y) / ((x + y)/2) * 100
-  }
+  if(valid)
+    per_dif_ = abs(x - y) / ((x + y)/2) * 100
   
-  return(percent_dif)
+  return(per_dif_)
+}
+
+################################################################################
+#'per_change
+#' @name per_change
+#' @description
+#' This function is used to calculate percentage change between two numeric
+#' values, x and y.
+#' 
+#' per_change_ = ((y - x) / abs(x)) * 100
+#
+#' @param x:
+#' numeric value. This is treated as the old/initial value.
+#
+#' @param y: 
+#' numeric value. This is treated as the new/end value.
+#
+#' @return 
+#' Percent change between x and y.
+################################################################################
+
+#'@export
+per_change <- function(x,
+                       y)
+{
+  #Initialize per_dif_ and valid
+  per_change_ = NA
+  valid = TRUE
+  
+  #Cast to numbers if needed
+  if(!is.numeric(x)) x = suppressWarnings(is.numeric(x))
+  if(!is.numeric(y)) y = suppressWarnings(is.numeric(y))
+  
+  #Set valid to FALSE if x and y are NA
+  if(is.na(x)) valid = FALSE
+  if(is.na(y)) valid = FALSE
+  
+  #Calculate percent difference if x and y are not 0
+  if(valid)
+    per_change_ = ((y - x) / abs(x)) * 100
+  
+  return(per_change_)
 }
 
 ################################################################################
