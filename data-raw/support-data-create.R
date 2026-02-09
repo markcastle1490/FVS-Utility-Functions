@@ -14,9 +14,11 @@
 #Contains information from REF_FOREST_TYPE.csv.
 ################################################################################
 
-#Define directories to read from and write to
+#Define directories to read from and write to. Also set the path to FVS dll
+#files which are used to create fvs_species.csv.
 read_dir = "C:/FVS_Utility/FVS-Utility-Functions/external"
 write_dir = "C:/FVS_Utility/FVS-Utility-Functions/inst/extdata/"
+fvs_bin = "C:/FVS/FVSSoftware/FVSbin"
 
 #===============================================================================
 # Create support_sp.csv
@@ -177,6 +179,54 @@ fortyp_codes <- fortyp_codes[order(fortyp_codes$VALUE),]
 write.csv(fortyp_codes,
           file = paste0(write_dir, "/", "fortyp_codes.csv"),
           row.names = F)
+
+#===============================================================================
+# Create fvs_species.csv
+#===============================================================================
+
+#Load rFVS package. This will be used to call the fvsGetSpeciesCodes function.
+library(rFVS)
+
+#Define variants to process
+vars <- c("AK", "BM", "CA", "CI", "CR", "CS", "EC", "EM", "IE", "KT",
+          "LS", "NC", "NE", "OC", "OP", "PN", "SN", "SO", "TT", "UT",
+          "WC", "WS")
+
+#Create list for storing species for each variant as dataframe
+var_list <- vector(mode = "list",
+                   length = length(vars))
+
+#Get species for each variant and store in var_list
+for(i in 1:length(vars))
+{
+  var <- vars[i]
+  
+  #Load variant
+  fvsLoad(fvsProgram = paste0("FVS", tolower(var)),
+          bin = fvs_bin)
+  
+  #Get species
+  var_data <- as.data.frame(fvsGetSpeciesCodes())
+  
+  #Define FVS sequence numbers using row names
+  var_data$SEQ <- as.integer(row.names(var_data))
+  
+  #Define variant column and reorder columns
+  var_data$VARIANT <- var
+  colnames(var_data) <- toupper(colnames(var_data))
+  var_data <- var_data[c("VARIANT", "SEQ", "FVS", "FIA", "PLANT")]
+  
+  #Store the species data
+  var_list[[i]] <- var_data
+}
+
+#Combine data
+var_data <- do.call("rbind", var_list); rm(var_list)
+
+#Write csv
+write.csv(file = paste0(write_dir, "/", "fvs_species.csv"),
+          x = var_data,
+          row.names = FALSE)
 
 #Clean up
 rm(list=ls())

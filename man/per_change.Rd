@@ -7,9 +7,9 @@
 per_change(x, y)
 }
 \arguments{
-\item{x:}{numeric value. This is treated as the old/initial value.}
+\item{x:}{numeric value. This is treated as the baseline value.}
 
-\item{y:}{numeric value. This is treated as the new/end value.}
+\item{y:}{numeric value. This is treated as the new value.}
 }
 \value{
 Percent change between x and y.
@@ -18,5 +18,5 @@ Percent change between x and y.
 This function is used to calculate percentage change between two numeric
 values, x and y.
 
-per_change_ = ((y - x) / abs(x)) * 100
+percent change = ((y - x) / abs(x)) * 100
 }

@@ -13,8 +13,8 @@ per_dif(x, y)
 Percent difference between x and y.
 }
 \description{
-This function is used to calculate percentage difference between two numeric
+This function is used to calculate percent difference between two numeric
 values, x and y.
 
-per_dif_ = abs(x - y) / ((x + y)/2) * 100
+percent difference = abs(x - y) / ((x + y)/2) * 100
 }

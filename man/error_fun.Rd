@@ -4,7 +4,7 @@
 \alias{error_fun}
 \title{error_fun}
 \usage{
-error_fun(obs, pred)
+error_fun(obs = NULL, pred = NULL)
 }
 \arguments{
 \item{obs:}{Numeric vector of observed response variable}
@@ -24,6 +24,6 @@ Root mean square error (RMSE)
 Percent root mean square error (PRMSE)
 Mean bias (MBIAS)
 Absolute bias (ABIAS)
-Relative absolute bias (PABIAS)
+Percent absolute bias (PABIAS)
 Percent bias (PBIAS)
 }
