@@ -3,20 +3,26 @@
 #'@name fvs_gaak
 #'@description
 #
-#'This function creates a FVS_GroupAddFilesAndKeyword (GAAK) table with the
-#'appropriate SQL statements for a variety of grouping codes.
+#'This function returns a FVS_GroupAddFilesAndKeyword (GAAK) table in a 
+#'dataframe format with the appropriate FVS keywords and SQL statements for 
+#'reading stand and tree level data from a specified input FVS database. This 
+#'function can accommodate a GAAK table that can read from standard 
+#'FVS_TreeInit, FVS_StandInit, and FVS_PlotInit tables and FIA-centric tables 
+#'that include FVS_TreeInit_Plot, FVS_TreeInit_Cond, FVS_StandInit_Plot, 
+#'FVS_StandInit_Cond, and FVS_PlotInit_Plot.
 #
 #'@param dbin:
 #'Character string corresponding to filepath or name of database to read from.
 #'File extension (.db, .sqlite) should be included for this value (e.g.
 #'FVS_Data.db).
 #'
-#'@param standType:
-#'Integer value that determine what stand ID will be used to read data from.
+#'@param stand_type:
+#'Integer value that determine what stand ID will be used to read data from for
+#'STANDSQL and TREESQL statements included in GAAK table.
 #'
-#'0 = Stand_CN
+#'0 = Stand_CN (e.g. "WHERE Stand_CN = '%Stand_CN%'")
 #'
-#'1 = Stand_ID
+#'1 = Stand_ID (e.g. "WHERE Stand_ID = '%StandID%'")
 #
 #'@param gaak_type:
 #'Variable to determine what grouping codes are included in GAAK table.
@@ -28,116 +34,115 @@
 #'3 = Both standard FVS grouping codes and FIA grouping codes
 #
 #'@return 
-#'Dataframe containing FVS GAAK table
+#'Dataframe containing FVS GAAK table.
 ################################################################################
 
+#'@export
 fvs_gaak<-function(dbin ="FVS_Data.db",
-                   standType = 1,
-                   gaak_type = 2)
+                   stand_type = 1,
+                   gaak_type = 3)
 {
-  #Capture invalid gaak_type argument values
-  if(!gaak_type %in% c(1, 2, 3)) gaak_type = 2
+  #Catch bad stand_type values
+  if(!stand_type %in% c(0, 1)) stand_type = 1
   
-  #Catch bad standType values
-  if(!standType %in% c(0, 1)) standType <- 1
+  #Capture bad gaak_type values
+  if(!gaak_type %in% c(1, 2, 3)) gaak_type = 3
   
   #Set the stand column to read data from
-  if(standType == 1) 
+  if(stand_type == 1) 
   {
-    standRead <- "WHERE Stand_ID = '%StandID%'"
+    stand_read = "WHERE Stand_ID = '%StandID%'"
+    plot_read = "WHERE StandPlot_ID = '%StandID%'"
   }
   
   else 
   {
-    standRead <- "WHERE Stand_CN = '%Stand_CN%'"
+    stand_read = "WHERE Stand_CN = '%Stand_CN%'"
+    plot_read = "WHERE StandPlot_CN = '%Stand_CN%'"
   }
   
   #Create dataframe containing FVS_GroupAddfilesAndKeywords table
-  gaak<-data.frame(GROUPS = c("All_Stands","All_Plots","All_FIA_Conditions",
-                              "All_FIA_Plots", "All_FIA_Subplots"),
-                   ADDFILES = c("","","","",""),
-                   FVSKEYWORDS = c(paste("DATABASE", 
-                                         "DSNIN",
-                                         dbin,
-                                         "STANDSQL",
-                                         "SELECT *", 
-                                         "FROM FVS_StandInit",
-                                         standRead,
-                                         "ENDSQL",
-                                         "TREESQL", 
-                                         "SELECT *",
-                                         "FROM FVS_TreeInit",
-                                         standRead,
-                                         "ENDSQL", 
-                                         "END", sep = "\n"),
-                                   paste("DATABASE", 
-                                         "DSNIN",
-                                         dbin,
-                                         "STANDSQL",
-                                         "SELECT *",
-                                         "FROM FVS_PlotInit",
-                                         standRead,
-                                         "ENDSQL",
-                                         "TREESQL",
-                                         "SELECT *",
-                                         "FROM FVS_TreeInit",
-                                         standRead,
-                                         "ENDSQL",
-                                         "END", sep = "\n"),
-                                   paste("DATABASE", 
-                                         "DSNIN",
-                                         dbin, 
-                                         "STANDSQL",
-                                         "SELECT *", 
-                                         "FROM FVS_StandInit_Cond",
-                                         standRead,
-                                         "ENDSQL",
-                                         "TREESQL",
-                                         "SELECT *",
-                                         "FROM FVS_TreeInit_Cond",
-                                         standRead,
-                                         "ENDSQL",
-                                         "END", sep = "\n"),
-                                   paste("DATABASE", 
-                                         "DSNIN",
-                                         dbin,
-                                         "STANDSQL", 
-                                         "SELECT *",
-                                         "FROM FVS_StandInit_Plot",
-                                         standRead,
-                                         "ENDSQL",
-                                         "TREESQL",
-                                         "SELECT *",
-                                         "FROM FVS_TreeInit_Plot",
-                                         standRead,
-                                         "ENDSQL", 
-                                         "END", sep = "\n"),
-                                   paste("DATABASE", 
-                                         "DSNIN",
-                                         dbin,
-                                         "STANDSQL",
-                                         "SELECT *", 
-                                         "FROM FVS_PlotInit_Plot",
-                                         standRead,
-                                         "ENDSQL",
-                                         "TREESQL",
-                                         "SELECT *",
-                                         "FROM FVS_TreeInit_Plot",
-                                         standRead,
-                                         "ENDSQL", 
-                                         "END", sep = "\n")))
+  gaak = data.frame(GROUPS = c("All_Stands","All_Plots","All_FIA_Conditions",
+                               "All_FIA_Plots", "All_FIA_Subplots"),
+                    ADDFILES = c("","","","",""),
+                    FVSKEYWORDS = c(paste("DATABASE", 
+                                          "DSNIN",
+                                          dbin,
+                                          "STANDSQL",
+                                          "SELECT *", 
+                                          "FROM FVS_StandInit",
+                                          stand_read,
+                                          "ENDSQL",
+                                          "TREESQL", 
+                                          "SELECT *",
+                                          "FROM FVS_TreeInit",
+                                          stand_read,
+                                          "ENDSQL", 
+                                          "END", sep = "\n"),
+                                    paste("DATABASE", 
+                                          "DSNIN",
+                                          dbin,
+                                          "STANDSQL",
+                                          "SELECT *",
+                                          "FROM FVS_PlotInit",
+                                          plot_read,
+                                          "ENDSQL",
+                                          "TREESQL",
+                                          "SELECT *",
+                                          "FROM FVS_TreeInit",
+                                          plot_read,
+                                          "ENDSQL",
+                                          "END", sep = "\n"),
+                                    paste("DATABASE", 
+                                          "DSNIN",
+                                          dbin, 
+                                          "STANDSQL",
+                                          "SELECT *", 
+                                          "FROM FVS_StandInit_Cond",
+                                          stand_read,
+                                          "ENDSQL",
+                                          "TREESQL",
+                                          "SELECT *",
+                                          "FROM FVS_TreeInit_Cond",
+                                          stand_read,
+                                          "ENDSQL",
+                                          "END", sep = "\n"),
+                                    paste("DATABASE", 
+                                          "DSNIN",
+                                          dbin,
+                                          "STANDSQL", 
+                                          "SELECT *",
+                                          "FROM FVS_StandInit_Plot",
+                                          stand_read,
+                                          "ENDSQL",
+                                          "TREESQL",
+                                          "SELECT *",
+                                          "FROM FVS_TreeInit_Plot",
+                                          stand_read,
+                                          "ENDSQL", 
+                                          "END", sep = "\n"),
+                                    paste("DATABASE", 
+                                          "DSNIN",
+                                          dbin,
+                                          "STANDSQL",
+                                          "SELECT *", 
+                                          "FROM FVS_PlotInit_Plot",
+                                          plot_read,
+                                          "ENDSQL",
+                                          "TREESQL",
+                                          "SELECT *",
+                                          "FROM FVS_TreeInit_Plot",
+                                          plot_read,
+                                          "ENDSQL", 
+                                          "END", sep = "\n")))
   
-  #GAAK with just FVS grouping codes
+  #GAAK with just FVS group codes
   if(gaak_type == 1)
-  {
     gaak <- gaak[1:2,]
-  }
   
-  #GAAK with just FIA grouping codes
+  #GAAK with just FIA group codes
   if(gaak_type == 2)
-  {
     gaak <- gaak[3:5,]
-  }
   
   return(gaak)
 }
