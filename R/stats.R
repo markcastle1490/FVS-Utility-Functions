@@ -25,7 +25,7 @@ per_dif <- function(x,
   per_dif_ = NA
   valid = TRUE
   
-  #Cast to numbers if needed
+  #Cast to numeric if needed
   if(!is.numeric(x)) x = suppressWarnings(is.numeric(x))
   if(!is.numeric(y)) y = suppressWarnings(is.numeric(y))
   
@@ -40,7 +40,7 @@ per_dif <- function(x,
   #Set valid to FALSE if sum of x and y is 0
   if(x + y <= 0) valid = FALSE
   
-  #Calculate percent difference if x and y are not 0
+  #Calculate percent difference
   if(valid)
     per_dif_ = abs(x - y) / ((x + y)/2) * 100
   
@@ -70,11 +70,11 @@ per_dif <- function(x,
 per_change <- function(x,
                        y)
 {
-  #Initialize per_dif_ and valid
+  #Initialize per_change_ and valid
   per_change_ = NA
   valid = TRUE
   
-  #Cast to numbers if needed
+  #Cast to numeric if needed
   if(!is.numeric(x)) x = suppressWarnings(is.numeric(x))
   if(!is.numeric(y)) y = suppressWarnings(is.numeric(y))
   
@@ -82,7 +82,7 @@ per_change <- function(x,
   if(is.na(x)) valid = FALSE
   if(is.na(y)) valid = FALSE
   
-  #Calculate percent difference if x and y are not 0
+  #Calculate percent change
   if(valid)
     per_change_ = ((y - x) / abs(x)) * 100
   
