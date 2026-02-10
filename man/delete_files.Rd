@@ -14,7 +14,7 @@ they exist.}
 By default, this argument is set to FALSE.}
 }
 \value{
-Integer value of 0.
+None
 }
 \description{
 This function takes in a character vector containing directory paths and file

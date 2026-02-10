@@ -38,17 +38,14 @@ run_key = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
   #Check for existence of dll_path
   if (!(file.exists(dll_path))){
     stop(paste("dll_path not found. Make sure directory path is spelled",
-               " correctly."))
+               "correctly."))
   }
   
   #Check for existence of keyfile
   if (!(file.exists(keyfile))){
     stop(paste("keyfile not found. Make sure directory path and file name are",
-               " spelled correctly."))
+               "spelled correctly."))
   }
-  
-  #Grab the the directory where the keyword file is stored
-  keydir = gsub("/[^/]+$", "", keyfile)
   
   #Make var_code lowercase
   var_code = tolower(var_code)
@@ -59,20 +56,33 @@ run_key = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
   #Load variant dll and specify directory path to dll in bin folder
   rFVS::fvsLoad(var_code, bin = dll_path)
   
-  #Set keyword file to command line
-  rFVS::fvsSetCmdLine(paste0("--keywordfile=", keyfile))
+  #Grab the the directory where the keyword file is stored
+  keydir = gsub("/[^/]+$", "", keyfile)
+  
+  #Get the name of the keyword file
+  keyfile_ = sub(".*/", "", keyfile)
   
   #Set working directory for the simulation
-  setwd(keydir)
+  if(keydir != keyfile_)
+    setwd(keydir)
+  
+  #Set keyword file to command line
+  rFVS::fvsSetCmdLine(paste0("--keywordfile=", keyfile_))
   
   #Initialize return code
   retcode = 0
   
   if(verbose)
   {
+    #Reset keydir for printing purposes if directory path was not specified for
+    #keyfile.
+    if(keydir == keyfile_) keydir = getwd()
     cat("dll_path:", dll_path, "\n")
-    cat("fvsdll:",  var_code, "\n")
-    cat("keyfile:", keyfile, "\n")
+    cat("FVS Variant:",  var_code, "\n")
+    cat("Keyfile:", keyfile, "\n")
+    cat("Keyword file directory:", keydir, "\n")
+    cat("Keyword file name:", keyfile_, "\n", "\n")
+    cat("Running FVS...", "\n", "\n")
   }
   
   #Keep running FVS until a return code other than 0, is returned.
@@ -80,7 +90,8 @@ run_key = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
   {
     retcode = rFVS::fvsRun()
     
-    if(verbose) cat("FVS return code:", retcode, "\n")
+    if(verbose)
+      if(retcode != 0) cat("FVS return code:", retcode, "\n")
   }
   
   #=============================================================================

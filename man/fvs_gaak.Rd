@@ -4,18 +4,19 @@
 \alias{fvs_gaak}
 \title{fvs_gaak}
 \usage{
-fvs_gaak(dbin = "FVS_Data.db", standType = 1, gaak_type = 2)
+fvs_gaak(dbin = "FVS_Data.db", stand_type = 1, gaak_type = 3)
 }
 \arguments{
 \item{dbin:}{Character string corresponding to filepath or name of database to read from.
 File extension (.db, .sqlite) should be included for this value (e.g.
 FVS_Data.db).}
 
-\item{standType:}{Integer value that determine what stand ID will be used to read data from.
+\item{stand_type:}{Integer value that determine what stand ID will be used to read data from for
+STANDSQL and TREESQL statements included in GAAK table.
 
-0 = Stand_CN
+0 = Stand_CN (e.g. "WHERE Stand_CN = '\%Stand_CN\%'")
 
-1 = Stand_ID}
+1 = Stand_ID (e.g. "WHERE Stand_ID = '\%StandID\%'")}
 
 \item{gaak_type:}{Variable to determine what grouping codes are included in GAAK table.
 
@@ -26,9 +27,14 @@ FVS_Data.db).}
 3 = Both standard FVS grouping codes and FIA grouping codes}
 }
 \value{
-Dataframe containing FVS GAAK table
+Dataframe containing FVS GAAK table.
 }
 \description{
-This function creates a FVS_GroupAddFilesAndKeyword (GAAK) table with the
-appropriate SQL statements for a variety of grouping codes.
+This function returns a FVS_GroupAddFilesAndKeyword (GAAK) table in a
+dataframe format with the appropriate FVS keywords and SQL statements for
+reading stand and tree level data from a specified input FVS database. This
+function can accommodate a GAAK table that can read from standard
+FVS_TreeInit, FVS_StandInit, and FVS_PlotInit tables and FIA-centric tables
+that include FVS_TreeInit_Plot, FVS_TreeInit_Cond, FVS_StandInit_Plot,
+FVS_StandInit_Cond, and FVS_PlotInit_Plot.
 }

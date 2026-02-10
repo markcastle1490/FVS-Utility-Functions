@@ -900,259 +900,259 @@ db_compile <- function(dbin = NULL,
 #'Character string indicating that database has been created.
 ################################################################################
 
-#'@export
-db_compile_v2 <- function(dbin = NULL,
-                          dbout = NULL,
-                          db_tables = c("FVS_STANDINIT",
-                                     "FVS_TREEINIT",
-                                     "FVS_PLOTINIT",
-                                     "FVS_STANDINIT_PLOT",
-                                     "FVS_STANDINIT_COND",
-                                     "FVS_PLOTINIT_PLOT",
-                                     "FVS_TREEINIT_PLOT",
-                                     "FVS_TREEINIT_COND"),
-                          build_gaak = T,
-                          gaak_type = 2,
-                          delete_input = F,
-                          read_chunks = F,
-                          rows_to_read = 5000)
-{
-  
-  #Test if no values have been specified for dbin
-  if(is.null(dbin))
-  {
-    stop(paste("No files were specified for dbin."))
-  }
-  
-  #Test if no values have been specified for dbout
-  if(is.null(dbout))
-  {
-    stop(paste("No file was specified for dbout."))
-  }
-  
-  #Test if db_tables is null and return with error message.
-  if(is.null(db_tables))
-  {
-    stop(paste("No table names were provided for db_tables."))
-  }
-  
-  #Print database tables to consider
-  else
-  {
-    #Capitalize db_tables
-    db_tables <- toupper(db_tables)
-    
-    cat("Database table names to consider:",
-        db_tables,
-        "\n")
-  }
-  
-  #Catch erroneous gaak_type values
-  if(gaak_type < 1 | gaak_type > 3) gaak_type = 2
-  
-  #Report error message if rows_to_read is less than or equal to 0
-  if(read_chunks)
-  {
-    rows_to_read <- as.integer(rows_to_read)
-    if(rows_to_read <= 0)
-    {
-      stop(paste("Value for rows_to_read needs to be integer value greater than",
-                 "zero."))
-    }
-  }
-  
-  #Replace \\ with / in dbin and dbout
-  dbin <- gsub("\\\\", "/", dbin)
-  dbout <- gsub("\\\\", "/", dbout)
-  
-  #Loop through dbin and test if any of the files don't exist. If a file does
-  #not exist then error message is reported.
-  for(i in 1:length(dbin))
-  {
-    if(!file.exists(dbin[i]))
-    {
-      stop(paste("File:",
-                 dbin[i],
-                 "does not exist."))
-    }
-    
-    else
-    {
-      cat("Database", i, dbin[i], "\n")
-    }
-  }
-  
-  #If there is more than one value specified in dbout, stop with error message.
-  if(length(dbout) > 1)
-  {
-    stop(paste("Only one output file can be specified for dbout."))
-  }
-  
-  #Test if dbout file path is valid.
-  #Extract path to dbout by extracting all characters before the last / in
-  #output argument.
-  outpath <- gsub("/[^/]+$", "", dbout)
-  
-  #Test existence of output path and if it does not exist report error.
-  if (!(file.exists(outpath))){
-    stop(paste("Path to output:", outpath, "was not found.",
-               "Make sure directory path to output is spelled correctly."))
-  }
-  
-  #Test if output file is a SQLite database. If the file is not a SQLite
-  #database then error message is reported.
-  fileext_out<-sub("(.*)\\.","",dbout)
-  if(!fileext_out %in% c("db", "sqlite"))
-  {
-    stop(paste("Output database:",
-               dbout,
-               "is not a SQLite database.",
-               "\n"))
-  }
-  
-  #If dbout already exists, delete it
-  if(file.exists(dbout))
-  {
-    cat(paste0("\n","Deleting preexisting dbout"), "\n")
-    unlink(dbout,
-           force = T)
-  }
-  
-  cat("Output database:", dbout, "\n","\n")
-  
-  #Get updated directory paths and file names
-  dbin_update <- db_collect_paths(dbin = dbin)
-  
-  #If dbin_update does not have any databases, then stop with error message and
-  #delete unzip directory if it exists.
-  if(length(dbin_update) <= 0)
-  {
-    #Check if unzipdir exists. If it does, delete it.
-    if(file.exists(unzipdir))
-    {
-      
-      delete_files(files = unzipdir,
-                  recur = TRUE)
-    }
-    
-    stop("No valid database files (.db, .sqlite) are available for processing.")
-  }
-  
-  #Remove duplicate values in dbin_update and print database file paths
-  dbin_update <- unique(dbin_update)
-  cat("List of db files to process:", "\n")
-  cat(paste(dbin_update, collapse = "\n"))
-  
-  #Begin processing databases in dbin_update
-  for(i in 1:length(dbin_update))
-  {
-    
-    db <- dbin_update[i]
-    
-    cat("\n")
-    cat("Processing db:", db, "\n", "\n")
-    
-    #Begin processing db_tables in db
-    for(j in 1:length(db_tables))
-    {
-      #Extract table name
-      table_name <- db_tables[j]
-      cat("Processing table:",
-          table_name,
-          "\n")
-      
-      #Connect to db
-      con_in <- RSQLite::dbConnect(RSQLite::SQLite(), db)
-      
-      #Test if table does not exist in db. if this is the case move to next
-      #iteration of loop.
-      if(!table_name %in% toupper(RSQLite::dbListTables(con_in)))
-      {
-        cat("Table:",
-            table_name,
-            "was not found in database.",
-            "\n", "\n")
-        #Disconnect from con_in
-        RSQLite::dbDisconnect(con_in)
-        next
-      }
-      
-      #Determine number of rows in table_name
-      query <- paste("SELECT COUNT(*) FROM", table_name)
-      num_rows <- RSQLite::dbGetQuery(con_in,
-                                     query)[[1]]
-      
-      #If there are no rows (i.e. no data) in db_table, skip to next iteration
-      #of loop.
-      if(num_rows <= 0)
-      {
-        cat("No data found in",
-            table_name,
-            "\n", "\n")
-        
-        #Disconnect from con_in
-        RSQLite::dbDisconnect(con_in)
-        next
-      }
-      
-      #Disconnect from con_in
-      RSQLite::dbDisconnect(con_in)
-      
-      #If read_chunks is FALSE, call add_db_table, otherwise call add_db_rows.
-      if(!read_chunks)
-      {
-        add_db_table(db,
-                   dbout,
-                   table_name)
-      }
-      else
-      {
-        add_db_rows(db,
-                  dbout,
-                  table_name,
-                  rows_to_read,
-                  num_rows)
-      }
-    }
-    
-    #Print message indicating which db has been processed.
-    cat("Finished processing db:",
-        db,
-        "\n")
-  }
-  
-  #Determine if GAAK table should be written to dbout.
-  if(build_gaak)
-  {
-    con_out <- RSQLite::dbConnect(RSQLite::SQLite(),
-                                 dbout)
-    
-    cat("Writing fvs_gaak table to",
-        dbout,
-        "\n",
-        "\n")
-    
-    RSQLite::dbWriteTable(conn = con_out,
-                          name = "FVS_GROUPADDFILESANDKEYWORDS",
-                          value = fvs_gaak(type = gaak_type),
-                          overwrite = T)
-    
-    #Disconnect from con_out
-    RSQLite::dbDisconnect(con_out)
-  }
-  
-  #If delete_input is TRUE, delete files in dbin argument.
-  if(delete_input)
-  {
-    
-    cat(paste("Argument delete_input is TRUE.",
-              "Deleting input databases.", "\n"))
-    delete_files(files = dbin,
-                recur = FALSE)
-  }
-  
-  invisible(0)
-}
+#' #'@export
+#' db_compile_v2 <- function(dbin = NULL,
+#'                           dbout = NULL,
+#'                           db_tables = c("FVS_STANDINIT",
+#'                                      "FVS_TREEINIT",
+#'                                      "FVS_PLOTINIT",
+#'                                      "FVS_STANDINIT_PLOT",
+#'                                      "FVS_STANDINIT_COND",
+#'                                      "FVS_PLOTINIT_PLOT",
+#'                                      "FVS_TREEINIT_PLOT",
+#'                                      "FVS_TREEINIT_COND"),
+#'                           build_gaak = T,
+#'                           gaak_type = 2,
+#'                           delete_input = F,
+#'                           read_chunks = F,
+#'                           rows_to_read = 5000)
+#' {
+#'   
+#'   #Test if no values have been specified for dbin
+#'   if(is.null(dbin))
+#'   {
+#'     stop(paste("No files were specified for dbin."))
+#'   }
+#'   
+#'   #Test if no values have been specified for dbout
+#'   if(is.null(dbout))
+#'   {
+#'     stop(paste("No file was specified for dbout."))
+#'   }
+#'   
+#'   #Test if db_tables is null and return with error message.
+#'   if(is.null(db_tables))
+#'   {
+#'     stop(paste("No table names were provided for db_tables."))
+#'   }
+#'   
+#'   #Print database tables to consider
+#'   else
+#'   {
+#'     #Capitalize db_tables
+#'     db_tables <- toupper(db_tables)
+#'     
+#'     cat("Database table names to consider:",
+#'         db_tables,
+#'         "\n")
+#'   }
+#'   
+#'   #Catch erroneous gaak_type values
+#'   if(gaak_type < 1 | gaak_type > 3) gaak_type = 2
+#'   
+#'   #Report error message if rows_to_read is less than or equal to 0
+#'   if(read_chunks)
+#'   {
+#'     rows_to_read <- as.integer(rows_to_read)
+#'     if(rows_to_read <= 0)
+#'     {
+#'       stop(paste("Value for rows_to_read needs to be integer value greater than",
+#'                  "zero."))
+#'     }
+#'   }
+#'   
+#'   #Replace \\ with / in dbin and dbout
+#'   dbin <- gsub("\\\\", "/", dbin)
+#'   dbout <- gsub("\\\\", "/", dbout)
+#'   
+#'   #Loop through dbin and test if any of the files don't exist. If a file does
+#'   #not exist then error message is reported.
+#'   for(i in 1:length(dbin))
+#'   {
+#'     if(!file.exists(dbin[i]))
+#'     {
+#'       stop(paste("File:",
+#'                  dbin[i],
+#'                  "does not exist."))
+#'     }
+#'     
+#'     else
+#'     {
+#'       cat("Database", i, dbin[i], "\n")
+#'     }
+#'   }
+#'   
+#'   #If there is more than one value specified in dbout, stop with error message.
+#'   if(length(dbout) > 1)
+#'   {
+#'     stop(paste("Only one output file can be specified for dbout."))
+#'   }
+#'   
+#'   #Test if dbout file path is valid.
+#'   #Extract path to dbout by extracting all characters before the last / in
+#'   #output argument.
+#'   outpath <- gsub("/[^/]+$", "", dbout)
+#'   
+#'   #Test existence of output path and if it does not exist report error.
+#'   if (!(file.exists(outpath))){
+#'     stop(paste("Path to output:", outpath, "was not found.",
+#'                "Make sure directory path to output is spelled correctly."))
+#'   }
+#'   
+#'   #Test if output file is a SQLite database. If the file is not a SQLite
+#'   #database then error message is reported.
+#'   fileext_out<-sub("(.*)\\.","",dbout)
+#'   if(!fileext_out %in% c("db", "sqlite"))
+#'   {
+#'     stop(paste("Output database:",
+#'                dbout,
+#'                "is not a SQLite database.",
+#'                "\n"))
+#'   }
+#'   
+#'   #If dbout already exists, delete it
+#'   if(file.exists(dbout))
+#'   {
+#'     cat(paste0("\n","Deleting preexisting dbout"), "\n")
+#'     unlink(dbout,
+#'            force = T)
+#'   }
+#'   
+#'   cat("Output database:", dbout, "\n","\n")
+#'   
+#'   #Get updated directory paths and file names
+#'   dbin_update <- db_collect_paths(dbin = dbin)
+#'   
+#'   #If dbin_update does not have any databases, then stop with error message and
+#'   #delete unzip directory if it exists.
+#'   if(length(dbin_update) <= 0)
+#'   {
+#'     #Check if unzipdir exists. If it does, delete it.
+#'     if(file.exists(unzipdir))
+#'     {
+#'       
+#'       delete_files(files = unzipdir,
+#'                   recur = TRUE)
+#'     }
+#'     
+#'     stop("No valid database files (.db, .sqlite) are available for processing.")
+#'   }
+#'   
+#'   #Remove duplicate values in dbin_update and print database file paths
+#'   dbin_update <- unique(dbin_update)
+#'   cat("List of db files to process:", "\n")
+#'   cat(paste(dbin_update, collapse = "\n"))
+#'   
+#'   #Begin processing databases in dbin_update
+#'   for(i in 1:length(dbin_update))
+#'   {
+#'     
+#'     db <- dbin_update[i]
+#'     
+#'     cat("\n")
+#'     cat("Processing db:", db, "\n", "\n")
+#'     
+#'     #Begin processing db_tables in db
+#'     for(j in 1:length(db_tables))
+#'     {
+#'       #Extract table name
+#'       table_name <- db_tables[j]
+#'       cat("Processing table:",
+#'           table_name,
+#'           "\n")
+#'       
+#'       #Connect to db
+#'       con_in <- RSQLite::dbConnect(RSQLite::SQLite(), db)
+#'       
+#'       #Test if table does not exist in db. if this is the case move to next
+#'       #iteration of loop.
+#'       if(!table_name %in% toupper(RSQLite::dbListTables(con_in)))
+#'       {
+#'         cat("Table:",
+#'             table_name,
+#'             "was not found in database.",
+#'             "\n", "\n")
+#'         #Disconnect from con_in
+#'         RSQLite::dbDisconnect(con_in)
+#'         next
+#'       }
+#'       
+#'       #Determine number of rows in table_name
+#'       query <- paste("SELECT COUNT(*) FROM", table_name)
+#'       num_rows <- RSQLite::dbGetQuery(con_in,
+#'                                      query)[[1]]
+#'       
+#'       #If there are no rows (i.e. no data) in db_table, skip to next iteration
+#'       #of loop.
+#'       if(num_rows <= 0)
+#'       {
+#'         cat("No data found in",
+#'             table_name,
+#'             "\n", "\n")
+#'         
+#'         #Disconnect from con_in
+#'         RSQLite::dbDisconnect(con_in)
+#'         next
+#'       }
+#'       
+#'       #Disconnect from con_in
+#'       RSQLite::dbDisconnect(con_in)
+#'       
+#'       #If read_chunks is FALSE, call add_db_table, otherwise call add_db_rows.
+#'       if(!read_chunks)
+#'       {
+#'         add_db_table(db,
+#'                    dbout,
+#'                    table_name)
+#'       }
+#'       else
+#'       {
+#'         add_db_rows(db,
+#'                   dbout,
+#'                   table_name,
+#'                   rows_to_read,
+#'                   num_rows)
+#'       }
+#'     }
+#'     
+#'     #Print message indicating which db has been processed.
+#'     cat("Finished processing db:",
+#'         db,
+#'         "\n")
+#'   }
+#'   
+#'   #Determine if GAAK table should be written to dbout.
+#'   if(build_gaak)
+#'   {
+#'     con_out <- RSQLite::dbConnect(RSQLite::SQLite(),
+#'                                  dbout)
+#'     
+#'     cat("Writing fvs_gaak table to",
+#'         dbout,
+#'         "\n",
+#'         "\n")
+#'     
+#'     RSQLite::dbWriteTable(conn = con_out,
+#'                           name = "FVS_GROUPADDFILESANDKEYWORDS",
+#'                           value = fvs_gaak(type = gaak_type),
+#'                           overwrite = T)
+#'     
+#'     #Disconnect from con_out
+#'     RSQLite::dbDisconnect(con_out)
+#'   }
+#'   
+#'   #If delete_input is TRUE, delete files in dbin argument.
+#'   if(delete_input)
+#'   {
+#'     
+#'     cat(paste("Argument delete_input is TRUE.",
+#'               "Deleting input databases.", "\n"))
+#'     delete_files(files = dbin,
+#'                 recur = FALSE)
+#'   }
+#'   
+#'   invisible(0)
+#' }
 
 ################################################################################
 #add_db_table
@@ -1172,139 +1172,139 @@ db_compile_v2 <- function(dbin = NULL,
 #None
 ################################################################################
 
-add_db_table<-function(db,
-                       dbout,
-                       table_name)
-{
-  
-  #Connect to input database (db)
-  con_in <- RSQLite::dbConnect(RSQLite::SQLite(),
-                              db)
-  
-  #Read in the db_table table (table_name)
-  db_table <- RSQLite::dbReadTable(con_in,
-                                  name = table_name)
-  
-  #Capitalize column headers
-  colnames(db_table) <- toupper(colnames(db_table))
-  
-  #Get column data types from table_name
-  table_types <-db_get_data_types(con_in,
-                              table_name)
-  
-  #Disconnect from con_in
-  RSQLite::dbDisconnect(con_in)
-  
-  #Connect to dbout
-  con_out <- RSQLite::dbConnect(RSQLite::SQLite(),
-                               dbout)
-  
-  #Test if table_name exists in con_out. If it does, this db_table will be
-  #appended to the existing table in output (con_out).
-  if(table_name %in% toupper(RSQLite::dbListTables(con_out)))
-  {
-    #Identify any fields in db_table that are missing from the same data table
-    #in con_out.
-    db_fields <- RSQLite::dbListFields(con_out,
-                                      name = table_name)
-    
-    missing_fields <- names(db_table)[! names(db_table) %in% db_fields]
-    
-    #Loop through missing_fields and add to database table in con_out
-    if(length(missing_fields) > 0)
-    {
-      cat("\n",
-          "Fields missing from",
-          table_name,
-          "in",
-          dbout,
-          "\n",
-          missing_fields, "\n", "\n")
-      
-      for(i in 1:length(missing_fields))
-      {
-        #Extract field
-        field <- missing_fields[i]
-        
-        #Extract data_type of field
-        data_type <- table_types[names(table_types) == field]
-        cat("Field:", field, "data_type:", data_type, "\n")
-        
-        cat("Adding field:",
-            field,
-            paste0("(", data_type, ")"),
-            "to table:",
-            table_name,
-            "\n")
-        
-        #Create query to alter table and add field in con_out
-        add_field <-paste("ALTER TABLE",
-                         table_name,
-                         "ADD COLUMN",
-                         field,
-                         data_type)
-        
-        #Add field to con_out
-        RSQLite::dbExecute(con_out, add_field)
-        
-        cat("Field:",
-            field,
-            "added to table:",
-            table_name,
-            "\n", "\n")
-      }
-    }
-    
-    cat("Appending",
-        table_name,
-        "to",
-        dbout,
-        "\n")
-    
-    #Append data to con_out
-    RSQLite::dbWriteTable(conn = con_out,
-                          name = table_name,
-                          value = db_table,
-                          append = T)
-    
-    cat(table_name,
-        "appended to",
-        dbout,
-        "\n",
-        "\n")
-  }
-  
-  #Table will be created in con_out and data will then be written to the table.
-  else
-  {
-    cat("Writing",
-        table_name,
-        "to",
-        dbout,
-        "\n")
-    
-    #Create the db_table in con_out and write information from db_table to it.
-    RSQLite::dbWriteTable(conn = con_out,
-                          name = table_name,
-                          value = db_table,
-                          overwrite = T,
-                          field.types = table_types)
-    
-    cat(table_name,
-        "written to",
-        dbout,
-        "\n",
-        "\n")
-  }
-  
-  #Delete db_table
-  rm(db_table)
-  
-  #Disconnect from con_out
-  RSQLite::dbDisconnect(con_out)
-  
-  invisible(0)
-}
+# add_db_table<-function(db,
+#                        dbout,
+#                        table_name)
+# {
+#   
+#   #Connect to input database (db)
+#   con_in <- RSQLite::dbConnect(RSQLite::SQLite(),
+#                               db)
+#   
+#   #Read in the db_table table (table_name)
+#   db_table <- RSQLite::dbReadTable(con_in,
+#                                   name = table_name)
+#   
+#   #Capitalize column headers
+#   colnames(db_table) <- toupper(colnames(db_table))
+#   
+#   #Get column data types from table_name
+#   table_types <-db_get_data_types(con_in,
+#                               table_name)
+#   
+#   #Disconnect from con_in
+#   RSQLite::dbDisconnect(con_in)
+#   
+#   #Connect to dbout
+#   con_out <- RSQLite::dbConnect(RSQLite::SQLite(),
+#                                dbout)
+#   
+#   #Test if table_name exists in con_out. If it does, this db_table will be
+#   #appended to the existing table in output (con_out).
+#   if(table_name %in% toupper(RSQLite::dbListTables(con_out)))
+#   {
+#     #Identify any fields in db_table that are missing from the same data table
+#     #in con_out.
+#     db_fields <- RSQLite::dbListFields(con_out,
+#                                       name = table_name)
+#     
+#     missing_fields <- names(db_table)[! names(db_table) %in% db_fields]
+#     
+#     #Loop through missing_fields and add to database table in con_out
+#     if(length(missing_fields) > 0)
+#     {
+#       cat("\n",
+#           "Fields missing from",
+#           table_name,
+#           "in",
+#           dbout,
+#           "\n",
+#           missing_fields, "\n", "\n")
+#       
+#       for(i in 1:length(missing_fields))
+#       {
+#         #Extract field
+#         field <- missing_fields[i]
+#         
+#         #Extract data_type of field
+#         data_type <- table_types[names(table_types) == field]
+#         cat("Field:", field, "data_type:", data_type, "\n")
+#         
+#         cat("Adding field:",
+#             field,
+#             paste0("(", data_type, ")"),
+#             "to table:",
+#             table_name,
+#             "\n")
+#         
+#         #Create query to alter table and add field in con_out
+#         add_field <-paste("ALTER TABLE",
+#                          table_name,
+#                          "ADD COLUMN",
+#                          field,
+#                          data_type)
+#         
+#         #Add field to con_out
+#         RSQLite::dbExecute(con_out, add_field)
+#         
+#         cat("Field:",
+#             field,
+#             "added to table:",
+#             table_name,
+#             "\n", "\n")
+#       }
+#     }
+#     
+#     cat("Appending",
+#         table_name,
+#         "to",
+#         dbout,
+#         "\n")
+#     
+#     #Append data to con_out
+#     RSQLite::dbWriteTable(conn = con_out,
+#                           name = table_name,
+#                           value = db_table,
+#                           append = T)
+#     
+#     cat(table_name,
+#         "appended to",
+#         dbout,
+#         "\n",
+#         "\n")
+#   }
+#   
+#   #Table will be created in con_out and data will then be written to the table.
+#   else
+#   {
+#     cat("Writing",
+#         table_name,
+#         "to",
+#         dbout,
+#         "\n")
+#     
+#     #Create the db_table in con_out and write information from db_table to it.
+#     RSQLite::dbWriteTable(conn = con_out,
+#                           name = table_name,
+#                           value = db_table,
+#                           overwrite = T,
+#                           field.types = table_types)
+#     
+#     cat(table_name,
+#         "written to",
+#         dbout,
+#         "\n",
+#         "\n")
+#   }
+#   
+#   #Delete db_table
+#   rm(db_table)
+#   
+#   #Disconnect from con_out
+#   RSQLite::dbDisconnect(con_out)
+#   
+#   invisible(0)
+# }
 
 ################################################################################
 #add_db_rows
@@ -1328,218 +1328,218 @@ add_db_table<-function(db,
 #None
 ################################################################################
 
-add_db_rows<-function(db,
-                      dbout,
-                      table_name,
-                      num_to_read,
-                      num_rows)
-{
-  
-  #Variable to signify when read of data from table_name in db is complete
-  done_reading <- F
-  
-  #Lower value of rows to read from
-  lower <- 0
-  
-  #Upper value of rows to read from. Upper value is only used in messages sent
-  #to console.
-  upper <- 0
-  
-  #Variable used to keep track of number of rows that have been processed
-  rows_done <- 0
-  
-  #Variable to indicate whether first pass is complete.
-  first_pass <- T
-  
-  while(!done_reading)
-  {
-    # If this is the first pass, set lower to 1 and upper to num_to_read. Then
-    #set first_pass to F.
-    if(first_pass)
-    {
-      upper <- num_to_read
-      first_pass <- F
-    }
-    
-    #If this is not the first pass then set lower to lower + num_to_read and
-    #upper to upper + num_to_read
-    else
-    {
-      lower <- lower + num_to_read
-      upper <- upper + num_to_read
-    }
-    
-    #If upper is greater than or equal to num_rows, set num_to_read to
-    #num_rows - rows_done and set done_reading to T. This will signify that
-    #function is about to make the last read from db.
-    if(upper >= num_rows)
-    {
-      num_to_read <- num_rows - rows_done
-      upper <- num_rows
-      done_reading <- T
-    }
-    
-    #Setup query for reading data
-    query <- paste("SELECT * FROM",
-                   table_name,
-                   "LIMIT",
-                   paste0(lower,",", num_to_read))
-    
-    cat("Row query:",
-        query,
-        "\n")
-    
-    #Display what rows are being read from database table.
-    cat("Reading rows:",
-        lower + 1,
-        "through",
-        upper,
-        "from",
-        table_name, "\n")
-    
-    #Connect to db
-    con_in <- RSQLite::dbConnect(RSQLite::SQLite(),
-                                db)
-    
-    #Read the data
-    db_table <- RSQLite::dbGetQuery(con_in,
-                                   query)
-    
-    #Get column data types from table_name
-    table_types <-db_get_data_types(con_in,
-                                table_name)
-    
-    #Disconnect from db
-    RSQLite::dbDisconnect(con_in)
-    
-    #Determine number of rows read in current pass
-    rows_read <- nrow(db_table)
-    
-    #Print number of rows in db_table
-    cat("Number of rows in read from database:",
-        rows_read,
-        "\n")
-    
-    #Capitalize column headers
-    colnames(db_table) <- toupper(colnames(db_table))
-    
-    #Connect to dbout
-    con_out <- RSQLite::dbConnect(RSQLite::SQLite(),
-                                 dbout)
-    
-    #Test if table_name exists in con_out. If it does, this db_table will be
-    #appended to the existing table in output (con_out).
-    if(table_name %in% toupper(RSQLite::dbListTables(con_out)))
-    {
-      #Identify any fields in db_table that are missing from the same data table
-      #in con_out.
-      db_fields <- RSQLite::dbListFields(con_out,
-                                          name = table_name)
-      
-      missing_fields <- names(db_table)[! names(db_table) %in% db_fields]
-      
-      #Loop through missing_fields and add to database table in con_out
-      if(length(missing_fields) > 0)
-      {
-        cat("\n",
-            "Fields missing from",
-            table_name,
-            "in",
-            dbout,
-            "\n",
-            missing_fields, "\n", "\n")
-        
-        for(i in 1:length(missing_fields))
-        {
-          #Extract field
-          field <- missing_fields[i]
-          
-          #Extract data_type of field
-          data_type <- table_types[names(table_types) == field]
-          cat("Field:", field, "data_type:", data_type, "\n")
-          
-          cat("Adding field:",
-              field,
-              paste0("(", data_type, ")"),
-              "to table:",
-              table_name,
-              "\n")
-          
-          #Create query to alter table and add field in con_out
-          add_field <-paste("ALTER TABLE",
-                           table_name,
-                           "ADD COLUMN",
-                           field,
-                           data_type)
-          
-          #Add field to con_out
-          RSQLite::dbExecute(con_out, add_field)
-          
-          cat("Field:",
-              field,
-              "added to table:",
-              table_name,
-              "\n", "\n")
-        }
-      }
-      
-      cat("Appending rows", lower + 1, "through", upper, "from",
-          table_name,
-          "to",
-          dbout,
-          "\n")
-      
-      #Append data to con_out
-      RSQLite::dbWriteTable(conn = con_out,
-                            name = table_name,
-                            value = db_table,
-                            append = T)
-      
-      cat("Rows", lower + 1, "through", upper, "from", table_name,
-          "appended to",
-          dbout,
-          "\n")
-    }
-    
-    #Table will be created in con_out and data will then be written to the
-    #table.
-    else
-    {
-      
-      cat("Writing rows", lower + 1, "through", upper, "from",
-          table_name,
-          "to",
-          dbout,
-          "\n")
-      
-      #Create the db_table in con_out and write information from db_table to it.
-      RSQLite::dbWriteTable(conn = con_out,
-                            name = table_name,
-                            value = db_table,
-                            overwrite = T,
-                            field.types = table_types)
-      
-      cat("Rows", lower + 1, "through", upper, "from", table_name,
-          "written to",
-          dbout,
-          "\n")
-    }
-    
-    #Update rows_done
-    rows_done <- rows_done + rows_read
-    
-    #Print number of rows processed
-    cat("Number of rows processed:",
-        rows_done,
-        "\n",
-        "\n")
-    
-    #Delete db_table
-    rm(db_table)
-    
-    #Disconnect from dbout
-    RSQLite::dbDisconnect(con_out)
-  }
-  
-  invisible(0)
-}
+# add_db_rows<-function(db,
+#                       dbout,
+#                       table_name,
+#                       num_to_read,
+#                       num_rows)
+# {
+#   
+#   #Variable to signify when read of data from table_name in db is complete
+#   done_reading <- F
+#   
+#   #Lower value of rows to read from
+#   lower <- 0
+#   
+#   #Upper value of rows to read from. Upper value is only used in messages sent
+#   #to console.
+#   upper <- 0
+#   
+#   #Variable used to keep track of number of rows that have been processed
+#   rows_done <- 0
+#   
+#   #Variable to indicate whether first pass is complete.
+#   first_pass <- T
+#   
+#   while(!done_reading)
+#   {
+#     # If this is the first pass, set lower to 1 and upper to num_to_read. Then
+#     #set first_pass to F.
+#     if(first_pass)
+#     {
+#       upper <- num_to_read
+#       first_pass <- F
+#     }
+#     
+#     #If this is not the first pass then set lower to lower + num_to_read and
+#     #upper to upper + num_to_read
+#     else
+#     {
+#       lower <- lower + num_to_read
+#       upper <- upper + num_to_read
+#     }
+#     
+#     #If upper is greater than or equal to num_rows, set num_to_read to
+#     #num_rows - rows_done and set done_reading to T. This will signify that
+#     #function is about to make the last read from db.
+#     if(upper >= num_rows)
+#     {
+#       num_to_read <- num_rows - rows_done
+#       upper <- num_rows
+#       done_reading <- T
+#     }
+#     
+#     #Setup query for reading data
+#     query <- paste("SELECT * FROM",
+#                    table_name,
+#                    "LIMIT",
+#                    paste0(lower,",", num_to_read))
+#     
+#     cat("Row query:",
+#         query,
+#         "\n")
+#     
+#     #Display what rows are being read from database table.
+#     cat("Reading rows:",
+#         lower + 1,
+#         "through",
+#         upper,
+#         "from",
+#         table_name, "\n")
+#     
+#     #Connect to db
+#     con_in <- RSQLite::dbConnect(RSQLite::SQLite(),
+#                                 db)
+#     
+#     #Read the data
+#     db_table <- RSQLite::dbGetQuery(con_in,
+#                                    query)
+#     
+#     #Get column data types from table_name
+#     table_types <-db_get_data_types(con_in,
+#                                 table_name)
+#     
+#     #Disconnect from db
+#     RSQLite::dbDisconnect(con_in)
+#     
+#     #Determine number of rows read in current pass
+#     rows_read <- nrow(db_table)
+#     
+#     #Print number of rows in db_table
+#     cat("Number of rows in read from database:",
+#         rows_read,
+#         "\n")
+#     
+#     #Capitalize column headers
+#     colnames(db_table) <- toupper(colnames(db_table))
+#     
+#     #Connect to dbout
+#     con_out <- RSQLite::dbConnect(RSQLite::SQLite(),
+#                                  dbout)
+#     
+#     #Test if table_name exists in con_out. If it does, this db_table will be
+#     #appended to the existing table in output (con_out).
+#     if(table_name %in% toupper(RSQLite::dbListTables(con_out)))
+#     {
+#       #Identify any fields in db_table that are missing from the same data table
+#       #in con_out.
+#       db_fields <- RSQLite::dbListFields(con_out,
+#                                           name = table_name)
+#       
+#       missing_fields <- names(db_table)[! names(db_table) %in% db_fields]
+#       
+#       #Loop through missing_fields and add to database table in con_out
+#       if(length(missing_fields) > 0)
+#       {
+#         cat("\n",
+#             "Fields missing from",
+#             table_name,
+#             "in",
+#             dbout,
+#             "\n",
+#             missing_fields, "\n", "\n")
+#         
+#         for(i in 1:length(missing_fields))
+#         {
+#           #Extract field
+#           field <- missing_fields[i]
+#           
+#           #Extract data_type of field
+#           data_type <- table_types[names(table_types) == field]
+#           cat("Field:", field, "data_type:", data_type, "\n")
+#           
+#           cat("Adding field:",
+#               field,
+#               paste0("(", data_type, ")"),
+#               "to table:",
+#               table_name,
+#               "\n")
+#           
+#           #Create query to alter table and add field in con_out
+#           add_field <-paste("ALTER TABLE",
+#                            table_name,
+#                            "ADD COLUMN",
+#                            field,
+#                            data_type)
+#           
+#           #Add field to con_out
+#           RSQLite::dbExecute(con_out, add_field)
+#           
+#           cat("Field:",
+#               field,
+#               "added to table:",
+#               table_name,
+#               "\n", "\n")
+#         }
+#       }
+#       
+#       cat("Appending rows", lower + 1, "through", upper, "from",
+#           table_name,
+#           "to",
+#           dbout,
+#           "\n")
+#       
+#       #Append data to con_out
+#       RSQLite::dbWriteTable(conn = con_out,
+#                             name = table_name,
+#                             value = db_table,
+#                             append = T)
+#       
+#       cat("Rows", lower + 1, "through", upper, "from", table_name,
+#           "appended to",
+#           dbout,
+#           "\n")
+#     }
+#     
+#     #Table will be created in con_out and data will then be written to the
+#     #table.
+#     else
+#     {
+#       
+#       cat("Writing rows", lower + 1, "through", upper, "from",
+#           table_name,
+#           "to",
+#           dbout,
+#           "\n")
+#       
+#       #Create the db_table in con_out and write information from db_table to it.
+#       RSQLite::dbWriteTable(conn = con_out,
+#                             name = table_name,
+#                             value = db_table,
+#                             overwrite = T,
+#                             field.types = table_types)
+#       
+#       cat("Rows", lower + 1, "through", upper, "from", table_name,
+#           "written to",
+#           dbout,
+#           "\n")
+#     }
+#     
+#     #Update rows_done
+#     rows_done <- rows_done + rows_read
+#     
+#     #Print number of rows processed
+#     cat("Number of rows processed:",
+#         rows_done,
+#         "\n",
+#         "\n")
+#     
+#     #Delete db_table
+#     rm(db_table)
+#     
+#     #Disconnect from dbout
+#     RSQLite::dbDisconnect(con_out)
+#   }
+#   
+#   invisible(0)
+# }
