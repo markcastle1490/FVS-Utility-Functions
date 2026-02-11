@@ -80,8 +80,8 @@ run_key = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
     if (exists(".FVSLOADEDLIBRARY", envir=.GlobalEnv)) 
     {
       loaded = get(".FVSLOADEDLIBRARY", envir=.GlobalEnv)$ldf
-      remove(".FVSLOADEDLIBRARY",envir=.GlobalEnv)
       dyn.unload(loaded)
+      remove(".FVSLOADEDLIBRARY",envir=.GlobalEnv)
     }},
     add = TRUE)
   
