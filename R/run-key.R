@@ -80,14 +80,9 @@ run_key = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
   
   if(verbose)
   {
-    #Reset keydir for printing purposes if directory path was not specified for
-    #keyfile.
-    if(keydir == keyfile_) keydir = getwd()
-    cat("dll_path:", dll_path, "\n")
+    cat("DLL path:", dll_path, "\n")
     cat("FVS Variant:",  var_code, "\n")
-    cat("Keyfile:", keyfile, "\n")
-    cat("Keyword file directory:", keydir, "\n")
-    cat("Keyword file name:", keyfile_, "\n", "\n")
+    cat("Keyword file:", keyfile, "\n")
     cat("Running FVS...", "\n", "\n")
   }
   
