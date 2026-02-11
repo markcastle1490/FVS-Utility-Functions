@@ -29,6 +29,12 @@ run_key = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
                    keyfile = "C:/FVS.key",
                    verbose = FALSE)
 {
+  #Store the current working directory
+  orig_dir = getwd()
+  
+  #Set working directory on exit
+  on.exit(expr = setwd(orig_dir))
+  
   #Change \\ to / in dll_path argument
   dll_path = gsub("\\\\", "/", dll_path)
   
