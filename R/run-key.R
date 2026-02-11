@@ -33,7 +33,8 @@ run_key = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
   orig_dir = getwd()
   
   #Set working directory on exit
-  on.exit(expr = setwd(orig_dir))
+  on.exit(expr = setwd(orig_dir),
+          add = TRUE)
   
   #Change \\ to / in dll_path argument
   dll_path = gsub("\\\\", "/", dll_path)
@@ -59,9 +60,6 @@ run_key = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
   #Create dll name
   var_code = paste0("FVS", var_code)
   
-  #Load variant dll and specify directory path to dll in bin folder
-  rFVS::fvsLoad(var_code, bin = dll_path)
-  
   #Grab the the directory where the keyword file is stored
   keydir = gsub("/[^/]+$", "", keyfile)
   
@@ -71,6 +69,21 @@ run_key = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
   #Set working directory for the simulation
   if(keydir != keyfile_)
     setwd(keydir)
+  
+  #Load variant dll and specify directory path to dll in bin folder
+  rFVS::fvsLoad(var_code, bin = dll_path)
+  
+  #Unload the dll on exit
+  on.exit(expr = {
+
+    #Code used in fvsLoad rFVS function.
+    if (exists(".FVSLOADEDLIBRARY", envir=.GlobalEnv)) 
+    {
+      loaded = get(".FVSLOADEDLIBRARY", envir=.GlobalEnv)$ldf
+      remove(".FVSLOADEDLIBRARY",envir=.GlobalEnv)
+      dyn.unload(loaded)
+    }},
+    add = TRUE)
   
   #Set keyword file to command line
   rFVS::fvsSetCmdLine(paste0("--keywordfile=", keyfile_))
@@ -94,19 +107,6 @@ run_key = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
     if(verbose)
       if(retcode != 0) cat("FVS return code:", retcode, "\n")
   }
-  
-  #=============================================================================
-  #Unload variant dll
-  #=============================================================================
-  
-  #Get fvs dll
-  fvs_loaded = as.character(get(".FVSLOADEDLIBRARY",envir=.GlobalEnv)[['ldf']])
-  
-  #Unload
-  dyn.unload(fvs_loaded)
-  
-  #Remove R object
-  remove(".FVSLOADEDLIBRARY",envir=.GlobalEnv)
   
   invisible()
 }
