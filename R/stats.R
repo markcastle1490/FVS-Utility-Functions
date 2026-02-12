@@ -10,7 +10,7 @@
 #' @param x:
 #' numeric value.
 #
-#' @param x: 
+#' @param y: 
 #' numeric value.
 #
 #' @return 

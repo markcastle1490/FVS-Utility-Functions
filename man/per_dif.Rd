@@ -8,6 +8,8 @@ per_dif(x, y)
 }
 \arguments{
 \item{x:}{numeric value.}
+
+\item{y:}{numeric value.}
 }
 \value{
 Percent difference between x and y.
