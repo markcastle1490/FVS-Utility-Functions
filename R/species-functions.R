@@ -23,8 +23,9 @@ sp_get_df <- function()
 #'FIA species code, USDA plant symbol, or species scientific name.
 #
 #'@param sp:   
-#'Incoming species code. This can be either an FIA species code, USDA plant 
-#'symbol, or species scientific name.
+#'Species code as a character. This can be either an FIA species code, USDA 
+#'plant symbol, or species scientific name. Value will get cast to character if
+#'needed.
 #
 #'@param from:
 #'Option integer value that tells what kind of value is held in sp argument.
@@ -67,7 +68,7 @@ sp_get_df <- function()
 ################################################################################
 
 #'@export
-sp_lookup <- function(sp = NULL,
+sp_lookup <- function(sp = "",
                       from = 0,
                       to = 2)
 {
@@ -156,25 +157,25 @@ sp_get_index <- function(sp = NULL,
   sp_index <- NA
   
   #Catch bad values
-  if(from %in% c(1, 2, 3)) from = 0
+  if(!from %in% c(1, 2, 3)) from = 0
+  
+  #Upper case sp
+  sp = toupper(sp)
   
   #Search FIA
   if(from <= 1)
-    sp_index <- sp_fia_index(sp)
-  
+  {
+    sp_ = suppressWarnings(as.integer(sp))
+    sp_index = sp_fia_index(sp_)
+  }
+
   #Search USDA plant symbols
   if(from == 2 || is.na(sp_index)) 
-  {
-    sp <- toupper(sp)
-    sp_index <- match(sp, support_sp$SPECIES_SYMBOL)
-  }
+    sp_index = match(sp, support_sp$SPECIES_SYMBOL)
 
   #Search scientific name
   if(from == 3 || is.na(sp_index)) 
-  {
-    sp <- toupper(sp)
-    sp_index <- match(sp, support_sp$SCIENTIFIC_NAME)
-  }
+    sp_index = match(sp, support_sp$SCIENTIFIC_NAME)
 
   return(sp_index)
 }

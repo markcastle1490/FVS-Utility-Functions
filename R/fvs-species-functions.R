@@ -172,5 +172,162 @@ fvs_get_sp <- function(var_code = NULL,
   return(sp)
 }
 
+################################################################################
+#'fvs_sp_lookup
+#'@name fvs_sp_lookup
+#'@description 
+#'This function is used to look up a FVS sequence number, FVS species character
+#'code, FIA code, or USDA plant code for a given variant based on an input
+#'species code.
+#
+#'@param var_code:
+#'Two character FVS variant code (e.g. CA).
+#
+#'@param sp:   
+#'Incoming species code as a character string. This can be a FVS character code,
+#'FIA species code, or USDA plant symbol. Value will be cast to character value
+#'if needed.
+#
+#'@param from:
+#'Option integer value that tells what kind of value is held in sp argument.
+#'Specifying a value from 1 - 3 will generally speed up look up times.
+#'
+#'0: FVS species character code, FIA species code or USDA plant symbol
+#'
+#'1: FVS species character code
+#'
+#'2: FIA species code
+#'
+#'3: USDA plant symbol
+#
+#'@param to:   
+#'Integer value indicating the type of species information to look up.
+#'
+#'1 = FVS species character code
+#'
+#'2 = FIA species code
+#'
+#'3 = USDA plant symbol
+#'
+#'4 = FVS sequence number
+#
+#'@return 
+#'Value corresponding to output provided in to argument.
+################################################################################
+
+#'@export
+fvs_sp_lookup <- function(var_code = "",
+                          sp = "",
+                          from = 0,
+                          to = 1)
+{
+  #Initialize sp_to
+  sp_to = NA
   
+  #Return if inputs are invalid
+  if(!to %in% 1:4 || is.na(var_code) || is.na(sp))
+    return(sp_to)
+  
+  #Determine which species codes to search through based on from code
+  sp_index <- fvs_sp_get_index(var_code = var_code,
+                               sp = sp,
+                               from = from)
+  
+  #If sp_index is not NA, determine sp_to
+  if(!is.na(sp_index))
+  {
+    #FVS character code
+    if(to == 1)
+      sp_to = fvs_char_list[[var_code]][sp_index]
+    
+    #FIA species code
+    else if(to == 2)
+      sp_to = fvs_fia_list[[var_code]][sp_index]
+    
+    #USDA plant symbol
+    else if(to == 3)
+      sp_to = fvs_plant_list[[var_code]][sp_index]
+    
+    #FVS Sequence number
+    else if(to == 4)
+      sp_to = fvs_seq_list[[var_code]][sp_index]
+  }
+  
+  return(sp_to)
+}  
+
+################################################################################
+#'fvs_sp_get_index
+#'@name fvs_sp_get_index
+#'@description
+#'This a function that is used to obtain a row index value from one of the four
+#'following lists from commons.R:
+#'
+#'fvs_char_list
+#'
+#'fvs_fia_list
+#'
+#'fvs_plants_list
+#'
+#'fvs_seq_list
+#
+#'@param var_code:
+#'Two character FVS variant code (e.g. CA).
+#
+#'@param sp:
+#'Species code. This can be a FVS character code, FIA species code, or USDA
+#'plant symbol.
+#
+#'@param from:
+#'Option integer value that tells what kind of value is held in sp argument.
+#'Specifying a value from 1 - 3 will generally speed up look up times.
+#'
+#'0: FVS species character code, FIA species code or USDA plant symbol
+#'
+#'1: FVS species character code
+#'
+#'2: FIA species code
+#'
+#'3: USDA plant symbol
+#
+#'@return
+#'Numeric row index value from species code list.
+################################################################################
+
+fvs_sp_get_index <- function(var_code = "",
+                             sp = "",
+                             from = 0)
+{
+  #Initialize sp_index
+  sp_index <- NA
+  
+  #Uppercase var_code
+  var_code = toupper(var_code)
+  sp <- toupper(sp)
+  
+  #If variant is invalid, return
+  if(!var_code %in% variants)
+    return(sp_index)
+  
+  #Catch bad values
+  if(!from %in% c(1, 2, 3)) from = 0
+  
+  #Search FVS species codes
+  if(from <= 1)
+    sp_index <- match(sp, fvs_char_list[[var_code]])
+  
+  #Search FIA species codes
+  if(from == 2 || is.na(sp_index)) 
+  {
+    sp_ = sp
+    if(nchar(sp_) < 3) sp_ = paste0("0", sp_)
+    sp_index <- match(sp_, as.integer(fvs_fia_list[[var_code]]))
+  }
+  
+  #USDA plant symbols
+  if(from == 3 || is.na(sp_index)) 
+    sp_index <- match(sp, fvs_plant_list[[var_code]])
+  
+  return(sp_index)
+}
   

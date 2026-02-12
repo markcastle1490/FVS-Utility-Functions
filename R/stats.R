@@ -117,7 +117,7 @@ error_fun <- function(obs = NULL,
 {
   #Setup fit_stats data frame
   fit_stats <- data.frame(N = 0,
-                          BS_MEAN = 0,
+                          OBS_MEAN = 0,
                           PRED_MEAN = 0,
                           RMSE = 0,
                           PRMSE = 0,
@@ -158,15 +158,15 @@ error_fun <- function(obs = NULL,
   pabias <- (sum(abs(pred - obs) / obs) * 100) / n
   
   #Vector of fit statistics
-  fit_stats$N = round(n,0)
-  fit_stats$OBS_MEAN = round(mean_obs, 4)
-  fit_stats$PRED_MEAN = round(mean_pred, 4)
-  fit_stats$RMSE = round(rmse, 4)
-  fit_stats$PRMSE = round(prmse, 4)
-  fit_stats$MBIAS = round(mbias, 4)
-  fit_stats$PBIAS = round(pbias, 4)
-  fit_stats$ABIAS = round(abias, 4)
-  fit_stats$PABIAS = round(pabias, 4)
+  fit_stats$N = n
+  fit_stats$OBS_MEAN = mean_obs
+  fit_stats$PRED_MEAN = mean_pred
+  fit_stats$RMSE = rmse
+  fit_stats$PRMSE = prmse
+  fit_stats$MBIAS = mbias
+  fit_stats$PBIAS = pbias 
+  fit_stats$ABIAS = abias
+  fit_stats$PABIAS = pabias
   
   return(fit_stats)
 }

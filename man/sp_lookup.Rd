@@ -4,11 +4,12 @@
 \alias{sp_lookup}
 \title{sp_lookup}
 \usage{
-sp_lookup(sp = NULL, from = 0, to = 2)
+sp_lookup(sp = "", from = 0, to = 2)
 }
 \arguments{
-\item{sp:}{Incoming species code. This can be either an FIA species code, USDA plant
-symbol, or species scientific name.}
+\item{sp:}{Species code as a character. This can be either an FIA species code, USDA
+plant symbol, or species scientific name. Value will get cast to character if
+needed.}
 
 \item{from:}{Option integer value that tells what kind of value is held in sp argument.
 Specifying a value from 1 - 3 will generally speed up look up times.
