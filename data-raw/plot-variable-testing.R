@@ -45,6 +45,7 @@ fvs_sum = tree %>%
   summarize(BA_ = ba(dbh = DBH, expf = TPA),
             TPA_ = tpa(dbh = DBH, expf = TPA),
             QMD_ = qmd(dbh = DBH, expf = TPA),
+            RDIA_ = rdia(dbh = DBH, expf = TPA),
             RSDI_ = rsdi_stage(dbh = DBH, expf = TPA),
             ZSDI_ = zsdi(dbh = DBH, expf = TPA),
             TCUFT_ = expand_attr(dbh = DBH, attr = TCuFt, expf = TPA),

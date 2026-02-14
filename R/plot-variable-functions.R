@@ -301,9 +301,6 @@ qmd = function(dbh = NULL,
   
   qmd_ = 0
   
-  #Return if sum of expf is 0
-  if(sum(expf, na.rm = TRUE) <= 0) return(qmd_)
-  
   #Check optional vectors.
   if(is.null(ht)) ht = 0
   if(is.null(species)) species = 'ALL'
@@ -316,14 +313,110 @@ qmd = function(dbh = NULL,
   
   #Calculate QMD over DBH, HT, and species
   if(TRUE %in% include)
-    qmd_ = sqrt(sum((dbh^2*expf)[include], na.rm = TRUE) / sum(expf[include],
-                                                                na.rm = TRUE))
-  
+  {
+    dbhsq = sum((dbh^2*expf)[include], na.rm = TRUE)
+    tpa_ = sum(expf[include], na.rm = TRUE)
+    if(tpa_ > 0 ) qmd_ = sqrt(dbhsq/tpa_)
+  }
+
   #Capture bad values
   if(is.na(qmd_)) qmd_ = 0
   
   #Return qmd
   return(qmd_)
+}
+
+################################################################################
+#' rdia
+#' @name rdia
+#' @description
+#' 
+#' This function calculates Reineke diameter given vectors containing DBH and 
+#' expansion factors. This attribute can be calculated for user defined size 
+#' ranges and for select species.
+#
+#' @param dbh:
+#' Numeric vector containing DBH values.
+#
+#' @param expf: 
+#' Numeric vector containing expansion factors.
+#' 
+#' @param ht:
+#' Optional numeric vector containing total tree height values. If heights are 
+#' provided, then attribute will be calculated between the values specified in
+#' htmin and htmax.
+#' 
+#' @param species:
+#' Optional vector containing species codes. If species are provided then
+#' attribute will be calculated for species entered in select_species argument.
+#' Attribute will be calculated for all species if select_species is left as 
+#' NULL.
+#' 
+#' @param dbhmin:
+#' Numeric value corresponding to lower DBH bound to calculate attribute in. 
+#' This value is inclusive (>=).
+#
+#' @param dbhmax: 
+#' Numeric value corresponding to upper DBH bound to calculate attribute in. 
+#' This value is exclusive (<).
+#' 
+#' @param htmin:
+#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' in. This value is inclusive (>=). This argument is only used if ht argument 
+#' is specified.
+#
+#' @param htmax: 
+#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' in. This value is exclusive (<). This argument is only used if ht argument 
+#' is specified.
+#' 
+#' @param select_species:
+#' Optional vector containing species codes. This variable will be used to
+#' select which species get included in calculation of attribute. If left as
+#' NULL, attribute will be calculated using observations from across all 
+#' species.
+#'
+#'@return
+#' Numeric Reineke diameter value
+################################################################################
+
+#'@export
+rdia = function(dbh = NULL,
+                expf = NULL,
+                ht = NULL,
+                species = NULL,
+                dbhmin = 0,
+                dbhmax = 999,
+                htmin = 0,
+                htmax = 999,
+                select_species = NULL)
+{
+  
+  rdia_ = 0
+  
+  #Check optional vectors.
+  if(is.null(ht)) ht = 0
+  if(is.null(species)) species = 'ALL'
+  all_species = TRUE
+  if(!is.null(select_species)) all_species = FALSE
+  
+  #Identify records to include in calculation
+  include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
+    (all_species | species %in% select_species)
+  
+  #Calculate Reineke diameter over DBH, HT, and species
+  if(TRUE %in% include)
+  {
+    rdia_sum = sum((expf*dbh^1.605)[include], na.rm = TRUE)
+    tpa_ = sum(expf[include], na.rm = TRUE)
+    if(tpa_ > 0 ) rdia_ = (rdia_sum/tpa_)^(1/1.605)
+  }
+  
+  #Capture bad values
+  if(is.na(rdia_)) rdia_ = 0
+  
+  #Return rdia
+  return(rdia_)
 }
 
 ################################################################################
