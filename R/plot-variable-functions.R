@@ -131,8 +131,7 @@ ba = function(dbh = NULL,
     (all_species | species %in% select_species)
   
   #Calculate BA over DBH, HT, and species
-  if(TRUE %in% include)
-    ba_ = sum((dbh^2)[include] * expf[include] * for_constant, na.rm = TRUE)
+  ba_ = sum((dbh^2)[include] * expf[include] * for_constant, na.rm = TRUE)
   
   #Capture bad values
   if(is.na(ba_)) ba_ = 0
@@ -223,8 +222,7 @@ tpa = function(expf = NULL,
     (all_species | species %in% select_species)
 
   #Calculate TPA Over DBH, HT, and species
-  if(TRUE %in% include)
-    tpa_ = sum(expf[include], na.rm = TRUE)
+  tpa_ = sum(expf[include], na.rm = TRUE)
   
   #Capture bad values
   if(is.na(tpa_)) tpa_ = 0
@@ -312,12 +310,9 @@ qmd = function(dbh = NULL,
     (all_species | species %in% select_species)
   
   #Calculate QMD over DBH, HT, and species
-  if(TRUE %in% include)
-  {
-    dbhsq = sum((dbh^2*expf)[include], na.rm = TRUE)
-    tpa_ = sum(expf[include], na.rm = TRUE)
-    if(tpa_ > 0 ) qmd_ = sqrt(dbhsq/tpa_)
-  }
+  dbhsq = sum((dbh^2*expf)[include], na.rm = TRUE)
+  tpa_ = sum(expf[include], na.rm = TRUE)
+  if(tpa_ > 0 ) qmd_ = sqrt(dbhsq/tpa_)
 
   #Capture bad values
   if(is.na(qmd_)) qmd_ = 0
@@ -405,12 +400,9 @@ rdia = function(dbh = NULL,
     (all_species | species %in% select_species)
   
   #Calculate Reineke diameter over DBH, HT, and species
-  if(TRUE %in% include)
-  {
-    rdia_sum = sum((expf*dbh^1.605)[include], na.rm = TRUE)
-    tpa_ = sum(expf[include], na.rm = TRUE)
-    if(tpa_ > 0 ) rdia_ = (rdia_sum/tpa_)^(1/1.605)
-  }
+  rdia_sum = sum((expf * dbh^1.605)[include], na.rm = TRUE)
+  tpa_ = sum(expf[include], na.rm = TRUE)
+  if(tpa_ > 0 ) rdia_ = (rdia_sum / tpa_)^(1/1.605)
   
   #Capture bad values
   if(is.na(rdia_)) rdia_ = 0
@@ -531,8 +523,7 @@ zsdi = function(dbh = NULL,
     (all_species | species %in% select_species)
   
   #Calculate ZSDI over DBH, HT, and species
-  if(TRUE %in% include)
-    zsdi_ = sum(((dbh/10)^reineke_slope)[include] * expf[include], na.rm = TRUE)
+  zsdi_ = sum(((dbh/10)^reineke_slope)[include] * expf[include], na.rm = TRUE)
   
   #Capture bad values
   if(is.na(zsdi_)) zsdi_ = 0
@@ -621,8 +612,7 @@ cc = function(crwidth = NULL,
     (all_species | species %in% select_species)
   
   #Calculate CC over DBH, HT, and species
-  if(TRUE %in% include)
-    cc_ = sum(((crwidth/2)^2)[include] * (expf/43560)[include], na.rm = TRUE) * 
+  cc_ = sum(((crwidth/2)^2)[include] * (expf/43560)[include], na.rm = TRUE) * 
     pi * 100
   
   #Capture bad values
@@ -820,8 +810,7 @@ rsdi_stage = function(dbh = NULL,
     (all_species | species %in% select_species)
   
   #Calculate RSDI over DBH, HT, and species
-  if(TRUE %in% include)
-    rsdi_ = sum((a*expf)[include], (b * dbh^2 * expf)[include], na.rm = TRUE)
+  rsdi_ = sum((a*expf)[include], (b * dbh^2 * expf)[include], na.rm = TRUE)
   
   #Capture bad values
   if(is.na(rsdi_)) rsdi_ = 0
@@ -836,10 +825,8 @@ rsdi_stage = function(dbh = NULL,
 #'@description
 #'
 #'This function is used to calculate top height for a specified percentage of
-#'trees in the stand or and explicit TPA value. This value is calculated from a
-#'set of input vectors containing DBH values, expansion factors, and tree 
-#'heights.
-#
+#'trees in the stand or and explicit number of trees (trees per acre) value. 
+#'
 #'@param dbh:     
 #'Numeric vector containing DBH values.
 #
@@ -889,15 +876,11 @@ top_ht = function(dbh = NULL,
   top = top_tpa
   if(top > tpa_) top = tpa_
   if(!is.null(top_per))
-  {
     top = tpa_ * (top_per/100)
-  }
   
   #If top >= tpa_, calculate top height for all trees
   if(top >= tpa_)
-  {
-    top_ht_ = avg_attr(dbh = dbh, attr = ht, weight = expf, avgtype = 2)
-  }
+    top_ht_ = mean_attr(attr = ht, weight = expf, dbh = dbh)
   
   #Calculate top height for trees in top  
   else
@@ -960,10 +943,10 @@ top_ht = function(dbh = NULL,
 
 #'@export
 top_dia = function(dbh = NULL,
-                  expf = NULL,
-                  top_tpa = 40,
-                  top_per = NULL,
-                  dia_type = 1)
+                   expf = NULL,
+                   top_tpa = 40,
+                   top_per = NULL,
+                   dia_type = 1)
 {
   #Initialize top_dia_
   top_dia_ = 0
@@ -1004,7 +987,7 @@ top_dia = function(dbh = NULL,
     #Average diameter weighted by TPA
     else
     {
-      top_dia_ = avg_attr(dbh = dbh, attr = dbh, weight = expf, avgtype = 2)
+      top_dia_ = mean_attr(attr = dbh, weight = expf, dbh = dbh)
     }
   }
   
@@ -1048,28 +1031,23 @@ top_dia = function(dbh = NULL,
 }
 
 ################################################################################
-#' avg_attr
-#' @name avg_attr
+#' mean_attr
+#' @name mean_attr
 #' @description
 #'
-#' This function is used to calculate the average of an attribute. The average
-#' can be a arithmetic average or weighted average. This average can be 
-#' calculated within custom size ranges and for select species.
+#' This function is used to calculate the arithmetic or weighted mean (average) 
+#' of an attribute. The weighted mean will only be calculated if weights are 
+#' provided as an input argument. These mean values can be calculated within 
+#' custom size ranges and for select species.
 #'
 #' @param attr:
 #' Numeric vector containing numeric attribute
 #'
 #' @param weight:     
-#' Numeric numeric vector containing a weighting value. This could be an 
-#' expansion factor or tree basal area, or other user defined weight. This 
-#' argument will only be used when avgtype is 2.
-#' 
-#' @param avgtype: 
-#' Integer value corresponding to the type of average to calculate. This argument
-#' will be set to 1, if input is not a value of 1 or 2.
-#' 1 = average unweighted 
-#' 2 = weighted average based on weight argument
-#' 
+#' Optional numeric vector containing a weighting value. This could be an 
+#' expansion factor, tree basal area, or other user defined weight. If this 
+#' argument is left as NULL, then the arithmetic average will be returned.. 
+#'
 #' @param dbh:     
 #' Optional numeric vector containing DBH values. If DBH values are provided, 
 #' then attribute will be calculated between the values specified in dbhmin and 
@@ -1114,20 +1092,18 @@ top_dia = function(dbh = NULL,
 ################################################################################
 
 #'@export
-avg_attr = function(attr = NULL,
-                    weight = NULL,
-                    avgtype = 1,
-                    dbh = NULL,
-                    ht = NULL,
-                    species = NULL,
-                    dbhmin = 0,
-                    dbhmax = 999,
-                    htmin = 0,
-                    htmax = 999,
-                    select_species = NULL)
+mean_attr = function(attr = NULL,
+                     weight = NULL,
+                     dbh = NULL,
+                     ht = NULL,
+                     species = NULL,
+                     dbhmin = 0,
+                     dbhmax = 999,
+                     htmin = 0,
+                     htmax = 999,
+                     select_species = NULL)
 {
-  avg_attr_ = 0
-  input_weights = FALSE
+  mean_attr_ = 0
   
   #Check optional vectors.
   if(is.null(dbh)) dbh = 0
@@ -1135,38 +1111,21 @@ avg_attr = function(attr = NULL,
   if(is.null(species)) species = 'ALL'
   all_species = TRUE
   if(!is.null(select_species)) all_species = FALSE
-  if(!is.null(weight)) input_weights = TRUE
-  
-  #Catch bad values for avgtype
-  if(!avgtype %in% c(1, 2)) avgtype = 1
+  if(is.null(weight)) weight = rep(x = 1, times = length(attr))
   
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
     (all_species | species %in% select_species)
-  
-  #Calculate arithmetic unweighted average if avgtype is 1 or input_weights 
-  #FALSE
-  if(avgtype == 1 || !input_weights)
-  {
-    #Arithmetic average over DBH, HT, and Species
-    avg_attr_ = mean(attr[include],
-                     na.rm = TRUE)
-  }
 
-  #Calculate weighted average if avgtype and input_weights TRUE
-  else if(avgtype == 2 && input_weights)
-  {
-    
-    #Weighted average over DBH, HT, and Species
-    avg_attr_ = weighted.mean(x = attr[include],
-                              w = weight[include],
-                              na.rm = TRUE)
-  }
+  #Calculate mean
+  mean_attr_ = weighted.mean(x = attr[include], 
+                             w = weight[include], 
+                             na.rm = TRUE)
   
   #Capture bad values
-  if(is.na(avg_attr_)) avg_attr_ = 0
+  if(is.na(mean_attr_)) mean_attr_ = 0
   
-  return(avg_attr_)
+  return(mean_attr_)
 }
 
 ################################################################################
@@ -1255,8 +1214,7 @@ expand_attr = function(attr = NULL,
     (all_species | species %in% select_species)
   
   #Expand attr over DBH, HT, and species
-  if(TRUE %in% include)
-    attr_expand_ = sum(attr[include] * expf[include], na.rm = TRUE)
+  attr_expand_ = sum(attr[include] * expf[include], na.rm = TRUE)
   
   #If attr_expand_ is NaN or NA set to 0
   if(is.na(attr_expand_)) attr_expand_ = 0
@@ -1346,8 +1304,7 @@ median_attr = function(attr = NULL,
     (all_species | species %in% select_species)
   
   #Over DBH, HT, and species
-  if(TRUE %in% include)
-    median_attr_ = median(attr[include], na.rm = TRUE)
+  median_attr_ = median(attr[include], na.rm = TRUE)
   
   #Capture bad values
   if(is.na(median_attr_)) median_attr_ = 0
@@ -1434,10 +1391,10 @@ min_attr = function(attr = NULL,
   
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
-    (all_species | species %in% select_species)
+    (all_species | species %in% select_species) & !is.na(attr)
   
   #Find minimum over DBH, HT, and species
-  if(TRUE %in% include)
+  if(any(include))
     min_attr_ = min(attr[include], na.rm = TRUE)
   
   #Capture bad values
@@ -1525,10 +1482,10 @@ max_attr = function(attr = NULL,
   
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
-    (all_species | species %in% select_species)
+    (all_species | species %in% select_species) & !is.na(attr)
   
   #Find minimum over DBH, HT, and species
-  if(TRUE %in% include)
+  if(any(include))
     max_attr_ = max(attr[include], na.rm = TRUE)
   
   #Capture bad values
@@ -1619,8 +1576,7 @@ sd_attr = function(attr = NULL,
     (all_species | species %in% select_species)
   
   #Find minimum over DBH, HT, and species
-  if(TRUE %in% include)
-    sd_attr_ = sd(attr[include], na.rm = TRUE)
+  sd_attr_ = sd(attr[include], na.rm = TRUE)
   
   #Capture bad values
   if(is.na(sd_attr_)) sd_attr_ = 0
@@ -1721,10 +1677,10 @@ quant_attr = function(attr = NULL,
   
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
-    (all_species | species %in% select_species)
+    (all_species | species %in% select_species) & !is.na(attr)
   
   #Find quantile value over DBH, HT, and species
-  if(TRUE %in% include)
+  if(any(include))
     quant_attr_ = quantile(attr[include], probs = prob_, na.rm = TRUE)
   
   #Capture bad values
@@ -1734,16 +1690,17 @@ quant_attr = function(attr = NULL,
 }
 
 ################################################################################
-#' count_records
+#' count_attr
 #' @name count_attr
 #' @description
 #' 
 #' This function counts the number of tree records between specified DBH and HT
 #' ranges and for select species. 
 #' 
-#' @param id:
-#' Vector containing tree ID values. Technically if you don't have tree ids, you
-#' can pass any vector into this argument.
+#' @param attr:
+#' Vector containing an attribute. In this context, this would likely be a tree
+#' ID value. Technically you can pass any vector into this argument to have
+#' counted.
 #' 
 #' @param dbh:
 #' Optional numeric vector containing DBH values.
@@ -1786,15 +1743,15 @@ quant_attr = function(attr = NULL,
 ################################################################################
 
 #'@export
-count_records = function(id = NULL,
-                         dbh = NULL,
-                         ht = NULL,
-                         species = NULL,
-                         dbhmin = 0,
-                         dbhmax = 999,
-                         htmin = 0,
-                         htmax = 999,
-                         select_species = NULL)
+count_attr = function(attr = NULL,
+                      dbh = NULL,
+                      ht = NULL,
+                      species = NULL,
+                      dbhmin = 0,
+                      dbhmax = 999,
+                      htmin = 0,
+                      htmax = 999,
+                      select_species = NULL)
 {
   
   count_ = 0
@@ -1811,82 +1768,12 @@ count_records = function(id = NULL,
     (all_species | species %in% select_species)
   
   #Count over DBH, ht, and species
-  if(TRUE %in% include)
-    count_ = length(id[include])
+  count_ = length(attr[include])
   
   #Capture bad values
   if(is.na(count_)) count_ = 0
   
   return(count_)
-}
-
-################################################################################
-#' sdi_max
-#' @name sdi_max
-#' @description
-#'
-#' This function is used to calculate SDI max individual species SDI max values 
-#' as described in Essential FVS. This is the weighted avarage of species SDI 
-#' max value where the weight is basal area.
-#'
-#' @param dbh:
-#' Numeric vector containing DBH values.
-#'
-#' @param species:
-#' Vector containing species codes. 
-#'
-#' @param sdi:     
-#' Numeric vector containing SDI max values (correspond to each species in 
-#' species argument).
-#'
-#' @param expf:     
-#' Numeric vector containing a expansion factor values.
-#
-#' @return 
-#' Numeric SDI max value
-################################################################################
-
-#'@export
-sdi_max <- function(dbh = NULL,
-                    species = NULL, 
-                    sdi = NULL,
-                    expf = NULL)
-{
-  
-  sdi_max_ = 0
-  input_hts = FALSE
-  
-  #Identify unique species codes and setup sp_ba vector
-  if(typeof(species) != 'character') species = as.character(species)
-  unique_sp = unique(species)
-  sp_ba = vector(mode = "numeric", length = length(unique_sp))
-  names(sp_ba) = unique(species)
-  
-  #Return if sp_ba is length 0
-  if(length(sp_ba) <=0) return(sdi_max_)
-  
-  #Calculate BA for each unique species
-  for(i in 1:length(sp_ba))
-  {
-    #Get species
-    sp_ = names(sp_ba[i])
-    
-    #Calculate basal area weighted SDI for all records of this species and 
-    #update ba_sum
-    sp_ba[sp_] = sum((dbh^2)[species == sp_] * expf[species == sp_] * 
-      for_constant * sdi[species == sp_], na.rm = TRUE)
-  }
-  
-  #Calculate BA across all trees
-  ba_sum = sum((dbh^2) * expf * for_constant, na.rm = TRUE)
-  
-  #Calculate sdi_max_ if ba_sum > 0
-  if(ba_sum > 0) sdi_max_ = sum(sp_ba) / ba_sum
-  
-  #If sdi_max_ is NaN or NA set to 0
-  if(is.na(sdi_max_)) sdi_max_ = 0
-  
-  return(sdi_max_)
 }
 
 ################################################################################
@@ -2151,12 +2038,12 @@ sdi_max <- function(dbh = NULL,
 # }
 
   # #Calculate arithmetic average first
-  # if(n > 0 ) avg_attr = attr_sum / n
+  # if(n > 0 ) mean_attr = attr_sum / n
   # 
-  # #If weighted average is being calculated, reset avg_attr
+  # #If weighted average is being calculated, reset mean_attr
   # if(avgtype == 2)
   # {
-  #   if(weight_sum > 0) avg_attr = attr_wt / weight_sum
+  #   if(weight_sum > 0) mean_attr = attr_wt / weight_sum
   # }
 
 #TOPQMD (top diameter)

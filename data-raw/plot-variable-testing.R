@@ -45,7 +45,6 @@ fvs_sum = tree %>%
   summarize(BA_ = ba(dbh = DBH, expf = TPA),
             TPA_ = tpa(dbh = DBH, expf = TPA),
             QMD_ = qmd(dbh = DBH, expf = TPA),
-            RDIA_ = rdia(dbh = DBH, expf = TPA),
             RSDI_ = rsdi_stage(dbh = DBH, expf = TPA),
             ZSDI_ = zsdi(dbh = DBH, expf = TPA),
             TCUFT_ = expand_attr(dbh = DBH, attr = TCuFt, expf = TPA),
@@ -54,9 +53,9 @@ fvs_sum = tree %>%
             BDFT_ = expand_attr(dbh = DBH, attr = BdFt, expf = TPA),
             CC_ = cc(dbh = DBH, crwidth = CrWidth, expf = TPA),
             TOPHT_ = top_ht(dbh = DBH, expf = TPA, ht = Ht),
-            AVGHT_ = avg_attr(dbh = DBH, attr = Ht, weight = TPA, avgtype = 2),
-            BAWTD_ = avg_attr(dbh = DBH, attr = DBH, weight = TREEBA, avgtype = 2),
-            BAWTH_ = avg_attr(dbh = DBH, attr = Ht, weight = TREEBA, avgtype = 2),
+            AVGHT_ = mean_attr(dbh = DBH, attr = Ht, weight = TPA),
+            BAWTD_ = mean_attr(dbh = DBH, attr = DBH, weight = TREEBA),
+            BAWTH_ = mean_attr(dbh = DBH, attr = Ht, weight = TREEBA),
             BAG5 = ba(dbh = DBH, expf = TPA, dbhmin = 5),
             TPAG5 = tpa(dbh = DBH, expf = TPA, dbhmin = 5),
             QMDG5 = qmd(dbh = DBH, expf = TPA, dbhmin = 5),
@@ -109,7 +108,8 @@ fvs_sum = tree %>%
             SCUFTSP = expand_attr(dbh = DBH, attr = SCuFt, expf = TPA, species = SpeciesFVS, select_species = sp_group),
             BDFTSP = expand_attr(dbh = DBH, attr = BdFt, expf = TPA, species = SpeciesFVS, select_species = sp_group),
             CCSP = cc(dbh = DBH, crwidth = CrWidth, expf = TPA, species = SpeciesFVS, select_species = sp_group),
-            AVGHTSP = avg_attr(dbh = DBH, attr = Ht, weight = TPA, avgtype = 2, species = SpeciesFVS, select_species = sp_group)) %>%
+            AVGHTSP = mean_attr(dbh = DBH, attr = Ht, weight = TPA, species = SpeciesFVS, select_species = sp_group),
+            RDIA_ = rdia(dbh = DBH, expf = TPA)) %>%
   arrange(CaseID, Year)
 fvs_sum = as.data.frame(fvs_sum)
 
@@ -133,9 +133,9 @@ fvs_sum2 = tree[, TREEBA := DBH^2 * TPA * fvsUtil:::for_constant][, .(
   BDFT_ = expand_attr(dbh = DBH, attr = BdFt, expf = TPA),
   CC_ = cc(dbh = DBH, crwidth = CrWidth, expf = TPA),
   TOPHT_ = top_ht(dbh = DBH, expf = TPA, ht = Ht),
-  AVGHT_ = avg_attr(dbh = DBH, attr = Ht, weight = TPA, avgtype = 2),
-  BAWTD_ = avg_attr(dbh = DBH, attr = DBH, weight = TREEBA, avgtype = 2),
-  BAWTH_ = avg_attr(dbh = DBH, attr = Ht, weight = TREEBA, avgtype = 2),
+  AVGHT_ = mean_attr(dbh = DBH, attr = Ht, weight = TPA),
+  BAWTD_ = mean_attr(dbh = DBH, attr = DBH, weight = TREEBA),
+  BAWTH_ = mean_attr(dbh = DBH, attr = Ht, weight = TREEBA),
   BAG5 = ba(dbh = DBH, expf = TPA, dbhmin = 5),
   TPAG5 = tpa(dbh = DBH, expf = TPA, dbhmin = 5),
   QMDG5 = qmd(dbh = DBH, expf = TPA, dbhmin = 5),
@@ -188,7 +188,7 @@ fvs_sum2 = tree[, TREEBA := DBH^2 * TPA * fvsUtil:::for_constant][, .(
   SCUFTSP = expand_attr(dbh = DBH, attr = SCuFt, expf = TPA, species = SpeciesFVS, select_species = sp_group),
   BDFTSP = expand_attr(dbh = DBH, attr = BdFt, expf = TPA, species = SpeciesFVS, select_species = sp_group),
   CCSP = cc(dbh = DBH, crwidth = CrWidth, expf = TPA, species = SpeciesFVS, select_species = sp_group),
-  AVGHTSP = avg_attr(dbh = DBH, attr = Ht, weight = TPA, avgtype = 2, species = SpeciesFVS, select_species = sp_group)), 
+  AVGHTSP = mean_attr(dbh = DBH, attr = Ht, weight = TPA, species = SpeciesFVS, select_species = sp_group)), 
 by = .(CaseID, StandID, Year)][order(CaseID, Year)]
 
 #Test if fvs_sum2 and comp are equivalent
@@ -215,9 +215,9 @@ rm(list=ls()); gc()
 #             CC_ = cc(dbh = DBH, crwidth = CrWidth, expf = TPA, corrected = TRUE),
 #             top_ht_ = top_ht(dbh = DBH, expf = TPA, ht = Ht),
 #             TOPQMD_ = topQMD(dbh = DBH, expf = TPA),
-#             XBAWTD = avg_attr(dbh = DBH, attr = DBH, weight = TREEBA, avgtype = 2),
-#             XBAWTH = avg_attr(dbh = DBH, attr = Ht, weight = TREEBA, avgtype = 2),
-#             XAVGHT = avg_attr(dbh = DBH, attr = Ht, weight = TPA, avgtype = 2),
+#             XBAWTD = mean_attr(dbh = DBH, attr = DBH, weight = TREEBA, avgtype = 2),
+#             XBAWTH = mean_attr(dbh = DBH, attr = Ht, weight = TREEBA, avgtype = 2),
+#             XAVGHT = mean_attr(dbh = DBH, attr = Ht, weight = TPA, avgtype = 2),
 #             XBAG5 = ba(dbh = DBH, expf = TPA, dbhmin = 5),
 #             XTPAG5 = tpa(dbh = DBH, expf = TPA, dbhmin = 5),
 #             XQMDG5 = qmd(dbh = DBH, expf = TPA, dbhmin = 5),

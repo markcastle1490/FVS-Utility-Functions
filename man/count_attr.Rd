@@ -2,11 +2,10 @@
 % Please edit documentation in R/plot-variable-functions.R
 \name{count_attr}
 \alias{count_attr}
-\alias{count_records}
-\title{count_records}
+\title{count_attr}
 \usage{
-count_records(
-  id = NULL,
+count_attr(
+  attr = NULL,
   dbh = NULL,
   ht = NULL,
   species = NULL,
@@ -18,8 +17,9 @@ count_records(
 )
 }
 \arguments{
-\item{id:}{Vector containing tree ID values. Technically if you don't have tree ids, you
-can pass any vector into this argument.}
+\item{attr:}{Vector containing an attribute. In this context, this would likely be a tree
+ID value. Technically you can pass any vector into this argument to have
+counted.}
 
 \item{dbh:}{Optional numeric vector containing DBH values.}
 

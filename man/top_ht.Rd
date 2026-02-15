@@ -25,7 +25,5 @@ Top height value.
 }
 \description{
 This function is used to calculate top height for a specified percentage of
-trees in the stand or and explicit TPA value. This value is calculated from a
-set of input vectors containing DBH values, expansion factors, and tree
-heights.
+trees in the stand or and explicit number of trees (trees per acre) value.
 }
