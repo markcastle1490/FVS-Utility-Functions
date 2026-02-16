@@ -115,22 +115,27 @@ fvs_keyfile <- function(keyfile,
   if(file.exists(keyfile)) unlink(keyfile)
   
   #Switch \\\\ to / in keyfile
-  keyfile <- gsub("\\\\", "/", keyfile)
+  keyfile = gsub("\\\\", "/", keyfile)
   
   #Extract path to output by extract all characters before the last / in output.
-  outpath <- gsub("/[^/]+$", "", keyfile)
+  keydir = gsub("/[^/]+$", "", keyfile)
   
-  #Test existence of output path and if it does not exist report error.
-  if (!(file.exists(outpath))){
-    stop(paste("Path to output:", outpath, "was not found.",
-               "Make sure directory path to output is spelled correctly."))
-  }
+  #Extract name of keyword file
+  key_name = gsub(".*/", "", keyfile)
   
   #Extract file extension for output argument.
-  fileext_out<-sub("(.*)\\.","",keyfile)
+  key_ext = sub("(.*)\\.","", keyfile)
   
+  #Test existence of output path and if it does not exist report error.
+  if(keydir != key_name)
+  {
+    if (!(file.exists(keydir)))
+      stop(paste("Path to output:", keydir, "was not found.",
+                 "Make sure directory path to output is spelled correctly."))
+  }
+
   #Test if output file extension is valid (.key).
-  if(!fileext_out %in% c("key"))
+  if(key_ext != "key")
     stop(paste("Output argument does not have a valid file extension. File",
                "extension must be .key."))
   
@@ -140,16 +145,35 @@ fvs_keyfile <- function(keyfile,
   
   #If invyear and standid are not the same length, stop with an error
   if(length(invyear) != length(standid))
-    stop(paste("Length of invyear and standid arguments must be the same."))
+    stop(paste("Arguments invyear and standid need to have the same length."))
   
-  #Do checks on keywords argument if not NULL
+  #Do checks on standcn
+  if(is.null(standcn)) standcn = standid
+  else
+  {
+    if(length(standcn) != length(standid))
+      stop("Arguments standcn and standid need to have the same length.")
+  }
+  
+  #Do checks on keywords argument
   if(!is.null(keywords))
   {
     #Stop if keywords is a list or not a character vector
     if(is.list(keywords) || !is.character(keywords))
       stop("keywords argument must be a character vector.")
   }
+  
+  #Do checks on stand_keys
+  if(is.null(stand_keys)) stand_keys = rep("", times = length(standid))
+  else
+  {
+    if(length(stand_keys) != length(standid))
+      stop("Arguments stand_keys and standid need to have the same length.")
     
+    if(!is.character(stand_keys))
+      stop("stand_keys argument must be a character vector.")
+  }
+  
   #Open file connection
   con = file(description = keyfile, open = "a")
   on.exit(close(con = con))
@@ -157,16 +181,10 @@ fvs_keyfile <- function(keyfile,
   #Loop across stands
   for(i in 1:length(standid))
   {
-    #Get stand ID and inventory year
+    #Get stand ID, inventory year, and stand_cn
     stand_id <- standid[[i]] 
     inv_year <- invyear[[i]]
-    
-    #Get standcn if length is not zero and bounds of standcn vector has not 
-    #been exceeded
-    if(length(standcn) > 0 && i <= length(standcn))
-      stand_cn <- standcn[[i]]
-    else
-      stand_cn <- stand_id
+    stand_cn <- standcn[[i]]
 
     #Setup standident and standcn keywords and add to keyword file
     stand_key <- paste("STDIDENT",
@@ -233,13 +251,9 @@ fvs_keyfile <- function(keyfile,
     #Write any stand specific keywords in stand_keys argument
     #===========================================================================
     
-    if(i <= length(stand_keys))
-    {
-      stand_key = stand_keys[i]
-      if(!is.character(stand_key)) stand_key = as.character(stand_key)
-      if(!is.na(stand_key) || !is.null(stand_key)) 
+    stand_key = stand_keys[i]
+    if(!is.na(stand_key) && !is.null(stand_key) && stand_key != "") 
         writeLines(text = stand_key, con = con, sep = "\n\n")
-    }
     
     #===========================================================================
     #Determine if input database keywords will be produced and added to keyword
@@ -295,19 +309,19 @@ fvs_kcpfile <- function(kcpfile,
   if(file.exists(kcpfile)) unlink(kcpfile)
   
   #Extract path to output by extract all characters before the last / in output.
-  outpath <- gsub("/[^/]+$", "", kcpfile)
+  keydir <- gsub("/[^/]+$", "", kcpfile)
   
   #Test existence of output path and if it does not exist report error.
-  if (!(file.exists(outpath))){
-    stop(paste("Path to output:", outpath, "was not found.",
+  if (!(file.exists(keydir))){
+    stop(paste("Path to output:", keydir, "was not found.",
                "Make sure directory path to output is spelled correctly."))
   }
   
   #Extract file extension for output argument.
-  fileext_out<-sub("(.*)\\.","", kcpfile)
+  key_ext<-sub("(.*)\\.","", kcpfile)
   
   #Test if output file extension is valid (.key).
-  if(!fileext_out %in% c("kcp"))
+  if(!key_ext %in% c("kcp"))
   {
     stop(paste("Output argument does not have a valid file extension. File",
                "extension must be .kcp."))
