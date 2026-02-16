@@ -5,15 +5,20 @@
 #including DBH, expansion factors, species, total tree height, and others 
 #relevant as described in the documentation for each function. The attributes 
 #are generally calculated from input numeric and character vectors and other 
-#additional arguments. Many of the attributes in this file can be calculated for
+#additional arguments. Most of the attributes in this file can be calculated for
 #custom size ranges (DBH and total tree height) and desired species.
 #
 #Development notes: 
 #The functions in this file rely heavily on vectorized base-R functions (sum, 
 #mean, weighted.mean, etc.) to derive competition and density attributes. The 
-#vectorized base-R functions are optimized for R, however faster implementations
-#of the functions in this file could likely be achieved by writing functions 
-#in low level language like C++, FORTRAN, etc. and called from an API in R. 
+#vectorized functions are optimized for R and are preferable to using for loops. 
+#Faster and more memory efficient implementations of the functions in this file
+#could likely be achieved by writing the functions in compiled languages like C,
+#C++, FORTRAN, etc. and calling them through an API. The primary gains in speed
+#from coding in a low level language would likely be realized from not having to
+#create intermediate vectors or copy vectors during the calculation of the 
+#attributes. Coding in a lower level language would still provide some unique
+#challenges.
 #
 #Usage notes:
 #Although these functions can be called within loops for subsets of data, they 
@@ -49,7 +54,7 @@
 
 #Constants for calculations
 for_constant = 0.005454154
-reineke_slope = 1.605
+r_slope = 1.605
 
 ################################################################################
 #' ba
@@ -131,7 +136,7 @@ ba = function(dbh = NULL,
     (all_species | species %in% select_species)
   
   #Calculate BA over DBH, HT, and species
-  ba_ = sum((dbh^2)[include] * expf[include] * for_constant, na.rm = TRUE)
+  ba_ = sum((dbh^2 * expf * for_constant)[include], na.rm = TRUE)
   
   #Capture bad values
   if(is.na(ba_)) ba_ = 0
@@ -312,7 +317,7 @@ qmd = function(dbh = NULL,
   #Calculate QMD over DBH, HT, and species
   dbhsq = sum((dbh^2*expf)[include], na.rm = TRUE)
   tpa_ = sum(expf[include], na.rm = TRUE)
-  if(tpa_ > 0 ) qmd_ = sqrt(dbhsq/tpa_)
+  if(tpa_ > 0) qmd_ = sqrt(dbhsq/tpa_)
 
   #Capture bad values
   if(is.na(qmd_)) qmd_ = 0
@@ -400,15 +405,108 @@ rdia = function(dbh = NULL,
     (all_species | species %in% select_species)
   
   #Calculate Reineke diameter over DBH, HT, and species
-  rdia_sum = sum((expf * dbh^1.605)[include], na.rm = TRUE)
+  rdia_sum = sum((expf * dbh^r_slope)[include], na.rm = TRUE)
   tpa_ = sum(expf[include], na.rm = TRUE)
-  if(tpa_ > 0 ) rdia_ = (rdia_sum / tpa_)^(1/1.605)
+  if(tpa_ > 0 ) rdia_ = (rdia_sum / tpa_)^(1 / r_slope)
   
   #Capture bad values
   if(is.na(rdia_)) rdia_ = 0
   
   #Return rdia
   return(rdia_)
+}
+
+################################################################################
+#' lorey_dia
+#' @name lorey_dia
+#' @description
+#' 
+#' This function calculates Lorey diameter (basal area weighted average 
+#' diameter). This attribute can be calculated for user defined size ranges and 
+#' for select species.
+#
+#' @param dbh:
+#' Numeric vector containing DBH values.
+#
+#' @param expf: 
+#' Numeric vector containing expansion factors.
+#' 
+#' @param ht:
+#' Optional numeric vector containing total tree height values. If heights are 
+#' provided, then attribute will be calculated between the values specified in
+#' htmin and htmax.
+#' 
+#' @param species:
+#' Optional vector containing species codes. If species are provided then
+#' attribute will be calculated for species entered in select_species argument.
+#' Attribute will be calculated for all species if select_species is left as 
+#' NULL.
+#' 
+#' @param dbhmin:
+#' Numeric value corresponding to lower DBH bound to calculate attribute in. 
+#' This value is inclusive (>=).
+#
+#' @param dbhmax: 
+#' Numeric value corresponding to upper DBH bound to calculate attribute in. 
+#' This value is exclusive (<).
+#' 
+#' @param htmin:
+#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' in. This value is inclusive (>=). This argument is only used if ht argument 
+#' is specified.
+#
+#' @param htmax: 
+#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' in. This value is exclusive (<). This argument is only used if ht argument 
+#' is specified.
+#' 
+#' @param select_species:
+#' Optional vector containing species codes. This variable will be used to
+#' select which species get included in calculation of attribute. If left as
+#' NULL, attribute will be calculated using observations from across all 
+#' species.
+#'
+#'@return
+#' Numeric quadratic mean diameter value
+################################################################################
+
+#'@export
+lorey_dia = function(dbh = NULL,
+                     expf = NULL,
+                     ht = NULL,
+                     species = NULL,
+                     dbhmin = 0,
+                     dbhmax = 999,
+                     htmin = 0,
+                     htmax = 999,
+                     select_species = NULL)
+{
+  
+  lorey_dia_ = 0
+  
+  #Check optional vectors.
+  if(is.null(ht)) ht = 0
+  if(is.null(species)) species = 'ALL'
+  all_species = TRUE
+  if(!is.null(select_species)) all_species = FALSE
+  
+  #Calculate treeba
+  treeba = dbh^2 * expf * for_constant 
+  
+  #Identify records to include in calculation
+  include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
+    (all_species | species %in% select_species)
+  
+  #Calculate Lorey diameter over DBH, HT, and species
+  dbhsum = sum((dbh * treeba)[include], na.rm = TRUE)
+  ba_ = sum(treeba[include], na.rm = TRUE)
+  if(ba_ > 0 ) lorey_dia_ = dbhsum / ba_
+  
+  #Capture bad values
+  if(is.na(lorey_dia_)) lorey_dia_ = 0
+  
+  #Return Lorey diameter
+  return(lorey_dia_)
 }
 
 ################################################################################
@@ -440,7 +538,7 @@ rsdi = function(dbh = NULL,
   qmd_ = qmd(dbh = dbh, expf = expf)
   
   #Calculate rsdi
-  rsdi = tpa_ * (qmd_/10)^reineke_slope
+  rsdi = tpa_ * (qmd_/10)^r_slope
   
   #Return rsdi
   return(rsdi)
@@ -523,7 +621,7 @@ zsdi = function(dbh = NULL,
     (all_species | species %in% select_species)
   
   #Calculate ZSDI over DBH, HT, and species
-  zsdi_ = sum(((dbh/10)^reineke_slope)[include] * expf[include], na.rm = TRUE)
+  zsdi_ = sum(((dbh/10)^r_slope * expf)[include], na.rm = TRUE)
   
   #Capture bad values
   if(is.na(zsdi_)) zsdi_ = 0
@@ -612,9 +710,8 @@ cc = function(crwidth = NULL,
     (all_species | species %in% select_species)
   
   #Calculate CC over DBH, HT, and species
-  cc_ = sum(((crwidth/2)^2)[include] * (expf/43560)[include], na.rm = TRUE) * 
-    pi * 100
-  
+  cc_ = sum((((crwidth/2)^2) * (expf/43560) * pi * 100)[include], na.rm = TRUE)
+    
   #Capture bad values
   if(is.na(cc_)) cc_ = 0
   
@@ -802,8 +899,8 @@ rsdi_stage = function(dbh = NULL,
   if(stand_tpa <= 0) return(rsdi_)
   
   #Initialize a and b parameters
-  a = 10^(-1.605) * (1-(1.605/2)) * (dbhsq/stand_tpa)^(1.605/2)
-  b = 10^(-1.605) * (1.605/2) * (dbhsq/stand_tpa)^(1.605/2 - 1)
+  a = 10^(-r_slope) * (1-(r_slope/2)) * (dbhsq/stand_tpa)^(r_slope/2)
+  b = 10^(-r_slope) * (r_slope/2) * (dbhsq/stand_tpa)^(r_slope/2 - 1)
   
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
@@ -817,6 +914,96 @@ rsdi_stage = function(dbh = NULL,
   
   #Return rsdi
   return(rsdi_)
+}
+
+################################################################################
+#' lorey_ht
+#' @name lorey_ht
+#' @description
+#' 
+#' This function calculates Lorey height (basal area weighted average height). 
+#' This attribute can be calculated for user defined size ranges and for select
+#' species.
+#
+#' @param dbh:
+#' Numeric vector containing DBH values.
+#' 
+#' @param ht:
+#' Numeric vector containing total tree height values.
+#
+#' @param expf: 
+#' Numeric vector containing expansion factors.
+#'
+#' @param species:
+#' Optional vector containing species codes. If species are provided then
+#' attribute will be calculated for species entered in select_species argument.
+#' Attribute will be calculated for all species if select_species is left as 
+#' NULL.
+#' 
+#' @param dbhmin:
+#' Numeric value corresponding to lower DBH bound to calculate attribute in. 
+#' This value is inclusive (>=).
+#
+#' @param dbhmax: 
+#' Numeric value corresponding to upper DBH bound to calculate attribute in. 
+#' This value is exclusive (<).
+#' 
+#' @param htmin:
+#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' in. This value is inclusive (>=). This argument is only used if ht argument 
+#' is specified.
+#
+#' @param htmax: 
+#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' in. This value is exclusive (<). This argument is only used if ht argument 
+#' is specified.
+#' 
+#' @param select_species:
+#' Optional vector containing species codes. This variable will be used to
+#' select which species get included in calculation of attribute. If left as
+#' NULL, attribute will be calculated using observations from across all 
+#' species.
+#'
+#'@return
+#' Numeric Lorey height value
+################################################################################
+
+#'@export
+lorey_ht = function(dbh = NULL,
+                    ht = NULL,
+                    expf = NULL,
+                    species = NULL,
+                    dbhmin = 0,
+                    dbhmax = 999,
+                    htmin = 0,
+                    htmax = 999,
+                    select_species = NULL)
+{
+  
+  lorey_ht_ = 0
+  
+  #Check optional vectors.
+  if(is.null(species)) species = 'ALL'
+  all_species = TRUE
+  if(!is.null(select_species)) all_species = FALSE
+  
+  #Calculate treeba
+  treeba = dbh^2 * expf * for_constant 
+  
+  #Identify records to include in calculation
+  include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
+    (all_species | species %in% select_species)
+  
+  #Calculate Lorey height over DBH, HT, and species
+  htsum = sum((ht * treeba)[include], na.rm = TRUE)
+  ba_ = sum(treeba[include], na.rm = TRUE)
+  if(ba_ > 0 ) lorey_ht_ = htsum / ba_
+  
+  #Capture bad values
+  if(is.na(lorey_ht_)) lorey_ht_ = 0
+  
+  #Return Lorey height
+  return(lorey_ht_)
 }
 
 ################################################################################
@@ -875,36 +1062,27 @@ top_ht = function(dbh = NULL,
   #Determine amount TPA value that will be included in top height calculation
   top = top_tpa
   if(top > tpa_) top = tpa_
-  if(!is.null(top_per))
-    top = tpa_ * (top_per/100)
-  
-  #If top >= tpa_, calculate top height for all trees
-  if(top >= tpa_)
-    top_ht_ = mean_attr(attr = ht, weight = expf, dbh = dbh)
+  if(!is.null(top_per)) top = tpa_ * (top_per/100)
   
   #Calculate top height for trees in top  
-  else
-  {
-    #Get order of DBH values in descending order
-    dbh_order = order(-dbh)
+  #Get order of DBH values in descending order
+  dbh_order = order(-dbh)
     
-    #Find the index where top is exceeded
-    top_exceeded = which.max(cumsum(expf[dbh_order]) >= top)
+  #Find the index where top is exceeded
+  top_exceed = which.max(cumsum(expf[dbh_order]) >= top)
     
-    #Sum expf up to this index
-    tpa_sum = sum(expf[dbh_order][1:top_exceeded], na.rm = TRUE)
+  #Sum expf up to this index
+  tpa_sum = sum(expf[dbh_order][1:top_exceed], na.rm = TRUE)
     
-    #Calculate tpa_dif and adjust tpa_sum
-    tpa_dif = tpa_sum - top
-    tpa_sum = tpa_sum - tpa_dif
+  #Calculate tpa_dif and adjust tpa_sum
+  tpa_dif = tpa_sum - top
+  tpa_sum = tpa_sum - tpa_dif
     
-    #Do the top height calculation for trees in top
-    ht_sum = sum((ht*expf)[dbh_order][1:top_exceeded-1], na.rm = TRUE) + 
-      (ht)[dbh_order][top_exceeded] * (expf[dbh_order][top_exceeded] - 
-                                              tpa_dif)
-    top_ht_ = ht_sum/tpa_sum
-  }
-  
+  #Top height
+  ht_sum = sum((ht * expf)[dbh_order][1:top_exceed-1], na.rm = TRUE) + 
+    (ht)[dbh_order][top_exceed] * ((expf)[dbh_order][top_exceed] - tpa_dif)
+  if(tpa_sum > 0) top_ht_ = ht_sum / tpa_sum
+    
   return(top_ht_)
 }
 
@@ -935,7 +1113,8 @@ top_ht = function(dbh = NULL,
 #' @param dia_type:
 #' Integer value used to specify what type of diameter should be calculated.
 #' 1 = QMD
-#' 2 = average diameter weighted by TPA
+#' 2 = average diameter weighted by trees per acre
+#' 3 = Reineke diameter
 #
 #' @return 
 #' Top diameter weighted by TPA or QMD.
@@ -962,7 +1141,7 @@ top_dia = function(dbh = NULL,
   }
   
   #Validate dia_type
-  if(!dia_type %in% c(1, 2)) dia_type = 1
+  if(!dia_type %in% c(1, 2, 3)) dia_type = 1
   
   #Calculate TPA for the entire stand
   tpa_ = tpa(dbh = dbh, expf = expf)
@@ -974,57 +1153,48 @@ top_dia = function(dbh = NULL,
   top = top_tpa
   if(top > tpa_) top = tpa_
   if(!is.null(top_per))top = tpa_ * (top_per/100)
-
-  #If top >= tpa_, calculate top diameter for all trees
-  if(top >= tpa_)
-  {
-    #QMD
-    if(dia_type == 1)
-    {
-      top_dia_ = qmd(dbh = dbh, expf = expf)
+  
+  #Get order of DBH values in descending order
+  dbh_order = order(-dbh)
+    
+  #Find the index where top is exceeded
+  top_exceed = which.max(cumsum(expf[dbh_order]) >= top)
+    
+  #Sum expf up to this index
+  tpa_sum = sum(expf[dbh_order][1:top_exceed], na.rm = TRUE)
+    
+  #Calculate tpa_dif and adjust tpa_sum
+  tpa_dif = tpa_sum - top
+  tpa_sum = tpa_sum - tpa_dif
+    
+  #QMD
+  if(dia_type == 1) {
+      dbh_sum = sum((dbh^2*expf)[dbh_order][1:top_exceed-1], na.rm = TRUE) + 
+      (dbh^2)[dbh_order][top_exceed] * (expf[dbh_order][top_exceed] - 
+                                            tpa_dif)
+      
+      if(tpa_sum > 0) top_dia_ = sqrt(dbh_sum / tpa_sum)
     }
     
-    #Average diameter weighted by TPA
-    else
-    {
-      top_dia_ = mean_attr(attr = dbh, weight = expf, dbh = dbh)
-    }
+  #Average diameter weighted by TPA
+  else if (dia_type == 2)
+  {
+    dbh_sum = sum((dbh*expf)[dbh_order][1:top_exceed-1], na.rm = TRUE) + 
+      (dbh)[dbh_order][top_exceed] * (expf[dbh_order][top_exceed] - 
+                                          tpa_dif)
+    
+    if(tpa_sum > 0) top_dia_ = dbh_sum / tpa_sum
   }
   
-  #Calculate top diameter for trees in top  
-  else
+  #Reineke diameter
+  else 
   {
-    #Get order of DBH values in descending order
-    dbh_order = order(-dbh)
+    dbh_sum = sum((dbh^r_slope * expf)[dbh_order][1:top_exceed-1], 
+                  na.rm = TRUE) + 
+      (dbh^r_slope)[dbh_order][top_exceed] * (expf[dbh_order][top_exceed] - 
+                                                  tpa_dif)
     
-    #Find the index where top is exceeded
-    top_exceeded = which.max(cumsum(expf[dbh_order]) >= top)
-    
-    #Sum expf up to this index
-    tpa_sum = sum(expf[dbh_order][1:top_exceeded], na.rm = TRUE)
-    
-    #Calculate tpa_dif and adjust tpa_sum
-    tpa_dif = tpa_sum - top
-    tpa_sum = tpa_sum - tpa_dif
-    
-    #QMD
-    if(dia_type == 1) {
-      dbh_sum = sum((dbh^2*expf)[dbh_order][1:top_exceeded-1], na.rm = TRUE) + 
-      (dbh^2)[dbh_order][top_exceeded] * (expf[dbh_order][top_exceeded] - 
-                                            tpa_dif)
-      
-      top_dia_ = sqrt(dbh_sum/tpa_sum)
-    }
-    
-    #Average diameter weighted by TPA
-    else
-    {
-      dbh_sum = sum((dbh*expf)[dbh_order][1:top_exceeded-1], na.rm = TRUE) + 
-        (dbh)[dbh_order][top_exceeded] * (expf[dbh_order][top_exceeded] - 
-                                            tpa_dif)
-      
-      top_dia_ = dbh_sum/tpa_sum
-    }
+    if(tpa_sum > 0) top_dia_ = (dbh_sum / tpa_sum)^(1 / r_slope)
   }
   
   return(top_dia_)
@@ -1214,7 +1384,7 @@ expand_attr = function(attr = NULL,
     (all_species | species %in% select_species)
   
   #Expand attr over DBH, HT, and species
-  attr_expand_ = sum(attr[include] * expf[include], na.rm = TRUE)
+  attr_expand_ = sum((attr * expf)[include], na.rm = TRUE)
   
   #If attr_expand_ is NaN or NA set to 0
   if(is.na(attr_expand_)) attr_expand_ = 0
@@ -1874,7 +2044,7 @@ count_attr = function(attr = NULL,
 #   if(input_species && !is.null(select_species) && ! 
 #      species_ %in% select_species) next 
 #   
-#   zsdi_ = zsdi_ + ((dbh_/10)^reineke_slope * expf_)
+#   zsdi_ = zsdi_ + ((dbh_/10)^r_slope * expf_)
 # }
 
 #CC
@@ -2136,3 +2306,36 @@ count_attr = function(attr = NULL,
 # 
 # #Calculate and return top_ht_
 # if(tpa_sum > 0) top_ht_ = ht_tpa/tpa_sum
+
+# Logic for calculating basal area weighted top-height. Not really sure if this
+# would even be done in practice and it doesn't quite work out correctly.
+# treeba = dbh^2 * for_constant
+# ba_sum = sum((treeba * expf)[dbh_order][1:top_exceed-1], na.rm = TRUE)
+# ba_dif = ((treeba * expf)[dbh_order][top_exceed] - 
+#             (treeba * tpa_dif)[dbh_order][top_exceed])
+# ba_sum = ba_sum + ba_dif
+# 
+# #Do Lorey height calculation
+# ht_sum = sum((ht * treeba * expf)[dbh_order][1:top_exceed-1],
+#              na.rm = TRUE) + 
+#   (ht)[dbh_order][top_exceed] * ((treeba * expf)[dbh_order][top_exceed] - 
+#                                    ba_dif)
+# 
+# if(ba_sum > 0) top_ht_ = ht_sum / ba_sum
+
+# Logic for calculating basal area weighted diameter. Not really sure if this
+# would even be done in practice and it doesn't quite work out correctly.
+#Get treeba, ba_sum, and ba_dif
+# treeba = dbh^2 * for_constant
+# ba_sum = sum((treeba * expf)[dbh_order][1:top_exceed-1], na.rm = TRUE)
+# ba_dif = ((treeba * expf)[dbh_order][top_exceed] - 
+#             (treeba * tpa_dif)[dbh_order][top_exceed])
+# ba_sum = ba_sum + ba_dif
+# 
+# #Do Lorey diameter calculation
+# dbh_sum = sum((dbh * treeba * expf)[dbh_order][1:top_exceed-1],
+#               na.rm = TRUE) + 
+#   (dbh)[dbh_order][top_exceed] * ((treeba * expf)[dbh_order][top_exceed] - 
+#                                     ba_dif)
+# 
+# if(ba_sum > 0) top_dia_ = dbh_sum / ba_sum

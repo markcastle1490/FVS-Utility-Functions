@@ -19,7 +19,8 @@ not null then it will supersede the value in top_tpa argument.}
 
 \item{dia_type:}{Integer value used to specify what type of diameter should be calculated.
 1 = QMD
-2 = average diameter weighted by TPA}
+2 = average diameter weighted by trees per acre
+3 = Reineke diameter}
 }
 \value{
 Top diameter weighted by TPA or QMD.

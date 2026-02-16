@@ -41,7 +41,7 @@ sp_group = c('DF', 'GF', 'AF')
 #Testing sequence for plot variables using dplyr
 fvs_sum = tree %>%
   group_by(CaseID, StandID, Year) %>%
-  mutate(TREEBA = DBH^2 * TPA * fvsUtil:::for_constant) %>%
+  #mutate(TREEBA = DBH^2 * TPA * fvsUtil:::for_constant) %>%
   summarize(BA_ = ba(dbh = DBH, expf = TPA),
             TPA_ = tpa(dbh = DBH, expf = TPA),
             QMD_ = qmd(dbh = DBH, expf = TPA),
@@ -54,8 +54,8 @@ fvs_sum = tree %>%
             CC_ = cc(dbh = DBH, crwidth = CrWidth, expf = TPA),
             TOPHT_ = top_ht(dbh = DBH, expf = TPA, ht = Ht),
             AVGHT_ = mean_attr(dbh = DBH, attr = Ht, weight = TPA),
-            BAWTD_ = mean_attr(dbh = DBH, attr = DBH, weight = TREEBA),
-            BAWTH_ = mean_attr(dbh = DBH, attr = Ht, weight = TREEBA),
+            BAWTD_ = lorey_dia(dbh = DBH, expf = TPA),
+            BAWTH_ = lorey_ht(dbh = DBH, ht = Ht, expf = TPA),
             BAG5 = ba(dbh = DBH, expf = TPA, dbhmin = 5),
             TPAG5 = tpa(dbh = DBH, expf = TPA, dbhmin = 5),
             QMDG5 = qmd(dbh = DBH, expf = TPA, dbhmin = 5),
@@ -112,9 +112,43 @@ fvs_sum = tree %>%
             RDIA_ = rdia(dbh = DBH, expf = TPA)) %>%
   arrange(CaseID, Year)
 fvs_sum = as.data.frame(fvs_sum)
+gc()
 
 #Test if fvs_sum and comp are equivalent
 all.equal(comp, fvs_sum)
+
+#Minor differences in top height seem to be related to sort handling within FVS. 
+#Different trees can be included in calculation when there is a tie in diameter
+#values.
+
+#Test if top heights and top diameter values are equivalent to individual height
+#and diameter calculations when all trees in stand are included in calculation.
+
+size_test = tree %>%
+  group_by(CaseID, StandID, Year) %>%
+  summarize(QMD1 = qmd(dbh = DBH, expf = TPA),
+            QMD2 = top_dia(dbh = DBH, expf = TPA, top_per = 100, dia_type = 1),
+            AVGD1 = mean_attr(attr = DBH, weight = TPA),
+            AVGD2 = top_dia(dbh = DBH, expf = TPA, top_per = 100, dia_type = 2),
+            RDIA1 = rdia(dbh = DBH, expf = TPA),
+            RDIA2 = top_dia(dbh = DBH, expf = TPA, top_per = 100, dia_type = 3),
+            TOPHT1 = mean_attr(attr = Ht, weight = TPA),
+            TOPHT2 = top_ht(dbh = DBH, expf = TPA, ht = Ht, top_per = 100))
+size_test= as.data.frame(size_test)
+
+head(size_test)
+
+all.equal(size_test$QMD1,
+          size_test$QMD2)
+
+all.equal(size_test$AVGD1,
+          size_test$AVGD2)
+
+all.equal(size_test$RDIA1,
+          size_test$RDIA2)
+
+all.equal(size_test$TOPHT1,
+          size_test$TOPHT2)
 
 #Now look at data.table
 tree <- as.data.table(tree)
