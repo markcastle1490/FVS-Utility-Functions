@@ -36,9 +36,9 @@ arguments.}
 for this argument, then the value from standid will be used as the stand
 control number in the output keyword file.}
 
-\item{keywords:}{Optional character vector, list, or list of character vectors containing
-properly formatted FVS keywords or variables to define with event monitor
-function call that will be included in keyword file for each stand.}
+\item{keywords:}{Optional character vector containing properly formatted FVS keywords or
+variables to define with event monitor function call that will be included in
+keyword file for each stand.}
 
 \item{stand_keys:}{Optional character vector containing a set of properly formatted keywords or
 variables to define with event monitor function call for specific stands in

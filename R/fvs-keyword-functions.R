@@ -22,9 +22,9 @@
 #'control number in the output keyword file.
 #'
 #'@param keywords:
-#'Optional character vector, list, or list of character vectors containing 
-#'properly formatted FVS keywords or variables to define with event monitor 
-#'function call that will be included in keyword file for each stand.
+#'Optional character vector containing properly formatted FVS keywords or 
+#'variables to define with event monitor function call that will be included in
+#'keyword file for each stand. 
 #'
 #'@param stand_keys:
 #'Optional character vector containing a set of properly formatted keywords or
@@ -131,25 +131,28 @@ fvs_keyfile <- function(keyfile,
   
   #Test if output file extension is valid (.key).
   if(!fileext_out %in% c("key"))
-  {
     stop(paste("Output argument does not have a valid file extension. File",
                "extension must be .key."))
-  }
   
   #If invyear or standid are empty, stop with an error
   if(length(invyear) <= 0 || length(standid) <= 0)
-  {
     stop(paste("Values are required for invyear and standid."))
-  }
   
   #If invyear and standid are not the same length, stop with an error
   if(length(invyear) != length(standid))
-  {
     stop(paste("Length of invyear and standid arguments must be the same."))
-  }
   
-  #Create output file and sink
-  sink(file = keyfile)
+  #Do checks on keywords argument if not NULL
+  if(!is.null(keywords))
+  {
+    #Stop if keywords is a list or not a character vector
+    if(is.list(keywords) || !is.character(keywords))
+      stop("keywords argument must be a character vector.")
+  }
+    
+  #Open file connection
+  con = file(description = keyfile, open = "a")
+  on.exit(close(con = con))
   
   #Loop across stands
   for(i in 1:length(standid))
@@ -161,13 +164,9 @@ fvs_keyfile <- function(keyfile,
     #Get standcn if length is not zero and bounds of standcn vector has not 
     #been exceeded
     if(length(standcn) > 0 && i <= length(standcn))
-    {
       stand_cn <- standcn[[i]]
-    }
     else
-    {
       stand_cn <- stand_id
-    }
 
     #Setup standident and standcn keywords and add to keyword file
     stand_key <- paste("STDIDENT",
@@ -177,14 +176,14 @@ fvs_keyfile <- function(keyfile,
                        sep = "\n")  
     
     #Write standident and standcn keywords
-    cat(stand_key, "\n", "\n")
+    writeLines(text = stand_key, con = con, sep = "\n\n")
     
     #Create INVYR keyword
     invyr_key <- fvs_keyword(params = list("INVYEAR", inv_year),
                              type = 1)
     
     #Write INVYR keywords
-    cat(invyr_key, "\n", "\n")
+    writeLines(text = invyr_key, con = con, sep = "\n\n")
     
     #===========================================================================
     #Determine if output DSNOUT keywords will be produced and added to keyword
@@ -194,8 +193,7 @@ fvs_keyfile <- function(keyfile,
     if(!is.null(dbout))
     {
       dsnout_keys <- dsnout_keys(dbout = dbout)
-      
-      cat(dsnout_keys, "\n", "\n")
+      writeLines(text = dsnout_keys, con = con, sep = "\n\n")
     }
     
     #===========================================================================
@@ -210,8 +208,8 @@ fvs_keyfile <- function(keyfile,
                             end_year = end_year,
                             cycle_length = cycle_length,
                             cycle_at = cycle_at)
-      
-      cat(time_key, "\n", "\n")
+
+      writeLines(text = time_key, con = con, sep = "\n\n")
     }
     
     #===========================================================================
@@ -220,8 +218,8 @@ fvs_keyfile <- function(keyfile,
     
     if(length(delotab) > 0)
     {
-      deloKeys <- delotab_keys(delotab = delotab)
-      cat(deloKeys, "\n", "\n")
+      delo_keys <- delotab_keys(delotab = delotab)
+      writeLines(text = delo_keys, con = con, sep = "\n\n")
     }
     
     #===========================================================================
@@ -229,18 +227,7 @@ fvs_keyfile <- function(keyfile,
     #===========================================================================
     
     if(length(keywords) > 0)
-    {
-      for(keyset in keywords)
-      {
-        for(keys in keyset)
-        {
-          cat(keys, "\n")
-        }
-        
-        #Add extra line after keyset is processed
-        cat("\n")
-      }
-    }
+      writeLines(text = keywords, con = con, sep = "\n\n")
     
     #===========================================================================
     #Write any stand specific keywords in stand_keys argument
@@ -248,8 +235,10 @@ fvs_keyfile <- function(keyfile,
     
     if(i <= length(stand_keys))
     {
-        stand_key <- as.character(stand_keys[i])
-        if(!is.na(stand_key) || !is.null(stand_key)) cat(stand_key, "\n", "\n")
+      stand_key = stand_keys[i]
+      if(!is.character(stand_key)) stand_key = as.character(stand_key)
+      if(!is.na(stand_key) || !is.null(stand_key)) 
+        writeLines(text = stand_key, con = con, sep = "\n\n")
     }
     
     #===========================================================================
@@ -264,18 +253,17 @@ fvs_keyfile <- function(keyfile,
                                standinit = standinit,
                                treeinit = treeinit)
       
-      cat(dsnin_keys, "\n", "\n")
+      writeLines(text = dsnin_keys, con = con, sep = "\n\n")
     }
     
     #Add process keyword
-    cat("Process", "\n", "\n")
+    writeLines(text = "PROCESS", con = con, sep = "\n\n")
   }
   
   #Add stop keyword
-  cat("STOP")
+  writeLines(text = "STOP", con = con, sep = "\n\n")
   
-  #Close file connection
-  sink(file = NULL)
+  invisible()
 }
 
 ################################################################################
@@ -290,9 +278,9 @@ fvs_keyfile <- function(keyfile,
 #'being created.
 #
 #'@param keywords:   
-#'Optional character vector, list, or list of character vectors containing 
-#'properly formatted FVS keywords or variables to define with event monitor 
-#'function call that will be included in keyword file for each stand.
+#'Optional character vector containing properly formatted FVS keywords or 
+#'variables to define with event monitor function call that will be included in
+#'kcp file for each stand.
 #
 #'@return
 #'None
@@ -300,7 +288,7 @@ fvs_keyfile <- function(keyfile,
 
 #'@export
 fvs_kcpfile <- function(kcpfile,
-                        keywords = list())
+                        keywords = NULL)
 {
   
   #If kcpfile exists already,  delete it
@@ -325,26 +313,26 @@ fvs_kcpfile <- function(kcpfile,
                "extension must be .kcp."))
   }
   
-  #Create output file and sink
-  sink(file = kcpfile)
+  #Do checks on keywords argument if not NULL
+  if(!is.null(keywords))
+  {
+    #Stop if keywords is a list or not a character vector
+    if(is.list(keywords) || !is.character(keywords))
+      stop("keywords argument must be a character vector.")
+  }
+  
+  #Open file connection
+  con = file(description = kcpfile, open = "a")
+  on.exit(close(con = con))
     
   #===========================================================================
   #Write any keywords provided in keywords argument
   #===========================================================================
     
   if(length(keywords) > 0)
-  {
-    for(keyset in keywords)
-    {
-      for(keys in keyset)
-      {
-        cat(keys, "\n")
-      }
-    }
-  }
-    
-  #Close file connection
-  sink(file = NULL)
+    writeLines(text = keywords, con = con, sep = "\n\n")
+  
+  invisible()
 }
 
 ################################################################################
