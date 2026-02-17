@@ -224,7 +224,7 @@ fvs_keyfile <- function(keyfile,
     
     #Open file connection
     con = file(description = key_path, open = "a")
-    #on.exit(if(isOpen(con)) close(con = con))
+    on.exit(try(if(isOpen(con)) close(con = con), silent = TRUE))
     
     #Start loop across stands
     for(stand in stands)
@@ -391,7 +391,7 @@ fvs_kcpfile <- function(kcpfile,
   
   #Open file connection
   con = file(description = kcpfile, open = "a")
-  on.exit(close(con = con))
+  on.exit(try(if(isOpen(con)) close(con = con), silent = TRUE))
     
   #===========================================================================
   #Write any keywords provided in keywords argument
