@@ -20,7 +20,9 @@ fvs_keyfile(
   treeinit = "FVS_TreeInit",
   stand_type = 1,
   dbout = NULL,
-  delotab = c(1, 2)
+  delotab = c(1, 2),
+  create_batch = FALSE,
+  stands_per_batch = 10000
 )
 }
 \arguments{
@@ -90,6 +92,17 @@ are provided in this argument, then DELOTAB keywords will be included in
 keyword file to suppress creation of text outputs. By default this argument is
 set to c(1, 2) so the stand composition table and sample tree data tables will
 be suppressed in the output keyword file.}
+
+\item{create_batch:}{Logical value where if TRUE, a batch of keywords is created instead of a
+single keyword file. The number of stands included in a keyword file within a
+batch is determined by the stands_per_batch argument. The name of the keyword
+file in a batch will be keyword file name appended to _BATCHX.key where X is
+the number corresponding to the keyword batch (e.g. _BATCH2 would correspond
+to second keyword file in batch).}
+
+\item{stands_per_batch:}{Numeric value corresponding to number of stands to include in a keyword file
+when create_batch argument is TRUE. This value will be ignored if create_batch
+is FALSE.}
 }
 \value{
 None

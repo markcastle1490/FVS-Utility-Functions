@@ -87,6 +87,19 @@
 #'keyword file to suppress creation of text outputs. By default this argument is
 #'set to c(1, 2) so the stand composition table and sample tree data tables will
 #'be suppressed in the output keyword file.
+#'
+#'@param create_batch:
+#'Logical value where if TRUE, a batch of keywords is created instead of a
+#'single keyword file. The number of stands included in a keyword file within a
+#'batch is determined by the stands_per_batch argument. The name of the keyword 
+#'file in a batch will be keyword file name appended to _BATCHX.key where X is
+#'the number corresponding to the keyword batch (e.g. _BATCH2 would correspond 
+#'to second keyword file in batch).
+#'
+#'@param stands_per_batch:
+#'Numeric value corresponding to number of stands to include in a keyword file
+#'when create_batch argument is TRUE. This value will be ignored if create_batch
+#'is FALSE.
 #
 #'@return
 #'None
@@ -108,12 +121,11 @@ fvs_keyfile <- function(keyfile,
                         treeinit = "FVS_TreeInit",
                         stand_type = 1,
                         dbout = NULL,
-                        delotab = c(1, 2))
+                        delotab = c(1, 2),
+                        create_batch = FALSE,
+                        stands_per_batch = 10000)
 {
 
-  #If keyfile exists already,  delete it
-  if(file.exists(keyfile)) unlink(keyfile)
-  
   #Switch \\\\ to / in keyfile
   keyfile = gsub("\\\\", "/", keyfile)
   
@@ -126,13 +138,15 @@ fvs_keyfile <- function(keyfile,
   #Extract file extension for output argument.
   key_ext = sub("(.*)\\.","", keyfile)
   
-  #Test existence of output path and if it does not exist report error.
+  #Test existence of output path and assign working directory to keydir if 
+  #needed
   if(keydir != key_name)
   {
     if (!(file.exists(keydir)))
       stop(paste("Path to output:", keydir, "was not found.",
                  "Make sure directory path to output is spelled correctly."))
   }
+  else keydir = getwd()
 
   #Test if output file extension is valid (.key).
   if(key_ext != "key")
@@ -174,109 +188,149 @@ fvs_keyfile <- function(keyfile,
       stop("stand_keys argument must be a character vector.")
   }
   
-  #Open file connection
-  con = file(description = keyfile, open = "a")
-  on.exit(close(con = con))
+  #Capture bad stands_per_batch values
+  if(is.na(stands_per_batch) || stands_per_batch <= 0) stands_per_batch = 10000
   
-  #Loop across stands
-  for(i in 1:length(standid))
+  #Create list of vectors containing number of stands to process in each batch.
+  #If create_batch is FALSE, only one batch and keyword file is made.
+  if(!create_batch) stands_per_batch = length(standid)
+  batch_list =  split(1:length(standid), 
+                      ceiling(seq_along(1:length(standid)) / stands_per_batch))
+  
+  #Initialize stand_count
+  stand_count = 1
+  
+  #Start loop across batch list
+  for(i in 1:length(batch_list))
   {
-    #Get stand ID, inventory year, and stand_cn
-    stand_id <- standid[[i]] 
-    inv_year <- invyear[[i]]
-    stand_cn <- standcn[[i]]
-
-    #Setup standident and standcn keywords and add to keyword file
-    stand_key <- paste("STDIDENT",
-                       stand_id,
-                       "STANDCN",
-                       stand_cn,
-                       sep = "\n")  
+    #Get stands in batch
+    stands = batch_list[[i]]
     
-    #Write standident and standcn keywords
-    writeLines(text = stand_key, con = con, sep = "\n\n")
-    
-    #Create INVYR keyword
-    invyr_key <- fvs_keyword(params = list("INVYEAR", inv_year),
-                             type = 1)
-    
-    #Write INVYR keywords
-    writeLines(text = invyr_key, con = con, sep = "\n\n")
-    
-    #===========================================================================
-    #Determine if output DSNOUT keywords will be produced and added to keyword
-    #file
-    #===========================================================================
-    
-    if(!is.null(dbout))
+    #Create keyword file path
+    if(!create_batch)
+      key_path = paste0(keydir, "/", key_name)
+  
+    else
     {
-      dsnout_keys <- dsnout_keys(dbout = dbout)
-      writeLines(text = dsnout_keys, con = con, sep = "\n\n")
-    }
-    
-    #===========================================================================
-    #Determine if timing keywords are produced and added to keyword file
-    #===========================================================================
-    
-    if(!is.null(start_year) && !is.null(end_year))
-    {
-      #Get timing keywords
-      time_key <- time_keys(invyear = invyear,
-                            start_year = start_year,
-                            end_year = end_year,
-                            cycle_length = cycle_length,
-                            cycle_at = cycle_at)
-
-      writeLines(text = time_key, con = con, sep = "\n\n")
-    }
-    
-    #===========================================================================
-    #Check if delotab keywords should be added
-    #===========================================================================
-    
-    if(length(delotab) > 0)
-    {
-      delo_keys <- delotab_keys(delotab = delotab)
-      writeLines(text = delo_keys, con = con, sep = "\n\n")
-    }
-    
-    #===========================================================================
-    #Write any keywords provided in keywords argument
-    #===========================================================================
-    
-    if(length(keywords) > 0)
-      writeLines(text = keywords, con = con, sep = "\n\n")
-    
-    #===========================================================================
-    #Write any stand specific keywords in stand_keys argument
-    #===========================================================================
-    
-    stand_key = stand_keys[i]
-    if(!is.na(stand_key) && !is.null(stand_key) && stand_key != "") 
-        writeLines(text = stand_key, con = con, sep = "\n\n")
-    
-    #===========================================================================
-    #Determine if input database keywords will be produced and added to keyword
-    #file
-    #===========================================================================
-    
-    if(!is.null(dbin))
-    {
-      dsnin_keys <- dsnin_keys(dbin = dbin,
-                               stand_type = stand_type,
-                               standinit = standinit,
-                               treeinit = treeinit)
+      key_name_ = gsub(pattern = ".key", 
+                      replacement = paste0("_BATCH", i, ".key"),
+                      x = key_name)
       
-      writeLines(text = dsnin_keys, con = con, sep = "\n\n")
+      key_path = paste0(keydir, "/", key_name_)
     }
     
-    #Add process keyword
-    writeLines(text = "PROCESS", con = con, sep = "\n\n")
+    #If key_path exists already,  delete it
+    if(file.exists(key_path)) unlink(key_path)
+    
+    #Open file connection
+    con = file(description = key_path, open = "a")
+    #on.exit(if(isOpen(con)) close(con = con))
+    
+    #Start loop across stands
+    for(stand in stands)
+    {
+      #Get stand ID, inventory year, and stand_cn
+      stand_id <- standid[[stand_count]] 
+      inv_year <- invyear[[stand_count]]
+      stand_cn <- standcn[[stand_count]]
+      
+      #Setup standident and standcn keywords and add to keyword file
+      stand_key <- paste("STDIDENT",
+                         stand_id,
+                         "STANDCN",
+                         stand_cn,
+                         sep = "\n")  
+      
+      #Write standident and standcn keywords
+      writeLines(text = stand_key, con = con, sep = "\n\n")
+      
+      #Create INVYR keyword
+      invyr_key <- fvs_keyword(params = list("INVYEAR", inv_year),
+                               type = 1)
+      
+      #Write INVYR keywords
+      writeLines(text = invyr_key, con = con, sep = "\n\n")
+      
+      #=========================================================================
+      #Determine if output DSNOUT keywords will be produced and added to keyword
+      #file
+      #=========================================================================
+      
+      if(!is.null(dbout))
+      {
+        dsnout_keys <- dsnout_keys(dbout = dbout)
+        writeLines(text = dsnout_keys, con = con, sep = "\n\n")
+      }
+      
+      #=========================================================================
+      #Determine if timing keywords are produced and added to keyword file
+      #=========================================================================
+      
+      if(!is.null(start_year) && !is.null(end_year))
+      {
+        #Get timing keywords
+        time_key <- time_keys(invyear = invyear,
+                              start_year = start_year,
+                              end_year = end_year,
+                              cycle_length = cycle_length,
+                              cycle_at = cycle_at)
+        
+        writeLines(text = time_key, con = con, sep = "\n\n")
+      }
+      
+      #=========================================================================
+      #Check if delotab keywords should be added
+      #=========================================================================
+      
+      if(length(delotab) > 0)
+      {
+        delo_keys <- delotab_keys(delotab = delotab)
+        writeLines(text = delo_keys, con = con, sep = "\n\n")
+      }
+      
+      #=========================================================================
+      #Write any keywords provided in keywords argument
+      #=========================================================================
+      
+      if(length(keywords) > 0)
+        writeLines(text = keywords, con = con, sep = "\n\n")
+      
+      #=========================================================================
+      #Write any stand specific keywords in stand_keys argument
+      #=========================================================================
+      
+      stand_key = stand_keys[stand_count]
+      if(!is.na(stand_key) && !is.null(stand_key) && stand_key != "") 
+        writeLines(text = stand_key, con = con, sep = "\n\n")
+      
+      #=========================================================================
+      #Determine if input database keywords will be produced and added to keyword
+      #file
+      #=========================================================================
+      
+      if(!is.null(dbin))
+      {
+        dsnin_keys <- dsnin_keys(dbin = dbin,
+                                 stand_type = stand_type,
+                                 standinit = standinit,
+                                 treeinit = treeinit)
+        
+        writeLines(text = dsnin_keys, con = con, sep = "\n\n")
+      }
+      
+      #Add process keyword
+      writeLines(text = "PROCESS", con = con, sep = "\n\n")
+      
+      #Increment stand_count
+      stand_count = stand_count + 1
+    }
+    
+    #End of stand loop
+    #Add stop keyword
+    writeLines(text = "STOP", con = con, sep = "\n\n")
+    close(con = con)
   }
-  
-  #Add stop keyword
-  writeLines(text = "STOP", con = con, sep = "\n\n")
-  
+
   invisible()
 }
 
