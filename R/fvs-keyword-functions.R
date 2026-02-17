@@ -447,7 +447,6 @@ fvs_kcpfile <- function(kcpfile,
 #'4 = freeform, could be standard keyword, parms formatted keyword, or event 
 #'monitor function call.
 #'
-#
 #'@return 
 #'Character string corresponding to properly formatted keyword or event monitor 
 #'function.
