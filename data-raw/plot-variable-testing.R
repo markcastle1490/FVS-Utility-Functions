@@ -270,3 +270,100 @@ rm(list=ls()); gc()
 
 # fvs_sum = as.data.frame(fvs_sum)
 # fvs_sum
+
+sp_group = c('RM', 'YP', 'RO')
+
+db_compile(dbin = c("C:/FIAVBC/Testing/FIAVBC_Updates_Testing/Output/FIAVBC_Comp/SN_FIAVBC_COMP.db",
+                   "C:/FIAVBC/Testing/FIAVBC_Updates_Testing/Output/FIAVBC_Comp/NE_FIAVBC_COMP.db",
+                   "C:/FIAVBC/Testing/FIAVBC_Updates_Testing/Output/FIAVBC_Comp/LS_FIAVBC_COMP.db",
+                   "C:/FIAVBC/Testing/FIAVBC_Updates_Testing/Output/FIAVBC_Comp/CS_FIAVBC_COMP.db"),
+           dbout = "C:/FIAVBC/Testing/FIAVBC_Updates_Testing/Output/FIAVBC_Comp/EAST_FIAVBC_COMP.db")
+
+#Get some test data
+con = dbConnect(SQLite(),
+                "C:/FVS/Plot Variable Testing/FVSOut.db")
+
+tree = dbGetQuery(con,
+                  paste("SELECT",
+                        "TL.StandID, TL.CaseID, Year, TreeID, DBH, SpeciesFVS, Ht, TPA, TCuFt, MCuFt, SCuFt",
+                        "FROM FVS_FIAVBC_TreeList as TL",
+                        "INNER JOIN FVS_Cases",
+                        "ON TL.CaseID = FVS_Cases.CaseID"))
+
+comp = dbGetQuery(con,
+                  paste("SELECT",
+                        "cmp.*",
+                        "FROM FVS_Compute as cmp",
+                        "INNER JOIN FVS_Cases",
+                        "ON cmp.CaseID = FVS_Cases.CaseID",
+                        "WHERE RunTitle = 'CI Run'",
+                        "ORDER BY CaseID, Year"))
+
+#Disconnect
+dbDisconnect(con)
+
+#Testing sequence for plot variables using dplyr
+fvs_sum = tree %>%
+  group_by(CaseID, StandID, Year) %>%
+  #mutate(TREEBA = DBH^2 * TPA * fvsUtil:::for_constant) %>%
+  summarize(BA_ = ba(dbh = DBH, expf = TPA),
+            TPA_ = tpa(dbh = DBH, expf = TPA),
+            QMD_ = qmd(dbh = DBH, expf = TPA),
+            RSDI_ = rsdi_stage(dbh = DBH, expf = TPA),
+            ZSDI_ = zsdi(dbh = DBH, expf = TPA),
+            TCUFT_ = expand_attr(dbh = DBH, attr = TCuFt, expf = TPA),
+            MCUFT_ = expand_attr(dbh = DBH, attr = MCuFt, expf = TPA),
+            SCUFT_ = expand_attr(dbh = DBH, attr = SCuFt, expf = TPA),
+            TOPHT_ = top_ht(dbh = DBH, expf = TPA, ht = Ht),
+            AVGHT_ = mean_attr(dbh = DBH, attr = Ht, weight = TPA),
+            BAWTD_ = lorey_dia(dbh = DBH, expf = TPA),
+            BAWTH_ = lorey_ht(dbh = DBH, ht = Ht, expf = TPA),
+            BAG5 = ba(dbh = DBH, expf = TPA, dbhmin = 5),
+            TPAG5 = tpa(dbh = DBH, expf = TPA, dbhmin = 5),
+            QMDG5 = qmd(dbh = DBH, expf = TPA, dbhmin = 5),
+            RSDIG5 = rsdi_stage(dbh = DBH, expf = TPA, dbhmin = 5),
+            ZSDIG5 = zsdi(dbh = DBH, expf = TPA, dbhmin = 5),
+            TCUFTG5 = expand_attr(dbh = DBH, attr = TCuFt, expf = TPA, dbhmin = 5),
+            BAL5 = ba(dbh = DBH, expf = TPA, dbhmax = 5),
+            TPAL5 = tpa(dbh = DBH, expf = TPA, dbhmax = 5),
+            QMDL5 = qmd(dbh = DBH, expf = TPA, dbhmax = 5),
+            RSDIL5 = rsdi_stage(dbh = DBH, expf = TPA, dbhmax = 5),
+            ZSDIL5 = zsdi(dbh = DBH, expf = TPA, dbhmax = 5),
+            TCUFTL5 = expand_attr(dbh = DBH, attr = TCuFt, expf = TPA, dbhmax = 5),
+            BAG50 = ba(dbh = DBH, expf = TPA, ht = Ht, htmin = 50),
+            TPAG50 = tpa(dbh = DBH, expf = TPA, ht = Ht, htmin = 50),
+            QMDG50 = qmd(dbh = DBH, expf = TPA, ht = Ht, htmin = 50),
+            RSDIG50 = rsdi_stage(dbh = DBH, expf = TPA, ht = Ht, htmin = 50),
+            ZSDIG50 = zsdi(dbh = DBH, expf = TPA, ht = Ht, htmin = 50),
+            TCUFTG50 = expand_attr(dbh = DBH, attr = TCuFt, expf = TPA, ht = Ht, htmin = 50),
+            BAL50 = ba(dbh = DBH, expf = TPA, ht = Ht, htmax = 50),
+            TPAL50 = tpa(dbh = DBH, expf = TPA, ht = Ht, htmax = 50),
+            QMDL50 = qmd(dbh = DBH, expf = TPA, ht = Ht, htmax = 50),
+            RSDIL50 = rsdi_stage(dbh = DBH, expf = TPA, ht = Ht, htmax = 50),
+            ZSDIL50 = zsdi(dbh = DBH, expf = TPA, ht = Ht, htmax = 50),
+            TCUFTL50 = expand_attr(dbh = DBH, attr = TCuFt, expf = TPA, ht = Ht, htmax = 50),
+            BA5T10 = ba(dbh = DBH, expf = TPA, dbhmin = 5, dbhmax = 10),
+            TPA5T10 = tpa(dbh = DBH, expf = TPA, dbhmin = 5, dbhmax = 10),
+            QMD5T10 = qmd(dbh = DBH, expf = TPA, dbhmin = 5, dbhmax = 10),
+            RSDI5T10 = rsdi_stage(dbh = DBH, expf = TPA, dbhmin = 5, dbhmax = 10),
+            ZSDI5T10 = zsdi(dbh = DBH, expf = TPA, dbhmin = 5, dbhmax = 10),
+            TCUF5T10 = expand_attr(dbh = DBH, attr = TCuFt, expf = TPA, dbhmin = 5, dbhmax = 10),
+            BA50100 = ba(dbh = DBH, expf = TPA, ht = Ht, htmin = 50, htmax = 100),
+            TPA50100 = tpa(dbh = DBH, expf = TPA, ht = Ht, htmin = 50, htmax = 100),
+            QMD50100 = qmd(dbh = DBH, expf = TPA, ht = Ht, htmin = 50, htmax = 100),
+            RSD50100 = rsdi_stage(dbh = DBH, expf = TPA, ht = Ht, htmin = 50, htmax = 100),
+            ZSD50100 = zsdi(dbh = DBH, expf = TPA, ht = Ht, htmin = 50, htmax = 100),
+            TCU50100 = expand_attr(dbh = DBH, attr = TCuFt, expf = TPA, ht = Ht, htmin = 50, htmax = 100),
+            BASP = ba(dbh = DBH, expf = TPA, species = SpeciesFVS, select_species = sp_group),
+            TPASP = tpa(dbh = DBH, expf = TPA, species = SpeciesFVS, select_species = sp_group),
+            QMDSP = qmd(dbh = DBH, expf = TPA, species = SpeciesFVS, select_species = sp_group),
+            RSDISP = rsdi_stage(dbh = DBH, expf = TPA, species = SpeciesFVS, select_species = sp_group),
+            ZSDISP = zsdi(dbh = DBH, expf = TPA, species = SpeciesFVS, select_species = sp_group),
+            TCUFTSP = expand_attr(dbh = DBH, attr = TCuFt, expf = TPA, species = SpeciesFVS, select_species = sp_group),
+            MCUFTSP = expand_attr(dbh = DBH, attr = MCuFt, expf = TPA, species = SpeciesFVS, select_species = sp_group),
+            SCUFTSP = expand_attr(dbh = DBH, attr = SCuFt, expf = TPA, species = SpeciesFVS, select_species = sp_group),
+            BDFTSP = expand_attr(dbh = DBH, attr = BdFt, expf = TPA, species = SpeciesFVS, select_species = sp_group),
+            AVGHTSP = mean_attr(dbh = DBH, attr = Ht, weight = TPA, species = SpeciesFVS, select_species = sp_group),
+            RDIA_ = rdia(dbh = DBH, expf = TPA)) %>%
+  arrange(CaseID, Year)
+fvs_sum = as.data.frame(fvs_sum)

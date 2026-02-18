@@ -269,7 +269,7 @@ fvs_keyfile <- function(keyfile,
       if(!is.null(start_year) && !is.null(end_year))
       {
         #Get timing keywords
-        time_key <- time_keys(invyear = invyear,
+        time_key <- time_keys(invyear = inv_year,
                               start_year = start_year,
                               end_year = end_year,
                               cycle_length = cycle_length,
