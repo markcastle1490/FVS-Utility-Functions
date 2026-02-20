@@ -4,9 +4,12 @@
 \alias{build_var_sp_list}
 \title{build_var_sp_list}
 \usage{
-build_var_sp_list(sp_type = "SEQ")
+build_var_sp_list(sp_data = NULL, sp_type = "SEQ")
 }
 \arguments{
+\item{sp_data:}{Data frame containing species codes for each variant. The columns in this
+data frame should include: VARIANT SEQ    FVS    FIA    PLANT (all uppercase).}
+
 \item{sp_type:}{Character string corresponding to what list of species to build. Acceptable
 values are 'SEQ', 'FVS', 'FIA', 'PLANT'.}
 }

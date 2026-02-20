@@ -45,6 +45,10 @@ fvs_species = read.csv(file = system.file("extdata",
 #'
 #'USDA plant symbols
 #'
+#'@param sp_data:
+#'Data frame containing species codes for each variant. The columns in this 
+#'data frame should include: VARIANT SEQ	FVS	FIA	PLANT (all uppercase).
+#'
 #'@param sp_type:   
 #'Character string corresponding to what list of species to build. Acceptable
 #'values are 'SEQ', 'FVS', 'FIA', 'PLANT'.
@@ -53,17 +57,27 @@ fvs_species = read.csv(file = system.file("extdata",
 #'List of species codes for each variant
 ################################################################################
 
-#'@export
-build_var_sp_list <- function(sp_type = "SEQ")
+build_var_sp_list <- function(sp_data = NULL,
+                              sp_type = "SEQ")
 {
+  #Return empty list if any of below are true
+  if(is.null(sp_data) || nrow(sp_data) <= 0 || ncol(sp_data) < 5)
+    return(list())
+  
+  #Return empty list if any column names are missing
+  names(sp_data) = toupper(names(sp_data))
+  if(any(names(sp_data) %in%
+         c("VARIANT", "SEQ", "FVS", "FIA", "PLANT")) == FALSE)
+    return(list())
+    
   #Uppercase sp_type
   sp_type = toupper(sp_type)
   
   #Do checks on sp_type
   if(!sp_type %in% c("SEQ", "FVS", "FIA", "PLANT")) sp_type = "SEQ"
   
-  #Get unique variants from fvs_species
-  vars = unique(fvs_species$VARIANT)
+  #Get unique variants from sp_data
+  vars = unique(sp_data$VARIANT)
   
   #Initialize species list
   sp_list = vector(mode = "list",
@@ -76,7 +90,7 @@ build_var_sp_list <- function(sp_type = "SEQ")
     var = vars[i]
     
     #Add species to list
-    sp_list[[i]] = fvs_species[fvs_species$VARIANT == var, ][[sp_type]]
+    sp_list[[i]] = sp_data[sp_data$VARIANT == var, ][[sp_type]]
     
     #Add name to list
     names(sp_list)[i] = var
@@ -89,25 +103,25 @@ build_var_sp_list <- function(sp_type = "SEQ")
 #fvs_seq_list: List of species sequence numbers for each FVS variant.
 ################################################################################
 
-fvs_seq_list = build_var_sp_list("SEQ")
+fvs_seq_list = build_var_sp_list(fvs_species, "SEQ")
 
 ################################################################################
 #fvs_char_list: List of FVS species codes for each FVS variant.
 ################################################################################
 
-fvs_char_list = build_var_sp_list("FVS")
+fvs_char_list = build_var_sp_list(fvs_species,"FVS")
 
 ################################################################################
 #fvs_fia_list: List of FIA species codes for each FVS variant.
 ################################################################################
 
-fvs_fia_list = build_var_sp_list("FIA")
+fvs_fia_list = build_var_sp_list(fvs_species, "FIA")
 
 ################################################################################
 #fvs_plant_list: List of USDA plant symbols for each FVS variant.
 ################################################################################
 
-fvs_plant_list = build_var_sp_list("PLANT")
+fvs_plant_list = build_var_sp_list(fvs_species, "PLANT")
 
 ################################################################################
 #List of location codes by FVS variant. Does not include tribal codes.
@@ -147,6 +161,70 @@ fvs_loc_list <- list(
   "UT" = c(401, 407, 408, 410, 418, 419, 404, 409, 417),
   "WC" = c(603, 605, 606, 610, 615, 618, 708, 709, 710, 711, 613),
   "WS" = c(503, 511, 513, 515, 516, 517, 501, 502, 504, 507, 512, 519, 417))
+
+################################################################################
+#pv_codes dataframe
+################################################################################
+
+pv_codes = read.csv(file = system.file("extdata",
+                                       "pv_codes.csv",
+                                       package="fvsUtil"))
+
+################################################################################
+#'build_pvcode_list
+#'@name build_pvcode_list
+#'@description
+#'
+#'This function is used to build a list of PV codes for each variant that uses 
+#'them (15 variants).
+#'
+#'@param pvcode_data:
+#'Data frame containing variant codes and PV_CODES for each variant.
+#'
+#'@return 
+#'List of pv codes for each variant
+################################################################################
+
+build_pvcode_list <- function(pvcode_data = NULL)
+{
+  #Return empty list if any of below are true
+  if(is.null(pvcode_data) || nrow(pvcode_data) <= 0 || ncol(pvcode_data) < 2)
+    return(list())
+  
+  #Return empty list if any column names are missing
+  names(pvcode_data) = toupper(names(pvcode_data))
+  if(any(names(pvcode_data) %in%
+         c("VARIANT", "PV_CODE")) == FALSE)
+    return(list())
+  
+  #Get unique variants from pvcode_data
+  vars = unique(pvcode_data$VARIANT)
+  
+  #Initialize species list
+  pv_list = vector(mode = "list",
+                   length = length(vars))
+  
+  #Populate pv_list
+  for(i in 1:length(vars))
+  {
+    #Get variant
+    var = vars[i]
+    
+    #Add species to list
+    pv_list[[i]] = pvcode_data[pvcode_data$VARIANT == var, ][['PV_CODE']]
+    
+    #Add name to list
+    names(pv_list)[i] = var
+  }
+  
+  return(pv_list)
+}
+
+################################################################################
+#PVCODE list
+################################################################################
+
+pvcode_list = build_pvcode_list(pvcode_data = pv_codes)
 
 ################################################################################
 #support_sp data frame
