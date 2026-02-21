@@ -3,8 +3,7 @@
 #'@name run_key
 #'@description
 #'This function is used to run a single FVS keyword file (.key) with a specified
-#'FVS variant dll (.dll) using the rFVS API. The rFVS package has to be 
-#'installed for this function to work properly.
+#'FVS variant dll (.dll) using the rFVS API.
 #
 #'@param dll_path: 
 #'Character string corresponding to directory where FVS dlls are stored
@@ -70,12 +69,138 @@ run_key = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
   if(keydir != keyfile_)
     setwd(keydir)
   
+  #Call run_fvs
+  run_fvs(dll_path = dll_path,
+          var_code = var_code,
+          keyfile = keyfile_,
+          verbose = verbose)
+  
+  invisible()
+}
+
+################################################################################
+#'run_key_callr
+#'@name run_key_callr
+#'@description
+#'This function is used to run a single FVS keyword file (.key) with a specified
+#'FVS variant dll (.dll) using the rFVS API in a separate R session with the 
+#'callr R package. This function will produce the same results as run_key but
+#'can be helpful in reducing memory usage and preventing potential out of memory
+#'errors when running many large FVS simulations in sequence.
+#
+#'@param dll_path: 
+#'Character string corresponding to directory where FVS dlls are stored
+#
+#'@param var_code: 
+#'Two character string corresponding to FVS variant ("IE", "CS", etc.).
+#
+#'@param keyfile: 
+#'Character string corresponding to directory and file name for a single FVS
+#'keyword file.
+#
+#'@param verbose: 
+#'Logical variable used to determine if debug output should be echoed to 
+#'console.
+#
+#'@return None
+################################################################################
+
+#'@export
+run_key_callr = function(dll_path = "C:/FVS/FVSSoftware/FVSbin", var_code = "ie",
+                         keyfile = "C:/FVS.key",
+                         verbose = FALSE)
+{
+  #Store the current working directory
+  orig_dir = getwd()
+  
+  #Set working directory on exit
+  on.exit(expr = setwd(orig_dir),
+          add = TRUE)
+  
+  #Change \\ to / in dll_path argument
+  dll_path = gsub("\\\\", "/", dll_path)
+  
+  #Change \\ to / in keyfile argument
+  keyfile = gsub("\\\\", "/", keyfile)
+  
+  #Check for existence of dll_path
+  if (!(file.exists(dll_path))){
+    stop(paste("dll_path not found. Make sure directory path is spelled",
+               "correctly."))
+  }
+  
+  #Check for existence of keyfile
+  if (!(file.exists(keyfile))){
+    stop(paste("keyfile not found. Make sure directory path and file name are",
+               "spelled correctly."))
+  }
+  
+  #Make var_code lowercase
+  var_code = tolower(var_code)
+  
+  #Create dll name
+  var_code = paste0("FVS", var_code)
+  
+  #Grab the the directory where the keyword file is stored
+  keydir = gsub("/[^/]+$", "", keyfile)
+  
+  #Get the name of the keyword file
+  keyfile_ = sub(".*/", "", keyfile)
+  
+  #Set working directory for the simulation
+  if(keydir != keyfile_)
+    setwd(keydir)
+  
+  #Call run_fvs with callr
+  callr::r(func = function(dll_path, var_code, keyfile, verbose) {
+    fvsUtil:::run_fvs(dll_path = dll_path,
+                     var_code = var_code,
+                     keyfile = keyfile,
+                     verbose = verbose)},
+    args = list(dll_path = dll_path,
+                var_code = var_code,
+                keyfile = keyfile_,
+                verbose = verbose))
+  
+  invisible()
+}
+
+################################################################################
+#'run_fvs
+#'@name run_fvs
+#'@description
+#'This function is called from run_key and is used to fulfill a simulation using
+#'input arguments corresponding to path where FVS variant dlls are stored, a 
+#'variant code, and keyword file name.
+#
+#'@param dll_path: 
+#'Character string corresponding to directory where FVS dlls are stored
+#
+#'@param var_code: 
+#'Character string 'FVS' appended to a lowercase variant code (e.g. 'FVSca').
+#
+#'@param keyfile: 
+#'Character string corresponding to keyword file name.
+#
+#'@param verbose: 
+#'Logical variable used to determine if debug output should be echoed to 
+#'console.
+#
+#'@return None
+################################################################################
+
+run_fvs = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
+                   var_code = "FVSie",
+                   keyfile = "C:/FVS.key",
+                   verbose = FALSE)
+  
+{
   #Load variant dll and specify directory path to dll in bin folder
   rFVS::fvsLoad(var_code, bin = dll_path)
   
   #Unload the dll on exit
   on.exit(expr = {
-
+    
     #Code used in fvsLoad rFVS function.
     if (exists(".FVSLOADEDLIBRARY", envir=.GlobalEnv)) 
     {
@@ -86,7 +211,7 @@ run_key = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
     add = TRUE)
   
   #Set keyword file to command line
-  rFVS::fvsSetCmdLine(paste0("--keywordfile=", keyfile_))
+  rFVS::fvsSetCmdLine(paste0("--keywordfile=", keyfile))
   
   #Initialize return code
   retcode = 0

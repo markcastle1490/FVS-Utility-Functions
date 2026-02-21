@@ -17,5 +17,6 @@ Depends:
 Imports: 
     RSQLite,
     utils,
-    httr
+    httr,
+    callr
 Encoding: UTF-8
