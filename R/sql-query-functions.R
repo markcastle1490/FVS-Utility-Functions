@@ -25,9 +25,9 @@ set_index_query <- function(dbTable = "TREE",
                             dbField = "PLOTQUERYID",
                             indxName = "")
 {
-  query <- paste("create index",
+  query <- paste("CREATE INDEX IF NOT EXISTS",
                  indxName,
-                 " on ", paste0(dbTable, "(", dbField, ");"))
+                 "ON", paste0(dbTable, "(", dbField, ");"))
 
   return(query)
 }
