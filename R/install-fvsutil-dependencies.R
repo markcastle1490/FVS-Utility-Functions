@@ -1,11 +1,12 @@
 ################################################################################
-#'install_dependencies
-#'@name install_dependencies
+#'install_pkgs
+#'@name install_pkgs
 #'
 #'@description
-#'This function is used to install the required packages from CRAN required to
-#'use the fvsUtil R package. If the packages already exist they will simply be
-#'loaded into the R session using library().
+#'This function is used to install the necessary and suggested packages from 
+#'CRAN for use with the fvsUtil package. Packages will only be installed if they
+#'are not found in the version of R being used or if the override argument is 
+#'set to TRUE.
 #'
 #'@param override:
 #'Logical variable where if TRUE, a given package will be installed even if it 
@@ -15,11 +16,12 @@
 ################################################################################
 
 #'@export
-install_dependencies <- function(override = FALSE)
+install_pkgs <- function(override = FALSE)
 {
   #Vector of required packages
   required_packages <- c("RSQLite",
-                         "httr")
+                         "httr",
+                         "callr")
   
   #Get vector of installed packages
   installed_pkg = installed.packages()[, "Package"]
@@ -28,9 +30,9 @@ install_dependencies <- function(override = FALSE)
   for(package in required_packages)
   {
     if (!package %in% installed_pkg)
-      install.packages(package, type = "binary")
+      install.packages(pkgs = package)
     else if(override)
-      install.packages(package, type = "binary")
+      install.packages(pkgs = package)
     else
       cat("Package:", package, "is already installed.", "\n")
   }

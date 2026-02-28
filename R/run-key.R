@@ -36,10 +36,10 @@ run_key = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
           add = TRUE)
   
   #Change \\ to / in dll_path argument
-  dll_path = gsub("\\\\", "/", dll_path)
+  dll_path = chartr("\\", "/", dll_path)
   
   #Change \\ to / in keyfile argument
-  keyfile = gsub("\\\\", "/", keyfile)
+  keyfile = chartr("\\", "/", keyfile)
   
   #Check for existence of dll_path
   if (!(file.exists(dll_path))){
@@ -118,10 +118,10 @@ run_key_callr = function(dll_path = "C:/FVS/FVSSoftware/FVSbin", var_code = "ie"
           add = TRUE)
   
   #Change \\ to / in dll_path argument
-  dll_path = gsub("\\\\", "/", dll_path)
+  dll_path = chartr("\\", "/", dll_path)
   
   #Change \\ to / in keyfile argument
-  keyfile = gsub("\\\\", "/", keyfile)
+  keyfile = chartr("\\", "/", keyfile)
   
   #Check for existence of dll_path
   if (!(file.exists(dll_path))){
@@ -305,7 +305,7 @@ delete_caseid = function(fvsout = NULL,
     stop("Output FVS database does not exist.")
   
   #Check file extension of fvsout
-  file_ext = sub("(.*)\\.","", fvsout)
+  file_ext = tools::file_ext(fvsout)
   
   #Test if output file extension is valid database
   if(!file_ext %in% c("db", "sqlite"))

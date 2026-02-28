@@ -282,7 +282,7 @@ db_collect_paths <- function(dbin = c(),
     db <- dbin[i]
     
     #Grab file extension for db
-    fileext_in<-sub("(.*)\\.","",db)
+    fileext_in <- tools::file_ext(db)
     
     #If the file extension of db is not .db or .zip then stop with error message.
     if(!fileext_in %in% c("db", "zip", "sqlite"))
@@ -694,8 +694,8 @@ db_compile <- function(dbin = NULL,
   #if(is.null(db_tables)) stop(paste("No table names were provided for db_tables."))
   
   #Replace \\ with / in dbin and dbout
-  dbin <- gsub("\\\\", "/", dbin)
-  dbout <- gsub("\\\\", "/", dbout)
+  dbin <- chartr(old = "\\", new = "/", x = dbin)
+  dbout <- chartr(old = "\\", new = "/", x = dbout)
   
   #Loop through dbin and test if any of the files don't exist. If a file does
   #not exist then error message is reported.
@@ -724,7 +724,7 @@ db_compile <- function(dbin = NULL,
   
   #Test if output file is a SQLite database. If the file is not a SQLite
   #database then error message is reported.
-  fileext_out<-sub("(.*)\\.","",dbout)
+  fileext_out <- tools::file_ext(dbout)
   if(!fileext_out %in% c("db", "sqlite"))
   {
     stop(paste("Output database:",
