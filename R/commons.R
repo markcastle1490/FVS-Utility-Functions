@@ -171,6 +171,14 @@ pv_codes = read.csv(file = system.file("extdata",
                                        package="fvsUtil"))
 
 ################################################################################
+#pv_codes_regions dataframe
+################################################################################
+
+pv_codes_regions = read.csv(file = system.file("extdata",
+                                               "pv_codes_regions.csv",
+                                               package="fvsUtil"))
+
+################################################################################
 #'build_pvcode_list
 #'@name build_pvcode_list
 #'@description
