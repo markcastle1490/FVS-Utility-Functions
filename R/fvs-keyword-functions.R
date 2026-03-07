@@ -127,7 +127,7 @@ fvs_keyfile <- function(keyfile,
 {
 
   #Switch \\\\ to / in keyfile
-  keyfile = gsub("\\\\", "/", keyfile)
+  keyfile = chartr("\\", "/", keyfile)
   
   #Extract path to output by extract all characters before the last / in output.
   keydir = gsub("/[^/]+$", "", keyfile)
@@ -136,7 +136,7 @@ fvs_keyfile <- function(keyfile,
   key_name = gsub(".*/", "", keyfile)
   
   #Extract file extension for output argument.
-  key_ext = sub("(.*)\\.","", keyfile)
+  key_ext = tools::file_ext(keyfile)
   
   #Test existence of output path and assign working directory to keydir if 
   #needed
@@ -372,7 +372,7 @@ fvs_kcpfile <- function(kcpfile,
   }
   
   #Extract file extension for output argument.
-  key_ext<-sub("(.*)\\.","", kcpfile)
+  key_ext <- tools::file_ext(kcpfile)
   
   #Test if output file extension is valid (.key).
   if(!key_ext %in% c("kcp"))
