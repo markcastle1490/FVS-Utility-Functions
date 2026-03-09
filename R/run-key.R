@@ -79,6 +79,114 @@ run_key = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
 }
 
 ################################################################################
+#'run_key_rscript
+#'@name run_key_rscript
+#'@description
+#'This function is used to write a .R script that contains the code to run a 
+#'single keyword file using the run_key function.
+#
+#'@param script_path: 
+#'Optional character string corresponding to file path where R script will be 
+#'written. If this value is left as NULL, the script will be stored in the 
+#'same directory as the value in keyfile argument and will have the same name 
+#'as the keyword file.
+#
+#'@param dll_path: 
+#'Character string corresponding to directory where FVS dlls are stored
+#
+#'@param var_code: 
+#'Two character string corresponding to FVS variant ("IE", "CS", etc.).
+#
+#'@param keyfile: 
+#'Character string corresponding to directory and file name for a single FVS
+#'keyword file.
+#
+#'@param verbose: 
+#'Logical variable used to determine if debug output should be echoed to 
+#'console.
+#
+#'@return None
+################################################################################
+
+#'@export
+run_key_rscript = function(script_path = NULL,
+                           dll_path = "C:/FVS/FVSSoftware/FVSbin",
+                           var_code = "ie",
+                           keyfile = "C:/FVS.key",
+                           verbose = FALSE)
+{
+  
+  #Change \\ to / in dll_path argument
+  dll_path = chartr("\\", "/", dll_path)
+  
+  #Change \\ to / in keyfile argument
+  keyfile = chartr("\\", "/", keyfile)
+  
+  #Get file ext on keyfile
+  ext = tools::file_ext(keyfile)
+  
+  #Check for existence of dll_path
+  if (!(file.exists(dll_path))){
+    stop(paste("dll_path not found. Make sure directory path is spelled",
+               "correctly."))
+  }
+  
+  #Check for existence of keyfile
+  if (!(file.exists(keyfile))){
+    stop(paste("keyfile not found. Make sure directory path and file name are",
+               "spelled correctly."))
+  }
+  
+  #Check file extension
+  if (ext != "key"){
+    stop(paste("Invalid file extension specified in keyfile argument."))
+  }
+  
+  #Check for valid variant
+  if (! toupper(var_code) %in% fvs_get_variants()){
+    stop(paste("Invalid FVS variant specified in var_code."))
+  }
+  
+  #Make var_code lowercase
+  var_code = tolower(var_code)
+  
+  #Generate script_path if NULL
+  if(is.null(script_path))
+    script_path = gsub(pattern = ".key$", replacement = ".R", x = keyfile)
+  
+  #If script_path exists already,  delete it
+  if(file.exists(script_path)) unlink(script_path)
+  
+  #Open file connection
+  con = file(description = script_path, open = "a")
+  on.exit(try(if(isOpen(con)) close(con = con), silent = TRUE))
+  
+  #Write the code in R script
+  writeLines(text = "library(fvsUtil)", con = con, sep = "\n\n")
+  
+  writeLines(text = paste("run_key(dll_path =", 
+                          paste0("'", dll_path, "'", ",")),
+             con = con,
+             sep ="\n")
+  
+  writeLines(paste("var_code =", paste0("'", var_code, "'", ",")),
+             con = con,
+             sep = "\n")
+  
+  writeLines(paste("keyfile =", paste0("'", keyfile, "'", ",")),
+             con = con,
+             sep = "\n")
+  
+  writeLines(paste("verbose = ", paste0(verbose, ")")),
+             con = con,
+             sep = "\n")
+  
+  close(con = con)
+  
+  invisible()
+}
+
+################################################################################
 #'run_key_callr
 #'@name run_key_callr
 #'@description

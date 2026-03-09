@@ -135,3 +135,122 @@ fvs_pvcodes_reg <- function(var_code = NULL,
   
   return(pvcode_df)
 }
+
+################################################################################
+#'fvs_pvlookup
+#'@name fvs_pvlookup
+#'@description
+#'
+#'This function is used to lookup the index number of a PV code for a specified
+#'FVS variant.
+#'
+#'@param var_code:
+#'Character vector of two-character codes corresponding to FVS variant 
+#'(e.g. "CA").
+#'
+#'@param pvcode:
+#'Character string corresponding to PV Code. 
+#'
+#'@return
+#'Positive non-zero integer value if index is found, otherwise a NA value.
+################################################################################
+
+#'@export
+fvs_pvlookup <- function(var_code = "IE",
+                         pvcode = "")
+  
+{
+  pvidx = NA
+  
+  #Return if inputs are invalid
+  if(is.na(var_code) || is.na(pvcode))
+    return(pvidx)
+  
+  #Uppercase var_code
+  var_code = toupper(var_code)
+  
+  #If var_code is not valid, return 
+  if(! var_code %in% variants)
+    return(pvidx)
+  
+  #Cast pvcode to character if needed
+  if(!is.character(pvcode)) pvcode = as.character(pvcode)
+  
+  #Do the lookup
+  pvidx = match(pvcode, pvcode_list[[var_code]])
+  
+  return(pvidx)
+}
+
+################################################################################
+#'fvs_pvlookup_reg
+#'@name fvs_pvlookup_reg
+#'@description
+#'
+#'This function is used to lookup the index number of a PV code for a specified
+#'FVS variant and region number.
+#'
+#'@param var_code:
+#'Character vector of two-character codes corresponding to FVS variant 
+#'(e.g. "CA").
+#'
+#'@param region:
+#'Integer value corresponding to USFS region. Valid values are 1, 2, 3, 4, 5, 6,
+#'and 9.
+#'
+#'@param pvcode:
+#'Character string corresponding to HABPVR (pv code and reference combination),
+#'PVCODE (PV code), PVREF (PV reference code).
+#'
+#'@param from:
+#'Integer value that tells what kind of value should be searched for:
+#'
+#'1: HABPVR
+#'
+#'2: PVCODE
+#'
+#'3: PVREF
+#'
+#'@return
+#'Positive non-zero integer value if index is found, otherwise a NA value.
+################################################################################
+
+#'@export
+fvs_pvlookup_reg <- function(var_code = "IE",
+                             region = 1,
+                             pvcode = "",
+                             from = 0)
+  
+{
+  pvidx = NA
+  
+  #Uppercase var_code
+  var_code = toupper(var_code)
+  
+  #If var_code or region is not valid, return 
+  if(! var_code %in% variants || ! region %in% c(1, 2, 3, 4, 5, 6, 9))
+    return(pvidx)
+  
+  #Catch bad values
+  if(!from %in% c(1, 2, 3)) from = 1
+  
+  #Cast pvcode to character if needed
+  if(!is.character(pvcode)) pvcode = as.character(pvcode)
+  
+  #Build variant and region combination
+  var_reg = paste0(var_code, region)
+  
+  #Search HABPVR
+  if(from == 1)
+    pvidx <- match(pvcode, habpvr_list[[var_reg]])
+  
+  #Search PVCODE
+  else if(from == 2) 
+    pvidx <- match(pvcode, pvcode_reg_list[[var_reg]])
+  
+  #Search PVREF
+  else
+    pvidx <- match(pvcode, pvref_list[[var_reg]])
+  
+  return(pvidx)
+}
