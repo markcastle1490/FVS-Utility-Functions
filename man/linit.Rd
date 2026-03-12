@@ -5,15 +5,18 @@
 \alias{linint}
 \title{linint}
 \usage{
-linint(value, x, y)
+linint(value = 0, x = NULL, y = NULL, verbose = FALSE)
 }
 \arguments{
 \item{value:}{Input value (numeric) that is being evaluated by the linint interpolation
-logic.}
+ogic.}
 
-\item{x:}{Numeric Vector containing the x variables evaluated in the linint function.}
+\item{x:}{Numeric vector containing the x variables evaluated in the linint function.}
 
-\item{y:}{Numeric Vector containing the x variables evaluated in the linint function.}
+\item{y:}{Numeric vector containing the x variables evaluated in the linint function.}
+
+\item{verbose:}{Logical variable used to determine if debug output should be echoed to
+console.}
 }
 \value{
 Numeric value determined by the linear interpolation.
