@@ -4,12 +4,12 @@
 \alias{drop_col_query}
 \title{drop_col_query}
 \usage{
-drop_col_query(dbTable = "TREE", dbField = "PLOTQUERYID")
+drop_col_query(db_table = "TREE", db_field = "PLOTQUERYID")
 }
 \arguments{
-\item{dbTable:}{Character string corresponding to name of database table.}
+\item{db_table:}{Character string corresponding to name of database table.}
 
-\item{dbField:}{string corresponding to name of database field name.}
+\item{db_field:}{string corresponding to name of database field name.}
 }
 \value{
 Character string of query used to drop column from database table.

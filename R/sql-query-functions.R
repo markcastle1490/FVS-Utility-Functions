@@ -6,28 +6,28 @@
 #'This function takes in a database table name and field name and returns a 
 #'query for setting an index with the specified table and field name.
 #
-#'@param dbTable: 
+#'@param db_table: 
 #'Character string corresponding to name of database table.
 #
-#'@param dbField:
+#'@param db_field:
 #'Character String corresponding to name of database field name.
 #'
-#'@param indxName: 
+#'@param idx_name: 
 #'Character string corresponding to name of index that will be created in
-#'dbTable.
+#'db_table.
 #
 #'@return
 #'Character string used to set index for specified database table and field name.
 ################################################################################
 
 #'@export
-set_index_query <- function(dbTable = "TREE",
-                            dbField = "PLOTQUERYID",
-                            indxName = "")
+set_index_query <- function(db_table = "TREE",
+                            db_field = "PLOTQUERYID",
+                            idx_name = "")
 {
   query <- paste("CREATE INDEX IF NOT EXISTS",
-                 indxName,
-                 "ON", paste0(dbTable, "(", dbField, ");"))
+                 idx_name,
+                 "ON", paste0(db_table, "(", db_field, ");"))
 
   return(query)
 }
@@ -41,14 +41,14 @@ set_index_query <- function(dbTable = "TREE",
 #'type associated with database field name and returns a query which creates a
 #'column in the specified database table.
 #
-#'@param dbTable:
+#'@param db_table:
 #'Character string corresponding to name of database table.
 #
-#'@param dbField:
+#'@param db_field:
 #'Character string corresponding to name of database field name.
 #
 #'@param dataType: 
-#'Character string corresponding to data type of dbField.
+#'Character string corresponding to data type of db_field.
 #
 #'@return
 #'Character string of query used to create new column in specified database
@@ -56,14 +56,14 @@ set_index_query <- function(dbTable = "TREE",
 ################################################################################
 
 #'@export
-add_col_query <- function(dbTable = "TREE",
-                          dbField = "PLOTQUERYID",
+add_col_query <- function(db_table = "TREE",
+                          db_field = "PLOTQUERYID",
                           dataType = "TEXT")
 {
   query <- paste("ALTER TABLE",
-                 dbTable,
+                 db_table,
                  "ADD COLUMN",
-                 dbField,
+                 db_field,
                  dataType)
 
   return(query)
@@ -86,9 +86,9 @@ add_col_query <- function(dbTable = "TREE",
 ################################################################################
 
 #'@export
-drop_index_query <- function(index = "TREE_PLOTQUERYID")
+drop_index_query <- function(idx_name = "TREE_PLOTQUERYID")
 {
-  query <- paste0("DROP INDEX IF EXISTS ",index)
+  query <- paste0("DROP INDEX IF EXISTS ", idx_name)
   return(query)
 }
 
@@ -100,10 +100,10 @@ drop_index_query <- function(index = "TREE_PLOTQUERYID")
 #'This function takes in a database table name and column/field and returns a
 #'query that will have the column dropped from database table.
 #
-#'@param dbTable: 
+#'@param db_table: 
 #'Character string corresponding to name of database table.
 #
-#'@param dbField:
+#'@param db_field:
 #' string corresponding to name of database field name.
 #
 #'@return
@@ -111,13 +111,13 @@ drop_index_query <- function(index = "TREE_PLOTQUERYID")
 ################################################################################
 
 #'@export
-drop_col_query <- function(dbTable = "TREE",
-                         dbField = "PLOTQUERYID")
+drop_col_query <- function(db_table = "TREE",
+                           db_field = "PLOTQUERYID")
 {
   query <- paste("ALTER TABLE",
-                 dbTable,
+                 db_table,
                  "DROP COLUMN",
-                 paste0(dbField))
+                 paste0(db_field))
   return(query)
 }
 
@@ -151,7 +151,7 @@ collect_id <- function(ids)
 }
 
 ################################################################################
-#Function: db_get_index_names
+#Function: db_get_indices
 #
 #This function returns the names of indices that exist in input database
 #argument.
@@ -166,7 +166,7 @@ collect_id <- function(ids)
 ################################################################################
 
 #'@export
-db_get_index_names <- function(con)
+db_get_indices <- function(con)
 {
   #Initialize character vector of length zero
   indexNames <- vector(mode = "character")

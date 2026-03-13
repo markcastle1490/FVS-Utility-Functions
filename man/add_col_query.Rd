@@ -4,14 +4,14 @@
 \alias{add_col_query}
 \title{add_col_query}
 \usage{
-add_col_query(dbTable = "TREE", dbField = "PLOTQUERYID", dataType = "TEXT")
+add_col_query(db_table = "TREE", db_field = "PLOTQUERYID", dataType = "TEXT")
 }
 \arguments{
-\item{dbTable:}{Character string corresponding to name of database table.}
+\item{db_table:}{Character string corresponding to name of database table.}
 
-\item{dbField:}{Character string corresponding to name of database field name.}
+\item{db_field:}{Character string corresponding to name of database field name.}
 
-\item{dataType:}{Character string corresponding to data type of dbField.}
+\item{dataType:}{Character string corresponding to data type of db_field.}
 }
 \value{
 Character string of query used to create new column in specified database

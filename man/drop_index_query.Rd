@@ -4,7 +4,7 @@
 \alias{drop_index_query}
 \title{drop_index_query}
 \usage{
-drop_index_query(index = "TREE_PLOTQUERYID")
+drop_index_query(idx_name = "TREE_PLOTQUERYID")
 }
 \arguments{
 \item{index:}{Character string of index name in database table to drop.}
