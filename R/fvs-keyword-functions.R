@@ -916,6 +916,82 @@ delotab_keys <- function(delotab = NULL)
   return(keys)
 }
 
+################################################################################
+#'open_keys
+#'@name open_keys
+#'@description
+#'This function creates a set of keywords for opening and closing an FVS addfile
+#'or kcp file.
+#
+#'@param file: 
+#'Character string corresponding to a file path to a addfile (.kcp) file.
+#
+#'@param ref_num: 
+#'Integer file for reference number to input file. This value should be greater
+#'than 50 (this is based on default value from FVS-GUI).
+#'
+#'@param blanks: 
+#'Integer value pertaining to how blank values are treated in numeric fields 
+#'from contents of file that is opened (OPEN keyword).
+#'
+#'0 = treat blanks as zeros (default)
+#'
+#'gt 0 = treat blanks as null characters
+#'
+#'@param status: 
+#'Integer value corresponding to file status code (OPEN keyword).
+#'
+#'0 = Unknown (default, file may or may not currently exist) 
+#'
+#'1 = New (file does not currently exist) 
+#'
+#'2 = Old (file currently exists) 
+#'
+#'@param record_length:
+#'Integer value corresponding to maximum record length in the file (number of 
+#'characters per line; OPEN keyword). Default value is 80 characters.
+#'
+#'@return
+#'Character string containing keywords for opening and closing an addfile (.kcp)
+#'file.
+################################################################################
+
+#'@export
+open_keys <- function(file = "FVS_Addfile.kcp",
+                      ref_num = 50,
+                      blanks = 0,
+                      status = 0,
+                      record_length = 80)
+  
+{
+  #Capture bad ref_num
+  if(ref_num < 50) ref_num = 50
+  
+  #Capture bad blanks value
+  if(blanks < 0) blanks = 0
+  
+  #Capture bad status value
+  if(!status %in% c(0, 1, 2)) status = 0
+  
+  #Capture bad record_length value
+  if(record_length < 80 || record_length > 150) record_length = 80
+  
+  #Build the keyword sequence
+  open_key = paste(fvs_keyword(params = list("OPEN", 
+                                             ref_num, 
+                                             blanks,
+                                             status,
+                                             record_length, 0)),
+                   file,
+                   fvs_keyword(params = list("ADDFILE", 
+                                             ref_num)),
+                   fvs_keyword(params = list("CLOSE", 
+                                             ref_num)),
+                   sep = "\n")
+  
+  return(open_key)
+}
+
 #===============================================================================
 #Archived dfKeys logic
 #===============================================================================
