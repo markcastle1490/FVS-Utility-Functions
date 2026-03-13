@@ -1,6 +1,6 @@
 ################################################################################   
 #'linint
-#'@name linit
+#'@name linint
 #'@description
 #'This function is used to mimic the linint function from the FVS event monitor.
 #
@@ -20,7 +20,7 @@
 #
 #'@return
 #'Numeric value determined by the linear interpolation.
-################################################################################ 
+################################################################################
 
 #'@export
 linint <- function(value = 0, 
@@ -28,17 +28,16 @@ linint <- function(value = 0,
                    y = NULL,
                    verbose = FALSE)
 {
-  algslp = 0
+  algslp = 0.0
   
-  #If the length of x and y variables are not equal return with value of 0
+  #If x and y are empty or not the same length, return
   if(length(x) <= 0 || length(y) <= 0 || (length(x) != length(y)))
     return(algslp)
   
-  #Cast value, x and y to numeric if needed
-  if(!is.numeric(value)) value = is.numeric(value)
-  if(!is.numeric(x)) x = is.numeric(x)
-  if(!is.numeric(y)) y = is.numeric(y)
-  
+  #If x, y and z are not numeric, return
+  if(!is.numeric(value) || !is.numeric(x) || !is.numeric(y)) 
+    return(algslp)
+
   #If value is less than first value in x, return the first value in y
   if(value < x[1])
     algslp = y[1]
