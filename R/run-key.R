@@ -19,7 +19,8 @@
 #'Logical variable used to determine if debug output should be echoed to 
 #'console.
 #
-#'@return None
+#'@return 
+#'FVS return code returned invisibly
 ################################################################################
 
 #'@export
@@ -41,6 +42,12 @@ run_key = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
   #Change \\ to / in keyfile argument
   keyfile = chartr("\\", "/", keyfile)
   
+  #Make var_code lowercase
+  var_code = tolower(var_code)
+  
+  #Get file ext on keyfile
+  ext = tools::file_ext(keyfile)
+  
   #Check for existence of dll_path
   if (!(file.exists(dll_path))){
     stop(paste("dll_path not found. Make sure directory path is spelled",
@@ -53,8 +60,15 @@ run_key = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
                "spelled correctly."))
   }
   
-  #Make var_code lowercase
-  var_code = tolower(var_code)
+  #Check file extension
+  if (ext != "key"){
+    stop(paste("Invalid file extension specified in keyfile argument."))
+  }
+  
+  #Check for valid variant
+  if (! toupper(var_code) %in% fvs_get_variants()){
+    stop(paste("Invalid FVS variant specified in var_code."))
+  }
   
   #Create dll name
   var_code = paste0("FVS", var_code)
@@ -69,13 +83,23 @@ run_key = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
   if(keydir != keyfile_)
     setwd(keydir)
   
-  #Call run_fvs
-  run_fvs(dll_path = dll_path,
-          var_code = var_code,
-          keyfile = keyfile_,
-          verbose = verbose)
+  #Print inputs
+  if(verbose)
+  {
+    cat("dll_path:", dll_path, "\n")
+    cat("fvsdll:",  var_code, "\n")
+    cat("keyfile:", keyfile, "\n")
+  }
   
-  invisible()
+  #Call run_fvs
+  ret_code = run_fvs(dll_path = dll_path,
+                     var_code = var_code,
+                     keyfile = keyfile_)
+  
+  #Print return code
+  if(verbose) cat("FVS return code:", ret_code, "\n", "\n")
+  
+  invisible(ret_code)
 }
 
 ################################################################################
@@ -108,11 +132,13 @@ run_key = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
 #'@return None
 ################################################################################
 
+run_key_rscript(keyfile = "FIAVBC_IE_COMP.key")
+
 #'@export
 run_key_rscript = function(script_path = NULL,
                            dll_path = "C:/FVS/FVSSoftware/FVSbin",
                            var_code = "ie",
-                           keyfile = "C:/FVS.key",
+                           keyfile = "C:/FVS/FVS.key",
                            verbose = FALSE)
 {
   
@@ -122,38 +148,16 @@ run_key_rscript = function(script_path = NULL,
   #Change \\ to / in keyfile argument
   keyfile = chartr("\\", "/", keyfile)
   
-  #Get file ext on keyfile
-  ext = tools::file_ext(keyfile)
-  
-  #Check for existence of dll_path
-  if (!(file.exists(dll_path))){
-    stop(paste("dll_path not found. Make sure directory path is spelled",
-               "correctly."))
-  }
-  
-  #Check for existence of keyfile
-  if (!(file.exists(keyfile))){
-    stop(paste("keyfile not found. Make sure directory path and file name are",
-               "spelled correctly."))
-  }
-  
-  #Check file extension
-  if (ext != "key"){
-    stop(paste("Invalid file extension specified in keyfile argument."))
-  }
-  
-  #Check for valid variant
-  if (! toupper(var_code) %in% fvs_get_variants()){
-    stop(paste("Invalid FVS variant specified in var_code."))
-  }
-  
   #Make var_code lowercase
   var_code = tolower(var_code)
   
+  #Get file ext on keyfile
+  ext = tools::file_ext(keyfile)
+  
   #Generate script_path if NULL
   if(is.null(script_path))
-    script_path = gsub(pattern = ".key$", replacement = ".R", x = keyfile)
-  
+    script_path = gsub(".key$", ".R", keyfile)
+    
   #If script_path exists already,  delete it
   if(file.exists(script_path)) unlink(script_path)
   
@@ -181,6 +185,7 @@ run_key_rscript = function(script_path = NULL,
              con = con,
              sep = "\n")
   
+  #Close connection
   close(con = con)
   
   invisible()
@@ -210,11 +215,13 @@ run_key_rscript = function(script_path = NULL,
 #'Logical variable used to determine if debug output should be echoed to 
 #'console.
 #
-#'@return None
+#'@return
+#'FVS return code returned invisibly.
 ################################################################################
 
 #'@export
-run_key_callr = function(dll_path = "C:/FVS/FVSSoftware/FVSbin", var_code = "ie",
+run_key_callr = function(dll_path = "C:/FVS/FVSSoftware/FVSbin", 
+                         var_code = "ie",
                          keyfile = "C:/FVS.key",
                          verbose = FALSE)
 {
@@ -231,6 +238,12 @@ run_key_callr = function(dll_path = "C:/FVS/FVSSoftware/FVSbin", var_code = "ie"
   #Change \\ to / in keyfile argument
   keyfile = chartr("\\", "/", keyfile)
   
+  #Get file ext on keyfile
+  ext = tools::file_ext(keyfile)
+  
+  #Make var_code lowercase
+  var_code = tolower(var_code)
+  
   #Check for existence of dll_path
   if (!(file.exists(dll_path))){
     stop(paste("dll_path not found. Make sure directory path is spelled",
@@ -243,8 +256,15 @@ run_key_callr = function(dll_path = "C:/FVS/FVSSoftware/FVSbin", var_code = "ie"
                "spelled correctly."))
   }
   
-  #Make var_code lowercase
-  var_code = tolower(var_code)
+  #Check file extension
+  if (ext != "key"){
+    stop(paste("Invalid file extension specified in keyfile argument."))
+  }
+  
+  #Check for valid variant
+  if (! toupper(var_code) %in% fvs_get_variants()){
+    stop(paste("Invalid FVS variant specified in var_code."))
+  }
   
   #Create dll name
   var_code = paste0("FVS", var_code)
@@ -259,27 +279,36 @@ run_key_callr = function(dll_path = "C:/FVS/FVSSoftware/FVSbin", var_code = "ie"
   if(keydir != keyfile_)
     setwd(keydir)
   
+  #Print inputs
+  if(verbose)
+  {
+    cat("dll_path:", dll_path, "\n")
+    cat("fvsdll:",  var_code, "\n")
+    cat("keyfile:", keyfile, "\n")
+  }
+  
   #Call run_fvs with callr
-  callr::r(func = function(dll_path, var_code, keyfile, verbose) {
+  ret_code = callr::r(func = function(dll_path, var_code, keyfile, verbose) {
     fvsUtil:::run_fvs(dll_path = dll_path,
                      var_code = var_code,
-                     keyfile = keyfile,
-                     verbose = verbose)},
+                     keyfile = keyfile)},
     args = list(dll_path = dll_path,
                 var_code = var_code,
-                keyfile = keyfile_,
-                verbose = verbose))
+                keyfile = keyfile_))
   
-  invisible()
+  #Print return code
+  if(verbose) cat("FVS return code:", ret_code, "\n", "\n")
+  
+  invisible(ret_code)
 }
 
 ################################################################################
 #'run_fvs
 #'@name run_fvs
 #'@description
-#'This function is called from run_key and is used to fulfill a simulation using
-#'input arguments corresponding to path where FVS variant dlls are stored, a 
-#'variant code, and keyword file name.
+#'This function is called from run_key and run_key_callr and is used to fulfill
+#'a simulation using input arguments corresponding to path where FVS variant 
+#'dlls are stored, a variant code, and keyword file name.
 #
 #'@param dll_path: 
 #'Character string corresponding to directory where FVS dlls are stored
@@ -290,17 +319,12 @@ run_key_callr = function(dll_path = "C:/FVS/FVSSoftware/FVSbin", var_code = "ie"
 #'@param keyfile: 
 #'Character string corresponding to keyword file name.
 #
-#'@param verbose: 
-#'Logical variable used to determine if debug output should be echoed to 
-#'console.
-#
-#'@return None
+#'@return FVS return code invisibly returned
 ################################################################################
 
 run_fvs = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
                    var_code = "FVSie",
-                   keyfile = "C:/FVS.key",
-                   verbose = FALSE)
+                   keyfile = "C:/FVS.key")
   
 {
   #Load variant dll and specify directory path to dll in bin folder
@@ -324,24 +348,10 @@ run_fvs = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
   #Initialize return code
   retcode = 0
   
-  if(verbose)
-  {
-    cat("DLL path:", dll_path, "\n")
-    cat("FVS Variant:",  var_code, "\n")
-    cat("Keyword file:", keyfile, "\n")
-    cat("Running FVS...", "\n", "\n")
-  }
-  
   #Keep running FVS until a return code other than 0, is returned.
-  while(retcode == 0)
-  {
-    retcode = rFVS::fvsRun()
-    
-    if(verbose)
-      if(retcode != 0) cat("FVS return code:", retcode, "\n")
-  }
+  while(retcode == 0) retcode = rFVS::fvsRun()
   
-  invisible()
+  invisible(retcode)
 }
 
 ################################################################################
