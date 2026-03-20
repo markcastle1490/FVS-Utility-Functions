@@ -40,7 +40,7 @@ load_nvel <- function(nvel_path = "C:/FVS_Utility/vollib/vollib.dll")
               "pgm" = "vollib"),
          envir=.GlobalEnv)
   
-  return()
+  invisible()
 }
 
 ################################################################################
@@ -107,14 +107,13 @@ unload_nvel <- function()
 #
 #'@param sftwd_hrdwd: 
 #'Character value indicating whether tree is considered a hardwood or softwood 
-#'as defined by FIA. If a value is not provided then value is determined by
-#'spcd.
+#'as defined by FIA. If a value is not provided then sftwd_hrdwd is determined 
+#'by spcd.
 #'
 #'H = hardwood (deciduous)
 #'
 #'S = softwood (conifer)
 #'
-#
 #'@param dbh:         
 #'Diameter of tree record in inches. This value could be a DBH or DRC 
 #'measurement.
@@ -128,6 +127,12 @@ unload_nvel <- function()
 #
 #'@param stems:       
 #'Number of woodland stems associated with the tree record.
+#
+#'@param fclass:
+#'Girard’s form class.  Diameter at the top of the first log given as a percent 
+#'of DBH. This value will contain the value of stems when dealing with woodland
+#'species: 62, 63, 65, 66, 69, 106, 133, 134, 143, 321, 322, 475, 803, 810, 814,
+#'843.
 #
 #'@param cr:          
 #'Live crown ratio as a percent. A value from 0 - 100 can be entered.
@@ -216,11 +221,12 @@ call_nvb <- function(voleq,
                     forst = "01",
                     dist = "01",
                     spcd,
-                    sftwd_hrdwd = NULL, 
+                    sftwd_hrdwd = "NA", 
                     dbh,
                     ht,
                     brkht = 0,
                     stems = 1,
+                    fclass = 0,
                     cr = 0,
                     cull = 0,
                     cullmstop = 0,
@@ -266,8 +272,8 @@ call_nvb <- function(voleq,
   #Set cullmstop to 0 if NA, less than 0, or greater than 100
   if(is.na(cullmstop)|| cullmstop < 0 || cullmstop > 100) cullmstop <- 0
   
-  #Set decaycd to 0 if NA
-  if(is.na(decaycd)) decaycd <- 0
+  #Set decaycd to 3 if NA
+  if(is.na(decaycd)) decaycd <- 3
   
   #if brkht is the same as ht or NA, set to 0
   if(is.na(brkht) || brkht == ht) brkht <- 0
@@ -289,26 +295,26 @@ call_nvb <- function(voleq,
   if(! ctype %in% c("I", "C", "F")) ctype <- "I"
   
   #Set array index based on volbio argument
-  if(volbio == 1) arrayIndex <- 29
-  else arrayIndex <- 18
+  if(volbio == 1) array_idx <- 29
+  else array_idx <- 18
   
   #If stump is na, set to 1
   if(is.na(stump)) stump <- 1
   
-  #If sftwd_hrdwd is NA, set based on spcd
+  #Handle sftwd_hrdwd
   sftwd_hrdwd <- toupper(sftwd_hrdwd)
-  if(is.null(sftwd_hrdwd))
+  if(!sftwd_hrdwd %in% c("H", "S")) 
   {
-    sftwd_hrdwd <- 'H'
-    if(spcd < 300) sftwd_hrdwd <- 'S'
+    sftwd_hrdwd <- "H"
+    if(spcd < 300) sftwd_hrdwd <- "S"
   }
-  
+
   #Set mtopp and mtops if 0 (use FIA defaults)
   if(mtops == 0) mtops <- 4
   if(mtopp == 0)
   {
-    if(sftwd_hrdwd == 'H') mtopp <- 9
-    if(sftwd_hrdwd == 'S') mtopp <- 7
+    if(sftwd_hrdwd == "H") mtopp <- 9
+    if(sftwd_hrdwd == "S") mtopp <- 7
   }
   
   #Check for valid prod values
@@ -318,22 +324,17 @@ call_nvb <- function(voleq,
     prod <- "01"
   }
   
-  #Set values prior to vollibnvb_r call
-  voleq = voleq
-  regn = regn
-  forst = forst
-  dist = dist
-  spec = spcd
-  dbhob = dbh
-  httot = ht
-  mtopp = mtopp
-  mtops = mtops
+  #Set fclass to stems if dealing with woodland species
+  if(spcd %in% c(62,  63,  65,  66, 69, 106, 133, 134, 143, 321, 322, 475, 803,
+                 810, 814, 843))
+    fclass= stems
+  
+  #Set other required values prior to vollibnvb_r call
   ht1prd=0
   ht2prd=0
   upsht1=0
   upsd1=0
-  stump=stump
-  fclass= stems
+  fclass= fclass
   dbtbh=0
   btr=0
   vol=c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
@@ -345,17 +346,9 @@ call_nvb <- function(voleq,
   nologp=0
   nologs=0
   errflag=0
-  brkht=brkht
   brkhtd=0
-  cr = cr
-  cull = cull
-  cullmstop = cullmstop
-  decaycd = decaycd
   drybio=c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
   grnbio=c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
-  ctype = ctype
-  live = live
-  prod = prod
   
   #Call vollibnvb_r
   returns = suppressWarnings(.Fortran("vollibnvb_r",
@@ -363,9 +356,9 @@ call_nvb <- function(voleq,
                      as.integer(regn),
                      as.character(forst),
                      as.character(dist),
-                     as.integer(spec),
-                     as.double(dbhob),
-                     as.double(httot),
+                     as.integer(spcd),
+                     as.double(dbh),
+                     as.double(ht),
                      as.double(mtopp),
                      as.double(mtops),
                      as.double(ht1prd),
@@ -432,16 +425,101 @@ call_nvb <- function(voleq,
   #If index is 0, return the entire vector of volume or biomass values
   if(index == 0)
   {
-    value <- returns[[arrayIndex]]
+    value <- returns[[array_idx]]
   }
   
   #Otherwise just return single value
   else
   {
-    value <- returns[[arrayIndex]][index]
+    value <- returns[[array_idx]][index]
   }
   
   return(value)
+}
+
+################################################################################
+#'call_calcdib
+#' @name call_calcdib
+#' @description 
+#' This function is used to call calcdib_r interface to return inside bark top
+#' diameter based on input tree information.
+#'   
+#' NOTE: In order to use this function, one must load the NVEL dll into their 
+#' R session. This can be accomplished using the load_nvel function or through
+#' other means.
+#
+#'@param voleq:   
+#'Character string corresponding to NVEL equation number. i.e. "NVBM240202"
+#
+#'@param regn:
+#'Integer value corresponding to USFS regn.
+#
+#'@param forst:   
+#'Character string corresponding to forest number.
+#'
+#'@param dbh:         
+#'Diameter of tree record in inches.
+#
+#'@param ht:
+#'Total height of the tree record in feet.
+#'
+#'@param stemht:         
+#'Height to top diameter.
+#
+#'@param upsht1:
+#'Upper stem height in feet where upper stem diameter was measured.
+#'
+#'OR
+#'
+#'For Region 8 the upper stem reference height defined by their profile model
+#' (ht0, ht4, ht7, ht9).
+#' 
+#'OR
+#' 
+#'region 9 the UPSHT1 is the height to 7.6/9.6 top diameter when HT1PRD is not 
+#'the height to 7.6/9.6 top diameter.
+#'
+#'Probably best to leave this as 0 unless you really know what you are doing
+#'with it.
+#'
+#'@param upsd1:
+#'Upper stem diameter measured at upsht1.
+#'
+#'Probably best to leave this as 0 unless you really know what you are doing
+#'with it.
+#'
+#'@return
+#'Inside bark top diameter.
+################################################################################
+
+#'@export
+call_calcdib <- function(voleq,
+                         regn = 1,
+                         forst = "01",
+                         dbh,
+                         ht,
+                         stemht,
+                         upsht1 = 0,
+                         upsd1 = 0)
+{
+  #Set variables
+  stemdib = 0
+  errflg=0
+  
+  dib_ = .Fortran("calcdib_r",
+                  as.character(voleq),
+                  as.integer(regn),
+                  as.character(forst),
+                  as.double(dbh),
+                  as.double(ht),
+                  as.double(stemht),
+                  as.double(stemdib),
+                  as.integer(errflg),
+                  as.double(upsht1),
+                  as.double(upsd1),
+                  PACKAGE = get(".NVELLOADEDLIBRARY",envir=.GlobalEnv)$pgm)[[7]]
+           
+  return(dib_)
 }
 
 ################################################################################

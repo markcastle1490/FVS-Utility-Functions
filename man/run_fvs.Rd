@@ -7,8 +7,7 @@
 run_fvs(
   dll_path = "C:/FVS/FVSSoftware/FVSbin",
   var_code = "FVSie",
-  keyfile = "C:/FVS.key",
-  verbose = FALSE
+  keyfile = "C:/FVS.key"
 )
 }
 \arguments{
@@ -17,15 +16,12 @@ run_fvs(
 \item{var_code:}{Character string 'FVS' appended to a lowercase variant code (e.g. 'FVSca').}
 
 \item{keyfile:}{Character string corresponding to keyword file name.}
-
-\item{verbose:}{Logical variable used to determine if debug output should be echoed to
-console.}
 }
 \value{
-None
+FVS return code invisibly returned
 }
 \description{
-This function is called from run_key and is used to fulfill a simulation using
-input arguments corresponding to path where FVS variant dlls are stored, a
-variant code, and keyword file name.
+This function is called from run_key and run_key_callr and is used to fulfill
+a simulation using input arguments corresponding to path where FVS variant
+dlls are stored, a variant code, and keyword file name.
 }

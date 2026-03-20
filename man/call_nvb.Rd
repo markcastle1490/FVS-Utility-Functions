@@ -11,11 +11,12 @@ call_nvb(
   forst = "01",
   dist = "01",
   spcd,
-  sftwd_hrdwd = NULL,
+  sftwd_hrdwd = "NA",
   dbh,
   ht,
   brkht = 0,
   stems = 1,
+  fclass = 0,
   cr = 0,
   cull = 0,
   cullmstop = 0,
@@ -48,8 +49,8 @@ default value for this argument.}
 \item{spcd:}{Integer value corresponding to FIA species code.}
 
 \item{sftwd_hrdwd:}{Character value indicating whether tree is considered a hardwood or softwood
-as defined by FIA. If a value is not provided then value is determined by
-spcd.
+as defined by FIA. If a value is not provided then sftwd_hrdwd is determined
+by spcd.
 
 H = hardwood (deciduous)
 
@@ -64,6 +65,11 @@ measurement.}
 0.}
 
 \item{stems:}{Number of woodland stems associated with the tree record.}
+
+\item{fclass:}{Girard’s form class.  Diameter at the top of the first log given as a percent
+of DBH. This value will contain the value of stems when dealing with woodland
+species: 62, 63, 65, 66, 69, 106, 133, 134, 143, 321, 322, 475, 803, 810, 814,
+843.}
 
 \item{cr:}{Live crown ratio as a percent. A value from 0 - 100 can be entered.}
 

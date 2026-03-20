@@ -8,7 +8,7 @@ run_key_rscript(
   script_path = NULL,
   dll_path = "C:/FVS/FVSSoftware/FVSbin",
   var_code = "ie",
-  keyfile = "C:/FVS.key",
+  keyfile = "C:/FVS/FVS.key",
   verbose = FALSE
 )
 }

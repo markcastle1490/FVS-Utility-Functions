@@ -132,8 +132,6 @@ run_key = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
 #'@return None
 ################################################################################
 
-run_key_rscript(keyfile = "FIAVBC_IE_COMP.key")
-
 #'@export
 run_key_rscript = function(script_path = NULL,
                            dll_path = "C:/FVS/FVSSoftware/FVSbin",
