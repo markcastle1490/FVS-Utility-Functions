@@ -96,7 +96,7 @@
 #'the number corresponding to the keyword batch (e.g. _BATCH2 would correspond 
 #'to second keyword file in batch).
 #'
-#'@param unique_out:
+#'@param unique_dbout:
 #'Logical value where if TRUE, a unique output database will be specified for
 #'the keyword file within the batch. This argument will only have an effect when
 #'value in dbout argument is not NULL.
