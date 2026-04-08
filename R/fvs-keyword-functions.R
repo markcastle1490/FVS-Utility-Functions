@@ -96,6 +96,11 @@
 #'the number corresponding to the keyword batch (e.g. _BATCH2 would correspond 
 #'to second keyword file in batch).
 #'
+#'@param unique_out:
+#'Logical value where if TRUE, a unique output database will be specified for
+#'the keyword file within the batch. This argument will only have an effect when
+#'value in dbout argument is not NULL.
+#'
 #'@param stands_per_batch:
 #'Numeric value corresponding to number of stands to include in a keyword file
 #'when create_batch argument is TRUE. This value will be ignored if create_batch
@@ -123,6 +128,7 @@ fvs_keyfile <- function(keyfile,
                         dbout = NULL,
                         delotab = c(1, 2),
                         create_batch = FALSE,
+                        unique_dbout = FALSE,
                         stands_per_batch = 10000)
 {
 
@@ -206,7 +212,7 @@ fvs_keyfile <- function(keyfile,
     #Get stands in batch
     stands = batch_list[[i]]
     
-    #Create keyword file path
+    #Create keyword file path and create unique output database if needed
     if(!create_batch)
       key_path = paste0(keydir, "/", key_name)
   
@@ -258,7 +264,19 @@ fvs_keyfile <- function(keyfile,
       
       if(!is.null(dbout))
       {
-        dsnout_keys <- dsnout_keys(dbout = dbout)
+        #Make a copy of dbout
+        dbout_ = dbout
+        
+        #Adjusted dbout if needed
+        if(create_batch && unique_dbout) 
+        {
+          db_ext = tools::file_ext(dbout_)
+          dbout_ = gsub(pattern = paste0(".", db_ext), 
+                       replacement = paste0("_BATCH", i, paste0(".", db_ext)),
+                       x = dbout_)
+        }
+        
+        dsnout_keys <- dsnout_keys(dbout = dbout_)
         writeLines(text = dsnout_keys, con = con, sep = "\n\n")
       }
       
