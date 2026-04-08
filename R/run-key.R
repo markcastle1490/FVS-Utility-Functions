@@ -66,9 +66,9 @@ run_key = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
   }
   
   #Check for valid variant
-  if (! toupper(var_code) %in% fvs_get_variants()){
-    stop(paste("Invalid FVS variant specified in var_code."))
-  }
+  # if (! toupper(var_code) %in% fvs_get_variants()){
+  #   stop(paste("Invalid FVS variant specified in var_code."))
+  # }
   
   #Create dll name
   var_code = paste0("FVS", var_code)
@@ -260,9 +260,9 @@ run_key_callr = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
   }
   
   #Check for valid variant
-  if (! toupper(var_code) %in% fvs_get_variants()){
-    stop(paste("Invalid FVS variant specified in var_code."))
-  }
+  # if (! toupper(var_code) %in% fvs_get_variants()){
+  #   stop(paste("Invalid FVS variant specified in var_code."))
+  # }
   
   #Create dll name
   var_code = paste0("FVS", var_code)
