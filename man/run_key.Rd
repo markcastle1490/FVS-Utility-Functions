@@ -23,7 +23,7 @@ keyword file.}
 console.}
 }
 \value{
-None
+FVS return code returned invisibly
 }
 \description{
 This function is used to run a single FVS keyword file (.key) with a specified
