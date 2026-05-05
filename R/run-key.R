@@ -457,10 +457,7 @@ delete_caseid = function(fvsout = NULL,
   #Test if FVS_Cases table exists. If it doesn't, disconnect from database and
   #stop with error.
   if(!"FVS_Cases" %in% out_tbl)
-  {
-    RSQLite::dbDisconnect(conn = con_out)
     stop("FVS_Cases table was not found in output database.")
-  }
   
   #Collapse delete_id into single string
   #id_string = collect_id(delete_id)
