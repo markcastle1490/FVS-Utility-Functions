@@ -99,7 +99,7 @@
 #'@param unique_dbout:
 #'Logical value where if TRUE, a unique output database will be specified for
 #'the keyword file within the batch. This argument will only have an effect when
-#'value in dbout argument is not NULL.
+#'value in dbout argument is not NULL and create_batch is TRUE.
 #'
 #'@param stands_per_batch:
 #'Numeric value corresponding to number of stands to include in a keyword file

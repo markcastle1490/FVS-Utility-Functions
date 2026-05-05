@@ -4,7 +4,11 @@
 \alias{set_index_query}
 \title{set_index_query}
 \usage{
-set_index_query(db_table = "TREE", db_field = "PLOTQUERYID", idx_name = "")
+set_index_query(
+  db_table = "FVS_STANDINIT",
+  db_field = "STAND_ID",
+  idx_name = NULL
+)
 }
 \arguments{
 \item{db_table:}{Character string corresponding to name of database table.}
@@ -12,7 +16,8 @@ set_index_query(db_table = "TREE", db_field = "PLOTQUERYID", idx_name = "")
 \item{db_field:}{Character String corresponding to name of database field name.}
 
 \item{idx_name:}{Character string corresponding to name of index that will be created in
-db_table.}
+db_table. If argument is left as NULL, the index name will be a concatenation
+of 'idx', db_table, and idx_name.}
 }
 \value{
 Character string used to set index for specified database table and field name.

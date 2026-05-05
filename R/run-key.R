@@ -463,7 +463,8 @@ delete_caseid = function(fvsout = NULL,
   }
   
   #Collapse delete_id into single string
-  id_string = collect_id(delete_id)
+  #id_string = collect_id(delete_id)
+  id_string = placeholder_id(delete_id)
   
   if(verbose)
   {
@@ -481,7 +482,8 @@ delete_caseid = function(fvsout = NULL,
     
   #Attempt to get CaseIDs...
   caseid = RSQLite::dbGetQuery(conn = con_out,
-                               query)[[1]]
+                               query,
+                               params = delete_id)[[1]]
   
   if(verbose)
   {
@@ -498,7 +500,8 @@ delete_caseid = function(fvsout = NULL,
   else
   {
     #Collect caseid in single string 
-    case_string = collect_id(caseid)
+    #case_string = collect_id(caseid)
+    case_string = placeholder_id(caseid)
     
     #Loop across tables and delete rows
     for(tbl in out_tbl)
@@ -519,12 +522,13 @@ delete_caseid = function(fvsout = NULL,
         
         #Execute query
         rtn = RSQLite::dbExecute(conn = con_out,
-                                 query)
+                                 query,
+                                 params = caseid)
         
         if(verbose) cat("Number of rows deleted:", rtn, "\n")
         
         #Get number of rows.
-        query = paste0("SELECT COUNT(*) FROM ",tbl)
+        query = paste0("SELECT COUNT(*) FROM ", tbl)
         rows = RSQLite::dbGetQuery(con_out, query)[[1]]
         if(verbose) cat("Number of rows remaining in table:", rows, "\n")
         

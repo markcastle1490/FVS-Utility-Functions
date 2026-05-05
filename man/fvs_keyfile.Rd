@@ -22,6 +22,7 @@ fvs_keyfile(
   dbout = NULL,
   delotab = c(1, 2),
   create_batch = FALSE,
+  unique_dbout = FALSE,
   stands_per_batch = 10000
 )
 }
@@ -99,6 +100,10 @@ batch is determined by the stands_per_batch argument. The name of the keyword
 file in a batch will be keyword file name appended to _BATCHX.key where X is
 the number corresponding to the keyword batch (e.g. _BATCH2 would correspond
 to second keyword file in batch).}
+
+\item{unique_dbout:}{Logical value where if TRUE, a unique output database will be specified for
+the keyword file within the batch. This argument will only have an effect when
+value in dbout argument is not NULL and create_batch is TRUE.}
 
 \item{stands_per_batch:}{Numeric value corresponding to number of stands to include in a keyword file
 when create_batch argument is TRUE. This value will be ignored if create_batch

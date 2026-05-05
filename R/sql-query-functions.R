@@ -14,17 +14,21 @@
 #'
 #'@param idx_name: 
 #'Character string corresponding to name of index that will be created in
-#'db_table.
+#'db_table. If argument is left as NULL, the index name will be a concatenation
+#'of 'idx', db_table, and idx_name.
 #
 #'@return
 #'Character string used to set index for specified database table and field name.
 ################################################################################
 
 #'@export
-set_index_query <- function(db_table = "TREE",
-                            db_field = "PLOTQUERYID",
-                            idx_name = "")
+set_index_query <- function(db_table = "FVS_STANDINIT",
+                            db_field = "STAND_ID",
+                            idx_name = NULL)
 {
+  #Set index name if not entered
+  if(is.null(idx_name)) idx_name = paste("idx", db_table, db_field, sep = "_")
+  
   query <- paste("CREATE INDEX IF NOT EXISTS",
                  idx_name,
                  "ON", paste0(db_table, "(", db_field, ");"))
@@ -147,6 +151,38 @@ collect_id <- function(ids)
   #Add parentheses around idString
   idString<-paste0("(",idString, ")")
   
+  return(idString)
+}
+
+################################################################################
+#'placeholder_id
+#'@name placeholder_id
+#'@description
+#'
+#'This function takes in a vector of elements and creates a character string 
+#'with place holder values (?) surrounded by parentheses.The number of place
+#'holder values in the string corresponds to the length of the input vector.
+#'
+#'@param ids:    
+#'Vector of elements
+#
+#'@return
+#'Character string of elements surrounded by parentheses and separated by 
+#'commas.
+################################################################################
+
+#'@export
+placeholder_id <- function(ids = NULL)
+{
+  #Determine n (number of reps)
+  if(is.null(ids)) n = 0
+  else n = length(ids)
+  
+  #Add quotes arounds ids and separate with commas
+  idString <- paste0("(", 
+                     paste(rep("?", times = n), 
+                           collapse = ", "),
+                     ")")
   return(idString)
 }
 
