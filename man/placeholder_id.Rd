@@ -10,8 +10,8 @@ placeholder_id(ids = NULL)
 \item{ids:}{Vector of elements}
 }
 \value{
-Character string of elements surrounded by parentheses and separated by
-commas.
+Character string of placeholder values surrounded by parentheses and
+separated by commas.
 }
 \description{
 This function takes in a vector of elements and creates a character string

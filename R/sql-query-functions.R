@@ -167,8 +167,8 @@ collect_id <- function(ids)
 #'Vector of elements
 #
 #'@return
-#'Character string of elements surrounded by parentheses and separated by 
-#'commas.
+#'Character string of placeholder values surrounded by parentheses and 
+#'separated by commas.
 ################################################################################
 
 #'@export
@@ -178,7 +178,7 @@ placeholder_id <- function(ids = NULL)
   if(is.null(ids)) n = 0
   else n = length(ids)
   
-  #Add quotes arounds ids and separate with commas
+  #Build placeholder string
   idString <- paste0("(", 
                      paste(rep("?", times = n), 
                            collapse = ", "),
