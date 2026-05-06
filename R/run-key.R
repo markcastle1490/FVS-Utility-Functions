@@ -448,8 +448,12 @@ delete_caseid = function(fvsout = NULL,
   
   #Connect to output database
   con_out = RSQLite::dbConnect(RSQLite::SQLite(), fvsout)
-  on.exit(try(if(RSQLite::dbIsValid(con_out)) RSQLite::dbDisconnect(con_out), 
-              silent = TRUE))
+  on.exit(expr = {
+    try(expr = {if(RSQLite::dbIsValid(con_out)) 
+    {
+      RSQLite::dbExecute(conn = con_out, "DROP TABLE IF EXISTS ToDelete")
+      RSQLite::dbDisconnect(con_out)}}, silent = TRUE)
+    })
   
   #Get output database tables
   out_tbl = RSQLite::dbListTables(conn = con_out)
@@ -459,8 +463,7 @@ delete_caseid = function(fvsout = NULL,
   if(!"FVS_Cases" %in% out_tbl)
     stop("FVS_Cases table was not found in output database.")
   
-  #Collapse delete_id into single string
-  #id_string = collect_id(delete_id)
+  #Obtain place holders
   id_string = placeholder_id(delete_id)
   
   if(verbose)
@@ -471,35 +474,41 @@ delete_caseid = function(fvsout = NULL,
   }
     
   #CaseID query
-  query = paste("SELECT CaseID FROM FVS_Cases WHERE",
+  query = paste("CREATE TEMP TABLE ToDelete AS",
+                "SELECT CaseID",
+                "FROM FVS_Cases",
+                "WHERE",
                 select_var,
-                "COLLATE NOCASE",
-                "IN", 
+                "COLLATE NOCASE IN", 
                 id_string)
-    
-  #Attempt to get CaseIDs...
-  caseid = RSQLite::dbGetQuery(conn = con_out,
-                               query,
-                               params = as.list(delete_id))[[1]]
+  
+  if(verbose)
+    cat("Create Temp Table Query:", query, "\n")
+  
+  #Create table and then get row count
+  RSQLite::dbExecute(conn = con_out,
+                     query,
+                     params = as.list(delete_id))
+  
+  #Execute count query
+  query = "SELECT COUNT(*) FROM ToDelete"
+  caseid = RSQLite::dbGetQuery(conn = con_out, query)[[1]]
   
   if(verbose)
   {
     cat("CaseID Query:", query, "\n")
-    cat("Number of Case ID values selected:", length(caseid), "\n", "\n")
+    cat("Number of Case ID values selected:", caseid, "\n", "\n")
   }
     
   #No case ID values found
-  if(length(caseid) <= 0)
+  if(caseid <= 0)
     cat("No Case ID values found for deletion using value(s) specified for:",
         select_var, "\n", "\n")
   
   #Delete identified CaseID values
   else
   {
-    #Collect caseid in single string 
-    case_string = collect_id(caseid)
-    #case_string = placeholder_id(caseid)
-    
+
     #Loop across tables and delete rows
     for(tbl in out_tbl)
     {
@@ -514,8 +523,10 @@ delete_caseid = function(fvsout = NULL,
                        tbl, 
                        " WHERE ",
                        tbl,
-                       ".CaseID IN",
-                       case_string)
+                       ".CaseID IN (SELECT CaseID FROM ToDelete)")
+        
+        if(verbose)
+          cat("Delete query:", query, "\n")
         
         #Execute query
         rtn = RSQLite::dbExecute(conn = con_out,
