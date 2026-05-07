@@ -1,0 +1,1 @@
+gfortran constants.f90 test.f90 plotvar.f90 -o test
