@@ -109,10 +109,12 @@ fvs_sum = tree %>%
             BDFTSP = expand_attr(dbh = DBH, attr = BdFt, expf = TPA, species = SpeciesFVS, select_species = sp_group),
             CCSP = cc(dbh = DBH, crwidth = CrWidth, expf = TPA, species = SpeciesFVS, select_species = sp_group),
             AVGHTSP = mean_attr(dbh = DBH, attr = Ht, weight = TPA, species = SpeciesFVS, select_species = sp_group),
-            RDIA_ = rdia(dbh = DBH, expf = TPA)) %>%
+            RDIA_ = gmd(dbh = DBH, expf = TPA)) %>%
   arrange(CaseID, Year)
 fvs_sum = as.data.frame(fvs_sum)
 gc()
+
+help(gmd)
 
 #Test if fvs_sum and comp are equivalent
 all.equal(comp, fvs_sum)

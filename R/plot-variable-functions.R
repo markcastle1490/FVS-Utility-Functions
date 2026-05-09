@@ -57,6 +57,108 @@ for_constant = 0.005454154
 r_slope = 1.605
 
 ################################################################################
+#' valid_vectors
+#' @name valid_vectors
+#' @description
+#' 
+#' This function takes in a set of vectors and checks if any are NULL or of 
+#' unequal length. A value of TRUE will be returned if either of these
+#' conditions are met. Additional checks could be added to this function.
+#
+#' @param ...
+#' The ... should be a set of vectors that will be checked.
+#' 
+#' @return
+#' Logical TRUE or FALSE value.
+################################################################################
+
+valid_vectors = function(...)
+{
+  valid = TRUE
+  if(null_vector(...)) valid = FALSE
+  if(unequal_vector(...)) valid = FALSE
+  return(valid)
+}
+
+###########################################################################
+#'null_vector
+#'@name null_vector
+#'@description
+#
+#'This function takes in a set of vectors and checks if any are NULL. If any of
+#'the vectors are NULL then a TRUE value is returned. This a helper function
+#'that is used inside many of functions in this file.
+#
+#'@param ...
+#'The ... should be a set of vectors that will be checked if any are NULL.
+#
+#'@return
+#'Logical TRUE or FALSE value.
+################################################################################
+
+null_vector = function(...)
+{
+  #Initialize value that will be returned if any vectors is NULL. This starts
+  #off as FALSE until proven otherwise.
+  null_vector_ = FALSE
+  
+  #Check for nulls in vectors
+  vectors = lapply(list(...), is.null)
+  
+  #Reset null_vector if there is a null value in vectors
+  if(TRUE %in% vectors) null_vector_ = TRUE
+  
+  return(null_vector_)
+}
+
+################################################################################
+#' unequal_vector
+#' @name unequal_vector
+#' @description
+#' 
+#' This function takes in a set of vectors and checks if they are the same 
+#' length. If any of the vectors are not the same length then a TRUE value is
+#' returned. This a helper function that is used inside many of functions in 
+#' this file. 
+#
+#' @param ...
+#' The ... should be a set of vectors that will be checked if any are of unequal
+#' length.
+#
+#' @return
+#' Logical TRUE or FALSE value.
+################################################################################
+
+unequal_vector = function(...)
+{
+  #Initialize value that will be returned if any vectors is NULL. This starts 
+  #off as FALSE until proven otherwise.
+  unequal_vector_ = FALSE
+  
+  #Get the vectors
+  vectors = list(...)
+  
+  #Loop through vectors and check if any are not equal to the length of the
+  #first vector.
+  if(length(vectors) > 0)
+  {
+    #Get length of first vector
+    vector_length = length(vectors[[1]])
+    
+    for(i in 1:length(vectors))
+    {
+      if(length(vectors[[i]]) != vector_length)
+      {
+        unequal_vector_ = TRUE
+        break
+      }
+    }
+  }
+  
+  return(unequal_vector_)
+}
+
+################################################################################
 #' ba
 #' @name ba
 #' @description
@@ -124,12 +226,15 @@ ba = function(dbh = NULL,
 {
   
   ba_ = 0
+  all_species = TRUE
   
   #Check optional vectors
-  if(is.null(ht)) ht = 0
-  if(is.null(species)) species = 'ALL'
-  all_species = TRUE
+  if(is.null(ht) && !is.null(expf)) ht = rep(0, times = length(expf))
+  if(is.null(species) && !is.null(expf)) species = rep("ALL", times = length(expf))
   if(!is.null(select_species)) all_species = FALSE
+  
+  #Check validity of vectors
+  if(!valid_vectors(dbh, expf, ht, species)) return(ba_)
   
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
@@ -214,13 +319,16 @@ tpa = function(expf = NULL,
 {
   
   tpa_ = 0
+  all_species = TRUE
   
   #Check optional vectors.
-  if(is.null(dbh)) dbh = 0
-  if(is.null(ht)) ht = 0
-  if(is.null(species)) species = 'ALL'
-  all_species = TRUE
+  if(is.null(dbh) && !is.null(expf)) dbh = rep(0, times = length(expf))
+  if(is.null(ht) && !is.null(expf)) ht = rep(0, times = length(expf))
+  if(is.null(species) && !is.null(expf)) species = rep("ALL", times = length(expf))
   if(!is.null(select_species)) all_species = FALSE
+  
+  #Check validity of vectors
+  if(!valid_vectors(dbh, expf, ht, species)) return(tpa_)
   
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
@@ -303,12 +411,15 @@ qmd = function(dbh = NULL,
 {
   
   qmd_ = 0
+  all_species = TRUE
   
   #Check optional vectors.
-  if(is.null(ht)) ht = 0
-  if(is.null(species)) species = 'ALL'
-  all_species = TRUE
+  if(is.null(ht) && !is.null(expf)) ht = rep(0, times = length(expf))
+  if(is.null(species) && !is.null(expf)) species = rep("ALL", times = length(expf))
   if(!is.null(select_species)) all_species = FALSE
+  
+  #Check validity of vectors
+  if(!valid_vectors(dbh, expf, ht, species)) return(qmd_)
   
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
@@ -327,13 +438,13 @@ qmd = function(dbh = NULL,
 }
 
 ################################################################################
-#' rdia
-#' @name rdia
+#' gmd
+#' @name gmd
 #' @description
 #' 
-#' This function calculates Reineke diameter given vectors containing DBH and 
-#' expansion factors. This attribute can be calculated for user defined size 
-#' ranges and for select species.
+#' This function calculates generalized mean diameter (Reineke diameter) given 
+#' vectors containing DBH and expansion factors. This attribute can be 
+#' calculated for user defined size ranges and for select species.
 #
 #' @param dbh:
 #' Numeric vector containing DBH values.
@@ -377,43 +488,46 @@ qmd = function(dbh = NULL,
 #' species.
 #'
 #'@return
-#' Numeric Reineke diameter value
+#' Numeric GMD value
 ################################################################################
 
 #'@export
-rdia = function(dbh = NULL,
-                expf = NULL,
-                ht = NULL,
-                species = NULL,
-                dbhmin = 0,
-                dbhmax = 999,
-                htmin = 0,
-                htmax = 999,
-                select_species = NULL)
+gmd = function(dbh = NULL,
+               expf = NULL,
+               ht = NULL,
+               species = NULL,
+               dbhmin = 0,
+               dbhmax = 999,
+               htmin = 0,
+               htmax = 999,
+               select_species = NULL)
 {
   
-  rdia_ = 0
+  gmd_ = 0
+  all_species = TRUE
   
   #Check optional vectors.
-  if(is.null(ht)) ht = 0
-  if(is.null(species)) species = 'ALL'
-  all_species = TRUE
+  if(is.null(ht) && !is.null(expf)) ht = rep(0, times = length(expf))
+  if(is.null(species) && !is.null(expf)) species = rep("ALL", times = length(expf))
   if(!is.null(select_species)) all_species = FALSE
+  
+  #Check validity of vectors
+  if(!valid_vectors(dbh, expf, ht, species)) return(gmd_)
   
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
     (all_species | species %in% select_species)
   
   #Calculate Reineke diameter over DBH, HT, and species
-  rdia_sum = sum((expf * dbh^r_slope)[include], na.rm = TRUE)
+  gmd_sum = sum((expf * dbh^r_slope)[include], na.rm = TRUE)
   tpa_ = sum(expf[include], na.rm = TRUE)
-  if(tpa_ > 0 ) rdia_ = (rdia_sum / tpa_)^(1 / r_slope)
+  if(tpa_ > 0 ) gmd_ = (gmd_sum / tpa_)^(1 / r_slope)
   
   #Capture bad values
-  if(is.na(rdia_)) rdia_ = 0
+  if(is.na(gmd_)) gmd_ = 0
   
-  #Return rdia
-  return(rdia_)
+  #Return gmd
+  return(gmd_)
 }
 
 ################################################################################
@@ -483,12 +597,15 @@ lorey_dia = function(dbh = NULL,
 {
   
   lorey_dia_ = 0
+  all_species = TRUE
   
   #Check optional vectors.
-  if(is.null(ht)) ht = 0
-  if(is.null(species)) species = 'ALL'
-  all_species = TRUE
+  if(is.null(ht) && !is.null(expf)) ht = rep(0, times = length(expf))
+  if(is.null(species) && !is.null(expf)) species = rep("ALL", times = length(expf))
   if(!is.null(select_species)) all_species = FALSE
+  
+  #Check validity of vectors
+  if(!valid_vectors(dbh, expf, ht, species)) return(lorey_dia_)
   
   #Calculate treeba
   treeba = dbh^2 * expf * for_constant 
@@ -609,12 +726,15 @@ zsdi = function(dbh = NULL,
 {
   
   zsdi_ = 0
+  all_species = TRUE
   
   #Check optional vectors.
-  if(is.null(ht)) ht = 0
-  if(is.null(species)) species = 'ALL'
-  all_species = TRUE
+  if(is.null(ht) && !is.null(expf)) ht = rep(0, times = length(expf))
+  if(is.null(species) && !is.null(expf)) species = rep("ALL", times = length(expf))
   if(!is.null(select_species)) all_species = FALSE
+  
+  #Check validity of vectors
+  if(!valid_vectors(dbh, expf, ht, species)) return(zsdi_)
   
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
@@ -697,13 +817,16 @@ cc = function(crwidth = NULL,
               select_species = NULL)
 {
   cc_ = 0
+  all_species = TRUE
   
   #Check optional vectors.
-  if(is.null(dbh)) dbh = 0
-  if(is.null(ht)) ht = 0
-  if(is.null(species)) species = 'ALL'
-  all_species = TRUE
+  if(is.null(dbh) && !is.null(expf)) dbh = rep(0, times = length(expf))
+  if(is.null(ht) && !is.null(expf)) ht = rep(0, times = length(expf))
+  if(is.null(species) && !is.null(expf)) species = rep("ALL", times = length(expf))
   if(!is.null(select_species)) all_species = FALSE
+  
+  #Check validity of vectors
+  if(!valid_vectors(dbh, expf, ht, species)) return(cc_)
   
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
@@ -777,8 +900,8 @@ bal = function(dbh = NULL,
                expf = NULL,
                handle_ties = FALSE)
 {
-  #Return if dbh or expf is NULL
-  if(is.null(dbh) || is.null(expf)) return(0)
+  #Return if dbh or expf is NULL or not of equal length
+  if(!valid_vectors(dbh, expf)) return(0)
   
   #Create sequence of integers. This will be used to reorder bal at the end of 
   #the function.
@@ -883,12 +1006,15 @@ rsdi_stage = function(dbh = NULL,
                      select_species = NULL)
 {
   rsdi_ = 0
+  all_species = TRUE
   
   #Check optional vectors
-  if(is.null(ht)) ht = 0
-  if(is.null(species)) species = 'ALL'
-  all_species = TRUE
+  if(is.null(ht) && !is.null(expf)) ht = rep(0, times = length(expf))
+  if(is.null(species) && !is.null(expf)) species = rep("ALL", times = length(expf))
   if(!is.null(select_species)) all_species = FALSE
+  
+  #Check validity of vectors
+  if(!valid_vectors(dbh, expf, ht, species)) return(rsdi_)
 
   #Calculate stand level tpa and dbhsq. Also initialize qmd
   stand_tpa = sum(expf)
@@ -981,11 +1107,15 @@ lorey_ht = function(dbh = NULL,
 {
   
   lorey_ht_ = 0
+  all_species = TRUE
   
   #Check optional vectors.
-  if(is.null(species)) species = 'ALL'
-  all_species = TRUE
+  if(is.null(dbh) && !is.null(expf)) dbh = rep(0, times = length(expf))
+  if(is.null(species) && !is.null(expf)) species = rep("ALL", times = length(expf))
   if(!is.null(select_species)) all_species = FALSE
+  
+  #Check validity of vectors
+  if(!valid_vectors(dbh, expf, ht, species)) return(lorey_ht_)
   
   #Calculate treeba
   treeba = dbh^2 * expf * for_constant 
@@ -1046,6 +1176,9 @@ top_ht = function(dbh = NULL,
   #Initialize top_ht_
   top_ht_ = 0
   
+  #Check validity of vectors
+  if(!valid_vectors(dbh, expf, ht)) return(top_ht_)
+  
   #Validate top_tpa
   if(is.null(top_tpa) || top_tpa < 0) top_tpa = 40
   
@@ -1056,33 +1189,34 @@ top_ht = function(dbh = NULL,
   #Calculate TPA for the entire stand
   tpa_ = tpa(dbh = dbh, expf = expf)
   
-  #If tpa_ is 0, then return
-  if(tpa_ <= 0) return(top_ht_)
+  #Do calculations if tpa > 0
+  if(tpa_ > 0)
+  {
+    #Determine amount TPA value that will be included in top height calculation
+    top = top_tpa
+    if(top > tpa_) top = tpa_
+    if(!is.null(top_per)) top = tpa_ * (top_per/100)
+    
+    #Calculate top height for trees in top  
+    #Get order of DBH values in descending order
+    dbh_order = order(-dbh)
+    
+    #Find the index where top is exceeded
+    top_exceed = which.max(cumsum(expf[dbh_order]) >= top)
+    
+    #Sum expf up to this index
+    tpa_sum = sum(expf[dbh_order][1:top_exceed], na.rm = TRUE)
+    
+    #Calculate tpa_dif and adjust tpa_sum
+    tpa_dif = tpa_sum - top
+    tpa_sum = tpa_sum - tpa_dif
+    
+    #Top height
+    ht_sum = sum((ht * expf)[dbh_order][1:top_exceed-1], na.rm = TRUE) + 
+      (ht)[dbh_order][top_exceed] * ((expf)[dbh_order][top_exceed] - tpa_dif)
+    if(tpa_sum > 0) top_ht_ = ht_sum / tpa_sum
+  }
   
-  #Determine amount TPA value that will be included in top height calculation
-  top = top_tpa
-  if(top > tpa_) top = tpa_
-  if(!is.null(top_per)) top = tpa_ * (top_per/100)
-  
-  #Calculate top height for trees in top  
-  #Get order of DBH values in descending order
-  dbh_order = order(-dbh)
-    
-  #Find the index where top is exceeded
-  top_exceed = which.max(cumsum(expf[dbh_order]) >= top)
-    
-  #Sum expf up to this index
-  tpa_sum = sum(expf[dbh_order][1:top_exceed], na.rm = TRUE)
-    
-  #Calculate tpa_dif and adjust tpa_sum
-  tpa_dif = tpa_sum - top
-  tpa_sum = tpa_sum - tpa_dif
-    
-  #Top height
-  ht_sum = sum((ht * expf)[dbh_order][1:top_exceed-1], na.rm = TRUE) + 
-    (ht)[dbh_order][top_exceed] * ((expf)[dbh_order][top_exceed] - tpa_dif)
-  if(tpa_sum > 0) top_ht_ = ht_sum / tpa_sum
-    
   return(top_ht_)
 }
 
@@ -1130,6 +1264,9 @@ top_dia = function(dbh = NULL,
   #Initialize top_dia_
   top_dia_ = 0
   
+  #Check validity of vectors
+  if(!valid_vectors(dbh, expf)) return(top_dia_)
+  
   #Validate top_tpa
   if(is.null(top_tpa) || top_tpa < 0) top_tpa = 40
   
@@ -1146,55 +1283,56 @@ top_dia = function(dbh = NULL,
   #Calculate TPA for the entire stand
   tpa_ = tpa(dbh = dbh, expf = expf)
   
-  #If tpa_ is 0, then return
-  if(tpa_ <= 0) return(top_dia_)
-  
-  #Determine amount TPA value that will be included in top height calculation
-  top = top_tpa
-  if(top > tpa_) top = tpa_
-  if(!is.null(top_per))top = tpa_ * (top_per/100)
-  
-  #Get order of DBH values in descending order
-  dbh_order = order(-dbh)
+  #Do calculations if tpa is > 0
+  if(tpa_ > 0)
+  {
+    #Determine amount TPA value that will be included in top height calculation
+    top = top_tpa
+    if(top > tpa_) top = tpa_
+    if(!is.null(top_per))top = tpa_ * (top_per/100)
     
-  #Find the index where top is exceeded
-  top_exceed = which.max(cumsum(expf[dbh_order]) >= top)
+    #Get order of DBH values in descending order
+    dbh_order = order(-dbh)
     
-  #Sum expf up to this index
-  tpa_sum = sum(expf[dbh_order][1:top_exceed], na.rm = TRUE)
+    #Find the index where top is exceeded
+    top_exceed = which.max(cumsum(expf[dbh_order]) >= top)
     
-  #Calculate tpa_dif and adjust tpa_sum
-  tpa_dif = tpa_sum - top
-  tpa_sum = tpa_sum - tpa_dif
+    #Sum expf up to this index
+    tpa_sum = sum(expf[dbh_order][1:top_exceed], na.rm = TRUE)
     
-  #QMD
-  if(dia_type == 1) {
+    #Calculate tpa_dif and adjust tpa_sum
+    tpa_dif = tpa_sum - top
+    tpa_sum = tpa_sum - tpa_dif
+    
+    #QMD
+    if(dia_type == 1) {
       dbh_sum = sum((dbh^2*expf)[dbh_order][1:top_exceed-1], na.rm = TRUE) + 
-      (dbh^2)[dbh_order][top_exceed] * (expf[dbh_order][top_exceed] - 
+        (dbh^2)[dbh_order][top_exceed] * (expf[dbh_order][top_exceed] - 
                                             tpa_dif)
       
       if(tpa_sum > 0) top_dia_ = sqrt(dbh_sum / tpa_sum)
     }
     
-  #Average diameter weighted by TPA
-  else if (dia_type == 2)
-  {
-    dbh_sum = sum((dbh*expf)[dbh_order][1:top_exceed-1], na.rm = TRUE) + 
-      (dbh)[dbh_order][top_exceed] * (expf[dbh_order][top_exceed] - 
+    #Average diameter weighted by TPA
+    else if (dia_type == 2)
+    {
+      dbh_sum = sum((dbh*expf)[dbh_order][1:top_exceed-1], na.rm = TRUE) + 
+        (dbh)[dbh_order][top_exceed] * (expf[dbh_order][top_exceed] - 
                                           tpa_dif)
+      
+      if(tpa_sum > 0) top_dia_ = dbh_sum / tpa_sum
+    }
     
-    if(tpa_sum > 0) top_dia_ = dbh_sum / tpa_sum
-  }
-  
-  #Reineke diameter
-  else 
-  {
-    dbh_sum = sum((dbh^r_slope * expf)[dbh_order][1:top_exceed-1], 
-                  na.rm = TRUE) + 
-      (dbh^r_slope)[dbh_order][top_exceed] * (expf[dbh_order][top_exceed] - 
+    #GMD
+    else 
+    {
+      dbh_sum = sum((dbh^r_slope * expf)[dbh_order][1:top_exceed-1], 
+                    na.rm = TRUE) + 
+        (dbh^r_slope)[dbh_order][top_exceed] * (expf[dbh_order][top_exceed] - 
                                                   tpa_dif)
-    
-    if(tpa_sum > 0) top_dia_ = (dbh_sum / tpa_sum)^(1 / r_slope)
+      
+      if(tpa_sum > 0) top_dia_ = (dbh_sum / tpa_sum)^(1 / r_slope)
+    }
   }
   
   return(top_dia_)
@@ -1274,14 +1412,17 @@ mean_attr = function(attr = NULL,
                      select_species = NULL)
 {
   mean_attr_ = 0
+  all_species = TRUE
   
   #Check optional vectors.
-  if(is.null(dbh)) dbh = 0
-  if(is.null(ht)) ht = 0
-  if(is.null(species)) species = 'ALL'
-  all_species = TRUE
+  if(is.null(dbh) && !is.null(attr)) dbh = rep(0, times = length(attr))
+  if(is.null(ht) && !is.null(attr)) ht = rep(0, times = length(attr))
+  if(is.null(species) && !is.null(attr)) species = rep("ALL", times = length(attr))
   if(!is.null(select_species)) all_species = FALSE
   if(is.null(weight)) weight = rep(x = 1, times = length(attr))
+  
+  #Check validity of vectors
+  if(!valid_vectors(attr, dbh, ht, species)) return(mean_attr_)
   
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
@@ -1371,13 +1512,16 @@ expand_attr = function(attr = NULL,
 {
   
   attr_expand_ = 0
+  all_species = TRUE
   
   #Check optional vectors.
-  if(is.null(dbh)) dbh = 0
-  if(is.null(ht)) ht = 0
-  if(is.null(species)) species = 'ALL'
-  all_species = TRUE
+  if(is.null(dbh) && !is.null(expf)) dbh = rep(0, times = length(expf))
+  if(is.null(ht) && !is.null(expf)) ht = rep(0, times = length(expf))
+  if(is.null(species) && !is.null(expf)) species = rep("ALL", times = length(expf))
   if(!is.null(select_species)) all_species = FALSE
+  
+  #Check validity of vectors
+  if(!valid_vectors(attr, dbh, ht, species)) return(attr_expand_)
   
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
@@ -1443,7 +1587,7 @@ expand_attr = function(attr = NULL,
 #'
 #'@return
 #' Median value of attribute.
-################################################################################
+################################################################################'
 
 #'@export
 median_attr = function(attr = NULL,
@@ -1458,16 +1602,16 @@ median_attr = function(attr = NULL,
 {
   
   median_attr_ = 0
-  
-  #if attr is NULL, return 0 value. Median value cannot be calculated.
-  if(is.null(attr)) return(median_attr_)
+  all_species = TRUE
   
   #Check optional vectors.
-  if(is.null(dbh)) dbh = 0
-  if(is.null(ht)) ht = 0
-  if(is.null(species)) species = 'ALL'
-  all_species = TRUE
+  if(is.null(dbh) && !is.null(attr)) dbh = rep(0, times = length(attr))
+  if(is.null(ht) && !is.null(attr)) ht = rep(0, times = length(attr))
+  if(is.null(species) && !is.null(attr)) species = rep("ALL", times = length(attr))
   if(!is.null(select_species)) all_species = FALSE
+  
+  #Check validity of vectors
+  if(!valid_vectors(attr, dbh, ht, species)) return(median_attr_)
   
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
@@ -1548,16 +1692,16 @@ min_attr = function(attr = NULL,
 {
   
   min_attr_ = 0
-  
-  #if attr is NULL, return 0 value. Minimum value cannot be calculated.
-  if(is.null(attr)) return(min_attr_)
+  all_species = TRUE
   
   #Check optional vectors.
-  if(is.null(dbh)) dbh = 0
-  if(is.null(ht)) ht = 0
-  if(is.null(species)) species = 'ALL'
-  all_species = TRUE
+  if(is.null(dbh) && !is.null(attr)) dbh = rep(0, times = length(attr))
+  if(is.null(ht) && !is.null(attr)) ht = rep(0, times = length(attr))
+  if(is.null(species) && !is.null(attr)) species = rep("ALL", times = length(attr))
   if(!is.null(select_species)) all_species = FALSE
+  
+  #Check validity of vectors
+  if(!valid_vectors(attr, dbh, ht, species)) return(min_attr_)
   
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
@@ -1639,16 +1783,16 @@ max_attr = function(attr = NULL,
 {
   
   max_attr_ = 0
-  
-  #if attr is NULL, return 0 value. Maximum value cannot be calculated.
-  if(is.null(attr)) return(max_attr_)
-  
-  #Check optional vectors.
-  if(is.null(dbh)) dbh = 0
-  if(is.null(ht)) ht = 0
-  if(is.null(species)) species = 'ALL'
   all_species = TRUE
+
+  #Check optional vectors.
+  if(is.null(dbh) && !is.null(attr)) dbh = rep(0, times = length(attr))
+  if(is.null(ht) && !is.null(attr)) ht = rep(0, times = length(attr))
+  if(is.null(species) && !is.null(attr)) species = rep("ALL", times = length(attr))
   if(!is.null(select_species)) all_species = FALSE
+  
+  #Check validity of vectors
+  if(!valid_vectors(attr, dbh, ht, species)) return(max_attr_)
   
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
@@ -1730,16 +1874,16 @@ sd_attr = function(attr = NULL,
 {
   
   sd_attr_ = 0
-  
-  #if attr is NULL, return 0 value. Maximum value cannot be calculated.
-  if(is.null(attr)) return(sd_attr_)
+  all_species = TRUE
   
   #Check optional vectors.
-  if(is.null(dbh)) dbh = 0
-  if(is.null(ht)) ht = 0
-  if(is.null(species)) species = 'ALL'
-  all_species = TRUE
+  if(is.null(dbh) && !is.null(attr)) dbh = rep(0, times = length(attr))
+  if(is.null(ht) && !is.null(attr)) ht = rep(0, times = length(attr))
+  if(is.null(species) && !is.null(attr)) species = rep("ALL", times = length(attr))
   if(!is.null(select_species)) all_species = FALSE
+  
+  #Check validity of vectors
+  if(!valid_vectors(attr, dbh, ht, species)) return(sd_attr_)
   
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
@@ -1828,22 +1972,22 @@ quant_attr = function(attr = NULL,
 {
   
   quant_attr_ = 0
+  all_species = TRUE
   
-  #if attr is NULL, return 0 value. Maximum value cannot be calculated.
-  if(is.null(attr)) return(quant_attr_)
+  #Check optional vectors.
+  if(is.null(dbh) && !is.null(attr)) dbh = rep(0, times = length(attr))
+  if(is.null(ht) && !is.null(attr)) ht = rep(0, times = length(attr))
+  if(is.null(species) && !is.null(attr)) species = rep("ALL", times = length(attr))
+  if(!is.null(select_species)) all_species = FALSE
+  
+  #Check validity of vectors
+  if(!valid_vectors(attr, dbh, ht, species)) return(quant_attr_)
   
   #Store first value of prob in case multiple were entered
   prob_ = prob[1]
   
   #Handle bad prob value
   if(is.null(prob_) || is.na(prob_) || (prob_ < 0 || prob_ > 1)) prob_ = 0.5
-  
-  #Check optional vectors.
-  if(is.null(dbh)) dbh = 0
-  if(is.null(ht)) ht = 0
-  if(is.null(species)) species = 'ALL'
-  all_species = TRUE
-  if(!is.null(select_species)) all_species = FALSE
   
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
@@ -1925,13 +2069,16 @@ count_attr = function(attr = NULL,
 {
   
   count_ = 0
+  all_species = TRUE
   
   #Check optional vectors.
-  if(is.null(dbh)) dbh = 0
-  if(is.null(ht)) ht = 0
-  if(is.null(species)) species = 'ALL'
-  all_species = TRUE
+  if(is.null(dbh) && !is.null(attr)) dbh = rep(0, times = length(attr))
+  if(is.null(ht) && !is.null(attr)) ht = rep(0, times = length(attr))
+  if(is.null(species) && !is.null(attr)) species = rep("ALL", times = length(attr))
   if(!is.null(select_species)) all_species = FALSE
+  
+  #Check validity of vectors
+  if(!valid_vectors(attr, dbh, ht, species)) return(count_)
   
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
