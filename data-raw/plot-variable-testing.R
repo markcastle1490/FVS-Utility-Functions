@@ -39,7 +39,7 @@ dbDisconnect(con)
 sp_group = c('DF', 'GF', 'AF')
 
 #Testing sequence for plot variables using dplyr
-fvs_sum = tree %>%
+system.time(tree %>%
   group_by(CaseID, StandID, Year) %>%
   #mutate(TREEBA = DBH^2 * TPA * fvsUtil:::for_constant) %>%
   summarize(BA_ = ba(dbh = DBH, expf = TPA),
@@ -110,7 +110,7 @@ fvs_sum = tree %>%
             CCSP = cc(dbh = DBH, crwidth = CrWidth, expf = TPA, species = SpeciesFVS, select_species = sp_group),
             AVGHTSP = mean_attr(dbh = DBH, attr = Ht, weight = TPA, species = SpeciesFVS, select_species = sp_group),
             RDIA_ = gmd(dbh = DBH, expf = TPA)) %>%
-  arrange(CaseID, Year)
+  arrange(CaseID, Year))
 fvs_sum = as.data.frame(fvs_sum)
 gc()
 

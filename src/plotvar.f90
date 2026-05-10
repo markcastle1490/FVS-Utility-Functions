@@ -30,8 +30,8 @@ do i = 1, ntree, 1
     species_ = species(i)
 
     !Determine if tree should be skipped in calculation
-    if(dbh_ < dbhmin .or. dbh_ > dbhmax) cycle
-    if(ht_ < htmin .or. ht_ > htmax) cycle
+    if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
+    if(ht_ < htmin .or. ht_ >= htmax) cycle
     if(all_species /= 0 .and. .not. any(species_ == select_species)) cycle
 
     ba_ = ba_ + (dbh_**2 * expf_ * f_con)
@@ -71,8 +71,8 @@ do i = 1, ntree, 1
     species_ = species(i)
 
     !Determine if tree should be skipped in calculation
-    if(dbh_ < dbhmin .or. dbh_ > dbhmax) cycle
-    if(ht_ < htmin .or. ht_ > htmax) cycle
+    if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
+    if(ht_ < htmin .or. ht_ >= htmax) cycle
     if(all_species /= 0 .and. .not. any(species_ == select_species)) cycle
 
     tpa_ = tpa_ + expf_
@@ -115,8 +115,8 @@ do i = 1, ntree, 1
     species_ = species(i)
 
     !Determine if tree should be skipped in calculation
-    if(dbh_ < dbhmin .or. dbh_ > dbhmax) cycle
-    if(ht_ < htmin .or. ht_ > htmax) cycle
+    if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
+    if(ht_ < htmin .or. ht_ >= htmax) cycle
     if(all_species /= 0 .and. .not. any(species_ == select_species)) cycle
 
     dbhsq = dbhsq + dbh_**2 * expf_
@@ -164,8 +164,8 @@ do i = 1, ntree, 1
     species_ = species(i)
 
     !Determine if tree should be skipped in calculation
-    if(dbh_ < dbhmin .or. dbh_ > dbhmax) cycle
-    if(ht_ < htmin .or. ht_ > htmax) cycle
+    if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
+    if(ht_ < htmin .or. ht_ >= htmax) cycle
     if(all_species /= 0 .and. .not. any(species_ == select_species)) cycle
 
     gmd_sum = gmd_sum + dbh_**r_slope * expf_
@@ -196,20 +196,13 @@ real, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
 integer, intent(in) :: species(ntree), select_species(nsp)
 real, intent(in) :: dbhmin, dbhmax, htmin, htmax
 real, intent(out) :: lorey_dia_
-real :: dbh_, expf_, ht_, species_, tpa_, dbh_sum, ba_, treeba(ntree)
-real :: ba_tree
+real :: dbh_, expf_, ht_, species_, tpa_, dbh_sum, ba_, ba_tree
 integer :: i
 
 !intialize tvariables
 tpa_ = 0.0
 dbh_sum = 0.0
 lorey_dia_ = 0.0
-treeba = 0.0
-
-!Calculate treeba
-do i = 1, ntree, 1
-    treeba(i) = dbh(i)**2 * expf(i) * f_con
-end do
 
 !Determine trees to include in Lorey dia calculation
 do i = 1, ntree, 1
@@ -218,11 +211,11 @@ do i = 1, ntree, 1
     expf_ = expf(i)
     ht_ = ht(i)
     species_ = species(i)
-    ba_tree = treeba(i)
+    ba_tree = dbh_**2 * expf_ * f_con
 
     !Determine if tree should be skipped in calculation
-    if(dbh_ < dbhmin .or. dbh_ > dbhmax) cycle
-    if(ht_ < htmin .or. ht_ > htmax) cycle
+    if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
+    if(ht_ < htmin .or. ht_ >= htmax) cycle
     if(all_species /= 0 .and. .not. any(species_ == select_species)) cycle
 
     dbh_sum = dbh_sum + dbh_* ba_tree
@@ -268,8 +261,8 @@ do i = 1, ntree, 1
     species_ = species(i)
 
     !Determine if tree should be skipped in calculation
-    if(dbh_ < dbhmin .or. dbh_ > dbhmax) cycle
-    if(ht_ < htmin .or. ht_ > htmax) cycle
+    if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
+    if(ht_ < htmin .or. ht_ >= htmax) cycle
     if(all_species /= 0 .and. .not. any(species_ == select_species)) cycle
 
     zsdi_ = zsdi_ + ((dbh_ / 10)**r_slope * expf_)
@@ -311,8 +304,8 @@ do i = 1, ntree, 1
     species_ = species(i)
 
     !Determine if tree should be skipped in calculation
-    if(dbh_ < dbhmin .or. dbh_ > dbhmax) cycle
-    if(ht_ < htmin .or. ht_ > htmax) cycle
+    if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
+    if(ht_ < htmin .or. ht_ >= htmax) cycle
     if(all_species /= 0 .and. .not. any(species_ == select_species)) cycle
 
     cc_ = cc_ + ((crwidth_/2)**2 * (expf_/43560) * pi * 100)
@@ -362,22 +355,26 @@ real, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
 integer, intent(in) :: species(ntree), select_species(nsp)
 real, intent(in) :: dbhmin, dbhmax, htmin, htmax
 real, intent(out) :: rsdi_
-real :: dbh_, expf_, ht_, species_, tpa, dbhsq
+real :: dbh_, expf_, ht_, species_, tpa_, dbhsq, a, b
 integer :: i
 
 !intialize variables
 rsdi_ = 0.0
-tpa = 0.0
+tpa_ = 0.0
 dbhsq = 0.0
 
 !Calculate tpa, dbhsq, and qmd for all trees
 do i = 1, ntree, 1
-    tpa = tpa + expf(i)
+    tpa_ = tpa_ + expf(i)
     dbhsq = dbhsq + dbh(i)**2 * expf(i)
 end do
 
-!Do RSDI calculation if tpa > 0
-if(tpa > 0 ) then
+!Do RSDI calculation if tpa_ > 0
+if(tpa_ > 0 ) then
+
+    !Initialize a and b parameters
+    a = 10**(-r_slope) * (1 - (r_slope/2)) * (dbhsq/tpa_)**(r_slope/2)
+    b = 10**(-r_slope) * (r_slope/2) * (dbhsq/tpa_)**(r_slope/2 - 1)
 
     !Determine trees to include in RSDI calculation
     do i = 1, ntree, 1
@@ -388,12 +385,129 @@ if(tpa > 0 ) then
         species_ = species(i)
 
         !Determine if tree should be skipped in calculation
-        if(dbh_ < dbhmin .or. dbh_ > dbhmax) cycle
-        if(ht_ < htmin .or. ht_ > htmax) cycle
+        if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
+        if(ht_ < htmin .or. ht_ >= htmax) cycle
         if(all_species /= 0 .and. .not. any(species_ == select_species)) cycle
 
-        rsdi_ = zsdi_ + ((dbh_ / 10)**r_slope * expf_)
+        rsdi_ = rsdi_ + (a * expf_ + b * dbh_**2 * expf_)
     end do
 end if
 
-end subroutine rsdi
+end subroutine rsdi_stage
+
+!###############################################################################
+!This subroutine calculates Lorey height using input vectors containing DBH,
+!total tree height and expansion factors. This attribute can be calculated for
+!user defined size ranges and for select species.
+!###############################################################################
+
+subroutine lorey_ht(dbh, expf, ht, species, dbhmin, dbhmax, htmin, &
+htmax, all_species, select_species, ntree, nsp, lorey_ht_)
+use constants
+implicit none
+
+!Arguments
+integer, intent(in) :: ntree, nsp, all_species
+real, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
+integer, intent(in) :: species(ntree), select_species(nsp)
+real, intent(in) :: dbhmin, dbhmax, htmin, htmax
+real, intent(out) :: lorey_ht_
+real :: dbh_, expf_, ht_, species_, ba_, ba_tree, ba_sum
+integer :: i
+
+!Initialize variables
+lorey_ht_ = 0.0
+ba_ = 0.0
+ba_sum = 0.0
+
+!Determine trees to include in Lorey Height calculation
+do i = 1, ntree, 1
+
+    dbh_ = dbh(i)
+    expf_ = expf(i)
+    ht_ = ht(i)
+    species_ = species(i)
+    ba_tree = dbh_**2 * expf_ * f_con
+
+    !Determine if tree should be skipped in calculation
+    if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
+    if(ht_ < htmin .or. ht_ >= htmax) cycle
+    if(all_species /= 0 .and. .not. any(species_ == select_species)) cycle
+
+    ba_sum = ba_sum + ba_tree * ht_
+    ba_ = ba_ + ba_tree
+
+end do
+
+!Calculate lorey height if ba_ > 0
+if(ba_ > 0) lorey_ht_ = ba_sum / ba_
+
+end subroutine lorey_ht
+
+!###############################################################################
+!This subroutine calculates top height using input vectors containing DBH,
+!total tree height and expansion factors. This attribute can be calculated for
+!user defined size ranges and for select species.
+!###############################################################################
+
+subroutine top_ht(dbh, sorted_idx, expf, ht, top_tpa, top_per, ntree, top_ht_)
+implicit none
+
+!Arguments
+integer, intent(in) :: ntree, sorted_idx(ntree)
+real, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
+real, intent(inout) :: top_tpa, top_per
+real, intent(out) :: top_ht_
+real :: dbh_, expf_, ht_, tpa_, top, tpa_sum, ht_sum, tpa_dif
+integer :: i, idx
+
+!Initialize variables
+top_ht_ = 0.0
+tpa_ = 0.0
+tpa_sum = 0.0
+ht_sum = 0.0
+
+!Do checks on top_tpa and top_per
+if(top_tpa < 0.0) top_tpa = 40.0
+if(top_per < 0.0 .or. top_per > 100.0) top_per = 20.0
+
+!Calculate tpa of stand
+do i = 1, ntree, 1
+    tpa_ = tpa_ + expf(i)
+end do
+
+!Do top height calculation if tpa > 0
+if(tpa_ > 0) then
+
+    !Determine value of top
+    top = top_tpa
+    if(top >= tpa_) top = top_tpa
+    if(top_per > 0) top = tpa_ * (top_per/100)
+
+    !Determine trees to include in Top Height calculation
+    do i = 1, ntree, 1
+
+        idx = sorted_idx(i)
+        dbh_ = dbh(idx)
+        expf_ = expf(idx)
+        ht_ = ht(idx)
+
+        tpa_sum = tpa_sum + expf_
+
+        if(tpa_sum < top) then 
+            ht_sum = ht_sum + ht_ * expf_
+
+        else
+            tpa_dif = tpa_sum - top
+            tpa_sum = tpa_sum - tpa_dif
+            ht_sum = ht_sum + ht_ * (expf_ - tpa_dif)
+            exit
+        endif
+
+    end do
+
+    !Calculate top height if tpa_sum > 0
+    if(tpa_sum > 0) top_ht_ = ht_sum / tpa_sum
+end if
+
+end subroutine top_ht
