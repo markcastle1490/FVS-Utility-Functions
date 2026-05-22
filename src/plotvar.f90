@@ -460,12 +460,15 @@ real, intent(inout) :: top_tpa, top_per
 real, intent(out) :: top_ht_
 real :: dbh_, expf_, ht_, tpa_, top, tpa_sum, ht_sum, tpa_dif
 integer :: i, idx
+logical :: top_exceed
 
 !Initialize variables
 top_ht_ = 0.0
 tpa_ = 0.0
 tpa_sum = 0.0
 ht_sum = 0.0
+tpa_dif = 0.0
+top_exceed = .false.
 
 !Do checks on top_tpa and top_per
 if(top_tpa < 0.0) top_tpa = 40.0
@@ -494,15 +497,17 @@ if(tpa_ > 0) then
 
         tpa_sum = tpa_sum + expf_
 
-        if(tpa_sum < top) then 
-            ht_sum = ht_sum + ht_ * expf_
-
-        else
+        if(tpa_sum >= top) then 
             tpa_dif = tpa_sum - top
             tpa_sum = tpa_sum - tpa_dif
-            ht_sum = ht_sum + ht_ * (expf_ - tpa_dif)
-            exit
+            top_exceed = .true.
         endif
+
+        !Update ht_sum
+        ht_sum = ht_sum + ht_ * (expf_ - tpa_dif)
+
+        !Exit if top has been exceeded
+        if(top_exceed) exit
 
     end do
 
@@ -511,3 +516,96 @@ if(tpa_ > 0) then
 end if
 
 end subroutine top_ht
+
+!###############################################################################
+!This function is used to calculate QMD, GMD (reinekes diameter) or average 
+!diameter weighted by TPA for the largest trees by DBH within a specified 
+!percentage of TPA or an explicit TPA value. This value is calculated from a set
+!of input vectors containing DBH values and expansion factors.
+!###############################################################################
+
+subroutine top_dia(dbh, sorted_idx, expf, top_tpa, top_per, ntree, dia_type, &
+top_dia_)
+use constants
+implicit none
+
+!Arguments
+integer, intent(in) :: ntree, sorted_idx(ntree), dia_type
+real, intent(in) :: dbh(ntree), expf(ntree)
+real, intent(inout) :: top_tpa, top_per
+real, intent(out) :: top_dia_
+real :: dbh_, expf_, ht_, tpa_, top, tpa_sum, dbh_sum, tpa_dif
+integer :: i, idx
+logical :: top_exceed
+
+!Initialize variables
+top_dia_ = 0.0
+tpa_ = 0.0
+tpa_sum = 0.0
+dbh_sum = 0.0
+tpa_dif = 0.0
+top_exceed = .false.
+
+!Do checks on top_tpa and top_per
+if(top_tpa < 0.0) top_tpa = 40.0
+if(top_per < 0.0 .or. top_per > 100.0) top_per = 20.0
+
+!Calculate TPA for stand
+do i = 1, ntree, 1
+    tpa_ = tpa_ + expf(i)
+end do
+
+!Do top diameter calculation if tpa_ > 0
+if(tpa_ > 0.0) then
+
+    !Determine value of top
+    top = top_tpa
+    if(top >= tpa_) top = top_tpa
+    if(top_per > 0) top = tpa_ * (top_per/100)
+
+    !Determine trees to included in top diameter
+    do i = 1, ntree, 1
+
+        idx = sorted_idx(i)
+        dbh_ = dbh(i)
+        expf_ = expf(i)
+        
+        !Update tpa_sum
+        tpa_sum = tpa_sum + expf_
+
+        !Determine if top is exceeded
+        if(tpa_sum >= top) then
+            tpa_dif = tpa_sum - top
+            tpa_sum = tpa_sum - tpa_dif
+            top_exceed = .true. 
+        end if
+
+        !Update dbh_sum based on dia_type
+        select case (dia_type)
+        case(1)
+            dbh_sum = dbh_sum + dbh_**2 * (expf_ - tpa_dif)
+        case(2)
+            dbh_sum = dbh_sum + dbh_ * (expf_ - tpa_dif)
+        case default 
+            dbh_sum = dbh_sum + dbh_**r_slope * (expf_ - tpa_dif)
+        end select
+
+        !Break if top value has been exceeded
+        if(top_exceed) exit
+
+    end do
+end if
+
+!Calculate top diameter if tpa_sum > 0
+if(tpa_sum > 0.0) then
+    select case(dia_type)
+    case(1)
+        top_dia_ = sqrt(dbh_sum / tpa_sum)
+    case(2)
+        top_dia_ = dbh_sum / tpa_sum
+    case(3)
+        top_dia_ = (dbh_sum / tpa_sum)**(1 / r_slope)
+    end select
+end if
+
+end subroutine top_dia
