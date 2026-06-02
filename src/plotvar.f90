@@ -609,3 +609,62 @@ if(tpa_sum > 0.0) then
 end if
 
 end subroutine top_dia
+
+!###############################################################################
+!This subroutine calculates basal area in trees larger than subject tree using 
+!input vectors containing DBH and expansion factors. 
+!###############################################################################
+
+subroutine bal(dbh, sorted_idx, expf, ntree, handle_ties, bal_arr)
+use constants
+implicit none 
+
+integer, intent(in) :: ntree, sorted_idx(ntree), handle_ties
+real, intent(in) :: dbh(ntree), expf(ntree)
+real, intent(out) :: bal_arr(ntree)
+real :: temp_dbh, temp_bal, bal_sum, ba_tree
+integer :: idx
+
+!Initialize variables
+bal_arr = 0.0
+bal_sum  = 0.0
+temp_bal = 0.0
+temp_dbh_ = 10000.0
+
+!Begin loop across trees
+do i = 1, ntree, 1
+    idx = sorted_idx(i)
+    dbh_ = dbh(idx)
+    expf_ = expf(idx)
+    ba_tree = dbh_**2 * expf_ * f_con
+
+    !Update BAL based on value of handle_ties
+    select case(handle_ties)
+
+    !Deal with ties in DBH values
+    case(1)
+        !DBH values are not equal
+        if(dbh_ < temp_dbh) then
+            bal_arr(i) = bal_sum
+            temp_dbh = dbh_
+            temp_bal = bal_sum
+            bal_sum = bal_sum + ba_tree
+        
+        !DBH values are equal, so use temp_bal for bal. Update bal_sum 
+        !as this will be used for bal for the next tree with smaller DBH.
+        else
+            bal_arr(i) = temp_bal
+            bal_sum = bal_sum + ba_tree     
+        end if     
+    
+    !Do not deal with ties in DBH values
+    case default
+        bal_arr(i) = bal_sum
+        bal_sum = bal_sum + ba_tree
+    end select
+end do    
+
+end subroutine bal
+
+
+

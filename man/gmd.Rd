@@ -50,10 +50,10 @@ NULL, attribute will be calculated using observations from across all
 species.}
 }
 \value{
-Numeric Reineke diameter value
+Numeric GMD value
 }
 \description{
-This function calculates generalized mean dimaeter (Reineke diameter) given
+This function calculates generalized mean diameter (Reineke diameter) given
 vectors containing DBH and expansion factors. This attribute can be
 calculated for user defined size ranges and for select species.
 }
