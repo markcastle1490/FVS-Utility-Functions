@@ -23,10 +23,16 @@ fvs_keyfile(
   delotab = c(1, 2),
   create_batch = FALSE,
   unique_dbout = FALSE,
-  stands_per_batch = 10000
+  nstands = 10000,
+  nbatches = NULL
 )
 }
 \arguments{
+\item{nbatches}{Numeric value corresponding to number of batches to create when create_batch
+argument is TRUE. The value in this argument will override the value in
+nstands when it is not NULL. This value will be ignored if create_batch is
+FALSE.}
+
 \item{keyfile:}{Character string corresponding to directory path and file name of keyword file
 being created.}
 
@@ -96,16 +102,16 @@ be suppressed in the output keyword file.}
 
 \item{create_batch:}{Logical value where if TRUE, a batch of keywords is created instead of a
 single keyword file. The number of stands included in a keyword file within a
-batch is determined by the stands_per_batch argument. The name of the keyword
+batch is determined by the nstands argument. The name of the keyword
 file in a batch will be keyword file name appended to _BATCHX.key where X is
 the number corresponding to the keyword batch (e.g. _BATCH2 would correspond
-to second keyword file in batch).}
+to keyword file containing the second batch of stands).}
 
 \item{unique_dbout:}{Logical value where if TRUE, a unique output database will be specified for
 the keyword file within the batch. This argument will only have an effect when
 value in dbout argument is not NULL and create_batch is TRUE.}
 
-\item{stands_per_batch:}{Numeric value corresponding to number of stands to include in a keyword file
+\item{nstands:}{Numeric value corresponding to number of stands to include in a keyword file
 when create_batch argument is TRUE. This value will be ignored if create_batch
 is FALSE.}
 }

@@ -10,10 +10,14 @@ time_keys(
   end_year = NULL,
   cycle_length = NULL,
   cycle_at = NULL,
+  max_cycles = 40,
   debug = F
 )
 }
 \arguments{
+\item{max_cycles}{Numeric value corresponding to the maximum number of cycles that can be
+accommodated in FVS simulation.}
+
 \item{invyear:}{Inventory year of stand.}
 
 \item{cycle_length:}{Default cycle length assumed for simulation.}

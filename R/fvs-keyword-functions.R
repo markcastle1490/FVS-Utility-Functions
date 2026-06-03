@@ -91,20 +91,26 @@
 #'@param create_batch:
 #'Logical value where if TRUE, a batch of keywords is created instead of a
 #'single keyword file. The number of stands included in a keyword file within a
-#'batch is determined by the stands_per_batch argument. The name of the keyword 
+#'batch is determined by the nstands argument. The name of the keyword 
 #'file in a batch will be keyword file name appended to _BATCHX.key where X is
 #'the number corresponding to the keyword batch (e.g. _BATCH2 would correspond 
-#'to second keyword file in batch).
+#'to keyword file containing the second batch of stands).
 #'
 #'@param unique_dbout:
 #'Logical value where if TRUE, a unique output database will be specified for
 #'the keyword file within the batch. This argument will only have an effect when
 #'value in dbout argument is not NULL and create_batch is TRUE.
 #'
-#'@param stands_per_batch:
+#'@param nstands:
 #'Numeric value corresponding to number of stands to include in a keyword file
 #'when create_batch argument is TRUE. This value will be ignored if create_batch
 #'is FALSE.
+#' 
+#'@param nbatches 
+#'Numeric value corresponding to number of batches to create when create_batch
+#'argument is TRUE. The value in this argument will override the value in 
+#'nstands when it is not NULL. This value will be ignored if create_batch is 
+#'FALSE.
 #
 #'@return
 #'None
@@ -129,7 +135,8 @@ fvs_keyfile <- function(keyfile,
                         delotab = c(1, 2),
                         create_batch = FALSE,
                         unique_dbout = FALSE,
-                        stands_per_batch = 10000)
+                        nstands = 10000,
+                        nbatches = NULL)
 {
 
   #Switch \\\\ to / in keyfile
@@ -194,14 +201,22 @@ fvs_keyfile <- function(keyfile,
       stop("stand_keys argument must be a character vector.")
   }
   
-  #Capture bad stands_per_batch values
-  if(is.na(stands_per_batch) || stands_per_batch <= 0) stands_per_batch = 10000
-  
+  #Capture bad nstands values
+  if(is.na(nstands) || nstands <= 0) nstands = 10000
+
+  #Process nbatches if not null.
+  if(!is.null(nbatches))
+  {
+    #Set nbatches = 1 if value is less than or equal to 0 or NA.
+    if(is.na(nbatches) || nbatches <= 0) nbatches = 1
+    nstands = ceiling(max(length(standid) / nbatches, 1))
+  }
+
   #Create list of vectors containing number of stands to process in each batch.
   #If create_batch is FALSE, only one batch and keyword file is made.
-  if(!create_batch) stands_per_batch = length(standid)
+  if(!create_batch) nstands = length(standid)
   batch_list =  split(1:length(standid), 
-                      ceiling(seq_along(1:length(standid)) / stands_per_batch))
+                      ceiling(seq_along(1:length(standid)) / nstands))
   
   #Initialize stand_count
   stand_count = 1
@@ -615,6 +630,10 @@ fvs_keyword <- function(params = list(),
 #'Vector of years corresponding to additional reporting years that don't 
 #'coincide with default reporting years determined by start_year, end_year, and 
 #'cycle_length.
+#' 
+#'@param max_cycles
+#'Numeric value corresponding to the maximum number of cycles that can be
+#'accommodated in FVS simulation. 
 #
 #'@param debug:      
 #'Logical variable where if TRUE, debug output will be printed in console.
@@ -631,6 +650,7 @@ time_keys <- function(invyear = NULL,
                       end_year = NULL,
                       cycle_length = NULL,
                       cycle_at = NULL,
+                      max_cycles = 40,
                       debug = F)
 {
   time_keys_ <- ""
@@ -655,14 +675,17 @@ time_keys <- function(invyear = NULL,
   
   #Determine initial number of cycles from inventory year to end year based
   #on a uniform cycle length.
-  numCycles <- ceiling((end_year - invyear)/cycle_length)
+  num_cycles <- ceiling((end_year - invyear)/cycle_length)
+
+  #Catch bad max cycles values
+  if(is.na(max_cycles) || max_cycles <= 0) max_cycles <- 40
   
   #Declare years vector. This vector will initially contain the inventory year,
   #start year, end year and all other cycle years based on a common cycle
   #length. Length of this initial vector will always be one more than value of
-  #numCycles determined above.
+  #num_cycles determined above.
   years <- vector(mode = "numeric",
-                  length = numCycles + 1)
+                  length = num_cycles + 1)
   
   #Initialize current_year and past_start. Set value of year[1] to inventory year.
   current_year <- invyear
@@ -698,11 +721,8 @@ time_keys <- function(invyear = NULL,
     
     #If we have gone past the end_year after incrementing by cycle_length, set
     #next_year to the end_year.
-    if(next_year >= end_year)
-    {
-      next_year <- end_year
-    }
-    
+    if(next_year >= end_year) next_year <- end_year
+
     #Store next_year in years variable
     years[i] <- next_year
     
@@ -711,11 +731,7 @@ time_keys <- function(invyear = NULL,
   }
   
   #if cycle_at has values, add them to years and then sort years.
-  if(length(cycle_at) > 0) 
-  {
-    years <- c(years, cycle_at)
-    years <- sort(years)
-  }
+  if(length(cycle_at) > 0) years <- sort(c(years, cycle_at))
   
   #Years will now contain all cycle years to potentially consider in the
   #simulation.
@@ -764,8 +780,8 @@ time_keys <- function(invyear = NULL,
     #Calculate difference between years
     dif <- (year2 - year1) %% cycle_length
     
-    #If 40 cycles has been exceeded break out of loop
-    if(cycle_num >= 40) break
+    #If max_cycles cycles has been exceeded break out of loop
+    if(cycle_num >= max_cycles) break
     else cycle_num <- cycle_num + 1
     
     #If dif != 0 then add another timeInt keyword to time_keys_
