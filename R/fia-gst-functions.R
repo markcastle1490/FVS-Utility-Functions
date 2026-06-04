@@ -50,7 +50,7 @@ fia_gst <- function(db_in = NA,
   con <- RSQLite::dbConnect(RSQLite::SQLite(),
                             db_in)
 
-  #Add on exit statement to disconnect database
+  #Add on exit statement to disconnect database in case of error
 
   #Query all tables except SITREE
   fia_tree <- RSQLite::dbGetQuery(con,
@@ -70,6 +70,26 @@ fia_gst <- function(db_in = NA,
 
   #Calculate site index for each FIA plot (not subplot or condition) by species
   #For now, average of site index observations is taken for each species.
+  fia_site_sum <- fia_site |>
+    #Drop duplicate site trees that occur by condition
+    dplyr::filter(!duplicated(paste(fia_site$STATECD,
+                                    fia_site$INVYR,
+                                    fia_site$UNITCD,
+                                    fia_site$COUNTYCD,
+                                    fia_site$PLOT,
+                                    fia_site$SUBP,
+                                    fia_site$TREE,
+                                    sep = "_"))) |>
+    #Group by unique plot and species to calculate mean SI and SIBASE
+    dplyr::group_by(STATECD,
+                    INVYR,
+                    UNITCD,
+                    COUNTYCD,
+                    PLOT,
+                    SPCD) |>
+    dplyr::summarize(SI = round(mean(SITREE[VALIDCD == 1], na.rm = T),0),
+                     SIBASE = round(mean(SIBASE[VALIDCD == 1], na.rm = T),0)) |>
+    dplyr::ungroup()
 
   #Drop duplicate site trees that occur by condition
   fia_site <- fia_site[!duplicated(paste(fia_site$STATECD,
@@ -135,40 +155,6 @@ fia_gst <- function(db_in = NA,
                                  fia_tree$SUBP,
                                  fia_tree$TREE,
                                  sep = "_"))
-
-  # #DATAPROVIDER
-  # fia_tree$DATAPROVIDER <- "FIA"
-  #
-  # #MEASYEAR0 - HERE IS WHERE MEASYEAR WILL BE USED INSTEAD OF INVYR
-  # #names(fia_tree)[names(fia_tree) == "MEASYEAR"] <- "MEASYEAR0"
-  # #fia_tree <- fia_tree[!is.na(fia_tree$MEASYEAR0),]
-  #
-  # #UNIQUEPLOTID - (FIA plot)
-  # fia_tree$UNIQUEPLOTID <- paste(fia_tree$STATECD,
-  #                               fia_tree$INVYR,
-  #                               fia_tree$UNITCD,
-  #                               fia_tree$COUNTYCD,
-  #                               fia_tree$PLOT,
-  #                               sep = "_")
-  #
-  # #UNIQUESUBPID - (FIA subplot)
-  # fia_tree$UNIQUESUBPID <- paste(fia_tree$STATECD,
-  #                               fia_tree$INVYR,
-  #                               fia_tree$UNITCD,
-  #                               fia_tree$COUNTYCD,
-  #                               fia_tree$PLOT,
-  #                               fia_tree$SUBP,
-  #                               sep = "_")
-  #
-  # #UNIQUETREEID
-  # fia_tree$UNIQUETREEID <- paste(fia_tree$STATECD,
-  #                               fia_tree$INVYR,
-  #                               fia_tree$UNITCD,
-  #                               fia_tree$COUNTYCD,
-  #                               fia_tree$PLOT,
-  #                               fia_tree$SUBP,
-  #                               fia_tree$TREE,
-  #                               sep = "_")
 
   #=============================================================================
   #Create time one tree attributes variables before merge_inv and drop
@@ -245,9 +231,6 @@ fia_gst <- function(db_in = NA,
   #to merge_inv function
   #Deprecate get_gpvars function and just explicitly list variables
   growPeriodVars <- get_gpvars()
-  cat("Variables to consider in merge_inv function:",
-      growPeriodVars,
-      "\n")
   fia_meas <- fia_tree[, c(growPeriodVars)]
 
   #Obtain variables not in fia_meas except for UNIQUETREEID and UNIQUESUBPID.
@@ -386,7 +369,6 @@ fia_gst <- function(db_in = NA,
 
   #=============================================================================
   #Rename and reorder column headings and then check if any columns are missing.
-  #If columns are missing, then execution is halted with an error message.
   #=============================================================================
 
   #Capitalize all column headers
@@ -403,7 +385,7 @@ fia_gst <- function(db_in = NA,
   }
 
   #=============================================================================
-  #Write dataframe to output database.
+  #Write GST dataframe to output database
   #=============================================================================
 
   #Get columns defined in GST
