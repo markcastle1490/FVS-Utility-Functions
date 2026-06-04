@@ -205,7 +205,7 @@ placeholder_id <- function(ids = NULL)
 db_get_indices <- function(con)
 {
   #Initialize character vector of length zero
-  indexNames <- vector(mode = "character")
+  index_names <- vector(mode = "character")
   
   #Get type and name column
   tables = RSQLite::dbGetQuery(con, "select * from sqlite_master")[,1:2]
@@ -216,15 +216,132 @@ db_get_indices <- function(con)
   #If there are indexes in tables, retrieve them
   if(nrow(tables) > 0)
   {
-    indexNames <- tables$name
+    index_names <- tables$name
   }
   
-  #If there are no indexes in tables, set indexNames to "No index names found in
+  #If there are no indexes in tables, set index_names to "No index names found in
   #database"
-  if(length(indexNames) <= 0)
+  if(length(index_names) <= 0)
   {
-    indexNames <- "No index names found in database"
+    index_names <- "No index names found in database"
   }
   
-  return(indexNames)
+  return(index_names)
+}
+
+################################################################################
+#add_plotq_id
+#
+#Description
+#
+#This function is used to insert a temporary plot ID variable into specified
+#database tables of an FIA sqlite database. This idea is then used to query data
+#in the buildFIA function. This function could be expanded to encompass other
+#data sources.
+#
+#Source Code
+#
+#Function add_plotq_id is currently located in the FIA_GST_Functions.R file.
+#
+#Arguments
+#
+#dbIn:     	Directory path and file name to FIA sqlite database (.db, .sqlite).
+#
+#db_tables: 	Character vector of database table names in dbIn where PLOTQUERYID
+#           variable will be created.
+#
+#Value
+#
+#Integer value of 0 returned invisibly.
+################################################################################
+
+add_plotq_id <- function(dbIn,
+                       db_tables= c("TREE",
+                                   "PLOT",
+                                   "SUBPLOT",
+                                   "COND",
+                                   "SITETREE"))
+{
+  #Connect to database dbIn
+  con <- RSQLite::dbConnect(RSQLite::SQLite(),
+                            dbIn)
+  
+  #Start loop across db_tables
+  for(table in db_tables)
+  {
+    
+    #Check if TEMP_PLOT is in table
+    if(! "PLOTQUERYID" %in% RSQLite::dbListFields(con,
+                                                  table))
+    {
+      #Create PLOTQUERYID column
+      RSQLite::dbExecute(con,
+                         create_field_query(db_table = table,
+                                          dbField = "PLOTQUERYID"))
+      cat("PLOTQUERYID created in", table, "\n")
+      
+      #Set values
+      RSQLite::dbExecute(con,
+                         set_plotq_id(db_table = table))
+      cat("Values set in PLOTQUERYID column.", "\n")
+      
+      #Remove index if it already exists
+      index_name <- paste(table, "PLOTQUERYID", sep = "_")
+      RSQLite::dbExecute(con,
+                         drop_index_query(index = index_name))
+      
+      #Create index
+      RSQLite::dbExecute(con,
+                         set_index_query(db_table = table,
+                                       dbField = "PLOTQUERYID"))
+      cat("Index created in", table, "on PLOTQUERYID", "\n", "\n")
+    }
+    
+    else
+    {
+      cat("PLOTQUERYID already exists in", table, "\n", "\n")
+    }
+  }
+  
+  #Disconnect from database dbIn
+  RSQLite::dbDisconnect(con)
+  
+  invisible(0)
+}
+
+################################################################################
+#Function: set_plotq_id
+#
+#Description
+#
+#This function takes in a FIA database table name and creates a query used to
+#add values to a PLOTQUERYID column based on STATECD, UNITCD, COUNTYCD, and PLOT
+#code. This function is called from add_plotq_id. Logic in function could be
+#expanded to account for other data sources.
+#
+#Source Code
+#
+#Function set_plotq_id is currently located in the GST_Prep_Functions.R file.
+#
+#Arguments
+#
+#db_table:  	Character string corresponding to name of database table.
+#
+#Value
+#
+#Character string of query used to add PLOTQUERYID values to PLOTQUERYID column
+#in specified database table.
+################################################################################
+
+set_plotq_id <- function(db_table = "TREE")
+{
+  query <- paste("UPDATE",
+                 db_table,
+                 "SET PLOTQUERYID =",
+                 "STATECD || '_' ||",
+                 "UNITCD || '_' ||",
+                 "COUNTYCD || '_' ||",
+                 "PLOT")
+  
+  return(query)
 }
