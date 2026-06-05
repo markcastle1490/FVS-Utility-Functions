@@ -35,35 +35,33 @@ fia_gst <- function(db_in = NA,
 {
 
   #=============================================================================
-  #Get data from the input FIA database.
-  #More tables could be included here as necessary. Probably would be best to
-  #process all data at once for state. Thinking we will only want to grab all
-  #data from annual inventory and periodic for AK.
-  #
-  #Have query for TREE, PLOT, COND, SUBPLOT, REF_SPECIES
-  #Then query SITETREE
-  #Query for database should be stored and used. use of db_select_query function
-  #can be deprecated.
+  #Step 1
+  #Query for TREE, PLOT, COND, SUBPLOT, REF_SPECIES
+  #Query SITETREE
   #=============================================================================
 
   #Connect to db_in
   con <- RSQLite::dbConnect(RSQLite::SQLite(),
                             db_in)
 
-  #Add on exit statement to disconnect database in case of error
+  #add on exit statement to disconnect database in case of error
+  on.exit(
+    expr = try(if(RSQLite::dbIsValid(con)) RSQLite::dbDisconnect(con),
+    silent = TRUE))
 
   #Query all tables except SITREE
   fia_tree <- RSQLite::dbGetQuery(con,
-                                 db_query)
+                                  fia_query)
 
   #Query SITREE
   fia_site <- RSQLite::dbGetQuery(con,
-                                 db_query)
+                                  fia_si_query)
 
   #Disconnect from db_in
   RSQLite::dbDisconnect(con)
 
   #=============================================================================
+  #Step 2
   #Summarize site index by plot and then join to fia_tree. Not quite sure how
   #to best handle site index in fitting dataset yet.
   #=============================================================================
@@ -72,13 +70,13 @@ fia_gst <- function(db_in = NA,
   #For now, average of site index observations is taken for each species.
   fia_site_sum <- fia_site |>
     #Drop duplicate site trees that occur by condition
-    dplyr::filter(!duplicated(paste(fia_site$STATECD,
-                                    fia_site$INVYR,
-                                    fia_site$UNITCD,
-                                    fia_site$COUNTYCD,
-                                    fia_site$PLOT,
-                                    fia_site$SUBP,
-                                    fia_site$TREE,
+    dplyr::filter(!duplicated(paste(STATECD,
+                                    INVYR,
+                                    UNITCD,
+                                    COUNTYCD,
+                                    PLOT,
+                                    SUBP,
+                                    TREE,
                                     sep = "_"))) |>
     #Group by unique plot and species to calculate mean SI and SIBASE
     dplyr::group_by(STATECD,
@@ -91,123 +89,144 @@ fia_gst <- function(db_in = NA,
                      SIBASE = round(mean(SIBASE[VALIDCD == 1], na.rm = T),0)) |>
     dplyr::ungroup()
 
-  #Drop duplicate site trees that occur by condition
-  fia_site <- fia_site[!duplicated(paste(fia_site$STATECD,
-                                       fia_site$INVYR,
-                                       fia_site$UNITCD,
-                                       fia_site$COUNTYCD,
-                                       fia_site$PLOT,
-                                       fia_site$SUBP,
-                                       fia_site$TREE,
-                                       sep = "_")),]
-
-  fia_siteSum <- fia_site |>
-    dplyr::group_by(STATECD,
-                    INVYR,
-                    UNITCD,
-                    COUNTYCD,
-                    PLOT,
-                    SPCD) |>
-    dplyr::summarize(SI = round(mean(SITREE[VALIDCD == 1], na.rm = T),0),
-                     SIBASE = round(mean(SIBASE[VALIDCD == 1], na.rm = T),0))
-
-  #Merge site index and site index base age to fia_tree (use the dplyr way)
-  fia_tree <- merge(fia_tree,
-                   fia_siteSum,
-                   by = c("STATECD",
-                          "INVYR",
-                          "UNITCD",
-                          "COUNTYCD",
-                          "PLOT",
-                          "SPCD"),
-                   all.x = T)
+  #Join site index summary to fia_site_sum
+  fia_tree <- fia_tree |>
+    dplyr::left_join(y = fia_site_sum,
+                      by = c("STATECD",
+                             "INVYR",
+                             "UNITCD",
+                             "COUNTYCD",
+                             "PLOT",
+                             "SPCD"))
 
   #Cleanup
   rm(fia_site, fia_siteSum)
 
+  #Drop duplicate site trees that occur by condition
+  #fia_site <- fia_site[!duplicated(paste(fia_site$STATECD,
+  #                                     fia_site$INVYR,
+  #                                     fia_site$UNITCD,
+  #                                     fia_site$COUNTYCD,
+  #                                     fia_site$PLOT,
+  #                                     fia_site$SUBP,
+  #                                     fia_site$TREE,
+  #                                     sep = "_")),]
+
+  #fia_siteSum <- fia_site |>
+  #  dplyr::group_by(STATECD,
+  #                  INVYR,
+  #                  UNITCD,
+  #                  COUNTYCD,
+  #                  PLOT,
+  #                  SPCD) |>
+  #  dplyr::summarize(SI = round(mean(SITREE[VALIDCD == 1], na.rm = T),0),
+                     #SIBASE = round(mean(SIBASE[VALIDCD == 1], na.rm = T),0))
+
+  #Merge site index and site index base age to fia_tree (use the dplyr way)
+  #fia_tree <- merge(fia_tree,
+  #                 fia_siteSum,
+  #                 by = c("STATECD",
+  #                        "INVYR",
+  #                        "UNITCD",
+  #                        "COUNTYCD",
+  #                        "PLOT",
+  #                        "SPCD"),
+  #                 all.x = T)
+
   #=============================================================================
-  #Define set of GST variables prior to merge_inv function.
-  #Rename relevant variables in source data to align with variable names in
-  #GST_Variables.R
-  #Change this code to be in one tidyr block.
+  #Step 3
+  #Define set of GST variables prior to calling merge_inv function.
   #=============================================================================
 
   fia_tree <- fia_tree |>
-    mutate(DATAPROVIDER = 'FIA',
-           UNIQUEPLOTID = paste(fia_tree$STATECD,
-                                fia_tree$INVYR,
-                                fia_tree$UNITCD,
-                                fia_tree$COUNTYCD,
-                                fia_tree$PLOT,
+    dplyr::mutate(DATAPROVIDER = 'FIA',
+           #Unique plot ID
+           UNIQUEPLOTID = paste(STATECD,
+                                INVYR,
+                                UNITCD,
+                                COUNTYCD,
+                                PLOT,
                                 sep = "_"),
-           UNIQUESUBPID <- paste(fia_tree$STATECD,
-                                 fia_tree$INVYR,
-                                 fia_tree$UNITCD,
-                                 fia_tree$COUNTYCD,
-                                 fia_tree$PLOT,
-                                 fia_tree$SUBP,
-                                 sep = "_"),
-           UNIQUETREEID <- paste(fia_tree$STATECD,
-                                 fia_tree$INVYR,
-                                 fia_tree$UNITCD,
-                                 fia_tree$COUNTYCD,
-                                 fia_tree$PLOT,
-                                 fia_tree$SUBP,
-                                 fia_tree$TREE,
-                                 sep = "_"))
-
-  #=============================================================================
-  #Create time one tree attributes variables before merge_inv and drop
-  #invalid tree records.
-  #=============================================================================
+           #Unique subplot ID
+           UNIQUESUBPID = paste(STATECD,
+                                INVYR,
+                                UNITCD,
+                                COUNTYCD,
+                                PLOT,
+                                SUBP,
+                                sep = "_"),
+           #Unique tree ID
+           UNIQUETREEID = paste(STATECD,
+                                INVYR,
+                                UNITCD,
+                                COUNTYCD,
+                                PLOT,
+                                SUBP,
+                                TREE,
+                                sep = "_"),
+           #Create ID that will be used in merge_inv function
+           #Unique tree ID without INVYR
+           TREEMERGEID = paste(STATECD,
+                               UNITCD,
+                               COUNTYCD,
+                               PLOT,
+                               SUBP,
+                               TREE,
+                               sep = "_"),
+           #Broken top indicator
+           BT = dplyr::if_else(ACTUALHT < HT, 1, 0),
+           #Measured height value (only observations that were measured)
+           HT = mapply(fia_ht, HTCD, ACTUALHT, HT),
+           #Grab PREVIA if needed
+           DIA = dplyr::if_else(is.na(DIA) & STATUSCD == 2, PREVDIA, DIA),
+           #Fill in missing DIACHECK values
+           DIACHECK = dplyr::if_else(is.na(DIACHECK), 0, DIACHECK)) |>
+    #Drop ACTUALHT
+    dplyr::select(!ACTUALHT) |>
+    #Drop rows where MEASYEAR or CYCLE is NA
+    dplyr::filter(!is.na(MEASYEAR), !is.na(CYCLE))
 
   #Height determination
-  fia_tree$MEAS_HT <- mapply(fia_ht,
-                            fia_tree$HTCD,
-                            fia_tree$ACTUALHT,
-                            fia_tree$HT)
+  #fia_tree$MEAS_HT <- mapply(fia_ht,
+  #                          fia_tree$HTCD,
+  #                          fia_tree$ACTUALHT,
+  #                          fia_tree$HT)
 
   #BT - Broken top indicator
-  fia_tree$BT <- ifelse(fia_tree$ACTUALHT < fia_tree$HT, 1,0)
+  #fia_tree$BT <- ifelse(fia_tree$ACTUALHT < fia_tree$HT, 1,0)
 
   #If BT is NA assign 0
-  fia_tree$BT <- ifelse(is.na(fia_tree$BT), 0, fia_tree$BT)
+  #fia_tree$BT <- ifelse(is.na(fia_tree$BT), 0, fia_tree$BT)
 
   #Remove HT, HTCD, and ACTUALHT
-  fia_tree <- fia_tree[! colnames(fia_tree) %in% c("HTCD", "HT", "ACTUALHT")]
+  #fia_tree <- fia_tree[! colnames(fia_tree) %in% c("HTCD", "HT", "ACTUALHT")]
 
   #Rename MEAS_HT to HT
-  colnames(fia_tree)[names(fia_tree) == 'MEAS_HT'] <- "HT"
+  #colnames(fia_tree)[names(fia_tree) == 'MEAS_HT'] <- "HT"
 
   #Fill in missing DIA values with PREVDIA values for dead trees
   #Not sure if this is really needed but doing it for now.
-  fia_tree$DIA <- ifelse(is.na(fia_tree$DIA) & fia_tree$STATUSCD == 2,
-                        fia_tree$PREVDIA,
-                        fia_tree$DIA)
+  #fia_tree$DIA <- ifelse(is.na(fia_tree$DIA) & fia_tree$STATUSCD == 2,
+  #                      fia_tree$PREVDIA,
+  #                      fia_tree$DIA)
 
   #If DIACHECK is NA assume it is valid (0). NA DIACHECK values occur in
   #situations where this variable was not recorded in the field.
-  fia_tree$DIACHECK <- ifelse(is.na(fia_tree$DIACHECK), 0, fia_tree$DIACHECK)
+  #fia_tree$DIACHECK <- ifelse(is.na(fia_tree$DIACHECK), 0, fia_tree$DIACHECK)
+
+  #fia_tree <- fia_tree[!is.na(fia_tree$MEASYEAR) &
+  #                   !is.na(fia_tree$CYCLE),]
 
   #=============================================================================
-  #Drop trees that do not have measurement year or cycle number.
-  #=============================================================================
-
-  fia_tree <- fia_tree[!is.na(fia_tree$MEASYEAR) &
-                     !is.na(fia_tree$CYCLE),]
-
-  #Get trees greater than or equal to start_year and less than or equal to
-  #current system year.
-  sys_year <- as.integer(sub("-.*", "", Sys.Date()))
-  fia_tree <- fia_tree[fia_tree$MEASYEAR >= start_year &
-                       fia_tree$MEASYEAR <= sys_year, ]
-
-  #=============================================================================
-  #Separate data into the following dataframes
+  # Step 4
+  # 
+  # Align time 1 and time 2 variables together and then merge with other
+  # attributes using the merge_inv function.
   #
-  #fia_meas -  data that will be passed into merge_inv function
-  #fia_tree -  data that will be merged to fia_meas after merge_inv
-  #           function has completed processing.
+  # Split tree dataframe into two dataframes
+  # fia_merge - data that will be passed into merge_inv function
+  # fia_tree -  data that will be merged to fia_merge after merge_inv function has
+  #             completed processing.
   #=============================================================================
 
   #Create Merge ID for growth periods. This is essentially UNIQUETREEID but
@@ -219,43 +238,41 @@ fia_gst <- function(db_in = NA,
   # cat("MERGE IDs obtained.", "\n", "\n")
 
   #Create TREEMERGEID - UNIQUETREEID but without INVYR
-  fia_tree$TREEMERGEID <- paste(fia_tree$STATECD,
-                               fia_tree$UNITCD,
-                               fia_tree$COUNTYCD,
-                               fia_tree$PLOT,
-                               fia_tree$SUBP,
-                               fia_tree$TREE,
-                               sep = "_")
+  #fia_tree$TREEMERGEID <- paste(fia_tree$STATECD,
+  #                             fia_tree$UNITCD,
+  #                             fia_tree$COUNTYCD,
+  #                             fia_tree$PLOT,
+  #                             fia_tree$SUBP,
+  #                             fia_tree$TREE,
+  #                             sep = "_")
 
   #Obtain variables that will be included in the fia_meas data frame and passed
   #to merge_inv function
   #Deprecate get_gpvars function and just explicitly list variables
-  growPeriodVars <- get_gpvars()
-  fia_meas <- fia_tree[, c(growPeriodVars)]
+  merge_vars <- c(
+  "UNIQUETREEID", "UNIQUESUBPID", "TREEMERGEID", "SPECIES",
+  "CYCLE", "MEASYEAR", "MEASMON", "MEASDAY", "DIA", "HT", "CR",
+  "STATUSCD", "AGENTCD", "DIACHECK", "HTDMP", "DESIGNCD")
+
+  #Merge dataframe
+  merge_vars <- fia_tree |>
+    dplyr::select(dplyr::all_of(merge_vars))
 
   #Obtain variables not in fia_meas except for UNIQUETREEID and UNIQUESUBPID.
   #These will be merged to fia_meas after call to merge_inv.
-  notInMeas <- c("UNIQUETREEID",
-                 "UNIQUESUBPID",
-                 colnames(fia_tree)[!colnames(fia_tree) %in%
-                                     get_gpvars()])
+  exclude_vars <- c("UNIQUETREEID", 
+                    "UNIQUESUBPID",
+                    colnames(fia_tree)[!colnames(fia_tree) %in% merge_vars])
 
   #Isolate tree level variables not needed in merge_inv function
-  fia_tree <- fia_tree[notInMeas]
+  fia_tree <- fia_tree |>
+    dplyr::select(dplyr::all_of(exclude_vars))
 
-  #=============================================================================
   #Call merge_inv function
-  #
-  #merge_inv function is called to pair beginning and end of measurement
-  #interval values defined in fia_meas.
-  #=============================================================================
-
-  #Deprecate get_gpvars function and just explicitly list variables
-
-  #Call merge_inv
-  fia_meas <- merge_inv(fia_meas)
+  merge_vars <- merge_inv(merge_vars)
 
   #Extract appropriate columns
+  merge_vars <- c()
   fia_meas <- fia_meas[,get_gpvars(2)]
 
   #Rename columns as appropriate
@@ -284,7 +301,7 @@ fia_gst <- function(db_in = NA,
     #apply validYear with pmap
     dplyr::mutate(VALIDYEAR = validYear(MEASYEAR0, MEASYEAR1, MAXYEAR)) |>
     dplyr::filter(VALIDYEAR > 0) |>
-    ungroup()
+    dplyr::ungroup()
 
   #Determine records that have valid years
   # fia_tree$VALIDYEAR <- mapply(validYear,
