@@ -23,9 +23,7 @@
 ################################################################################
 
 #'@export
-get_gst_vars <- function()
-{
-  gst_vars <- c("UNIQUEPLOTID" = "TEXT",
+gst_vars <- c("UNIQUEPLOTID" = "TEXT",
                "UNIQUESUBPID" = "TEXT",
                "UNIQUETREEID" = "TEXT",
                "STATECD" = "INTEGER",
@@ -40,10 +38,10 @@ get_gst_vars <- function()
                "COND_STATUS_CD" = "INTEGER",
                "DESIGNCD0" = "INTEGER",
                "DESIGNCD1" = "INTEGER",
-               "SPECIES" = "INTEGER",
+               "SPCD" = "INTEGER",
                "GENUS" = "TEXT",
-               "TPAR" = "REAL",
-               "TPARSUBP" = "REAL",
+               "EXPF" = "REAL",
+               #"TPARSUBP" = "REAL",
                "MEASYEAR0" = "INTEGER",
                "MEASYEAR1" = "INTEGER",
                "MEASMON0" = "INTEGER",
@@ -73,14 +71,14 @@ get_gst_vars <- function()
                "AGENTCD1" = "INTEGER",
                "DI" = "REAL",
                "HI" = "REAL",
-               "MRTCD" = "INTEGER",
+               #"MRTCD" = "INTEGER",
                "IDGRM" = "INTEGER",
                "IHGRM" = "INTEGER",
                "DIACHECK0" = "INTEGER",
                "DIACHECK1" = "INTEGER",
                "HTDMP0" = "INTEGER",
                "HTDMP1" = "INTEGER",
-               "DIACHG" = "INTEGER",
+               #"DIACHG" = "INTEGER",
                "CULL" = "REAL",
                "DAMAGE_AGENT_CD1" = "INTEGER",
                "DAMAGE_AGENT_CD2" = "INTEGER",
@@ -90,10 +88,10 @@ get_gst_vars <- function()
                "ELEV" = "REAL",
                "SLOPE" = "REAL",
                "ASPECT" = "REAL",
-               "SITEINDEX" = "REAL",
-               "BASEAGE" = "REAL",
+               "SI" = "REAL",
+               "SIBASE" = "REAL",
                "FORTYPCD" = "INTEGER",
-               "ECOREGION" = "INTEGER",
+               #"ECOREGION" = "INTEGER",
                "OWNCD" = "INTEGER",
                "ADFORCD" = "INTEGER",
                "KINDCD" = "INTEGER",
@@ -103,12 +101,9 @@ get_gst_vars <- function()
                "TRTCD1" = "INTEGER",
                "TRTCD2" = "INTEGER",
                "TRTCD3" = "INTEGER",
-               "DATAPROVIDER" = "TEXT",
-               "PLOTQUERYID" = "TEXT",
-               "TREEMERGEID" = "TEXT")
-
-  return(gst_vars)
-}
+               "DATAPROVIDER" = "TEXT")
+               #"PLOTQUERYID" = "TEXT",
+               #"TREEMERGEID" = "TEXT")
 
 ################################################################################
 #get_gp_vars

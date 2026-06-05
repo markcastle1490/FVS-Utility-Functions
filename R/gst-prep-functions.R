@@ -196,9 +196,6 @@ build_gst <- function(db_in = c(),
 #          re-measurement periods together. By default this argument is set to
 #          "TREEMERGEID".
 #
-#species:  Character string of column name used to represent FIA species code
-#          in data argument. By default, this argument is set to "SPECIES".
-#
 #tree_id:  Character string of column name used to represent a unique tree ID.
 #          By default, "UNIQUETREEID" is the default value.
 #
@@ -218,28 +215,21 @@ merge_inv<-function(data,
                     tree_id = "UNIQUETREEID",
                     merge_id = "TREEMERGEID",
                     interval = "MEASYEAR",
-                    species = "SPECIES")
+                    species = "SPCD",
+                    verbose = TRUE)
 {
-  #Upper case interval name
-  interval <- toupper(interval)
-
-  #Change name of interval variable to INTERVAL in data
-  names(data)[names(data) == interval] <- "INTERVAL"
+  if(verbose) cat("Entering merge_inv function.", "\n", "\n")
 
   #Get unique INTERVAL values and sort
-  intervals <- sort(unique(data$INTERVAL))
+  intervals <- sort(unique(data[[interval]]))
+  if(verbose) cat("Intervals considered: ", paste(intervals, collapse = ", "), "\n")
 
   #Define list used to store merged dataframes
   df_list<-vector(mode = "list", length = length(intervals)^2)
 
   #Intialize variable that will be used to track number of insertions into
   #df_list
-  list_insert<-1
-
-  cat("ID to be used for merging:",
-      merge_id,
-      "\n",
-      "\n")
+  n_insert<-1
 
   #Start outer loop across intervals. Each interval in the outer loop will be
   #merged with the interval in inner loop if it is less than or equal to
@@ -252,25 +242,27 @@ merge_inv<-function(data,
       #Extract dataframes from index i and j
       interval1 <- intervals[i]
       interval2 <- intervals[j]
+      
+      if(verbose)
+      {
+        cat("Interval 1:", interval1, "\n")
+        cat("Interval 2:", interval2, "\n")
+      }
 
       #If interval1 is greater than interval2 then data will not be merged.
-      if(interval1 > interval2) next
+      if(interval1 > interval2) 
+      {
+        if(verbose) cat("Invalid interval pair. Skipping merge.", "\n")
+        next
+      }
 
       #Else data from interval2  will be merged to data from interval1
       else
       {
         #Extract data corresponding to interval1 and interval2
-        df1 <- data[data$INTERVAL == interval1,]
-        df2 <- data[data$INTERVAL == interval2,]
-
-        #Merge dataframes df1 and df2 by merge_id and SPCD
-        df <- merge(df1,
-                     df2,
-                     by = c(merge_id, species),
-                     all = T)
-
-        #Delete temporary dataframe
-        rm(df1, df2)
+        df <- dplyr::full_join(x = data |> dplyr::filter(.data[[interval]] == interval1),
+                               y = data |> dplyr::filter(.data[[interval]] == interval2),
+                               by = c(merge_id, species))
 
         #Identify plots where there are no re-measurements for a given
         #interval1 - interval2 combination. This is done by summing the
@@ -278,7 +270,7 @@ merge_inv<-function(data,
         #a value of 0 for the sum of INTERVAL.y (SUM_Y).
         df <- df |>
           dplyr::group_by(.data[[paste0(plot_id, ".x")]]) |>
-          dplyr::mutate(SUM_Y = sum(INTERVAL.y, na.rm = T))
+          dplyr::mutate(SUM_Y = sum(.data[[paste0(interval, ".y")]], na.rm = T))
 
         #Identify plots where there are no initial measurements for a given
         #interval1 - interval2 combination. This is done by summing the
@@ -286,36 +278,33 @@ merge_inv<-function(data,
         #have a value of 0 for the sum of INTERVAL.x (SUM_X).
         df <- df |>
           dplyr::group_by(.data[[paste0(plot_id, ".y")]]) |>
-          dplyr::mutate(SUM_X = sum(INTERVAL.x, na.rm = T)) |>
+          dplyr::mutate(SUM_X = sum(.data[[paste0(interval, ".x")]], na.rm = T)) |>
           dplyr::ungroup()
 
         #Extract observations that have COUNT_X and COUNT_Y > 0
-        df <- df |>
-          dplyr::filter(df$SUM_Y > 0, df$SUM_X > 0) |>
-          dplyr::select(!any_of(SUM_Y, SUM_X))
-
         #If tree_id.x is NA, use the value from tree_id.y. These are ingrowth,
         #missed trees, or those not accounted for due to change in DESIGNCD
-        #between initial (interval1) and subsequent inventory (interval2). This
-        #is only done when type == 1.
-        #When UNIQUETREEID.x is missing use UNIQUETREEID.y
-        df[[paste0(tree_id, ".x")]] <- 
-          ifelse(is.na(df[[paste0(tree_id, ".x")]]),
-        df[[paste0(tree_id, ".y")]],
-        df[[paste0(tree_id, ".x")]])
-
-        #Fill in any NA values for INTERVAL.x and INTERVAL.y
-        df$INTERVAL.x <- ifelse(is.na(df$INTERVAL.x), interval1,
-                                 df$INTERVAL.x)
-
-        df$INTERVAL.y <- ifelse(is.na(df$INTERVAL.y), interval2,
-                                 df$INTERVAL.y)
+        #between initial (interval1) and subsequent inventory (interval2).
+        #Records with NA interval values have a value filled in.
+        tree_lab = paste0(tree_id, ".x")
+        int_lab_x = paste0(interval, ".x")
+        int_lab_y = paste0(interval, ".y")
+        
+        df <- df |>
+          dplyr::filter(SUM_Y > 0, SUM_X > 0) |>
+          dplyr::select(!c(SUM_Y, SUM_X)) |>
+          dplyr::mutate("{tree_lab}" := 
+                          dplyr::coalesce(.data[[paste0(tree_id, ".x")]], .data[[paste0(tree_id, ".y")]]),
+                        "{int_lab_x}" := 
+                          dplyr::coalesce(.data[[paste0(interval, ".x")]], interval1),
+                        "{int_lab_y}" := 
+                          dplyr::coalesce(.data[[paste0(interval, ".y")]], interval2))
 
         #Add dataframe to list
-        df_list[[list_insert]] <- df
+        df_list[[n_insert]] <- df
 
-        #Increment list_insert
-        list_insert<- list_insert + 1
+        #Increment n_insert
+        n_insert<- n_insert + 1
 
         #Clear df
         rm(df); gc()
@@ -324,22 +313,10 @@ merge_inv<-function(data,
   }
 
   #Bind all items in df_list into a single dataframe (all_dat)
-  all_dat <- do.call("rbind", df_list)
+  df <- dplyr::bind_rows(df_list)
 
-  #Rename INTERVAL.x and INTETVAL.y to value specified in interval argument if
-  #all_dat is not NULL.
-  if(!is.null(all_dat))
-  {
-    #Reset INTERVAL.x and .y column names
-    names(all_dat)[names(all_dat) == 'INTERVAL.x'] <- paste0(interval, ".x")
-    names(all_dat)[names(all_dat) == 'INTERVAL.y'] <- paste0(interval, ".y")
-
-    cat("Columns in all_dat:", names(all_dat), "\n")
-    cat("Number of rows in all_dat dataframe:", nrow(all_dat), "\n")
-  }
-
-  cat("Leaving merge_inv function.", "\n", "\n")
-  return(all_dat)
+  if(verbose) cat("Leaving merge_inv function.", "\n", "\n")
+  return(df)
 }
 
 ################################################################################
@@ -359,8 +336,6 @@ merge_inv<-function(data,
 #
 #Arguments
 #
-#mrtcd:  Mortality code as determined by mrtcd function.
-#
 #stat0:  Status code (live, dead, cut) for an initial inventory period.
 #
 #stat1:  Status code (live, dead, cut) for a subsequent inventory period.
@@ -377,8 +352,7 @@ merge_inv<-function(data,
 ################################################################################
 
 #'@export
-valid_mort <- function(mrtcd = NA,
-                       stat0 = NA,
+valid_mort <- function(stat0 = NA,
                        stat1 = NA,
                        dbh0 = NA,
                        cyclen = 0)
@@ -387,19 +361,15 @@ valid_mort <- function(mrtcd = NA,
   mort <- NA
 
   #If any of the input arguments are NA or mrtcd == 1, return NA
-  if(NA %in% c(mrtcd, stat0, stat1, dbh0, cyclen) | mrtcd == 1)
-    return(NA)
+  if(any(is.na(c(stat0, stat1, dbh0, cyclen)))) return(mort)
 
   #If tree is live at beginning of inventory and dead at end, this is a
   #mortality observation
-  else if((stat0 == 1 & stat1 == 2) & cyclen > 0) mort = 1
+  if((stat0 == 1 & stat1 == 2) & cyclen > 0) mort = 1
 
   #If tree is live at beginning and end of inventory and dead at end, this is a
   #survival observation
-  else if((stat0 == 1 & stat1 == 1) & cyclen > 0) mort = 0
-
-  #Everything else is NA
-  else mort <- NA
+  if((stat0 == 1 & stat1 == 1) & cyclen > 0) mort = 0
 
   return(mort)
 }
@@ -549,13 +519,11 @@ valid_incr <- function(meas0 = NA,
   valid <- 0
 
   #If any arguments are NA, valid is 0
-  if(NA %in% c(meas0, meas1, stat0, stat1, cyclen)) valid <- 0
+  if(any(is.na(c(meas0, meas1, stat0, stat1, cyclen))) valid <- 0
 
   #If end of period value is greater than or equal to beginning of year value
   #and tree is alive at both points, this is a valid increment observation
   else if(meas1 >= meas0 & (stat0 == 1 & stat1 == 1) & cyclen > 0) valid <- 1
-
-  else valid <- 0
 
   return(valid)
 }
