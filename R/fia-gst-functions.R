@@ -174,17 +174,26 @@ fia_gst <- function(db_in = NA,
                                TREE,
                                sep = "_"),
            #Broken top indicator
-           BT = dplyr::if_else(ACTUALHT < HT, 1, 0),
-           #Measured height value (only observations that were measured)
+           BT = dplyr::coalesce(dplyr::if_else(ACTUALHT < HT, 1, 0), 0),
+           #Measured height value (only observations that were actually measured)
            HT = mapply(fia_ht, HTCD, ACTUALHT, HT),
-           #Grab PREVIA if needed
+           #Grab PREVIA for dead trees if needed
            DIA = dplyr::if_else(is.na(DIA) & STATUSCD == 2, PREVDIA, DIA),
            #Fill in missing DIACHECK values
            DIACHECK = dplyr::if_else(is.na(DIACHECK), 0, DIACHECK)) |>
     #Drop ACTUALHT
     dplyr::select(!ACTUALHT) |>
-    #Drop rows where MEASYEAR or CYCLE is NA
-    dplyr::filter(!is.na(MEASYEAR), !is.na(CYCLE))
+    #Drop rows that are not needed in GST
+    #Missing measurement year
+    #Missing CYCLE
+    #Missing DIA
+    #Missing TPA_UNADJ
+    #Retain STATUSCD 1 (live) or 2 (dead)
+    dplyr::filter(!is.na(MEASYEAR), 
+                  !is.na(CYCLE), 
+                  !is.na(DIA), 
+                  !is.na(TPA_UNADJ),
+                  STATUSCD %in% c(1, 2))
 
   #Height determination
   #fia_tree$MEAS_HT <- mapply(fia_ht,
@@ -279,13 +288,13 @@ fia_gst <- function(db_in = NA,
   names(fia_meas) <- c(get_gpvars(3))
 
   #Merge fia_tree back to fia_meas
-  fia_tree <- merge(fia_meas,
+  fia_tree <- merge(merge_vars,
                     fia_tree,
                     by = "UNIQUETREEID",
                     all.x = T)
 
   #Remove fia_meas
-  rm(fia_meas)
+  rm(merge_vars)
 
   #=============================================================================
   #Determine valid years to retain in data frame

@@ -208,10 +208,6 @@ build_gst <- function(db_in = c(),
 #          in this function change, the references to the new variable names can
 #          be changed more easily by altering the values in these arguments.
 #
-#type:     Integer variable signaling what type of data is being processed.
-#          1 = tree level data
-#          2 = plot level data
-#
 #Value
 #
 #Data frame with paired remeasurement periods.
@@ -219,38 +215,22 @@ build_gst <- function(db_in = c(),
 
 merge_inv<-function(data,
                     plot_id = "UNIQUESUBPID",
-                    interval = "MEASYEAR",
-                    merge_id = "TREEMERGEID",
-                    species = "SPECIES",
                     tree_id = "UNIQUETREEID",
-                    type = 1)
+                    merge_id = "TREEMERGEID",
+                    interval = "MEASYEAR",
+                    species = "SPECIES")
 {
-  cat("In merge_inv function.", "\n")
-
-  #If type is not 1 or 2, set to 1
-  if(!type %in% c(1, 2)) type <- 1
-
   #Upper case interval name
   interval <- toupper(interval)
-
-  cat("Type argument is set to:", type, "\n")
-  cat("Variable used as interval:", interval, "\n", "\n")
 
   #Change name of interval variable to INTERVAL in data
   names(data)[names(data) == interval] <- "INTERVAL"
 
   #Get unique INTERVAL values and sort
   intervals <- sort(unique(data$INTERVAL))
-  cat("Number of unique intervals in data:",
-      length(intervals),
-      "\n")
-  cat("Intervals:", intervals, "\n")
 
   #Define list used to store merged dataframes
   df_list<-vector(mode = "list", length = length(intervals)^2)
-  cat("Length of df_list:",
-      length(df_list),
-      "\n")
 
   #Intialize variable that will be used to track number of insertions into
   #df_list
@@ -274,56 +254,29 @@ merge_inv<-function(data,
       interval2 <- intervals[j]
 
       #If interval1 is greater than interval2 then data will not be merged.
-      if(interval1 > interval2)
-      {
-        cat("Interval1:", interval1, ">", "Interval2:",
-            paste0(interval2,"."),
-            "Data will not be merged on this pass.", "\n", "\n")
-        next
-      }
+      if(interval1 > interval2) next
 
       #Else data from interval2  will be merged to data from interval1
       else
       {
-        cat("Interval1:", interval1, "<=", "Interval2:", paste0(interval2,"."),
-            "Data will be merged.", "\n")
-
         #Extract data corresponding to interval1 and interval2
-        dat1 <- data[data$INTERVAL == interval1,]
-        dat2 <- data[data$INTERVAL == interval2,]
+        df1 <- data[data$INTERVAL == interval1,]
+        df2 <- data[data$INTERVAL == interval2,]
 
-        cat("Number of rows in dat1", nrow(dat1), "\n")
-        cat("Number of rows in dat2", nrow(dat2), "\n")
+        #Merge dataframes df1 and df2 by merge_id and SPCD
+        df <- merge(df1,
+                     df2,
+                     by = c(merge_id, species),
+                     all = T)
 
-        #Merging GST tree attribute data
-        if(type == 1)
-        {
-          #Merge dataframes dat1 and dat2 by merge_id and SPCD
-          dat <- merge(dat1,
-                       dat2,
-                       by = c(merge_id, species),
-                       all = T)
-        }
-
-        #Merging competition and density metrics (merge_inv called from
-        #plotVars function)
-        else
-        {
-          #Merge dataframes dat1 and dat2 by merge_id and species
-          dat <- merge(dat1,
-                       dat2,
-                       by = c(merge_id, species),
-                       all.x = T)
-        }
-
-        cat("Data merged.", "\n")
-        cat("Number of rows in dat after merge:", nrow(dat), "\n")
+        #Delete temporary dataframe
+        rm(df1, df2)
 
         #Identify plots where there are no re-measurements for a given
         #interval1 - interval2 combination. This is done by summing the
         #INTERVAL.y by UNIQUESUBPID.x. Plots with no re-measurements will have
         #a value of 0 for the sum of INTERVAL.y (SUM_Y).
-        dat <- dat |>
+        df <- df |>
           dplyr::group_by(.data[[paste0(plot_id, ".x")]]) |>
           dplyr::mutate(SUM_Y = sum(INTERVAL.y, na.rm = T))
 
@@ -331,46 +284,41 @@ merge_inv<-function(data,
         #interval1 - interval2 combination. This is done by summing the
         #INTERVAL.x by UNIQUESUBPID.y. Plots with no initial measurements will
         #have a value of 0 for the sum of INTERVAL.x (SUM_X).
-        dat <- dat |>
+        df <- df |>
           dplyr::group_by(.data[[paste0(plot_id, ".y")]]) |>
-          dplyr::mutate(SUM_X = sum(INTERVAL.x, na.rm = T))
+          dplyr::mutate(SUM_X = sum(INTERVAL.x, na.rm = T)) |>
+          dplyr::ungroup()
 
         #Extract observations that have COUNT_X and COUNT_Y > 0
-        dat <- dat[dat$SUM_Y > 0 & dat$SUM_X > 0,]
-        dat$SUM_Y <- NULL
-        dat$SUM_X <- NULL
+        df <- df |>
+          dplyr::filter(df$SUM_Y > 0, df$SUM_X > 0) |>
+          dplyr::select(!any_of(SUM_Y, SUM_X))
 
         #If tree_id.x is NA, use the value from tree_id.y. These are ingrowth,
         #missed trees, or those not accounted for due to change in DESIGNCD
         #between initial (interval1) and subsequent inventory (interval2). This
         #is only done when type == 1.
-        if(type == 1)
-        {
-
-          #When UNIQUETREEID.x is missing use UNIQUETREEID.y
-          dat[[paste0(tree_id, ".x")]] <- ifelse(is.na(dat[[paste0(tree_id,
-                                                                  ".x")]]),
-                                                    dat[[paste0(tree_id, ".y")]],
-                                                    dat[[paste0(tree_id, ".x")]])
-
-        }
+        #When UNIQUETREEID.x is missing use UNIQUETREEID.y
+        df[[paste0(tree_id, ".x")]] <- 
+          ifelse(is.na(df[[paste0(tree_id, ".x")]]),
+        df[[paste0(tree_id, ".y")]],
+        df[[paste0(tree_id, ".x")]])
 
         #Fill in any NA values for INTERVAL.x and INTERVAL.y
-        dat$INTERVAL.x <- ifelse(is.na(dat$INTERVAL.x), interval1,
-                                 dat$INTERVAL.x)
+        df$INTERVAL.x <- ifelse(is.na(df$INTERVAL.x), interval1,
+                                 df$INTERVAL.x)
 
-        dat$INTERVAL.y <- ifelse(is.na(dat$INTERVAL.y), interval2,
-                                 dat$INTERVAL.y)
+        df$INTERVAL.y <- ifelse(is.na(df$INTERVAL.y), interval2,
+                                 df$INTERVAL.y)
 
         #Add dataframe to list
-        df_list[[list_insert]] <- dat
+        df_list[[list_insert]] <- df
 
         #Increment list_insert
         list_insert<- list_insert + 1
-        cat("Value of list_insert is now:", list_insert, "\n", "\n")
 
-        #Clear dat1, dat2, and dat
-        rm(dat1, dat2, dat)
+        #Clear df
+        rm(df); gc()
       }
     }
   }
