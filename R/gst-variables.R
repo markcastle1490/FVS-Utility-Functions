@@ -1,28 +1,13 @@
 ################################################################################
-#get_gst_vars:
+#gst_vars:
 #
-#Description
-#
-#This function returns a named vector where the names are variables included in
-#the GST and the values are the associated data type of the variable. The order
-#of the values in this vector are used to control the order of columns when
-#growth sample tree data is written to output database (in writeGST). Additional
-#variables and order of variables can be changed as needed.
-#
-#Source Code
-#
-#Function get_gst_vars is currently located in the GST_Prep_Functions.R file.
-#
-#Arguments
-#
-#None
-#
-#Value
-#
-#Character vector containing names of GST columns.
+#This is a named vector containg variables that are included in a growth sample
+#tree database (gst). The names of the vector are fields (columns) that are 
+#included in the output gst database and the values are the associated data
+#types. This vector can be updated as needed to add or remove variables from the
+#gst template.
 ################################################################################
 
-#'@export
 gst_vars <- c("UNIQUEPLOTID" = "TEXT",
                "UNIQUESUBPID" = "TEXT",
                "UNIQUETREEID" = "TEXT",
@@ -104,96 +89,3 @@ gst_vars <- c("UNIQUEPLOTID" = "TEXT",
                "DATAPROVIDER" = "TEXT")
                #"PLOTQUERYID" = "TEXT",
                #"TREEMERGEID" = "TEXT")
-
-################################################################################
-#get_gp_vars
-#
-#Description
-#
-#This function returns the column names of variables that should be included in
-#the data frame that is passed to the merge_inv function. These variables
-#can be updated as necessary.
-#
-#Source Code
-#
-#Function get_gp_vars is currently located in the GST_Prep_Functions.R
-#file.
-#
-#Arguments
-#
-#type: 	Integer variable indicating what variables to return.
-#       1 = variables required before call to merge_inv
-#       2 = variables required after call to merge_inv
-#       3 = renamed variables after call to merge_inv
-#
-#Value
-#
-#Character vector containing column names.
-################################################################################
-
-get_gp_vars <- function(type = 1)
-{
-  #Set type to 1 if value is anything other than 1-3.
-  if(!type %in% c(1, 2, 3)) type <- 1
-
-  #Define variables that will have time 0 and 1 values
-  #This list of variables needs to be updated if additional time 0 and 1
-  #variables are included in merge_inv function
-  time_vars <- c("CYCLE",
-                "MEASYEAR",
-                "MEASMON",
-                "MEASDAY",
-                "DIA",
-                "HT",
-                "CR",
-                "STATUSCD",
-                "AGENTCD",
-                "DIACHECK",
-                "HTDMP",
-                "DESIGNCD")
-
-  #Variables prior to call to growthPeriods function.
-  if(type == 1)
-  {
-    gp_vars <- c("UNIQUETREEID",
-                "UNIQUESUBPID",
-                "TREEMERGEID",
-                "SPECIES",
-                time_vars)
-  }
-
-  #Variables following call to growthPeriods function right after merge.
-  else if(type == 2)
-  {
-
-    #.x variables after merge
-    xvars <- paste0(time_vars, ".x")
-
-    #.y variables after merge
-    yvars <- paste0(time_vars, ".y")
-
-    gp_vars <- c("UNIQUETREEID.x",
-                "TREEMERGEID",
-                "SPECIES",
-                xvars,
-                yvars)
-  }
-
-  #Renamed variables following call to growthPeriods function.
-  else
-  {
-    #0 variables after merge (beginning of measurement period)
-    vars0 <- paste0(time_vars, "0")
-
-    #1 variables after merge (end of measurement period)
-    vars1 <- paste0(time_vars, "1")
-
-    gp_vars <- c("UNIQUETREEID",
-                "TREEMERGEID",
-                "SPECIES",
-                vars0,
-                vars1)
-  }
-
-  return(gp_vars)
-}

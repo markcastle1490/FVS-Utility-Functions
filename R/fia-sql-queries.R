@@ -1,5 +1,7 @@
 ################################################################################
-#Build query for reading FIA data
+#This file contains the logic that is used to query a FIA SQLite database to
+#build a growth sample tree database (gst). The queries in this file are used in
+#fia-gst.R.
 ################################################################################
 
 #Variables from TREE table
@@ -72,17 +74,3 @@ fia_si_query = paste(c("SELECT",
                       fia_si_vars,
                       "FROM SITETREE;"),
                     collapse = "\n")
-
-# cat(fia_query)
-# 
-# library(RSQLite)
-# 
-# con = dbConnect(SQLite(),
-#                 "C:/Users/markcastle/Downloads/SQLite_FIADB_AK/SQLite_FIADB_AK.db")
-# 
-# tree = dbGetQuery(con,
-#                   fia_query)
-# 
-# dbDisconnect(con)
-# 
-# head(tree)
