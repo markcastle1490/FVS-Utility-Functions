@@ -179,12 +179,12 @@ fia_gst <- function(dbin = NULL,
   # attributes using the merge_inv function.
   #
   # Split tree dataframe into two dataframes
-  # fia_merge - data that will be passed into merge_inv function
-  # tree -  data that will be merged to fia_merge after merge_inv function has
-  #             completed processing.
+  # merge_df - data that will be passed into merge_inv function
+  # tree -     data that will be merged to fia_merge after merge_inv function 
+  #            has completed processing.
   #
-  #Note: merge_inv is sort of brute force. There may be some better alternative
-  #using dplyr/tidyverse buy I am not sure what it is.
+  #Note: There may be some better alternative to merge_inv using native 
+  #dplyr/tidyverse functions or those from other packages.
   #=============================================================================
 
   if(verbose)
@@ -202,8 +202,7 @@ fia_gst <- function(dbin = NULL,
     dplyr::select(dplyr::all_of(c("UNIQUETREEID", "UNIQUESUBPID", merge_vars))),
   f = tree$CYCLE)
 
-  #Obtain variables not in fia_meas except for UNIQUETREEID and UNIQUESUBPID.
-  #These will be merged to fia_meas after call to merge_inv.
+  #Obtain variables not in merge_df except for UNIQUETREEID and UNIQUESUBPID.
   exclude_vars <- c("UNIQUETREEID", 
                     "UNIQUESUBPID",
                     colnames(tree)[!colnames(tree) %in% merge_vars])
@@ -238,17 +237,17 @@ fia_gst <- function(dbin = NULL,
   if(verbose)
     cat("Step 5:", "Calculating final variables...", "\n")
 
-  #Find most recent measurement year for each PLOTQUERYID
-  #Determine valid years to retain in data frame
-  #All records where MEASYEAR0 < MEASYEAR1 are retained and records from the
-  #most recent re-measurement period. The purpose of this function is to keep
-  #all possible re-measurements or plots that were only measured once.
   tree <- tree |>
+    #Find maximum year by PLOTMERGEID
     dplyr::mutate(MAXYEAR = max(MEASYEAR1, na.rm = TRUE),
                   .by = PLOTMERGEID) |>
+    #Sum DIACHECK value by TREEMERGEID. These values will be used to determine
+    #if DIA measurement location changed during a remeasurement interval.
     dplyr::mutate(DIASUM0 = sum(DIACHECK0, na.rm = TRUE),
                   DIASUM1 = sum(DIACHECK1, na.rm = TRUE), 
                   .by = TREEMERGEID) |>
+    #Remove remeasurement pairings that are equal but do NOT coincide with the
+    #latest remeasurement of the plot. 
     dplyr::mutate(VALIDYEAR = dplyr::case_when(
                     MEASYEAR0 < MEASYEAR1 ~ 1,
                     MEASYEAR0 == MEASYEAR1 & 
@@ -269,12 +268,22 @@ fia_gst <- function(dbin = NULL,
                     (STATUSCD0 == 1 & STATUSCD1 == 1) & 
                     MEASLEN > 0, 1, 0),
                   HI = HT1 - HT0,
-                  #Attempt to use future crown ratio if time 1 is NA
+                  #Attempt to use future or past crown ratios when needed
+                  #We assume that crown ratio does not change substantially
+                  #between remeasurement periods
                   CR0 = dplyr::coalesce(CR0, CR1),
+                  CR1 = dplyr::if_else(is.na(CR1) & STATUSCD1 == 1 & !is.na(CR0),
+                   CR0, CR1),
                   HCB0 = HT0 - (HT0 * CR0/100),
                   HCB1 = HT1 - (HT1 * CR1/100),
                   CW0 = NA,
-                  CW1 = NA) |>
+                  CW1 = NA,
+                  #Zero out values when NA. Helpful for plot variable calculations
+                  EXPF = dplyr::coalesce(EXPF, 0.0),
+                  DIA0 = dplyr::coalesce(DIA0, 0.0),
+                  DIA1 = dplyr::coalesce(DIA1, 0.0),
+                  HT0 = dplyr::coalesce(HT0, 0.0),
+                  HT1 = dplyr::coalesce(HT1, 0.0)) |>
                   dplyr::filter(VALIDYEAR > 0)
 
   #=============================================================================
