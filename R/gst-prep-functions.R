@@ -179,7 +179,7 @@ merge_inv <- function(data,
                     species = "SPCD",
                     verbose = TRUE)
 {
-  if(verbose) cat("Entering merge_inv function.", "\n", "\n")
+  if(verbose) cat("\n", "Entering merge_inv function.", "\n", "\n")
 
   #Get unique INTERVAL values and sort
   intervals <- sort(as.numeric(unique(names(data))))
@@ -196,13 +196,13 @@ merge_inv <- function(data,
   #merged with the interval in inner loop if it is less than or equal to
   #interval in the inner loop. In other words, this is used to test if initial
   #inventory year is less than or equal to subsequent inventory year.
-  for(i in 1:length(intervals))
+  for(interval1 in intervals)
   {
-    for(j in 1:length(intervals))
+    for(interval2 in intervals)
     {
       #Define interval1 and interval2
-      interval1 <- intervals[i]
-      interval2 <- intervals[j]
+      # interval1 <- intervals[int1]
+      # interval2 <- intervals[int2]
       
       if(verbose)
       {
@@ -225,8 +225,8 @@ merge_inv <- function(data,
         #Join the tree level information
         #Full join is used to capture tree records that may not have a matched
         #record between remeasurement periods
-        df <- dplyr::full_join(x = data[[interval1]],
-                               y = data[[interval2]],
+        df <- dplyr::full_join(x = data[[as.character(interval1)]],
+                               y = data[[as.character(interval2)]],
                                by = c(merge_id, species))
         
         #Now do the following:

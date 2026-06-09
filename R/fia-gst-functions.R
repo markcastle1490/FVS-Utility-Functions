@@ -160,6 +160,8 @@ fia_gst <- function(dbin = NULL,
            DIA = dplyr::if_else(is.na(DIA) & STATUSCD == 2, PREVDIA, DIA),
            #Fill in missing DIACHECK values
            DIACHECK = dplyr::coalesce(DIACHECK, 0),
+           #Assume 1 for missing DIAHTCD values
+           DIAHTCD = dplyr::coalesce(DIAHTCD, 1),
            TPA_UNADJ = dplyr::coalesce(TPA_UNADJ, 0.0)) |>
     dplyr::rename(EXPF = "TPA_UNADJ") |>
     #Drop rows that are not needed in GST
@@ -189,7 +191,7 @@ fia_gst <- function(dbin = NULL,
   #=============================================================================
 
   if(verbose)
-    cat("Step 4:", "Pairing remeasurements...")
+    cat("Step 4:", "Pairing remeasurements...", "\n")
 
   #Obtain variables that will be included in the fia_meas data frame and passed
   #to merge_inv function
@@ -291,7 +293,10 @@ fia_gst <- function(dbin = NULL,
   # Step 6
   # Write GST dataframe to output database
   #=============================================================================
-
+  
+  if(verbose)
+    cat("Step 6:", "Writing GST...", "\n")
+  
   #Capitalize field names and select those only in gst_vars
   tree <- tree |>
     dplyr::rename_with(toupper) |>

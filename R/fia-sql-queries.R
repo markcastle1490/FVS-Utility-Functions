@@ -16,7 +16,7 @@ tree = paste0("TREE.",
 cond = paste0("COND.", 
               c("COND_STATUS_CD", "FORTYPCD", "CONDPROP_UNADJ", "OWNCD",
                 "ADFORCD", "DSTRBCD1", "DSTRBCD2", "DSTRBCD3", "TRTCD1",
-                "TRTCD2", "TRTCD3"))
+                "TRTCD2", "TRTCD3", "STDORGCD"))
 
 #Variables from PLOT table
 plot = paste0("PLOT.", 
