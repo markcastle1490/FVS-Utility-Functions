@@ -1,4 +1,4 @@
-*File used to test the Plot Variable Functions from the fvsUtil R package.
+*File used to test the Plot Variable Functions from the fvstools R package.
 *BA_: basal area per acre
 *TPA_: trees per acre
 *QMD_: quadratic mean diameter

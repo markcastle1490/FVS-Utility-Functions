@@ -3,7 +3,7 @@
 #
 #NOTE: This function was formally used by the vegClass R package and is saved
 #here in case it is somehow useful for future work. This function is not 
-#currently used anywhere in the fvsUtil package.
+#currently used anywhere in the fvstools package.
 #
 #This function returns a category or classification from input argument
 #validOutputs based on the value of input argument x. The following logic

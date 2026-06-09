@@ -164,7 +164,7 @@ run_key_rscript = function(script_path = NULL,
   on.exit(try(if(isOpen(con)) close(con = con), silent = TRUE))
   
   #Write the code in R script
-  writeLines(text = "library(fvsUtil)", con = con, sep = "\n\n")
+  writeLines(text = "library(fvstools)", con = con, sep = "\n\n")
   
   writeLines(text = paste("run_key(dll_path =", 
                           paste0("'", dll_path, "'", ",")),
@@ -287,7 +287,7 @@ run_key_callr = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
   
   #Call run_fvs with callr
   ret_code = callr::r(func = function(dll_path, var_code, keyfile, verbose) {
-    fvsUtil:::run_fvs(dll_path = dll_path,
+    fvstools:::run_fvs(dll_path = dll_path,
                      var_code = var_code,
                      keyfile = keyfile)},
     args = list(dll_path = dll_path,

@@ -1,7 +1,7 @@
 module constants
 !
 !This file contains constants that are used for the FORTRAN 
-!implementation of plot-variable-functions.R in the fvsUtil package.
+!implementation of plot-variable-functions.R in the fvstools package.
 !
     implicit none
     save

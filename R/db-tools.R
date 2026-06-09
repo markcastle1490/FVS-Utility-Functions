@@ -268,7 +268,7 @@ db_collect_paths <- function(dbin = c(),
   
   #Create directory to unzip files too
   unzipdir <- paste(tempdir(),
-                    "xxxfvsUtildb_compileUnzipxxx",
+                    "xxxfvstoolsdb_compileUnzipxxx",
                     sep = "/")
   
   #Initialize dbin_update. This is a vector that will be used to store input
@@ -644,7 +644,7 @@ db_add_fields <- function(conn,
 #'which contains a SQLite database(s).
 #'
 #'NOTE: .zip files will be unzipped to a temporary folder called 
-#'xxxfvsUtildb_compileUnzipxxx in current working directory. Temporary folder will
+#'xxxfvstoolsdb_compileUnzipxxx in current working directory. Temporary folder will
 #'be deleted after db_compile has finished writing data to output database.
 #'
 #'Examples of valid dbin formats:
@@ -830,7 +830,7 @@ db_compile <- function(dbin = NULL,
 #'which contains a SQLite database(s).
 #'
 #'NOTE: .zip files will be unzipped to a temporary folder called 
-#'xxxfvsUtildb_compileUnzipxxx in a temporary directory. The temporary folder 
+#'xxxfvstoolsdb_compileUnzipxxx in a temporary directory. The temporary folder 
 #'will be deleted after db_compile has finished writing data to output database.
 #'
 #'Examples of valid dbin formats:

@@ -1,11 +1,11 @@
 ################################################################################
 #Commons.R
 #
-#This file contains common data that is used by various functions in the fvsUtil
+#This file contains common data that is used by various functions in the fvstools
 #package. The data structures in this file can also be accessed in R sessions 
-#by reference the name of the data structure prepended by fvsUtil:::. As an
+#by reference the name of the data structure prepended by fvstools:::. As an
 #example the variants vector could be accessed using the following instruction: 
-#fvsUtil:::variants.
+#fvstools:::variants.
 ################################################################################
 
 ################################################################################
@@ -22,7 +22,7 @@ variants = c("AK", "BM", "CA", "CI", "CR", "CS", "EC", "EM", "IE", "KT",
 
 fvs_species = read.csv(file = system.file("extdata", 
                                           "fvs_species.csv", 
-                                          package="fvsUtil"),
+                                          package="fvstools"),
                        colClasses = c("character", 
                                       "integer", 
                                       "character",
@@ -35,7 +35,7 @@ fvs_species = read.csv(file = system.file("extdata",
 
 fvs_locs = read.csv(file = system.file("extdata",
                                        "fvs_locs.csv",
-                                       package="fvsUtil"))
+                                       package="fvstools"))
 
 ################################################################################
 #pv_codes dataframe
@@ -43,7 +43,7 @@ fvs_locs = read.csv(file = system.file("extdata",
 
 pv_codes = read.csv(file = system.file("extdata",
                                        "pv_codes.csv",
-                                       package="fvsUtil"))
+                                       package="fvstools"))
 
 ################################################################################
 #pv_codes_regions dataframe
@@ -51,7 +51,7 @@ pv_codes = read.csv(file = system.file("extdata",
 
 pv_codes_regions = read.csv(file = system.file("extdata",
                                                "pv_codes_regions.csv",
-                                               package="fvsUtil"))
+                                               package="fvstools"))
 
 ################################################################################
 #support_sp data frame
@@ -59,7 +59,7 @@ pv_codes_regions = read.csv(file = system.file("extdata",
 
 support_sp = read.csv(system.file("extdata",
                                   "support_sp.csv",
-                                  package="fvsUtil"))
+                                  package="fvstools"))
 
 ################################################################################
 #state_codes data frame
@@ -67,7 +67,7 @@ support_sp = read.csv(system.file("extdata",
 
 state_codes = read.csv(system.file("extdata", 
                                    "state_codes.csv", 
-                                   package="fvsUtil"))
+                                   package="fvstools"))
 
 ################################################################################
 #fortyp_codes data frame
@@ -75,7 +75,7 @@ state_codes = read.csv(system.file("extdata",
 
 fortyp_codes = read.csv(system.file("extdata",
                                     "fortyp_codes.csv",
-                                    package="fvsUtil"))
+                                    package="fvstools"))
 
 ################################################################################
 #fvs_seq_list: List of species sequence numbers for each FVS variant.
@@ -83,7 +83,7 @@ fortyp_codes = read.csv(system.file("extdata",
 
 fvs_seq_list = readRDS(file = system.file("extdata",
                                           "fvs_seq_list.rds",
-                                          package="fvsUtil"))
+                                          package="fvstools"))
 
 ################################################################################
 #fvs_char_list: List of FVS species codes for each FVS variant.
@@ -91,7 +91,7 @@ fvs_seq_list = readRDS(file = system.file("extdata",
 
 fvs_char_list = readRDS(file = system.file("extdata",
                                            "fvs_char_list.rds",
-                                           package="fvsUtil"))
+                                           package="fvstools"))
 
 ################################################################################
 #fvs_fia_list: List of FIA species codes for each FVS variant.
@@ -99,7 +99,7 @@ fvs_char_list = readRDS(file = system.file("extdata",
 
 fvs_fia_list = readRDS(file = system.file("extdata",
                                           "fvs_fia_list.rds",
-                                          package="fvsUtil"))
+                                          package="fvstools"))
 
 ################################################################################
 #fvs_plant_list: List of USDA plant symbols for each FVS variant.
@@ -107,7 +107,7 @@ fvs_fia_list = readRDS(file = system.file("extdata",
 
 fvs_plant_list = readRDS(file = system.file("extdata",
                                             "fvs_plant_list.rds",
-                                            package="fvsUtil"))
+                                            package="fvstools"))
 
 ################################################################################
 #fvs_loc_list: List of location codes by FVS variant. Does not include tribal 
@@ -116,7 +116,7 @@ fvs_plant_list = readRDS(file = system.file("extdata",
 
 fvs_loc_list = readRDS(file = system.file("extdata",
                                           "fvs_loc_list.rds",
-                                          package="fvsUtil"))
+                                          package="fvstools"))
   
 ################################################################################
 #pvcode_list: list of PV codes by FVS variant
@@ -124,7 +124,7 @@ fvs_loc_list = readRDS(file = system.file("extdata",
 
 pvcode_list = readRDS(file = system.file("extdata",
                                          "pvcode_list.rds",
-                                         package="fvsUtil"))
+                                         package="fvstools"))
 
 ################################################################################
 #habpvr_list: List of PV codes recognized by FVS variant and region
@@ -132,7 +132,7 @@ pvcode_list = readRDS(file = system.file("extdata",
 
 habpvr_list = readRDS(file = system.file("extdata",
                                          "habpvr_list.rds",
-                                         package="fvsUtil"))
+                                         package="fvstools"))
 
 ################################################################################
 #pvcode_reg_list: List of PV codes by FVS variant and region
@@ -140,7 +140,7 @@ habpvr_list = readRDS(file = system.file("extdata",
 
 pvcode_reg_list = readRDS(file = system.file("extdata",
                                              "pvcode_reg_list.rds",
-                                             package="fvsUtil"))
+                                             package="fvstools"))
 
 ################################################################################
 #pvref_list: List of PV reference codes by FVS variant and region
@@ -148,4 +148,4 @@ pvcode_reg_list = readRDS(file = system.file("extdata",
 
 pvref_list = readRDS(file = system.file("extdata",
                                         "pvref_list.rds",
-                                         package="fvsUtil"))
+                                         package="fvstools"))

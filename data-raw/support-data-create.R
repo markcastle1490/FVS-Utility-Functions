@@ -1,7 +1,7 @@
 ################################################################################
 #support-data-create.R
 #
-#This script is used to create the following .csv files that support the fvsUtil
+#This script is used to create the following .csv files that support the fvstools
 #R package:
 #
 #support_sp.csv: Contains information from REF_SPECIES.csv. Only SPCD less than

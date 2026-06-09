@@ -9,7 +9,7 @@
 library(RSQLite)
 library(dplyr)
 library(data.table)
-library(fvsUtil)
+library(fvstools)
 
 #Get some test data
 con = dbConnect(SQLite(),
@@ -41,7 +41,7 @@ sp_group = c('DF', 'GF', 'AF')
 #Testing sequence for plot variables using dplyr
 system.time(tree %>%
   group_by(CaseID, StandID, Year) %>%
-  #mutate(TREEBA = DBH^2 * TPA * fvsUtil:::for_constant) %>%
+  #mutate(TREEBA = DBH^2 * TPA * fvstools:::for_constant) %>%
   summarize(BA_ = ba(dbh = DBH, expf = TPA),
             TPA_ = tpa(dbh = DBH, expf = TPA),
             QMD_ = qmd(dbh = DBH, expf = TPA),
@@ -157,7 +157,7 @@ tree <- as.data.table(tree)
 
 #Testing sequence for plot variables using data.table
 #Note that chaining is done with multiple [] in sequence.
-fvs_sum2 = tree[, TREEBA := DBH^2 * TPA * fvsUtil:::for_constant][, .(
+fvs_sum2 = tree[, TREEBA := DBH^2 * TPA * fvstools:::for_constant][, .(
   BA_ = ba(dbh = DBH, expf = TPA),
   TPA_ = tpa(dbh = DBH, expf = TPA),
   QMD_ = qmd(dbh = DBH, expf = TPA),
@@ -307,7 +307,7 @@ dbDisconnect(con)
 #Testing sequence for plot variables using dplyr
 fvs_sum = tree %>%
   group_by(CaseID, StandID, Year) %>%
-  #mutate(TREEBA = DBH^2 * TPA * fvsUtil:::for_constant) %>%
+  #mutate(TREEBA = DBH^2 * TPA * fvstools:::for_constant) %>%
   summarize(BA_ = ba(dbh = DBH, expf = TPA),
             TPA_ = tpa(dbh = DBH, expf = TPA),
             QMD_ = qmd(dbh = DBH, expf = TPA),

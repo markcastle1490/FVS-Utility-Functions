@@ -18,7 +18,7 @@ process. Files can either be a SQLite database (.db) or zipped folder (.zip)
 which contains a SQLite database(s).
 
 NOTE: .zip files will be unzipped to a temporary folder called
-xxxfvsUtildb_compileUnzipxxx in current working directory. Temporary folder will
+xxxfvstoolsdb_compileUnzipxxx in current working directory. Temporary folder will
 be deleted after db_compile has finished writing data to output database.
 
 Examples of valid dbin formats:

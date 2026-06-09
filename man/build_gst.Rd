@@ -3,6 +3,16 @@
 \name{build_gst}
 \alias{build_gst}
 \title{build_gst}
+\usage{
+build_gst(
+  dbin = NULL,
+  dbout = NULL,
+  gst_table = "GST",
+  gst_type = 1,
+  overwrite = FALSE,
+  verbose = FALSE
+)
+}
 \arguments{
 \item{dbin:}{Character vector of file paths to sqlite database (.db or .sqlite).}
 

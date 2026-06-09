@@ -1,6 +1,6 @@
 ################################################################################
 #This script is used to copy all the PV_Rerference and habitat type and PV code
-#routines from a cloned repository to data-raw folder of fvsUtil package.
+#routines from a cloned repository to data-raw folder of fvstools package.
 ################################################################################
 
 #Repository path

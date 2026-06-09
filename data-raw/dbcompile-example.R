@@ -1,13 +1,13 @@
 ################################################################################
 #dbCompile_Example.R
 #
-#This script shows an example of how to use the dbCompile function from fvsUtil
+#This script shows an example of how to use the dbCompile function from fvstools
 #R package to combine multiple FIA SQLite databases.
 ################################################################################
 
 #Load packages 
 library(RSQLite)
-library(fvsUtil)
+library(fvstools)
 
 #Look at information about dbCompile if you like
 help(dbCompile)
