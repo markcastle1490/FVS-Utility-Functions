@@ -159,7 +159,8 @@ fia_gst <- function(dbin = NULL,
            #Grab PREVIA for dead trees if needed
            DIA = dplyr::if_else(is.na(DIA) & STATUSCD == 2, PREVDIA, DIA),
            #Fill in missing DIACHECK values
-           DIACHECK = dplyr::coalesce(DIACHECK, 0)) |>
+           DIACHECK = dplyr::coalesce(DIACHECK, 0),
+           TPA_UNADJ = dplyr::coalesce(TPA_UNADJ, 0.0)) |>
     dplyr::rename(EXPF = "TPA_UNADJ") |>
     #Drop rows that are not needed in GST
     #Missing measurement year and cycle

@@ -200,7 +200,7 @@ merge_inv <- function(data,
   {
     for(j in 1:length(intervals))
     {
-      #Extract dataframes from index i and j
+      #Define interval1 and interval2
       interval1 <- intervals[i]
       interval2 <- intervals[j]
       
@@ -217,47 +217,51 @@ merge_inv <- function(data,
         next
       }
 
-      #Else data from interval2  will be merged to data from interval1
+      #Else data from interval2 will be merged to data from interval1
       else
       {
         if(verbose) cat("Merging remeasurements", "\n", "\n")
 
+        #Join the tree level information
+        #Full join is used to capture tree records that may not have a matched
+        #record between remeasurement periods
         df <- dplyr::full_join(x = data[[interval1]],
                                y = data[[interval2]],
                                by = c(merge_id, species))
-
-        #Identify plots where there are no re-measurements for a given
-        #interval1 - interval2 combination. This is done by summing the
-        #INTERVAL.y by UNIQUESUBPID.x. Plots with no re-measurements will have
-        #a value of 0 for the sum of INTERVAL.y (SUM_Y).
-        df <- df |>
-          dplyr::group_by(.data[[paste0(plot_id, ".x")]]) |>
-          dplyr::mutate(SUM_Y = sum(.data[[paste0(interval, ".y")]], na.rm = T))
-
-        #Identify plots where there are no initial measurements for a given
-        #interval1 - interval2 combination. This is done by summing the
-        #INTERVAL.x by UNIQUESUBPID.y. Plots with no initial measurements will
-        #have a value of 0 for the sum of INTERVAL.x (SUM_X).
-        df <- df |>
-          dplyr::group_by(.data[[paste0(plot_id, ".y")]]) |>
-          dplyr::mutate(SUM_X = sum(.data[[paste0(interval, ".x")]], na.rm = T)) |>
-          dplyr::ungroup()
-
-        #Extract observations that have COUNT_X and COUNT_Y > 0
-        #If tree_id.x is NA, use the value from tree_id.y. These are ingrowth,
-        #missed trees, or those not accounted for due to change in DESIGNCD
-        #between initial (interval1) and subsequent inventory (interval2).
-        #Records with NA interval values have a value filled in.
+        
+        #Now do the following:
+        #1) Identify plots where there are no RE-MEASUREMENTS for a given
+        #   interval1 - interval2 combination. This is done by summing the
+        #   INTERVAL.y by UNIQUESUBPID.x. Plots with no re-measurements will 
+        #   have a value of 0 for the sum of INTERVAL.y (SUM_Y).
+        #
+        #2) Identify plots where there are no INITIAL MEASUREMENTS for a given
+        #   interval1 - interval2 combination. This is done by summing the
+        #   INTERVAL.x by UNIQUESUBPID.y. Plots with no initial measurements 
+        #   will have a value of 0 for the sum of INTERVAL.x (SUM_X).
+        #
+        #3) Drop records with no initial measurements or remeasurements. 
+        #
+        #4) If tree_id.x is NA, use the value from tree_id.y. These are ingrowth,
+        #   missed trees, or those not accounted for due to change in DESIGNCD
+        #   between initial (interval1) and subsequent inventory (interval2).
+        #   Records with NA interval values have a value filled in.
+        
         tree_lab = paste0(tree_id, ".x")
         int_lab_x = paste0(interval, ".x")
         int_lab_y = paste0(interval, ".y")
         
         df <- df |>
+          #dplyr::group_by(.data[[paste0(plot_id, ".x")]]) |>
+          dplyr::mutate(SUM_Y = sum(.data[[paste0(interval, ".y")]], na.rm = T),
+                        .by = .data[[paste0(plot_id, ".x")]]) |>
+          dplyr::mutate(SUM_X = sum(.data[[paste0(interval, ".x")]], na.rm = T),
+                                    .by = .data[[paste0(plot_id, ".y")]]) |>
           dplyr::filter(SUM_Y > 0, SUM_X > 0) |>
           dplyr::select(!c(SUM_Y, SUM_X)) |>
           dplyr::mutate("{tree_lab}" := 
                           dplyr::coalesce(.data[[paste0(tree_id, ".x")]], 
-                        .data[[paste0(tree_id, ".y")]]),
+                                          .data[[paste0(tree_id, ".y")]]),
                         "{int_lab_x}" := 
                           dplyr::coalesce(.data[[paste0(interval, ".x")]], interval1),
                         "{int_lab_y}" := 
@@ -269,19 +273,48 @@ merge_inv <- function(data,
         #Increment n_insert
         n_insert<- n_insert + 1
 
-        #Clear df
-        rm(df); gc()
+        #Clean up
+        #rm(df); gc()
       }
     }
   }
 
-  #Bind all items in df_list into a single dataframe (all_dat)
+  #Bind all items in df_list into a single dataframe and return
   df <- dplyr::bind_rows(df_list)
 
   if(verbose) cat("Leaving merge_inv function.", "\n", "\n")
   
   return(df)
 }
+
+#Identify plots where there are no initial measurements for a given
+#interval1 - interval2 combination. This is done by summing the
+#INTERVAL.x by UNIQUESUBPID.y. Plots with no initial measurements will
+#have a value of 0 for the sum of INTERVAL.x (SUM_X).
+# df <- df |>
+#   dplyr::group_by(.data[[paste0(plot_id, ".y")]]) |>
+#   dplyr::mutate(SUM_X = sum(.data[[paste0(interval, ".x")]], na.rm = T)) |>
+#   dplyr::ungroup()
+
+#Extract observations that have COUNT_X and COUNT_Y > 0
+#If tree_id.x is NA, use the value from tree_id.y. These are ingrowth,
+#missed trees, or those not accounted for due to change in DESIGNCD
+#between initial (interval1) and subsequent inventory (interval2).
+#Records with NA interval values have a value filled in.
+# tree_lab = paste0(tree_id, ".x")
+# int_lab_x = paste0(interval, ".x")
+# int_lab_y = paste0(interval, ".y")
+# 
+# df <- df |>
+#   dplyr::filter(SUM_Y > 0, SUM_X > 0) |>
+#   dplyr::select(!c(SUM_Y, SUM_X)) |>
+#   dplyr::mutate("{tree_lab}" := 
+#                   dplyr::coalesce(.data[[paste0(tree_id, ".x")]], 
+#                 .data[[paste0(tree_id, ".y")]]),
+#                 "{int_lab_x}" := 
+#                   dplyr::coalesce(.data[[paste0(interval, ".x")]], interval1),
+#                 "{int_lab_y}" := 
+#                   dplyr::coalesce(.data[[paste0(interval, ".y")]], interval2))
 
 ################################################################################
 #'write_gst
