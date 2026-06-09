@@ -317,6 +317,158 @@ merge_inv <- function(data,
 #                   dplyr::coalesce(.data[[paste0(interval, ".y")]], interval2))
 
 ################################################################################
+#'merge_inv_dt (data.table implementation)
+#'@name merge_inv_dt:
+#'@description
+#' 
+#'This function accepts a list of dataframes containing containing information
+#'that will be paired by a measurement interval (cycle or year). This function 
+#'is called from the code that prepares a growth sample tree database (e.g.
+#'fia_gst).
+#
+#'@param data:
+#'List of dataframes for each unique value of interval argument
+#
+#'@param plot_id:   
+#'Character string of column name used to represent a unique plot ID.
+#
+#'@param tree_id:  
+#' Character string of column name used to represent a unique tree ID.
+#
+#'@param interval:  
+#'Character string of column name used to specify a measurement year. This 
+#'variable is used to pair re-measurement observations. 
+#
+#'@param merge_id:
+#'Character string of column name used to merge re-measurement periods together.
+#
+#'@param species:
+#'Character string of column name that contains species codes in dataframes 
+#'within data argument. This argument is used in the merging of remeasurement
+#'data.
+#
+#'@return
+#'Data frame with paired remeasurement data.
+################################################################################
+
+merge_inv_dt <- function(data,
+                      plot_id = "UNIQUESUBPID",
+                      tree_id = "UNIQUETREEID",
+                      merge_id = "TREEMERGEID",
+                      interval = "CYCLE",
+                      species = "SPCD",
+                      verbose = TRUE)
+{
+  if(verbose) cat("\n", "Entering merge_inv function.", "\n", "\n")
+  
+  #Get unique INTERVAL values and sort
+  intervals <- sort(as.numeric(unique(names(data))))
+  if(verbose) cat("Intervals considered: ", paste(intervals, collapse = ", "), "\n")
+  
+  #Define list used to store merged dataframes
+  df_list <-vector(mode = "list", length = length(intervals)^2)
+  
+  #Intialize variable that will be used to track number of insertions into
+  #df_list
+  n_insert <- 1
+  
+  #Start outer loop across intervals. Each interval in the outer loop will be
+  #merged with the interval in inner loop if it is less than or equal to
+  #interval in the inner loop. In other words, this is used to test if initial
+  #inventory year is less than or equal to subsequent inventory year.
+  for(interval1 in intervals)
+  {
+    for(interval2 in intervals)
+    {
+      #Define interval1 and interval2
+      # interval1 <- intervals[int1]
+      # interval2 <- intervals[int2]
+      
+      if(verbose)
+      {
+        cat("Interval 1:", interval1, "\n")
+        cat("Interval 2:", interval2, "\n")
+      }
+      
+      #If interval1 is greater than interval2 then data will not be merged.
+      if(interval1 > interval2) 
+      {
+        if(verbose) cat("Invalid interval pair. Skipping merge.", "\n", "\n")
+        next
+      }
+      
+      #Else data from interval2 will be merged to data from interval1
+      else
+      {
+        if(verbose) cat("Merging remeasurements", "\n", "\n")
+        
+        #Join the tree level information
+        #Full join is used to capture tree records that may not have a matched
+        #record between remeasurement periods
+        df <- merge(x = data[[as.character(interval1)]],
+              y = data[[as.character(interval2)]],
+              by = c(merge_id, species),
+              all.x = TRUE)
+        
+        #Now do the following:
+        #1) Identify plots where there are no RE-MEASUREMENTS for a given
+        #   interval1 - interval2 combination. This is done by summing the
+        #   INTERVAL.y by UNIQUESUBPID.x. Plots with no re-measurements will 
+        #   have a value of 0 for the sum of INTERVAL.y (SUM_Y).
+        #
+        #2) Identify plots where there are no INITIAL MEASUREMENTS for a given
+        #   interval1 - interval2 combination. This is done by summing the
+        #   INTERVAL.x by UNIQUESUBPID.y. Plots with no initial measurements 
+        #   will have a value of 0 for the sum of INTERVAL.x (SUM_X).
+        #
+        #3) Drop records with no initial measurements or remeasurements. 
+        #
+        #4) If tree_id.x is NA, use the value from tree_id.y. These are ingrowth,
+        #   missed trees, or those not accounted for due to change in DESIGNCD
+        #   between initial (interval1) and subsequent inventory (interval2).
+        #   Records with NA interval values have a value filled in.
+        
+        tree_lab = paste0(tree_id, ".x")
+        int_lab_x = paste0(interval, ".x")
+        int_lab_y = paste0(interval, ".y")
+        
+        new_cols = c(tree_lab, int_lab_x, int_lab_y)
+        
+        df |>
+          _[, SUM_Y := sum(get(paste0(interval, ".y")), na.rm = T),
+                        by = c(paste0(plot_id, ".x"))] |>
+          _[, SUM_X := sum(get(paste0(interval, ".x")), na.rm = T),
+                        by = c(paste0(plot_id, ".y"))] |>
+          _[SUM_Y > 0 & SUM_X > 0] |>
+          _[, -c("SUM_Y", "SUM_X")] |>
+          _[, (new_cols) := list(data.table::fcoalesce(get(paste0(tree_id, ".x")), 
+                                     get(paste0(tree_id, ".y"))),
+                                 data.table::fcoalesce(get(paste0(interval, ".x")),
+                                           as.integer(interval1)),
+                                 data.table::fcoalesce(get(paste0(interval, ".y")),
+                                           as.integer(interval2)))]
+        
+        #Add dataframe to list
+        df_list[[n_insert]] <- df
+        
+        #Increment n_insert
+        n_insert<- n_insert + 1
+        
+        #Clean up
+        #rm(df); gc()
+      }
+    }
+  }
+  
+  #Bind all items in df_list into a single dataframe and return
+  df <- data.table::rbindlist(df_list)
+  
+  if(verbose) cat("Leaving merge_inv function.", "\n", "\n")
+  
+  return(df)
+}
+
+################################################################################
 #'write_gst
 #'@name write_gst
 #'@description
