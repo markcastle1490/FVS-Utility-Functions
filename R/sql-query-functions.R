@@ -1,6 +1,6 @@
 ################################################################################
-#'set_index_query
-#'@name set_index_query
+#'create_idx_query
+#'@name create_idx_query
 #'@description
 #'
 #'This function takes in a database table name and field name and returns a 
@@ -22,9 +22,9 @@
 ################################################################################
 
 #'@export
-set_index_query <- function(db_table = "FVS_STANDINIT",
-                            db_field = "STAND_ID",
-                            idx_name = NULL)
+create_idx_query <- function(db_table = "FVS_STANDINIT",
+                             db_field = "STAND_ID",
+                             idx_name = NULL)
 {
   #Set index name if not entered
   if(is.null(idx_name)) idx_name = paste("idx", db_table, db_field, sep = "_")
@@ -62,7 +62,7 @@ set_index_query <- function(db_table = "FVS_STANDINIT",
 #'@export
 add_col_query <- function(db_table = "TREE",
                           db_field = "PLOTQUERYID",
-                          dataType = "TEXT")
+                          data_type = "TEXT")
 {
   query <- paste("ALTER TABLE",
                  db_table,
@@ -74,14 +74,14 @@ add_col_query <- function(db_table = "TREE",
 }
 
 ################################################################################
-#'drop_index_query
-#'@name drop_index_query
+#'drop_idx_query
+#'@name drop_idx_query
 #'@description
 #'
 #'This function takes in a SQLite index name and returns a query that will drop
 #'the index if it exists.
 #
-#'@param index: 
+#'@param idx_name: 
 #'Character string of index name in database table to drop.
 #
 #'@return
@@ -90,7 +90,7 @@ add_col_query <- function(db_table = "TREE",
 ################################################################################
 
 #'@export
-drop_index_query <- function(idx_name = "TREE_PLOTQUERYID")
+drop_idx_query <- function(idx_name = "TREE_PLOTQUERYID")
 {
   query <- paste0("DROP INDEX IF EXISTS ", idx_name)
   return(query)
@@ -187,22 +187,21 @@ placeholder_id <- function(ids = NULL)
 }
 
 ################################################################################
-#Function: db_get_indices
+#'db_indices
+#'@name db_indices
+#'@description
+#'This function returns the names of indices that exist in input database
+#'argument.
 #
-#This function returns the names of indices that exist in input database
-#argument.
+#'@param input
+#'Connection to a SQLite database (.db, .sqlite)
 #
-#Arguments
-#
-#input: Connection to a SQLite database (.db, .sqlite)
-#
-#Value
-#
-#Character vector of index names that exist in input argument.
+#'@return
+#'Character vector of index names that exist in input argument.
 ################################################################################
 
 #'@export
-db_get_indices <- function(con)
+db_indices <- function(con)
 {
   #Initialize character vector of length zero
   index_names <- vector(mode = "character")
@@ -215,16 +214,7 @@ db_get_indices <- function(con)
   
   #If there are indexes in tables, retrieve them
   if(nrow(tables) > 0)
-  {
     index_names <- tables$name
-  }
-  
-  #If there are no indexes in tables, set index_names to "No index names found in
-  #database"
-  if(length(index_names) <= 0)
-  {
-    index_names <- "No index names found in database"
-  }
   
   return(index_names)
 }
@@ -276,8 +266,9 @@ add_plotq_id <- function(dbIn,
     {
       #Create PLOTQUERYID column
       RSQLite::dbExecute(con,
-                         create_field_query(db_table = table,
-                                          dbField = "PLOTQUERYID"))
+                         add_col_query(db_table = table,
+                                       db_field = "PLOTQUERYID"),
+                                       data_type = "TEXT")
       cat("PLOTQUERYID created in", table, "\n")
       
       #Set values
@@ -288,12 +279,12 @@ add_plotq_id <- function(dbIn,
       #Remove index if it already exists
       index_name <- paste(table, "PLOTQUERYID", sep = "_")
       RSQLite::dbExecute(con,
-                         drop_index_query(index = index_name))
+                         drop_idx_query(idx_name = index_name))
       
       #Create index
       RSQLite::dbExecute(con,
-                         set_index_query(db_table = table,
-                                       dbField = "PLOTQUERYID"))
+                         create_idx_query(db_table = table,
+                                          db_field = "PLOTQUERYID"))
       cat("Index created in", table, "on PLOTQUERYID", "\n", "\n")
     }
     

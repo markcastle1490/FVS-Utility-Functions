@@ -148,61 +148,7 @@ fvs_gaak<-function(dbin ="FVS_Data.db",
 }
 
 ################################################################################
-#'delete_files
-#'@name delete_files
-#'@description
-#'
-#'This function takes in a character vector containing directory paths and file
-#'names and deletes each file if they exist.
-#
-#'@param files: 
-#'Character vector of directory paths and file names that will be deleted if 
-#'they exist.
-#
-#'@param recur: 
-#'Logical variable used to signal if recursive deletion should occur if TRUE. 
-#'By default, this argument is set to FALSE.
-#
-#'@return
-#'None
-################################################################################
-
-#'@export
-delete_files <- function(files = c(),
-                         recur = FALSE)
-{
-  #Ensure files is character
-  files <- as.character(files)
-  
-  #Delete files if values are provided
-  if(length(files) > 0)
-  {
-    #Loop across files and delete
-    for(file in files)
-    {
-      if(file.exists(file))
-      {
-        retcode <- unlink(x = file,
-                          recursive = recur)
-        
-        if(retcode == 0)
-        {
-          cat(file, "was sucessfully deleted.", "\n")
-        }
-        
-        else
-        {
-          cat(file, "was not sucessfully deleted.", "\n")
-        }
-      }
-    }
-  }
-  
-  invisible()
-}
-
-################################################################################
-#db_get_data_types
+#db_tbl_schema
 #
 #This function takes in directory path to sqlite database and database table
 #name an returns a named list of fields and associated data types for the
@@ -216,8 +162,8 @@ delete_files <- function(files = c(),
 #db_table.
 ################################################################################
 
-db_get_data_types <- function(con,
-                              db_table = "")
+db_tbl_schema <- function(con,
+                          db_table = "")
 {
   #Initialize empty vector
   data_types <- c()
@@ -341,7 +287,7 @@ db_collect_paths <- function(dbin = c(),
 }
 
 ################################################################################
-#db_create_table_query
+#create_tbl_query
 #
 #This function takes in a database connection to an existing SQLite database and
 #database table name and returns a SQL query for creating the input database
@@ -354,19 +300,16 @@ db_collect_paths <- function(dbin = c(),
 #db_fields: Named character vector where names of vector are field names and the 
 #           value in each index is a data type.
 #
-##alias:    Character string corresponding to name of database alias.
-#
 #Character string of SQL query used to create database table.
 ################################################################################
 
-db_create_table_query <- function(db_table,
-                                  db_fields = c(),
-                                  alias = "dbinsert")
+create_tbl_query <- function(db_table = NULL,
+                             db_fields = NULL)
 {
   
   query <- ""
   
-  if(length(db_fields) > 0 )
+  if(!is.null(db_table) && !is.null(db_fields))
   {
     query <- paste(paste("CREATE TABLE", db_table),
                    paste0("(", paste(names(db_fields), 
@@ -379,7 +322,7 @@ db_create_table_query <- function(db_table,
 }
 
 ################################################################################
-#db_insert_query
+#insert_tbl_query
 #
 #This function generates a SQLite query that is used to insert the specified
 #fields from the database table of an existing SQLite database into the table of
@@ -395,13 +338,13 @@ db_create_table_query <- function(db_table,
 #another.
 ################################################################################
 
-db_insert_query <- function(db_fields,
-                            db_table,
-                            alias = "dbinsert")
+insert_tbl_query <- function(db_fields = NULL,
+                             db_table = NULL,
+                             alias = "dbinsert")
 {
   query <- ""
   
-  if(length(db_fields) > 0)
+  if(!is.null(db_fields) && !is.null(db_table))
   {
     #Create query
     query <- paste(paste("INSERT INTO", db_table),
@@ -415,7 +358,7 @@ db_insert_query <- function(db_fields,
 }
 
 ################################################################################
-#db_insert_tables
+#db_insert_tbl
 #
 #This function will insert the contents from specified databases tables of one 
 #SQLite database into another SQLite database. This function is called from 
@@ -436,7 +379,7 @@ db_insert_query <- function(db_fields,
 #None
 ################################################################################
 
-db_insert_tables <- function(dbout,
+db_insert_tbl <- function(dbout,
                              dbinsert,
                              db_tables = c(),
                              keep_casing = TRUE)
@@ -471,8 +414,8 @@ db_insert_tables <- function(dbout,
     }
     
     #Get database fields and types for dbinsert
-    insert_types <- db_get_data_types(con = con_in,
-                                      db_table = table)
+    insert_types <- db_tbl_schema(con = con_in,
+                                 db_table = table)
     
     #Disconnect from dbinsert
     RSQLite::dbDisconnect(con_in)
@@ -484,8 +427,8 @@ db_insert_tables <- function(dbout,
     if(!RSQLite::dbExistsTable(conn = con_out,
                                name = table))
     {
-      query <- db_create_table_query(db_table = table,
-                                  db_fields = insert_types)
+      query <- create_tbl_query(db_table = table,
+                                db_fields = insert_types)
       
       if(query == "") 
       {
@@ -519,7 +462,7 @@ db_insert_tables <- function(dbout,
     #dbinsert
     
     #Get database fields and types for dbout
-    out_types <- db_get_data_types(con = con_out,
+    out_types <- db_tbl_schema(con = con_out,
                                 db_table = table)
      
     missing_fields <- names(out_types)[! names(out_types) %in% 
@@ -544,8 +487,8 @@ db_insert_tables <- function(dbout,
                                         name = table)
     
     #Generate insert query
-    query <- db_insert_query(db_fields = db_fields,
-                             db_table = table)
+    query <- insert_tbl_query(db_fields = db_fields,
+                              db_table = table)
     
     #If query is invalid move to next iteration
     if(query == "") 
@@ -790,7 +733,7 @@ db_compile <- function(dbin = NULL,
     
     cat("Processing db:", db, "\n")
     
-    db_insert_tables(dbout = dbout,
+    db_insert_tbl(dbout = dbout,
                    dbinsert = db,
                    db_tables = db_tables,
                    keep_casing = keep_casing)
@@ -805,8 +748,12 @@ db_compile <- function(dbin = NULL,
     
     cat(paste("Argument delete_input is TRUE.",
               "Deleting input databases.", "\n"))
-    delete_files(files = dbin,
-                recur = FALSE)
+    
+    ret = unlink(x = dbin,
+                 recursive = FALSE)
+    
+    if(ret == 1) 
+      cat("Failed to delete one or more databases from dbin.")
   }
   
   invisible()
@@ -1189,7 +1136,7 @@ db_compile <- function(dbin = NULL,
 #   colnames(db_table) <- toupper(colnames(db_table))
 #   
 #   #Get column data types from table_name
-#   table_types <-db_get_data_types(con_in,
+#   table_types <-db_tbl_schema(con_in,
 #                               table_name)
 #   
 #   #Disconnect from con_in
@@ -1406,7 +1353,7 @@ db_compile <- function(dbin = NULL,
 #                                    query)
 #     
 #     #Get column data types from table_name
-#     table_types <-db_get_data_types(con_in,
+#     table_types <-db_tbl_schema(con_in,
 #                                 table_name)
 #     
 #     #Disconnect from db

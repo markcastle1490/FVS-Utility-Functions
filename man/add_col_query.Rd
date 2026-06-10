@@ -4,7 +4,7 @@
 \alias{add_col_query}
 \title{add_col_query}
 \usage{
-add_col_query(db_table = "TREE", db_field = "PLOTQUERYID", dataType = "TEXT")
+add_col_query(db_table = "TREE", db_field = "PLOTQUERYID", data_type = "TEXT")
 }
 \arguments{
 \item{db_table:}{Character string corresponding to name of database table.}
