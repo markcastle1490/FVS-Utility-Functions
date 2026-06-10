@@ -139,13 +139,13 @@ fia_gst <- function(dbin = NULL,
                                 sep = "_"),
            #Create ID that will be used in merge_inv function
            #Unique tree ID without INVYR
-           TREEMERGEID = paste(STATECD,
-                               UNITCD,
-                               COUNTYCD,
-                               PLOT,
-                               SUBP,
-                               TREE,
-                               sep = "_"),
+           # TREEMERGEID = paste(STATECD,
+           #                     UNITCD,
+           #                     COUNTYCD,
+           #                     PLOT,
+           #                     SUBP,
+           #                     TREE,
+           #                     sep = "_"),
            #Broken top indicator
            BT = dplyr::coalesce(dplyr::if_else(ACTUALHT < HT, 1, 0), 0),
            #Create temporary HTCD for determining HT
@@ -196,14 +196,17 @@ fia_gst <- function(dbin = NULL,
   #Obtain variables that will be included in the fia_meas data frame and passed
   #to merge_inv function
   merge_vars <- c(
- "TREEMERGEID", "SPCD", "CYCLE", "MEASYEAR", "MEASMON",
+ "SPCD", "CYCLE", "MEASYEAR", "MEASMON",
  "MEASDAY", "DIA", "HT", "CR", "STATUSCD",
  "AGENTCD", "DIACHECK", "HTDMP", "DESIGNCD")
 
-  #Merge dataframe
+  #Create list of data frames split by variable that will be used to join 
+  #remeasurement data (cycle or year)
+  #TREEMERGEID is created to align remeasurement periods
   merge_df <- split(tree |>
-    dplyr::mutate(ID = row_number(), .by = TREEMERGEID) |>
-    dplyr::select(dplyr::all_of(c("UNIQUETREEID", "UNIQUESUBPID", merge_vars))),
+    dplyr::mutate(TREEMERGEID = dplyr::cur_group_id(), 
+                  .by = c(STATECD, UNITCD, COUNTYCD, PLOT, SUBP, TREE)) |>
+    dplyr::select(dplyr::all_of(c("UNIQUETREEID", "UNIQUESUBPID", "TREEMERGEID", merge_vars))),
   f = tree$CYCLE)
 
   #Obtain variables not in merge_df except for UNIQUETREEID and UNIQUESUBPID.
@@ -218,7 +221,7 @@ fia_gst <- function(dbin = NULL,
   #Call merge_inv function
   merge_df <- merge_inv(merge_df,
                         interval = "CYCLE",
-                      verbose = verbose)
+                        verbose = verbose)
 
   #Extract appropriate columns and rename columns
   tree <- merge_df |>
