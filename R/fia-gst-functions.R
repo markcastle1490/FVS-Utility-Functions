@@ -163,17 +163,17 @@ fia_gst <- function(dbin = NULL,
            #Assume 1 for missing DIAHTCD values
            DIAHTCD = dplyr::coalesce(DIAHTCD, 1),
            TPA_UNADJ = dplyr::coalesce(TPA_UNADJ, 0.0)) |>
-    dplyr::rename(EXPF = "TPA_UNADJ") |>
+    dplyr::rename(EXPF = "TPA_UNADJ")
     #Drop rows that are not needed in GST
     #Missing measurement year and cycle
     #Missing DIA
     #Missing EXPF
     #Retain STATUSCD 1 (live) or 2 (dead)
-    dplyr::filter(!is.na(MEASYEAR), 
-                  !is.na(CYCLE), 
-                  !is.na(DIA), 
-                  !is.na(EXPF),
-                  STATUSCD %in% c(1, 2))
+    # dplyr::filter(!is.na(MEASYEAR), 
+    #               !is.na(CYCLE), 
+    #               !is.na(DIA), 
+    #               !is.na(EXPF),
+    #               STATUSCD %in% c(1, 2))
 
   #=============================================================================
   # Step 4
@@ -196,7 +196,7 @@ fia_gst <- function(dbin = NULL,
   #Obtain variables that will be included in the fia_meas data frame and passed
   #to merge_inv function
   merge_vars <- c(
- "SPCD", "CYCLE", "MEASYEAR", "MEASMON",
+ "CYCLE", "MEASYEAR", "MEASMON",
  "MEASDAY", "DIA", "HT", "CR", "STATUSCD",
  "AGENTCD", "DIACHECK", "HTDMP", "DESIGNCD")
 
@@ -206,17 +206,19 @@ fia_gst <- function(dbin = NULL,
   merge_df <- split(tree |>
     dplyr::mutate(TREEMERGEID = dplyr::cur_group_id(), 
                   .by = c(STATECD, UNITCD, COUNTYCD, PLOT, SUBP, TREE)) |>
-    dplyr::select(dplyr::all_of(c("UNIQUETREEID", "UNIQUESUBPID", "TREEMERGEID", merge_vars))),
+    dplyr::select(dplyr::all_of(c("UNIQUETREEID", 
+                                  "UNIQUESUBPID",
+                                  "TREEMERGEID",
+                                  "SPCD",
+                                   merge_vars))),
   f = tree$CYCLE)
 
   #Obtain variables not in merge_df except for UNIQUETREEID and UNIQUESUBPID.
-  exclude_vars <- c("UNIQUETREEID", 
-                    "UNIQUESUBPID",
-                    colnames(tree)[!colnames(tree) %in% merge_vars])
+  exclude_vars <- c("SPCD", merge_vars)
 
   #Isolate tree level variables not needed in merge_inv function
   tree <- tree |>
-    dplyr::select(!dplyr::all_of(merge_vars))
+    dplyr::select(!exclude_vars)
 
   #Call merge_inv function
   merge_df <- merge_inv(merge_df,
@@ -291,7 +293,9 @@ fia_gst <- function(dbin = NULL,
                   DIA1 = dplyr::coalesce(DIA1, 0.0),
                   HT0 = dplyr::coalesce(HT0, 0.0),
                   HT1 = dplyr::coalesce(HT1, 0.0)) |>
-                  dplyr::filter(VALIDYEAR > 0)
+                  dplyr::filter(VALIDYEAR > 0) |>
+    dplyr::rename_with(toupper) |>
+    dplyr::select(any_of(names(gst_vars)))
 
   #=============================================================================
   # Step 6
@@ -300,11 +304,6 @@ fia_gst <- function(dbin = NULL,
   
   if(verbose)
     cat("Step 6:", "Writing GST...", "\n")
-  
-  #Capitalize field names and select those only in gst_vars
-  tree <- tree |>
-    dplyr::rename_with(toupper) |>
-    dplyr::select(any_of(names(gst_vars)))
 
   #Write GST to dbout
   write_gst(gst = tree, dbout = dbout, gst_table = gst_table)

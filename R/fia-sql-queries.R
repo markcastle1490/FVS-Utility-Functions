@@ -67,7 +67,11 @@ fia_query = paste(c("SELECT",
                   AND TREE.SUBP = SUBPLOT.SUBP",
                   "LEFT JOIN REF_SPECIES ON
                   TREE.SPCD = REF_SPECIES.SPCD",
-                  "WHERE PLOT.KINDCD IN (1, 2, 3);"),
+                  "WHERE PLOT.KINDCD IN (1, 2, 3) AND
+                  PLOT.MEASYEAR IS NOT NULL AND
+                  PLOT.CYCLE IS NOT NULL AND
+                  TREE.DIA IS NOT NULL AND
+                  TREE.TPA_UNADJ IS NOT NULL;"),
                   collapse = "\n")
 
 fia_si_query = paste(c("SELECT",
