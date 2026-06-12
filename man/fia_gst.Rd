@@ -4,7 +4,7 @@
 \alias{fia_gst}
 \title{fia_gst}
 \usage{
-fia_gst(dbin = NULL, dbout = NULL, gst_table = NULL, verbose = FALSE)
+fia_gst(dbin = NULL, dbout = NULL, gst_table = "GST", verbose = FALSE)
 }
 \arguments{
 \item{dbin:}{Character string of file path FIA SQLite database.}

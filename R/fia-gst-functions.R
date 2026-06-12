@@ -26,7 +26,7 @@
 #'@export
 fia_gst <- function(dbin = NULL,
                     dbout = NULL,
-                    gst_table = NULL,
+                    gst_table = "GST",
                     verbose = FALSE)
 {
 
@@ -114,12 +114,6 @@ fia_gst <- function(dbin = NULL,
                                 COUNTYCD,
                                 PLOT,
                                 sep = "_"),
-           #Unique Plot ID without INVYR
-           PLOTMERGEID = paste(STATECD,
-                                UNITCD,
-                                COUNTYCD,
-                                PLOT,
-                                sep = "_"),
            #Unique subplot ID
            UNIQUESUBPID = paste(STATECD,
                                 INVYR,
@@ -137,43 +131,25 @@ fia_gst <- function(dbin = NULL,
                                 SUBP,
                                 TREE,
                                 sep = "_"),
-           #Create ID that will be used in merge_inv function
-           #Unique tree ID without INVYR
-           # TREEMERGEID = paste(STATECD,
-           #                     UNITCD,
-           #                     COUNTYCD,
-           #                     PLOT,
-           #                     SUBP,
-           #                     TREE,
-           #                     sep = "_"),
            #Broken top indicator
            BT = dplyr::coalesce(dplyr::if_else(ACTUALHT < HT, 1, 0), 0),
            #Create temporary HTCD for determining HT
            HTCD_TEMP = dplyr::coalesce(HTCD, 1),
            #Get measured height value (only observations that were actually measured)
-           HT= dplyr::case_when(is.na(ACTUALHT) & is.na(HT) ~ NA,
+           HT = dplyr::case_when(is.na(ACTUALHT) & is.na(HT) ~ NA,
                           HTCD_TEMP == 1 & !is.na(ACTUALHT) ~ ACTUALHT,
                           HTCD_TEMP == 1 & is.na(ACTUALHT) ~ HT,
                           HTCD_TEMP ==  2 & !is.na(ACTUALHT) ~ ACTUALHT),
-           #HT = mapply(fia_ht, HTCD, ACTUALHT, HT),
            #Grab PREVIA for dead trees if needed
            DIA = dplyr::if_else(is.na(DIA) & STATUSCD == 2, PREVDIA, DIA),
            #Fill in missing DIACHECK values
            DIACHECK = dplyr::coalesce(DIACHECK, 0),
            #Assume 1 for missing DIAHTCD values
-           DIAHTCD = dplyr::coalesce(DIAHTCD, 1),
-           TPA_UNADJ = dplyr::coalesce(TPA_UNADJ, 0.0)) |>
+           DIAHTCD = dplyr::coalesce(DIAHTCD, 1)) |>
+    #Create tree ID that is not unique by INVYR
+    dplyr::mutate(TREEMERGEID = dplyr::cur_group_id(), 
+                  .by = c(STATECD, UNITCD, COUNTYCD, PLOT, SUBP, TREE)) |>
     dplyr::rename(EXPF = "TPA_UNADJ")
-    #Drop rows that are not needed in GST
-    #Missing measurement year and cycle
-    #Missing DIA
-    #Missing EXPF
-    #Retain STATUSCD 1 (live) or 2 (dead)
-    # dplyr::filter(!is.na(MEASYEAR), 
-    #               !is.na(CYCLE), 
-    #               !is.na(DIA), 
-    #               !is.na(EXPF),
-    #               STATUSCD %in% c(1, 2))
 
   #=============================================================================
   # Step 4
@@ -195,37 +171,33 @@ fia_gst <- function(dbin = NULL,
 
   #Obtain variables that will be included in the fia_meas data frame and passed
   #to merge_inv function
-  merge_vars <- c(
- "CYCLE", "MEASYEAR", "MEASMON",
- "MEASDAY", "DIA", "HT", "CR", "STATUSCD",
+  time_vars <- c(
+ "CYCLE", "MEASYEAR", "MEASMON", "MEASDAY", "DIA", "HT", "CR", "STATUSCD",
  "AGENTCD", "DIACHECK", "HTDMP", "DESIGNCD")
 
   #Create list of data frames split by variable that will be used to join 
   #remeasurement data (cycle or year)
-  #TREEMERGEID is created to align remeasurement periods
   merge_df <- split(tree |>
-    dplyr::mutate(TREEMERGEID = dplyr::cur_group_id(), 
-                  .by = c(STATECD, UNITCD, COUNTYCD, PLOT, SUBP, TREE)) |>
     dplyr::select(dplyr::all_of(c("UNIQUETREEID", 
                                   "UNIQUESUBPID",
                                   "TREEMERGEID",
                                   #"SPCD",
-                                   merge_vars))),
+                                   time_vars))),
   f = tree$CYCLE)
 
   #Obtain variables not in merge_df except for UNIQUETREEID and UNIQUESUBPID.
-  # exclude_vars <- c("SPCD", merge_vars)
+  # exclude_vars <- c("SPCD", time_vars)
 
-  #Isolate tree level variables not needed in merge_inv function
+  #Drop TREEMERGEID and variables in time_vars
   tree <- tree |>
-    dplyr::select(!merge_vars)
+    dplyr::select(!c("TREEMERGEID", time_vars))
 
   #Call merge_inv function
   merge_df <- merge_inv(merge_df,
                         interval = "CYCLE",
                         verbose = verbose)
 
-  #Extract appropriate columns and rename columns
+  #Extract drop columns, rename columns, and join to tree
   tree <- merge_df |>
     dplyr::select(!c(UNIQUETREEID.y, UNIQUESUBPID.y, UNIQUESUBPID.x)) |>
     dplyr::rename(UNIQUETREEID = "UNIQUETREEID.x") |>
@@ -247,9 +219,9 @@ fia_gst <- function(dbin = NULL,
     cat("Step 5:", "Calculating final variables...", "\n")
 
   tree <- tree |>
-    #Find maximum year by PLOTMERGEID
+    #Find maximum year by STATECD, UNITCD, COUNTYCD, PLOT
     dplyr::mutate(MAXYEAR = max(MEASYEAR1, na.rm = TRUE),
-                  .by = PLOTMERGEID) |>
+                  .by = c(STATECD, UNITCD, COUNTYCD, PLOT)) |>
     #Sum DIACHECK value by TREEMERGEID. These values will be used to determine
     #if DIA measurement location changed during a remeasurement interval.
     dplyr::mutate(DIASUM0 = sum(DIACHECK0, na.rm = TRUE),
@@ -263,19 +235,25 @@ fia_gst <- function(dbin = NULL,
                       (MEASYEAR0 == MAXYEAR & MEASYEAR1 == MAXYEAR) ~ 1,
                     is.na(MEASYEAR0) | is.na(MEASYEAR1) | is.na(MAXYEAR) ~ 1,
                     .default = 0),
+                  #Measurement interval length
                   MEASLEN = MEASYEAR1 - MEASYEAR0,
+                  #Mortality observation indicator
                   MORT = dplyr::case_when(
                     STATUSCD0 == 1 & STATUSCD1 == 2 & MEASLEN > 0 ~ 1,
                     STATUSCD0 == 1 & STATUSCD1 == 1 & MEASLEN > 0 ~ 0),
+                  #Diameter growth observation indicator
                   IDGRM = dplyr::if_else(
                     DIA1 >= DIA0 & 
                     (STATUSCD0 == 1 & STATUSCD1 == 1) & 
                     MEASLEN > 0, 1, 0),
+                  #Diameter increment
                   DI = DIA1 - DIA0,
+                  #Height growth observation indicator
                   IHGRM = dplyr::if_else(
                     HT1 >= HT0 & 
                     (STATUSCD0 == 1 & STATUSCD1 == 1) & 
                     MEASLEN > 0, 1, 0),
+                  #Height increment
                   HI = HT1 - HT0,
                   #Attempt to use future or past crown ratios when needed
                   #We assume that crown ratio does not change substantially
@@ -283,8 +261,10 @@ fia_gst <- function(dbin = NULL,
                   CR0 = dplyr::coalesce(CR0, CR1),
                   CR1 = dplyr::if_else(is.na(CR1) & STATUSCD1 == 1 & !is.na(CR0),
                    CR0, CR1),
+                  #Height to crown base
                   HCB0 = HT0 - (HT0 * CR0/100),
                   HCB1 = HT1 - (HT1 * CR1/100),
+                  #Placeholders for crown width
                   CW0 = NA,
                   CW1 = NA,
                   #Zero out values when NA. Helpful for plot variable calculations
@@ -298,7 +278,12 @@ fia_gst <- function(dbin = NULL,
     dplyr::select(any_of(names(gst_vars)))
 
   #=============================================================================
-  # Step 6
+  #Step 6
+  #Calculate density and competition metrics
+  #=============================================================================
+
+  #=============================================================================
+  # Step 7
   # Write GST dataframe to output database
   #=============================================================================
   
