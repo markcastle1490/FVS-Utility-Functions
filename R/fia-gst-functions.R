@@ -209,16 +209,16 @@ fia_gst <- function(dbin = NULL,
     dplyr::select(dplyr::all_of(c("UNIQUETREEID", 
                                   "UNIQUESUBPID",
                                   "TREEMERGEID",
-                                  "SPCD",
+                                  #"SPCD",
                                    merge_vars))),
   f = tree$CYCLE)
 
   #Obtain variables not in merge_df except for UNIQUETREEID and UNIQUESUBPID.
-  exclude_vars <- c("SPCD", merge_vars)
+  # exclude_vars <- c("SPCD", merge_vars)
 
   #Isolate tree level variables not needed in merge_inv function
   tree <- tree |>
-    dplyr::select(!exclude_vars)
+    dplyr::select(!merge_vars)
 
   #Call merge_inv function
   merge_df <- merge_inv(merge_df,
@@ -311,31 +311,31 @@ fia_gst <- function(dbin = NULL,
   invisible()
 }
 
-# ################################################################################
-# # 'Implementation seems to be nearly equivalent to dplyr in terms of speed.
-# #' Not sure if I am missing out on something key with syntax...
-# #'@name fia_gst_dt
-# #'@description
-# #' 
-# #' This function takes in a FIA SQLite database and writes infromation to a
-# #' growth sample tree (gst) database with variables described in the 
-# #' gst-variables.R file. This function is called from function build_fia defined 
-# #' in gst-functions.R file.
-# #
-# #'@param dbin:
-# #' Character string of file path FIA SQLite database.
-# #
-# #'@param dbout:		
-# #' Character string of file path to SQLite database where growth sample tree 
-# #' information will be written to.
-# #
-# #'@param gst_table: 
-# #' Character string corresponding to name of growth sample tree database table 
-# #' written to dbout argument.
-# #' 
-# #'@return
-# #' None
-# ################################################################################
+################################################################################
+# 'Implementation seems to be nearly equivalent to dplyr in terms of speed.
+#' Not sure if I am missing out on something key with syntax...
+#'@name fia_gst_dt
+#'@description
+#' 
+#' This function takes in a FIA SQLite database and writes infromation to a
+#' growth sample tree (gst) database with variables described in the 
+#' gst-variables.R file. This function is called from function build_fia defined 
+#' in gst-functions.R file.
+#
+#'@param dbin:
+#' Character string of file path FIA SQLite database.
+#
+#'@param dbout:		
+#' Character string of file path to SQLite database where growth sample tree 
+#' information will be written to.
+#
+#'@param gst_table: 
+#' Character string corresponding to name of growth sample tree database table 
+#' written to dbout argument.
+#' 
+#'@return
+#' None
+################################################################################
 
 # #'@export
 # fia_gst_dt <- function(dbin = NULL,
@@ -369,7 +369,7 @@ fia_gst <- function(dbin = NULL,
   
 #   #Disconnect from dbin
 #   RSQLite::dbDisconnect(con)
-  
+
 #   #=============================================================================
 #   #Step 2
 #   #Summarize site index by plot and then join to tree. Not quite sure how
@@ -381,20 +381,17 @@ fia_gst <- function(dbin = NULL,
   
 #   #Calculate site index for each FIA plot (not subplot or condition) by species
 #   #For now, average of site index observations is taken for each species.
-#   site_sum <- site |>
-#     #Drop duplicate site trees that occur by condition
-#     _[!duplicated(paste(STATECD,
-#                         INVYR,
-#                         UNITCD,
-#                         COUNTYCD,
-#                         PLOT,
-#                         SUBP,
-#                         TREE,
-#                         sep = "_"))] |>
+#       #Drop duplicate site trees that occur by condition
 #     #Group by unique plot and species to calculate mean SI and SIBASE
-#     _[, .(SI = round(mean(SITREE[VALIDCD == 1], na.rm = T),0),
-#           SIBASE = round(mean(SIBASE[VALIDCD == 1], na.rm = T),0)),
-#       by = .(STATECD, INVYR, UNITCD, COUNTYCD, PLOT, SPCD)]
+#    site_sum <- site[
+#   !duplicated(paste(STATECD, INVYR, UNITCD, COUNTYCD, PLOT, SUBP, TREE, sep = "_")),
+#   .(
+#     SI    = round(mean(SITREE[VALIDCD == 1], na.rm = TRUE), 0),
+#     SIBASE= round(mean(SIBASE[VALIDCD == 1], na.rm = TRUE), 0)
+#   ),
+#   by = .(STATECD, INVYR, UNITCD, COUNTYCD, PLOT, SPCD)
+# ]
+#   return(site_sum)
 
 #   #Join site index summary to site_sum
 #   merge(x = tree,
@@ -477,17 +474,12 @@ fia_gst <- function(dbin = NULL,
 #                   #Assume 1 for missing DIAHTCD values
 #                   DIAHTCD = data.table::fcoalesce(DIAHTCD, as.integer(1)),
 #                   TPA_UNADJ = data.table::fcoalesce(TPA_UNADJ, 0.0))] |>
-#     data.table::setnames(x = _, old = c("TPA_UNADJ"), new = c("EXPF")) |>
+#     data.table::setnames(x = _, old = c("TPA_UNADJ"), new = c("EXPF"))
 #     #Drop rows that are not needed in GST
 #     #Missing measurement year and cycle
 #     #Missing DIA
 #     #Missing EXPF
 #     #Retain STATUSCD 1 (live) or 2 (dead)
-#     _[(!is.na(MEASYEAR) & 
-#          !is.na(CYCLE) &
-#          !is.na(DIA) &
-#          !is.na(EXPF) &
-#          STATUSCD %in% c(1, 2))]
   
 #   #=============================================================================
 #   # Step 4
@@ -510,13 +502,24 @@ fia_gst <- function(dbin = NULL,
 #   #Obtain variables that will be included in the fia_meas data frame and passed
 #   #to merge_inv function
 #   merge_vars <- c(
-#     "TREEMERGEID", "SPCD", "CYCLE", "MEASYEAR", "MEASMON",
+#     "CYCLE", "MEASYEAR", "MEASMON",
 #     "MEASDAY", "DIA", "HT", "CR", "STATUSCD",
 #     "AGENTCD", "DIACHECK", "HTDMP", "DESIGNCD")
   
 #   #Merge dataframe
-#   merge_df <- split(tree[, c("UNIQUETREEID", "UNIQUESUBPID", merge_vars), with = FALSE],
-#                     by = "CYCLE")
+#   merge_df <- lapply(split(tree |>
+#                     _[, TREEMERGEID := .GRP, by = .(paste(STATECD, 
+#                                                           UNITCD, 
+#                                                           COUNTYCD,
+#                                                           PLOT, 
+#                                                           SUBP, 
+#                                                           TREE))] |>
+#                     _[, c("UNIQUETREEID", 
+#                              "UNIQUESUBPID",
+#                              "TREEMERGEID",
+#                               merge_vars), with = FALSE],
+#                     by = "CYCLE"),
+#                     function(x) {data.table::setkey(x, TREEMERGEID)})
   
 #   #Obtain variables not in merge_df except for UNIQUETREEID and UNIQUESUBPID.
 #   exclude_vars <- c("UNIQUETREEID", 
@@ -528,8 +531,8 @@ fia_gst <- function(dbin = NULL,
   
 #   #Call merge_inv function
 #   merge_df <- merge_inv_dt(merge_df,
-#                         interval = "CYCLE",
-#                         verbose = verbose)
+#                            interval = "CYCLE",
+#                            verbose = verbose)
   
 #   return(merge_df)
   
