@@ -247,19 +247,22 @@ merge_inv <- function(data,
         #   between initial (interval1) and subsequent inventory (interval2).
         #   Records with NA interval values have a value filled in.
         
-        tree_lab = paste0(tree_id, ".x")
+        tree_lab_x = paste0(tree_id, ".x")
+        tree_lab_y = paste0(tree_id, ".y")
+        plot_lab_x = paste0(plot_id, ".x")
+        plot_lab_y = paste0(plot_id, ".y")
         int_lab_x = paste0(interval, ".x")
         int_lab_y = paste0(interval, ".y")
         
         df <- df |>
           #dplyr::group_by(.data[[paste0(plot_id, ".x")]]) |>
-          dplyr::mutate(SUM_Y = sum(.data[[paste0(interval, ".y")]], na.rm = T),
-                        .by = .data[[paste0(plot_id, ".x")]]) |>
-          dplyr::mutate(SUM_X = sum(.data[[paste0(interval, ".x")]], na.rm = T),
-                                    .by = .data[[paste0(plot_id, ".y")]]) |>
+          dplyr::mutate(SUM_Y = sum(.data[[int_lab_y]], na.rm = T),
+                        .by = .data[[plot_lab_x]]) |>
+          dplyr::mutate(SUM_X = sum(.data[[int_lab_x]], na.rm = T),
+                                    .by = .data[[plot_lab_y]]) |>
           dplyr::filter(SUM_Y > 0, SUM_X > 0) |>
           dplyr::select(!c(SUM_Y, SUM_X)) |>
-          dplyr::mutate("{tree_lab}" := 
+          dplyr::mutate("{tree_lab_x}" := 
                           dplyr::coalesce(.data[[paste0(tree_id, ".x")]], 
                                           .data[[paste0(tree_id, ".y")]]),
                         "{int_lab_x}" := 
@@ -380,7 +383,7 @@ merge_inv_dt <- function(data,
         df <- merge(x = data[[as.character(interval1)]],
                     y = data[[as.character(interval2)]],
                     by = c(merge_id),
-                    all.x = TRUE)
+                    all = TRUE)
         
         #Now do the following:
         #1) Identify plots where there are no RE-MEASUREMENTS for a given
@@ -400,25 +403,25 @@ merge_inv_dt <- function(data,
         #   between initial (interval1) and subsequent inventory (interval2).
         #   Records with NA interval values have a value filled in.
         
-        tree_lab = paste0(tree_id, ".x")
+        tree_lab_x = paste0(tree_id, ".x")
+        tree_lab_y = paste0(tree_id, ".y")
+        plot_lab_x = paste0(tree_id, ".x")
+        plot_lab_y = paste0(tree_id, ".y")
         int_lab_x = paste0(interval, ".x")
         int_lab_y = paste0(interval, ".y")
         
-        new_cols = c(tree_lab, int_lab_x, int_lab_y)
+        new_cols = c(tree_lab_x, int_lab_x, int_lab_y)
         
-        df |>
-          _[, SUM_Y := sum(get(paste0(interval, ".y")), na.rm = T),
-                        by = c(paste0(plot_id, ".x"))] |>
-          _[, SUM_X := sum(get(paste0(interval, ".x")), na.rm = T),
-                        by = c(paste0(plot_id, ".y"))] |>
-          _[SUM_Y > 0 & SUM_X > 0] |>
-          _[, -c("SUM_Y", "SUM_X")] |>
-          _[, (new_cols) := list(data.table::fcoalesce(get(paste0(tree_id, ".x")), 
-                                     get(paste0(tree_id, ".y"))),
-                                 data.table::fcoalesce(get(paste0(interval, ".x")),
-                                           as.integer(interval1)),
-                                 data.table::fcoalesce(get(paste0(interval, ".y")),
-                                           as.integer(interval2)))]
+        df <- df[, SUM_Y := sum(v, na.rm = TRUE), by = g, 
+                 env = list(v = int_lab_y, g = plot_lab_x)
+        ][, SUM_X := sum(v, na.rm = TRUE), by = g, 
+          env = list(v = int_lab_x, g = plot_lab_y)
+        ][SUM_Y > 0 & SUM_X > 0, (new_cols) := list(
+          data.table::fcoalesce(get(tree_lab_x), get(tree_lab_y)),
+          data.table::fcoalesce(get(int_lab_x), as.integer(interval1)),
+          data.table::fcoalesce(get(int_lab_y), as.integer(interval2))
+        )
+        ][, `:=`(SUM_Y = NULL, SUM_X = NULL)]
         
         #Add dataframe to list
         df_list[[n_insert]] <- df
@@ -427,7 +430,7 @@ merge_inv_dt <- function(data,
         n_insert<- n_insert + 1
         
         #Clean up
-        #rm(df); gc()
+        rm(df)
       }
     }
   }
