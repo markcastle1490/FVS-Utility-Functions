@@ -149,6 +149,8 @@ fia_gst <- function(dbin = NULL,
     #Create tree ID that is not unique by INVYR
     dplyr::mutate(TREEMERGEID = dplyr::cur_group_id(), 
                   .by = c(STATECD, UNITCD, COUNTYCD, PLOT, SUBP, TREE)) |>
+    dplyr::mutate(PLOTMERGEID = dplyr::cur_group_id(), 
+                  .by = c(STATECD, UNITCD, COUNTYCD, PLOT)) |>
     dplyr::rename(EXPF = "TPA_UNADJ")
 
   #=============================================================================
@@ -179,14 +181,11 @@ fia_gst <- function(dbin = NULL,
   #remeasurement data (cycle or year)
   merge_df <- split(tree |>
     dplyr::select(dplyr::all_of(c("UNIQUETREEID", 
-                                  "UNIQUESUBPID",
+                                  "PLOTMERGEID",
                                   "TREEMERGEID",
                                   #"SPCD",
                                    time_vars))),
   f = tree$CYCLE)
-
-  #Obtain variables not in merge_df except for UNIQUETREEID and UNIQUESUBPID.
-  # exclude_vars <- c("SPCD", time_vars)
 
   #Drop TREEMERGEID and variables in time_vars
   tree <- tree |>
@@ -196,12 +195,10 @@ fia_gst <- function(dbin = NULL,
   merge_df <- merge_inv(merge_df,
                         interval = "CYCLE",
                         verbose = verbose)
-  
-  return(merge_df)
 
   #Extract drop columns, rename columns, and join to tree
   tree <- merge_df |>
-    dplyr::select(!c(UNIQUETREEID.y, UNIQUESUBPID.y, UNIQUESUBPID.x)) |>
+    dplyr::select(!c(UNIQUETREEID.y, PLOTMERGEID.y, PLOTMERGEID.x)) |>
     dplyr::rename(UNIQUETREEID = "UNIQUETREEID.x") |>
     dplyr::rename_with(~ gsub(".x", "0", .)) |>
     dplyr::rename_with(~ gsub(".y", "1", .))   |>
@@ -222,8 +219,8 @@ fia_gst <- function(dbin = NULL,
 
   tree <- tree |>
     #Find maximum year by STATECD, UNITCD, COUNTYCD, PLOT
-    dplyr::mutate(MAXYEAR = max(MEASYEAR1, na.rm = TRUE),
-                  .by = c(STATECD, UNITCD, COUNTYCD, PLOT)) |>
+    # dplyr::mutate(MAXYEAR = max(MEASYEAR1, na.rm = TRUE),
+    #               .by = c(STATECD, UNITCD, COUNTYCD, PLOT)) |>
     #Sum DIACHECK value by TREEMERGEID. These values will be used to determine
     #if DIA measurement location changed during a remeasurement interval.
     dplyr::mutate(DIASUM0 = sum(DIACHECK0, na.rm = TRUE),
@@ -231,13 +228,7 @@ fia_gst <- function(dbin = NULL,
                   .by = TREEMERGEID) |>
     #Remove remeasurement pairings that are equal but do NOT coincide with the
     #latest remeasurement of the plot. 
-    dplyr::mutate(VALIDYEAR = dplyr::case_when(
-                    MEASYEAR0 < MEASYEAR1 ~ 1,
-                    MEASYEAR0 == MEASYEAR1 & 
-                      (MEASYEAR0 == MAXYEAR & MEASYEAR1 == MAXYEAR) ~ 1,
-                    is.na(MEASYEAR0) | is.na(MEASYEAR1) | is.na(MAXYEAR) ~ 1,
-                    .default = 0),
-                  #Measurement interval length
+    dplyr::mutate(#Measurement interval length
                   MEASLEN = MEASYEAR1 - MEASYEAR0,
                   #Mortality observation indicator
                   MORT = dplyr::case_when(
@@ -275,11 +266,9 @@ fia_gst <- function(dbin = NULL,
                   DIA1 = dplyr::coalesce(DIA1, 0.0),
                   HT0 = dplyr::coalesce(HT0, 0.0),
                   HT1 = dplyr::coalesce(HT1, 0.0)) |>
-                  dplyr::filter(VALIDYEAR > 0) |>
+                  #dplyr::filter(VALIDYEAR > 0) |>
     dplyr::rename_with(toupper) |>
     dplyr::select(any_of(names(gst_vars)))
-  
-  return(tree)
 
   #=============================================================================
   #Step 6
@@ -299,6 +288,14 @@ fia_gst <- function(dbin = NULL,
 
   invisible()
 }
+
+#Archive this logic in case it is needed again
+# VALIDYEAR = dplyr::case_when(
+#                     MEASYEAR0 < MEASYEAR1 ~ 1,
+#                     MEASYEAR0 == MEASYEAR1 & 
+#                       (MEASYEAR0 == MAXYEAR & MEASYEAR1 == MAXYEAR) ~ 1,
+#                     is.na(MEASYEAR0) | is.na(MEASYEAR1) | is.na(MAXYEAR) ~ 1,
+#                     .default = 0),
 
 ################################################################################
 # 'Implementation seems to be nearly equivalent to dplyr in terms of speed.
@@ -487,8 +484,8 @@ fia_gst_dt <- function(dbin = NULL,
   #Merge dataframe
   merge_df <- lapply(split(tree |>
                     _[, c("UNIQUETREEID",
-                             "UNIQUESUBPID",
-                             "TREEMERGEID",
+                          "PLOTMERGEID",
+                          "TREEMERGEID",
                               merge_vars), with = FALSE],
                     by = "CYCLE"),
                     function(x) {data.table::setkey(x, TREEMERGEID)})
@@ -505,7 +502,7 @@ fia_gst_dt <- function(dbin = NULL,
 
   #Extract appropriate columns and rename columns
   tree <- merge_df |>
-    _[, !c(UNIQUETREEID.y, UNIQUESUBPID.y, UNIQUESUBPID.x)] |>
+    _[, !c(UNIQUETREEID.y, PLOTMERGEID.y, PLOTMERGEID.x)] |>
     data.table::setnames(x = _,
                          old = c("UNIQUETREEID.x"),
                          new = c("UNIQUETREEID")) |>

@@ -6,7 +6,7 @@
 \usage{
 merge_inv(
   data,
-  plot_id = "UNIQUESUBPID",
+  plot_id = "PLOTMERGEID",
   tree_id = "UNIQUETREEID",
   merge_id = "TREEMERGEID",
   interval = "CYCLE",
