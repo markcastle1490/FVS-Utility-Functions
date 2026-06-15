@@ -134,12 +134,13 @@ fia_gst <- function(dbin = NULL,
            #Broken top indicator
            BT = dplyr::coalesce(dplyr::if_else(ACTUALHT < HT, 1, 0), 0),
            #Create temporary HTCD for determining HT
-           HTCD_TEMP = dplyr::coalesce(HTCD, 1),
            #Get measured height value (only observations that were actually measured)
-           HT = dplyr::case_when(is.na(ACTUALHT) & is.na(HT) ~ NA,
-                          HTCD_TEMP == 1 & !is.na(ACTUALHT) ~ ACTUALHT,
-                          HTCD_TEMP == 1 & is.na(ACTUALHT) ~ HT,
-                          HTCD_TEMP ==  2 & !is.na(ACTUALHT) ~ ACTUALHT),
+           HT = {HTCD_TEMP = dplyr::coalesce(HTCD, 1)
+             dplyr::case_when(is.na(ACTUALHT) & is.na(HT) ~ NA_real_,
+                              HTCD_TEMP == 1 & !is.na(ACTUALHT) ~ ACTUALHT,
+                              HTCD_TEMP == 1 & is.na(ACTUALHT) ~ HT,
+                              HTCD_TEMP ==  2 & !is.na(ACTUALHT) ~ ACTUALHT,
+                             TRUE ~ HT)},
            #Grab PREVIA for dead trees if needed
            DIA = dplyr::if_else(is.na(DIA) & STATUSCD == 2, PREVDIA, DIA),
            #Fill in missing DIACHECK values
@@ -171,8 +172,8 @@ fia_gst <- function(dbin = NULL,
   if(verbose)
     cat("Step 4:", "Pairing remeasurements...", "\n")
 
-  #Obtain variables that will be included in the fia_meas data frame and passed
-  #to merge_inv function
+  #Obtain variables that will have time 1 (start of remeasurment period) and 
+  #time 2 (end of remeasurement period) values
   time_vars <- c(
  "CYCLE", "MEASYEAR", "MEASMON", "MEASDAY", "DIA", "HT", "CR", "STATUSCD",
  "AGENTCD", "DIACHECK", "HTDMP", "DESIGNCD")
@@ -183,11 +184,10 @@ fia_gst <- function(dbin = NULL,
     dplyr::select(dplyr::all_of(c("UNIQUETREEID", 
                                   "PLOTMERGEID",
                                   "TREEMERGEID",
-                                  #"SPCD",
                                    time_vars))),
   f = tree$CYCLE)
 
-  #Drop TREEMERGEID and variables in time_vars
+  #Get variables that will not be included in merge_inv function
   tree <- tree |>
     dplyr::select(!c("TREEMERGEID", time_vars))
 
@@ -233,19 +233,20 @@ fia_gst <- function(dbin = NULL,
                   #Mortality observation indicator
                   MORT = dplyr::case_when(
                     STATUSCD0 == 1 & STATUSCD1 == 2 & MEASLEN > 0 ~ 1,
-                    STATUSCD0 == 1 & STATUSCD1 == 1 & MEASLEN > 0 ~ 0),
+                    STATUSCD0 == 1 & STATUSCD1 == 1 & MEASLEN > 0 ~ 0,
+                  .default = NA_integer_),
                   #Diameter growth observation indicator
                   IDGRM = dplyr::if_else(
                     DIA1 >= DIA0 & 
                     (STATUSCD0 == 1 & STATUSCD1 == 1) & 
-                    MEASLEN > 0, 1, 0),
+                    MEASLEN > 0, 1L, NA_integer_),
                   #Diameter increment
                   DI = DIA1 - DIA0,
                   #Height growth observation indicator
                   IHGRM = dplyr::if_else(
                     HT1 >= HT0 & 
                     (STATUSCD0 == 1 & STATUSCD1 == 1) & 
-                    MEASLEN > 0, 1, 0),
+                    MEASLEN > 0, 1L, NA_integer_),
                   #Height increment
                   HI = HT1 - HT0,
                   #Attempt to use future or past crown ratios when needed
@@ -258,8 +259,8 @@ fia_gst <- function(dbin = NULL,
                   HCB0 = HT0 - (HT0 * CR0/100),
                   HCB1 = HT1 - (HT1 * CR1/100),
                   #Placeholders for crown width
-                  CW0 = NA,
-                  CW1 = NA,
+                  CW0 = NA_real_,
+                  CW1 = NA_real_,
                   #Zero out values when NA. Helpful for plot variable calculations
                   EXPF = dplyr::coalesce(EXPF, 0.0),
                   DIA0 = dplyr::coalesce(DIA0, 0.0),
@@ -404,9 +405,8 @@ fia_gst_dt <- function(dbin = NULL,
   if(verbose)
     cat("Step 3: Preparing variables before inventory remeasurement pairing...", "\n")
 
-  tree |>
-    _[, HTCD_TEMP := data.table::fcoalesce(HTCD, as.integer(1))] |>
-    _[, ':=' (DATAPROVIDER = 'FIA',
+  tree[, HTCD_TEMP := data.table::fcoalesce(HTCD, 1L)
+  ][, ':=' (DATAPROVIDER = 'FIA',
                   #Unique plot ID
                   UNIQUEPLOTID = paste(STATECD,
                                        INVYR,
@@ -436,7 +436,7 @@ fia_gst_dt <- function(dbin = NULL,
                   #Create temporary HTCD for determining HT
                   #HTCD_TEMP = data.table::fcoalesce(HTCD, as.integer(1)),
                   #Get measured height value (only observations that were actually measured)
-                  HT= data.table::fcase(is.na(ACTUALHT) & is.na(HT), as.integer(0),
+                  HT= data.table::fcase(is.na(ACTUALHT) & is.na(HT), 0L,
                                        HTCD_TEMP == 1 & !is.na(ACTUALHT), ACTUALHT,
                                        HTCD_TEMP == 1 & is.na(ACTUALHT), HT,
                                        HTCD_TEMP ==  2 & !is.na(ACTUALHT), ACTUALHT),
@@ -447,14 +447,19 @@ fia_gst_dt <- function(dbin = NULL,
                   DIACHECK = data.table::fcoalesce(DIACHECK, 0L),
                   #Assume 1 for missing DIAHTCD values
                   DIAHTCD = data.table::fcoalesce(DIAHTCD, 1L),
-                  TPA_UNADJ = data.table::fcoalesce(TPA_UNADJ, 0.0))] |>
-    _[, TREEMERGEID := .GRP, by = .(paste(STATECD,
-                                          UNITCD,
-                                          COUNTYCD,
-                                          PLOT,
-                                          SUBP,
-                                          TREE))] |>
-    data.table::setnames(x = _, old = c("TPA_UNADJ"), new = c("EXPF"))
+                  TPA_UNADJ = data.table::fcoalesce(TPA_UNADJ, 0.0))
+  ][, TREEMERGEID := .GRP, by = .(paste(STATECD,
+                                        UNITCD,
+                                        COUNTYCD,
+                                        PLOT,
+                                        SUBP,
+                                        TREE))
+  ][, PLOTMERGEID := .GRP, by = .(paste(STATECD,
+                                        UNITCD,
+                                        COUNTYCD,
+                                        PLOT))]
+  
+  data.table::setnames(x = tree, old = c("TPA_UNADJ"), new = c("EXPF"))
 
   #=============================================================================
   # Step 4
@@ -477,118 +482,115 @@ fia_gst_dt <- function(dbin = NULL,
   #Obtain variables that will be included in the fia_meas data frame and passed
   #to merge_inv function
   merge_vars <- c(
-    "CYCLE", "MEASYEAR", "MEASMON",
-    "MEASDAY", "DIA", "HT", "CR", "STATUSCD",
+    "CYCLE", "MEASYEAR", "MEASMON", "MEASDAY", "DIA", "HT", "CR", "STATUSCD",
     "AGENTCD", "DIACHECK", "HTDMP", "DESIGNCD")
 
   #Merge dataframe
-  merge_df <- lapply(split(tree |>
-                    _[, c("UNIQUETREEID",
-                          "PLOTMERGEID",
-                          "TREEMERGEID",
+  merge_df <- split(tree[, c("UNIQUETREEID",
+                             "PLOTMERGEID",
+                              "TREEMERGEID",
                               merge_vars), with = FALSE],
-                    by = "CYCLE"),
-                    function(x) {data.table::setkey(x, TREEMERGEID)})
+                    by = "CYCLE")
 
   #Isolate tree level variables not needed in merge_inv function
-  tree[, !c("TREEMERGEID", merge_vars), with = FALSE]
+  tree = tree[, !c("TREEMERGEID", "PLOTMERGEID", merge_vars), with = FALSE]
 
   #Call merge_inv function
   merge_df <- merge_inv_dt(merge_df,
                            interval = "CYCLE",
                            verbose = verbose)
 
-  return(merge_df)
-
-  #Extract appropriate columns and rename columns
-  tree <- merge_df |>
-    _[, !c(UNIQUETREEID.y, PLOTMERGEID.y, PLOTMERGEID.x)] |>
-    data.table::setnames(x = _,
-                         old = c("UNIQUETREEID.x"),
-                         new = c("UNIQUETREEID")) |>
-    dplyr::rename_with(~ gsub(".x", "0", .)) |>
-    dplyr::rename_with(~ gsub(".y", "1", .))   |>
-    dplyr::left_join(y = tree, by = c("UNIQUETREEID"))
+  #Extract appropriate columns
+  merge_df <- merge_df[, c("UNIQUETREEID.y", "PLOTMERGEID.y", "PLOTMERGEID.x") := NULL]
+  
+  #Rename columns
+  data.table::setnames(x = merge_df, old = c("UNIQUETREEID.x"), new = c("UNIQUETREEID"))
+  data.table::setnames(x = merge_df, old = names(merge_df), gsub(".x", "0", names(merge_df)))
+  data.table::setnames(x = merge_df, old = names(merge_df), gsub(".y", "1", names(merge_df)))
+  
+  #join merge_df to tree and then remove
+  tree = merge(x = merge_df,
+               y = tree, 
+               by = c("UNIQUETREEID"),
+               all.x = TRUE)
 
   #Clean up
   rm(merge_df); gc()
 
-  return(tree)
+  # #=============================================================================
+  # #Step 5
+  # #
+  # #Calculate remaining variables that are only possible and/or more convenient
+  # #to calculate after call to merge_inv functions.
+  # #=============================================================================
 
-  #=============================================================================
-  #Step 5
-  #
-  #Calculate remaining variables that are only possible and/or more convenient
-  #to calculate after call to merge_inv functions.
-  #=============================================================================
+  # if(verbose)
+  #   cat("Step 5:", "Calculating final variables...", "\n")
 
-  if(verbose)
-    cat("Step 5:", "Calculating final variables...", "\n")
+  # tree <- tree |>
+  #   #Find maximum year by PLOTMERGEID
+  #   dplyr::mutate(MAXYEAR = max(MEASYEAR1, na.rm = TRUE),
+  #                 .by = PLOTMERGEID) |>
+  #   #Sum DIACHECK value by TREEMERGEID. These values will be used to determine
+  #   #if DIA measurement location changed during a remeasurement interval.
+  #   dplyr::mutate(DIASUM0 = sum(DIACHECK0, na.rm = TRUE),
+  #                 DIASUM1 = sum(DIACHECK1, na.rm = TRUE),
+  #                 .by = TREEMERGEID) |>
+  #   #Remove remeasurement pairings that are equal but do NOT coincide with the
+  #   #latest remeasurement of the plot.
+  #   dplyr::mutate(VALIDYEAR = dplyr::case_when(
+  #     MEASYEAR0 < MEASYEAR1 ~ 1,
+  #     MEASYEAR0 == MEASYEAR1 &
+  #       (MEASYEAR0 == MAXYEAR & MEASYEAR1 == MAXYEAR) ~ 1,
+  #     is.na(MEASYEAR0) | is.na(MEASYEAR1) | is.na(MAXYEAR) ~ 1,
+  #     .default = 0),
+  #     MEASLEN = MEASYEAR1 - MEASYEAR0,
+  #     MORT = dplyr::case_when(
+  #       STATUSCD0 == 1 & STATUSCD1 == 2 & MEASLEN > 0 ~ 1,
+  #       STATUSCD0 == 1 & STATUSCD1 == 1 & MEASLEN > 0 ~ 0),
+  #     IDGRM = dplyr::if_else(
+  #       DIA1 >= DIA0 &
+  #         (STATUSCD0 == 1 & STATUSCD1 == 1) &
+  #         MEASLEN > 0, 1, 0),
+  #     DI = DIA1 - DIA0,
+  #     IHGRM = dplyr::if_else(
+  #       HT1 >= HT0 &
+  #         (STATUSCD0 == 1 & STATUSCD1 == 1) &
+  #         MEASLEN > 0, 1, 0),
+  #     HI = HT1 - HT0,
+  #     #Attempt to use future or past crown ratios when needed
+  #     #We assume that crown ratio does not change substantially
+  #     #between remeasurement periods
+  #     CR0 = dplyr::coalesce(CR0, CR1),
+  #     CR1 = dplyr::if_else(is.na(CR1) & STATUSCD1 == 1 & !is.na(CR0),
+  #                          CR0, CR1),
+  #     HCB0 = HT0 - (HT0 * CR0/100),
+  #     HCB1 = HT1 - (HT1 * CR1/100),
+  #     CW0 = NA,
+  #     CW1 = NA,
+  #     #Zero out values when NA. Helpful for plot variable calculations
+  #     EXPF = dplyr::coalesce(EXPF, 0.0),
+  #     DIA0 = dplyr::coalesce(DIA0, 0.0),
+  #     DIA1 = dplyr::coalesce(DIA1, 0.0),
+  #     HT0 = dplyr::coalesce(HT0, 0.0),
+  #     HT1 = dplyr::coalesce(HT1, 0.0)) |>
+  #   dplyr::filter(VALIDYEAR > 0)
 
-  tree <- tree |>
-    #Find maximum year by PLOTMERGEID
-    dplyr::mutate(MAXYEAR = max(MEASYEAR1, na.rm = TRUE),
-                  .by = PLOTMERGEID) |>
-    #Sum DIACHECK value by TREEMERGEID. These values will be used to determine
-    #if DIA measurement location changed during a remeasurement interval.
-    dplyr::mutate(DIASUM0 = sum(DIACHECK0, na.rm = TRUE),
-                  DIASUM1 = sum(DIACHECK1, na.rm = TRUE),
-                  .by = TREEMERGEID) |>
-    #Remove remeasurement pairings that are equal but do NOT coincide with the
-    #latest remeasurement of the plot.
-    dplyr::mutate(VALIDYEAR = dplyr::case_when(
-      MEASYEAR0 < MEASYEAR1 ~ 1,
-      MEASYEAR0 == MEASYEAR1 &
-        (MEASYEAR0 == MAXYEAR & MEASYEAR1 == MAXYEAR) ~ 1,
-      is.na(MEASYEAR0) | is.na(MEASYEAR1) | is.na(MAXYEAR) ~ 1,
-      .default = 0),
-      MEASLEN = MEASYEAR1 - MEASYEAR0,
-      MORT = dplyr::case_when(
-        STATUSCD0 == 1 & STATUSCD1 == 2 & MEASLEN > 0 ~ 1,
-        STATUSCD0 == 1 & STATUSCD1 == 1 & MEASLEN > 0 ~ 0),
-      IDGRM = dplyr::if_else(
-        DIA1 >= DIA0 &
-          (STATUSCD0 == 1 & STATUSCD1 == 1) &
-          MEASLEN > 0, 1, 0),
-      DI = DIA1 - DIA0,
-      IHGRM = dplyr::if_else(
-        HT1 >= HT0 &
-          (STATUSCD0 == 1 & STATUSCD1 == 1) &
-          MEASLEN > 0, 1, 0),
-      HI = HT1 - HT0,
-      #Attempt to use future or past crown ratios when needed
-      #We assume that crown ratio does not change substantially
-      #between remeasurement periods
-      CR0 = dplyr::coalesce(CR0, CR1),
-      CR1 = dplyr::if_else(is.na(CR1) & STATUSCD1 == 1 & !is.na(CR0),
-                           CR0, CR1),
-      HCB0 = HT0 - (HT0 * CR0/100),
-      HCB1 = HT1 - (HT1 * CR1/100),
-      CW0 = NA,
-      CW1 = NA,
-      #Zero out values when NA. Helpful for plot variable calculations
-      EXPF = dplyr::coalesce(EXPF, 0.0),
-      DIA0 = dplyr::coalesce(DIA0, 0.0),
-      DIA1 = dplyr::coalesce(DIA1, 0.0),
-      HT0 = dplyr::coalesce(HT0, 0.0),
-      HT1 = dplyr::coalesce(HT1, 0.0)) |>
-    dplyr::filter(VALIDYEAR > 0)
+  # #=============================================================================
+  # # Step 6
+  # # Write GST dataframe to output database
+  # #=============================================================================
 
-  #=============================================================================
-  # Step 6
-  # Write GST dataframe to output database
-  #=============================================================================
+  # if(verbose)
+  #   cat("Step 6:", "Writing GST...", "\n")
 
-  if(verbose)
-    cat("Step 6:", "Writing GST...", "\n")
+  # #Capitalize field names and select those only in gst_vars
+  # tree <- tree |>
+  #   dplyr::rename_with(toupper) |>
+  #   dplyr::select(any_of(names(gst_vars)))
 
-  #Capitalize field names and select those only in gst_vars
-  tree <- tree |>
-    dplyr::rename_with(toupper) |>
-    dplyr::select(any_of(names(gst_vars)))
+  # #Write GST to dbout
+  # write_gst(gst = tree, dbout = dbout, gst_table = gst_table)
 
-  #Write GST to dbout
-  write_gst(gst = tree, dbout = dbout, gst_table = gst_table)
-
-  invisible()
+  # invisible()
 }

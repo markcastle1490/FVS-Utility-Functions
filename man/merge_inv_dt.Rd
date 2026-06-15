@@ -7,7 +7,7 @@ is a bug on linux that is causing problems with data.table.}
 \usage{
 merge_inv_dt(
   data,
-  plot_id = "UNIQUESUBPID",
+  plot_id = "PLOTMERGEID",
   tree_id = "UNIQUETREEID",
   merge_id = "TREEMERGEID",
   interval = "CYCLE",

@@ -192,9 +192,8 @@ merge_inv <- function(data,
   #df_list
   n_insert <- 1
   
-  #Start outer loop across intervals. Each interval in the outer loop will be
-  #merged with the interval in inner loop if it is less than or equal to
-  #interval in the inner loop.
+  #Start outer loop across intervals. Combine remeasurements when criteria is 
+  #met
   for(interval1 in intervals)
   {
     for(interval2 in intervals)
@@ -205,7 +204,7 @@ merge_inv <- function(data,
         cat("Interval 2:", interval2, "\n", "\n")
       }
 
-      #Criteria for merging
+      #Criteria for merging is met
       if(interval2 > interval1)
       {
         if(verbose) cat("Merging remeasurements", "\n", "\n")
@@ -303,7 +302,7 @@ merge_inv <- function(data,
 ################################################################################
 
 merge_inv_dt <- function(data,
-                      plot_id = "UNIQUESUBPID",
+                      plot_id = "PLOTMERGEID",
                       tree_id = "UNIQUETREEID",
                       merge_id = "TREEMERGEID",
                       interval = "CYCLE",
@@ -322,8 +321,6 @@ merge_inv_dt <- function(data,
   #Setup labels needed for column headers after joins
   tree_lab_x = paste0(tree_id, ".x")
   tree_lab_y = paste0(tree_id, ".y")
-  plot_lab_x = paste0(plot_id, ".x")
-  plot_lab_y = paste0(plot_id, ".y")
   int_lab_x = paste0(interval, ".x")
   int_lab_y = paste0(interval, ".y")
   
@@ -339,67 +336,52 @@ merge_inv_dt <- function(data,
   {
     for(interval2 in intervals)
     {
-      #Define interval1 and interval2
-      # interval1 <- intervals[int1]
-      # interval2 <- intervals[int2]
-      
       if(verbose)
       {
         cat("Interval 1:", interval1, "\n")
         cat("Interval 2:", interval2, "\n")
       }
       
-      #If interval1 is greater than interval2 then data will not be merged.
-      if(interval1 > interval2) 
-      {
-        if(verbose) cat("Invalid interval pair. Skipping merge.", "\n", "\n")
-        next
-      }
-      
-      #Else data from interval2 will be merged to data from interval1
-      else
+      #Criteria for merging is met
+      if(interval2 > interval1) 
       {
         if(verbose) cat("Merging remeasurements", "\n", "\n")
         
+        #Get data.tables associated with interval
+        time1 = data[[as.character(interval1)]]
+        time2 = data[[as.character(interval2)]]
+        
+        #Find plots that exist in both time1 and time 2
+        match_plot = intersect(time1[[plot_id]], time2[[plot_id]])
+        
+        #Get only plots that exist at both points in time
+        time1 = time1[(get(plot_id) %in% match_plot)]
+        time2 = time2[(get(plot_id) %in% match_plot)] 
+
+        data.table::setkeyv(time1, merge_id)
+        data.table::setkeyv(time2, merge_id)
+
         #Join the tree level information
         #Full join is used to capture tree records that may not have a matched
         #record between remeasurement periods
-        df <- merge(x = data[[as.character(interval1)]],
-                    y = data[[as.character(interval2)]],
+        df <- merge(x = time1,
+                    y = time2,
                     by = c(merge_id),
                     all = TRUE)
         
         #Now do the following:
-        #1) Identify plots where there are no RE-MEASUREMENTS for a given
-        #   interval1 - interval2 combination. This is done by summing the
-        #   INTERVAL.y by UNIQUESUBPID.x. Plots with no re-measurements will 
-        #   have a value of 0 for the sum of INTERVAL.y (SUM_Y).
-        #
-        #2) Identify plots where there are no INITIAL MEASUREMENTS for a given
-        #   interval1 - interval2 combination. This is done by summing the
-        #   INTERVAL.x by UNIQUESUBPID.y. Plots with no initial measurements 
-        #   will have a value of 0 for the sum of INTERVAL.x (SUM_X).
-        #
-        #3) Drop records with no initial measurements or remeasurements. 
-        #
-        #4) If tree_id.x is NA, use the value from tree_id.y. These are ingrowth,
-        #   missed trees, or those not accounted for due to change in DESIGNCD
-        #   between initial (interval1) and subsequent inventory (interval2).
-        #   Records with NA interval values have a value filled in.
+        #If tree_id.x is NA, use the value from tree_id.y. These are ingrowth,
+        #missed trees, or those not accounted for due to change in DESIGNCD
+        #between initial (interval1) and subsequent inventory (interval2).
+        #Records with NA interval values have a value filled in.
         
         new_cols = c(tree_lab_x, int_lab_x, int_lab_y)
         
-        df[, SUM_Y := sum(.SD[[int_lab_y]], na.rm=TRUE), by = plot_lab_x, .SDcols = int_lab_y]
-        df[, SUM_X := sum(.SD[[int_lab_x]], na.rm=TRUE), by = plot_lab_y, .SDcols = int_lab_x]
-
-        df = df[SUM_Y > 0 & SUM_X > 0]
         df[, (new_cols) := list(data.table::fcoalesce(get(tree_lab_x), get(tree_lab_y)),
                                  data.table::fcoalesce(get(int_lab_x), as.integer(interval1)),
                                  data.table::fcoalesce(get(int_lab_y), as.integer(interval2)))]
         
-        df[, `:=`(SUM_Y  = NULL, SUM_X = NULL)]
-        
-      #Add dataframe to list
+      #Add data.table to list
         df_list[[n_insert]] <- df
         
         #Increment n_insert
