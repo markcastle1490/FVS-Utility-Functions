@@ -250,9 +250,6 @@ merge_inv <- function(data,
 
         #Increment n_insert
         n_insert<- n_insert + 1
-
-        #Clean up
-        #rm(df); gc()
       }
     }
   }
@@ -328,25 +325,23 @@ merge_inv_dt <- function(data,
   #df_list
   n_insert <- 1
   
-  #Start outer loop across intervals. Each interval in the outer loop will be
-  #merged with the interval in inner loop if it is less than or equal to
-  #interval in the inner loop. In other words, this is used to test if initial
-  #inventory year is less than or equal to subsequent inventory year.
+  #Start outer loop across intervals. Combine remeasurements when criteria is 
+  #met
   for(interval1 in intervals)
   {
     for(interval2 in intervals)
     {
-      if(verbose)
-      {
-        cat("Interval 1:", interval1, "\n")
-        cat("Interval 2:", interval2, "\n")
-      }
-      
+
       #Criteria for merging is met
       if(interval2 > interval1) 
       {
-        if(verbose) cat("Merging remeasurements", "\n", "\n")
-        
+        if(verbose)
+        {
+          cat("Interval 1:", interval1, "\n")
+          cat("Interval 2:", interval2, "\n")
+          cat("Merging remeasurements", "\n", "\n")
+        }
+
         #Get data.tables associated with interval
         time1 = data[[as.character(interval1)]]
         time2 = data[[as.character(interval2)]]
@@ -358,6 +353,7 @@ merge_inv_dt <- function(data,
         time1 = time1[(get(plot_id) %in% match_plot)]
         time2 = time2[(get(plot_id) %in% match_plot)] 
 
+        #Set keys for merging
         data.table::setkeyv(time1, merge_id)
         data.table::setkeyv(time2, merge_id)
 
@@ -386,9 +382,6 @@ merge_inv_dt <- function(data,
         
         #Increment n_insert
         n_insert<- n_insert + 1
-        
-        #Clean up
-        #rm(df)
       }
     }
   }

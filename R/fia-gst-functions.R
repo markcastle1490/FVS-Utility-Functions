@@ -220,48 +220,48 @@ fia_gst <- function(dbin = NULL,
   tree <- tree |>
     #Sum DIACHECK value by TREEMERGEID. These values will be used to determine
     #if DIA measurement location changed during a remeasurement interval.
-    dplyr::mutate(DIASUM0 = sum(DIACHECK0, na.rm = TRUE),
-                  DIASUM1 = sum(DIACHECK1, na.rm = TRUE), 
+    dplyr::mutate(DIASUM1 = sum(DIACHECK1, na.rm = TRUE),
+                  DIASUM2 = sum(DIACHECK2, na.rm = TRUE), 
                   .by = TREEMERGEID) |>
     dplyr::mutate(#Measurement interval length
-                  MEASLEN = MEASYEAR1 - MEASYEAR0,
+                  MEASLEN = MEASYEAR2 - MEASYEAR1,
                   #Mortality observation indicator
                   MORT = dplyr::case_when(
-                    STATUSCD0 == 1 & STATUSCD1 == 2 & MEASLEN > 0 ~ 1,
-                    STATUSCD0 == 1 & STATUSCD1 == 1 & MEASLEN > 0 ~ 0,
+                    STATUSCD1 == 1 & STATUSCD2 == 2 & MEASLEN > 0 ~ 1,
+                    STATUSCD1 == 1 & STATUSCD2 == 1 & MEASLEN > 0 ~ 0,
                   .default = NA_integer_),
                   #Diameter growth observation indicator
                   IDGRM = dplyr::if_else(
-                    DIA1 >= DIA0 & 
-                    (STATUSCD0 == 1 & STATUSCD1 == 1) & 
+                    DIA2 >= DIA1 & 
+                    (STATUSCD1 == 1 & STATUSCD2 == 1) & 
                     MEASLEN > 0, 1L, NA_integer_),
                   #Diameter increment
-                  DI = DIA1 - DIA0,
+                  DI = DIA2 - DIA1,
                   #Height growth observation indicator
                   IHGRM = dplyr::if_else(
-                    HT1 >= HT0 & 
-                    (STATUSCD0 == 1 & STATUSCD1 == 1) & 
+                    HT2 >= HT1 & 
+                    (STATUSCD1 == 1 & STATUSCD2 == 1) & 
                     MEASLEN > 0, 1L, NA_integer_),
                   #Height increment
-                  HI = HT1 - HT0,
+                  HI = HT2 - HT1,
                   #Attempt to use future or past crown ratios when needed
                   #We assume that crown ratio does not change substantially
                   #between remeasurement periods
-                  CR0 = dplyr::coalesce(CR0, CR1),
-                  CR1 = dplyr::if_else(is.na(CR1) & STATUSCD1 == 1 & !is.na(CR0),
-                   CR0, CR1),
+                  CR1 = dplyr::coalesce(CR1, CR2),
+                  CR2 = dplyr::if_else(is.na(CR2) & STATUSCD2 == 1 & !is.na(CR1),
+                   CR1, CR2),
                   #Height to crown base
-                  HCB0 = HT0 - (HT0 * CR0/100),
                   HCB1 = HT1 - (HT1 * CR1/100),
+                  HCB2 = HT2 - (HT2 * CR2/100),
                   #Placeholders for crown width
-                  CW0 = NA_real_,
                   CW1 = NA_real_,
+                  CW2 = NA_real_,
                   #Zero out values when NA. Helpful for plot variable calculations
                   EXPF = dplyr::coalesce(EXPF, 0.0),
-                  DIA0 = dplyr::coalesce(DIA0, 0.0),
                   DIA1 = dplyr::coalesce(DIA1, 0.0),
-                  HT0 = dplyr::coalesce(HT0, 0.0),
-                  HT1 = dplyr::coalesce(HT1, 0.0)) |>
+                  DIA2 = dplyr::coalesce(DIA2, 0.0),
+                  HT1 = dplyr::coalesce(HT1, 0.0),
+                  HT2 = dplyr::coalesce(HT2, 0.0)) |>
                   #dplyr::filter(VALIDYEAR > 0) |>
     dplyr::rename_with(toupper) |>
     dplyr::select(any_of(names(gst_vars)))
@@ -287,10 +287,10 @@ fia_gst <- function(dbin = NULL,
 
 #Archive this logic in case it is needed again
 # VALIDYEAR = dplyr::case_when(
-#                     MEASYEAR0 < MEASYEAR1 ~ 1,
-#                     MEASYEAR0 == MEASYEAR1 & 
-#                       (MEASYEAR0 == MAXYEAR & MEASYEAR1 == MAXYEAR) ~ 1,
-#                     is.na(MEASYEAR0) | is.na(MEASYEAR1) | is.na(MAXYEAR) ~ 1,
+#                     MEASYEAR1 < MEASYEAR2 ~ 1,
+#                     MEASYEAR1 == MEASYEAR2 & 
+#                       (MEASYEAR1 == MAXYEAR & MEASYEAR2 == MAXYEAR) ~ 1,
+#                     is.na(MEASYEAR1) | is.na(MEASYEAR2) | is.na(MAXYEAR) ~ 1,
 #                     .default = 0),
 
 ################################################################################
@@ -364,30 +364,28 @@ fia_gst_dt <- function(dbin = NULL,
     cat("Step 2: Summarizing site index...", "\n")
 
   #Calculate site index for each FIA plot (not subplot or condition) by species
-  #For now, average of site index observations is taken for each species.
-      #Drop duplicate site trees that occur by condition
-    #Group by unique plot and species to calculate mean SI and SIBASE
+  #Drop site trees that are replicated across inventory years
+  #Average site index is calculated across years
   site_sum <- unique(site, 
-                     by = c("STATECD", "INVYR", "UNITCD", "COUNTYCD", "PLOT",
-                            "SUBP", "TREE"))[
+                     by = c("STATECD", "UNITCD", "COUNTYCD", "PLOT",
+                            "SUBP", "TREE", "SPCD"))[
     , 
     list( 
       SI     = round(mean(SITREE[VALIDCD == 1], na.rm = TRUE), 0),
-      SIBASE = round(mean(SIBASE[VALIDCD == 1], na.rm = TRUE), 0)
+      SIBASE = round(max(SIBASE[VALIDCD == 1], na.rm = TRUE), 0)
     ),
-    by = list(STATECD, INVYR, UNITCD, COUNTYCD, PLOT, SPCD)
+    by = list(STATECD, UNITCD, COUNTYCD, PLOT, SPCD)
   ]
 
   #Join site index summary to site_sum
   tree <- merge(x = tree,
-        y = site_sum,
-        by = c("STATECD",
-                       "INVYR",
+                y = site_sum,
+                by = c("STATECD",
                        "UNITCD",
                        "COUNTYCD",
                        "PLOT",
                        "SPCD"),
-        all.x = TRUE)
+                all.x = TRUE)
 
   #Cleanup sitetree data
   rm(site, site_sum); gc()
@@ -400,6 +398,7 @@ fia_gst_dt <- function(dbin = NULL,
   if(verbose)
     cat("Step 3: Preparing variables before inventory remeasurement pairing...", "\n")
 
+  #Create temporary HTCD for determining HT
   tree[, HTCD_TEMP := data.table::fcoalesce(HTCD, 1L)
   ][, ':=' (DATAPROVIDER = 'FIA',
                   #Unique plot ID
@@ -428,21 +427,13 @@ fia_gst_dt <- function(dbin = NULL,
                                        sep = "_"),
                   #Broken top indicator
                   BT = data.table::fcoalesce(data.table::fifelse(ACTUALHT < HT, 1L, 0L), 0L),
-                  #Create temporary HTCD for determining HT
-                  #HTCD_TEMP = data.table::fcoalesce(HTCD, as.integer(1)),
                   #Get measured height value (only observations that were actually measured)
-                  HT= data.table::fcase(is.na(ACTUALHT) & is.na(HT), 0L,
-                                       HTCD_TEMP == 1 & !is.na(ACTUALHT), ACTUALHT,
-                                       HTCD_TEMP == 1 & is.na(ACTUALHT), HT,
-                                       HTCD_TEMP ==  2 & !is.na(ACTUALHT), ACTUALHT),
-                  #HT = mapply(fia_ht, HTCD, ACTUALHT, HT),
+                  HT= data.table::fcase(HTCD_TEMP == 1 & !is.na(ACTUALHT), ACTUALHT,
+                                        HTCD_TEMP == 1 & is.na(ACTUALHT), HT),
                   #Grab PREVIA for dead trees if needed
                   DIA = data.table::fifelse(is.na(DIA) & STATUSCD == 2, PREVDIA, DIA),
-                  #Fill in missing DIACHECK values
-                  DIACHECK = data.table::fcoalesce(DIACHECK, 0L),
-                  #Assume 1 for missing DIAHTCD values
-                  DIAHTCD = data.table::fcoalesce(DIAHTCD, 1L),
                   TPA_UNADJ = data.table::fcoalesce(TPA_UNADJ, 0.0))
+  #Create variables used in re-measurement alignment
   ][, TREEMERGEID := .GRP, by = .(paste(STATECD,
                                         UNITCD,
                                         COUNTYCD,
@@ -466,9 +457,6 @@ fia_gst_dt <- function(dbin = NULL,
   # merge_df - data that will be passed into merge_inv function
   # tree -     data that will be merged to fia_merge after merge_inv function
   #            has completed processing.
-  #
-  #Note: There may be some better alternative to merge_inv using native
-  #dplyr/tidyverse functions or those from other packages.
   #=============================================================================
 
   if(verbose)
@@ -477,13 +465,13 @@ fia_gst_dt <- function(dbin = NULL,
   #Obtain variables that will be included in the fia_meas data frame and passed
   #to merge_inv function
   merge_vars <- c(
-    "CYCLE", "MEASYEAR", "MEASMON", "MEASDAY", "DIA", "HT", "CR", "STATUSCD",
+    "CYCLE", "MEASYEAR", "MEASMON", "MEASDAY", "EXPF", "DIA", "HT", "CR", "STATUSCD",
     "AGENTCD", "DIACHECK", "HTDMP", "DESIGNCD")
 
-  #Merge dataframe
+  #Create list of data frames
   merge_df <- split(tree[, c("UNIQUETREEID",
                              "PLOTMERGEID",
-                              "TREEMERGEID",
+                             "TREEMERGEID",
                               merge_vars), with = FALSE],
                     by = "CYCLE")
 
@@ -491,17 +479,30 @@ fia_gst_dt <- function(dbin = NULL,
   tree = tree[, !c("TREEMERGEID", "PLOTMERGEID", merge_vars), with = FALSE]
 
   #Call merge_inv function
-  merge_df <- merge_inv_dt(merge_df,
+  merge_df <- merge_inv_dt(data = merge_df,
+                           plot_id = "PLOTMERGEID",
+                           tree_id = "UNIQUETREEID",
+                           merge_id = "TREEMERGEID",
                            interval = "CYCLE",
                            verbose = verbose)
 
-  #Extract appropriate columns
-  merge_df <- merge_df[, c("UNIQUETREEID.y", "PLOTMERGEID.y", "PLOTMERGEID.x") := NULL]
+  #Remove uneccessary columns
+  merge_df <- merge_df[, c("UNIQUETREEID.y",
+                           "PLOTMERGEID.y", 
+                           "PLOTMERGEID.x") := NULL]
   
   #Rename columns
-  data.table::setnames(x = merge_df, old = c("UNIQUETREEID.x"), new = c("UNIQUETREEID"))
-  data.table::setnames(x = merge_df, old = names(merge_df), gsub(".x", "0", names(merge_df)))
-  data.table::setnames(x = merge_df, old = names(merge_df), gsub(".y", "1", names(merge_df)))
+  data.table::setnames(x = merge_df, 
+                       old = c("UNIQUETREEID.x"), 
+                       new = c("UNIQUETREEID"))
+  
+  data.table::setnames(x = merge_df, 
+                       old = names(merge_df), 
+                       new = gsub(".x", "1", names(merge_df)))
+  
+  data.table::setnames(x = merge_df, 
+                       old = names(merge_df), 
+                       new = gsub(".y", "2", names(merge_df)))
   
   #join merge_df to tree and then remove
   tree = merge(x = merge_df,
@@ -524,51 +525,75 @@ fia_gst_dt <- function(dbin = NULL,
   
   #Sum DIACHECK value by TREEMERGEID. These values will be used to determine
   #if DIA measurement location changed during a remeasurement interval.
-  tree[, ':=' (DIASUM0 = sum(DIACHECK0, na.rm = TRUE),
-                 DIASUM1 = sum(DIACHECK1, na.rm = TRUE)),
+  tree[, ':=' (DIASUM1 = sum(DIACHECK1, na.rm = TRUE),
+                 DIASUM2 = sum(DIACHECK2, na.rm = TRUE)),
                  by = TREEMERGEID]
   
-  #Measurement interval length
-  tree[, MEASLEN := MEASYEAR1 - MEASYEAR0]
-  
+  #Compute measurement interval length and define acceptable HTDMP values (0.0)
+  tree[,  ':=' (MEASLEN = MEASYEAR2 - MEASYEAR1,
+                HTDMP1 = data.table::fcase(is.na(HTDMP1), 0.0,
+                                           HTDMP1 > 4 & HTDMP1 < 5, 0.0,
+                                           default = HTDMP1),
+                HTDMP2 = data.table::fcase(is.na(HTDMP2), 0.0,
+                                           HTDMP2 >= 4 & HTDMP2 < 5, 0.0,
+                                           default = HTDMP2))]
+
   tree[, ':=' (#Mortality observation indicator
+                  #Assume 1 for missing DIAHTCD values
+                  DIAHTCD = data.table::fcoalesce(DIAHTCD, 1L),
                   MORT = data.table::fcase(
-                    STATUSCD0 == 1 & STATUSCD1 == 2 & MEASLEN > 0, 1L,
-                    STATUSCD0 == 1 & STATUSCD1 == 1 & MEASLEN > 0, 0L,
+                    STATUSCD1 == 1 & STATUSCD2 == 2 & MEASLEN > 0, 1L,
+                    STATUSCD1 == 1 & STATUSCD2 == 1 & MEASLEN > 0, 0L,
                     default = NA_integer_),
                   #Diameter growth observation indicator
                   IDGRM = data.table::fifelse(
-                    DIA1 >= DIA0 & 
-                    (STATUSCD0 == 1 & STATUSCD1 == 1) & 
+                    DIA2 >= DIA1 & 
+                    STATUSCD1 == 1 & 
+                    STATUSCD2 == 1 & 
+                    HTDMP1 == 0 & 
+                    HTDMP2 == 0 & 
+                    DIASUM1 == 0 &
+                    DIASUM2 == 0 &
                     MEASLEN > 0, 1L, NA_integer_),
                   #Diameter increment
-                  DI = DIA1 - DIA0,
+                  DI = DIA2 - DIA1,
                   #Height growth observation indicator
                   IHGRM = data.table::fifelse(
-                    HT1 >= HT0 & 
-                    (STATUSCD0 == 1 & STATUSCD1 == 1) & 
+                    HT2 >= HT1 & 
+                    (STATUSCD1 == 1 & STATUSCD2 == 1) & 
                     MEASLEN > 0, 1L, NA_integer_),
                   #Height increment
-                  HI = HT1 - HT0,
+                  HI = HT2 - HT1,
                   #Attempt to use future or past crown ratios when needed
                   #We assume that crown ratio does not change substantially
                   #between remeasurement periods
-                  CR0 = data.table::fcoalesce(CR0, CR1),
-                  CR1 = data.table::fifelse(
-                    is.na(CR1) & STATUSCD1 == 1 & !is.na(CR0),
-                    CR0, CR1),
+                  CR1 = data.table::fcoalesce(CR1, CR2),
+                  CR2 = data.table::fifelse(
+                    is.na(CR2) & STATUSCD2 == 1 & !is.na(CR1), CR1, CR2),
                   #Height to crown base
-                  HCB0 = HT0 - (HT0 * CR0/100),
                   HCB1 = HT1 - (HT1 * CR1/100),
+                  HCB2 = HT2 - (HT2 * CR2/100),
                   #Placeholders for crown width
-                  CW0 = NA_real_,
                   CW1 = NA_real_,
+                  CW2 = NA_real_,
+                  #Fill in missing time 1 STATUSCD values
+                  STATUSCD1 = data.table::fcoalesce(STATUSCD1, STATUSCD2),
                   #Zero out values when NA. Helpful for plot variable calculations
-                  EXPF = data.table::fcoalesce(EXPF, 0.0),
-                  DIA0 = data.table::fcoalesce(DIA0, 0.0),
+                  EXPF1 = data.table::fcase(is.na(EXPF1), 0.0,
+                                            STATUSCD1 == 2, 0.0,
+                                           default = EXPF1),
+                  EXPF2 = data.table::fcase(is.na(EXPF2), 0.0,
+                                            STATUSCD2 == 2, 0.0,
+                                           default = EXPF2),
                   DIA1 = data.table::fcoalesce(DIA1, 0.0),
-                  HT0 = data.table::fcoalesce(as.double(HT0), 0.0),
-                  HT1 = data.table::fcoalesce(as.double(HT1), 0.0))]
+                  DIA2 = data.table::fcoalesce(DIA2, 0.0),
+                  HT1 = data.table::fcoalesce(as.double(HT1), 0.0),
+                  HT2 = data.table::fcoalesce(as.double(HT2), 0.0),
+                  #Create temporary diameter values for plot variable calculations
+                  TDIA1 = data.table::fcase(STATUSCD1 == 2, 0.0,
+                                            default = DIA1),
+                  TDIA2 = data.table::fcase(STATUSCD2 == 2, 0.0,
+                                            default = DIA2))]
   
   #Upper case column names and get gst variables
   data.table::setnames(x = tree, toupper)

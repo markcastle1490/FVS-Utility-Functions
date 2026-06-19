@@ -72,6 +72,7 @@ fia_query = paste(c("SELECT",
                   PLOT.MEASYEAR IS NOT NULL AND
                   PLOT.CYCLE IS NOT NULL AND
                   TREE.DIA IS NOT NULL AND
+                  TREE.STATUSCD IN (1, 2) AND
                   TREE.TPA_UNADJ IS NOT NULL;"),
                   collapse = "\n")
 
