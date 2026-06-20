@@ -329,13 +329,12 @@ fia_gst_dt <- function(dbin = NULL,
  {
 
    #=============================================================================
-   #Step 1
    #Query for TREE, PLOT, COND, SUBPLOT, REF_SPECIES
    #Query SITETREE
    #=============================================================================
 
    if(verbose)
-     cat("Step 1: Querying FIA data...", "\n")
+     cat("Querying FIA data...", "\n")
 
    #Connect to dbin
    con <- RSQLite::dbConnect(RSQLite::SQLite(),
@@ -355,13 +354,12 @@ fia_gst_dt <- function(dbin = NULL,
   RSQLite::dbDisconnect(con)
 
   #=============================================================================
-  #Step 2
   #Summarize site index by plot and then join to tree. Not quite sure how
   #to best handle site index in fitting dataset yet.
   #=============================================================================
 
   if(verbose)
-    cat("Step 2: Summarizing site index...", "\n")
+    cat("Summarizing site index...", "\n")
 
   #Calculate site index for each FIA plot (not subplot or condition) by species
   #Drop site trees that are replicated across inventory years
@@ -391,12 +389,11 @@ fia_gst_dt <- function(dbin = NULL,
   rm(site, site_sum); gc()
 
   #=============================================================================
-  #Step 3
   #Define set of GST variables prior to calling merge_inv function.
   #=============================================================================
 
   if(verbose)
-    cat("Step 3: Preparing variables before inventory remeasurement pairing...", "\n")
+    cat("Preparing variables before inventory remeasurement pairing...", "\n")
 
   #Create temporary HTCD for determining HT
   tree[, HTCD_TEMP := data.table::fcoalesce(HTCD, 1L)
@@ -432,7 +429,7 @@ fia_gst_dt <- function(dbin = NULL,
                                         HTCD_TEMP == 1 & is.na(ACTUALHT), HT),
                   #Grab PREVIA for dead trees if needed
                   DIA = data.table::fifelse(is.na(DIA) & STATUSCD == 2, PREVDIA, DIA),
-                  TPA_UNADJ = data.table::fcoalesce(TPA_UNADJ, 0.0))
+                  EXPF = data.table::fcoalesce(TPA_UNADJ, 0.0))
   #Create variables used in re-measurement alignment
   ][, TREEMERGEID := .GRP, by = .(paste(STATECD,
                                         UNITCD,
@@ -443,29 +440,43 @@ fia_gst_dt <- function(dbin = NULL,
   ][, PLOTMERGEID := .GRP, by = .(paste(STATECD,
                                         UNITCD,
                                         COUNTYCD,
-                                        PLOT))]
+                                        PLOT))]  
   
-  data.table::setnames(x = tree, old = c("TPA_UNADJ"), new = c("EXPF"))
-
   #=============================================================================
-  # Step 4
-  #
-  # Align time 1 and time 2 variables together and then merge with other
-  # attributes using the merge_inv function.
-  #
-  # Split tree dataframe into two dataframes
-  # merge_df - data that will be passed into merge_inv function
-  # tree -     data that will be merged to fia_merge after merge_inv function
-  #            has completed processing.
+  #Calculate competition and density metrics prior to merging
   #=============================================================================
 
   if(verbose)
-    cat("Step 4:", "Pairing remeasurements...", "\n")
+  cat("Calculating competition and density measures...", "\n")
+
+  #Caclulate temporary variables for plot calculations
+  #EXPF could be scaled to plot level or condition here..
+  tree[, ':=' (TEXPF = data.table::fifelse(STATUSCD == 2, 0.0, EXPF),
+               TDIA = data.table::fifelse(STATUSCD == 2, 0.0, DIA))]   
+  
+  #Calculate 
+  #TPA
+  #QMD
+  #BA
+  #RSDI
+  #ZSDI
+  #BAL
+  #Others...
+  #Variables like SDI max would need to be spatially extracted
+  #Top height would require heights for all trees...
+  
+  #=============================================================================
+  # Align time 1 and time 2 variables together and then merge with other
+  # attributes using the merge_inv function.
+  #=============================================================================
+
+  if(verbose)
+    cat("Pairing remeasurements...", "\n")
 
   #Obtain variables that will be included in the fia_meas data frame and passed
   #to merge_inv function
   merge_vars <- c(
-    "CYCLE", "MEASYEAR", "MEASMON", "MEASDAY", "EXPF", "DIA", "HT", "CR", "STATUSCD",
+    "CYCLE", "MEASYEAR", "MEASMON", "MEASDAY", "DIA", "HT", "CR", "STATUSCD",
     "AGENTCD", "DIACHECK", "HTDMP", "DESIGNCD")
 
   #Create list of data frames
@@ -514,14 +525,12 @@ fia_gst_dt <- function(dbin = NULL,
   rm(merge_df); gc()
 
   #=============================================================================
-  #Step 5
-  #
   #Calculate remaining variables that are only possible and/or more convenient
   #to calculate after call to merge_inv functions.
   #=============================================================================
 
   if(verbose)
-    cat("Step 5:", "Calculating final variables...", "\n")
+    cat("Calculating final variables...", "\n")
   
   #Sum DIACHECK value by TREEMERGEID. These values will be used to determine
   #if DIA measurement location changed during a remeasurement interval.
@@ -578,34 +587,21 @@ fia_gst_dt <- function(dbin = NULL,
                   CW2 = NA_real_,
                   #Fill in missing time 1 STATUSCD values
                   STATUSCD1 = data.table::fcoalesce(STATUSCD1, STATUSCD2),
-                  #Zero out values when NA. Helpful for plot variable calculations
-                  EXPF1 = data.table::fcase(is.na(EXPF1), 0.0,
-                                            STATUSCD1 == 2, 0.0,
-                                           default = EXPF1),
-                  EXPF2 = data.table::fcase(is.na(EXPF2), 0.0,
-                                            STATUSCD2 == 2, 0.0,
-                                           default = EXPF2),
                   DIA1 = data.table::fcoalesce(DIA1, 0.0),
                   DIA2 = data.table::fcoalesce(DIA2, 0.0),
                   HT1 = data.table::fcoalesce(as.double(HT1), 0.0),
-                  HT2 = data.table::fcoalesce(as.double(HT2), 0.0),
-                  #Create temporary diameter values for plot variable calculations
-                  TDIA1 = data.table::fcase(STATUSCD1 == 2, 0.0,
-                                            default = DIA1),
-                  TDIA2 = data.table::fcase(STATUSCD2 == 2, 0.0,
-                                            default = DIA2))]
+                  HT2 = data.table::fcoalesce(as.double(HT2), 0.0))]
   
   #Upper case column names and get gst variables
   data.table::setnames(x = tree, toupper)
   tree = tree[, .SD, .SDcols = names(gst_vars)]
 
   #=============================================================================
-  # Step 6
   # Write GST dataframe to output database
   #=============================================================================
 
   if(verbose)
-    cat("Step 6:", "Writing GST...", "\n")
+    cat("Writing GST...", "\n")
   
   #Write GST to dbout
   write_gst(gst = tree, dbout = dbout, gst_table = gst_table)
