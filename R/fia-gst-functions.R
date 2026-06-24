@@ -573,24 +573,9 @@ fia_gst_dt <- function(dbin = NULL,
                     MEASLEN > 0, 1L, NA_integer_),
                   #Height increment
                   HI = HT2 - HT1,
-                  #Attempt to use future or past crown ratios when needed
-                  #We assume that crown ratio does not change substantially
-                  #between remeasurement periods
-                  CR1 = data.table::fcoalesce(CR1, CR2),
-                  CR2 = data.table::fifelse(
-                    is.na(CR2) & STATUSCD2 == 1 & !is.na(CR1), CR1, CR2),
                   #Height to crown base
                   HCB1 = HT1 - (HT1 * CR1/100),
-                  HCB2 = HT2 - (HT2 * CR2/100),
-                  #Placeholders for crown width
-                  CW1 = NA_real_,
-                  CW2 = NA_real_,
-                  #Fill in missing time 1 STATUSCD values
-                  STATUSCD1 = data.table::fcoalesce(STATUSCD1, STATUSCD2),
-                  DIA1 = data.table::fcoalesce(DIA1, 0.0),
-                  DIA2 = data.table::fcoalesce(DIA2, 0.0),
-                  HT1 = data.table::fcoalesce(as.double(HT1), 0.0),
-                  HT2 = data.table::fcoalesce(as.double(HT2), 0.0))]
+                  HCB2 = HT2 - (HT2 * CR2/100))]
   
   #Upper case column names and get gst variables
   data.table::setnames(x = tree, toupper)
