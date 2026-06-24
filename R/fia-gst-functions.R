@@ -422,8 +422,12 @@ fia_gst_dt <- function(dbin = NULL,
                                        SUBP,
                                        TREE,
                                        sep = "_"),
+                  #Create broken top indicator with updated HT field
                   #Broken top indicator
-                  BT = data.table::fcoalesce(data.table::fifelse(ACTUALHT < HT, 1L, 0L), 0L),
+                  #Need to verify if DAMAGE_AGENT_CD1 or ABNORMAL termination
+                  #needs to be considered
+                  BT = data.table::fcase(ACTUALHT < HT, 1L,
+                              default = NA_integer_),
                   #Get measured height value (only observations that were actually measured)
                   HT= data.table::fcase(HTCD_TEMP == 1 & !is.na(ACTUALHT), ACTUALHT,
                                         HTCD_TEMP == 1 & is.na(ACTUALHT), HT),
