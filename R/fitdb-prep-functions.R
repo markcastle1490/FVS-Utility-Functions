@@ -1,6 +1,6 @@
 ################################################################################
-#'build_gst
-#'@name build_gst
+#'build_fitdb
+#'@name build_fitdb
 #'@description
 #' 
 #'This function processes a set of sqlite databases and creates a standardized
@@ -14,11 +14,11 @@
 #'@param dbout:	    
 #'Character string corresponding to output sqlite GST database (.db or .sqlite).
 #' 
-#'@param gst_table: 
+#'@param fitdb_table: 
 #'Character string corresponding to name of growth sample tree database table 
 #'written to dbout argument.
 #' 
-#'@param gst_type: 
+#'@param fitdb_type: 
 #'Numeric value corresponding to type of GST database to create. 
 #'1 = GST built from FIA data
 #
@@ -32,10 +32,10 @@
 ################################################################################
 
 #'@export
-build_gst <- function(dbin = NULL,
+build_fitdb <- function(dbin = NULL,
                       dbout = NULL,
-                      gst_table = "GST",
-                      gst_type = 1,
+                      fitdb_table = "GST",
+                      fitdb_type = 1,
                       overwrite = FALSE,
                       verbose = FALSE)
 {
@@ -93,12 +93,12 @@ build_gst <- function(dbin = NULL,
   #Catch bad overwrite values
   if(! overwrite %in% c(TRUE, FALSE)) overwrite = FALSE
   
-  #Catch bad gst values
-  if(is.na(gst_table) || is.null(gst_table) || !is.character(gst_table)) 
-    gst_table = "GST"
+  #Catch bad fitdb values
+  if(is.na(fitdb_table) || is.null(fitdb_table) || !is.character(fitdb_table)) 
+    fitdb_table = "GST"
   
-  #Catch bad gst type values
-  if(! gst_type %in% 1) gst_type = 1
+  #Catch bad fitdb type values
+  if(! fitdb_type %in% 1) fitdb_type = 1
 
   #=============================================================================
   #Process values in dbin
@@ -119,13 +119,13 @@ build_gst <- function(dbin = NULL,
     #sources
     #===========================================================================
 
-    if(gst_type == 1)
+    if(fitdb_type == 1)
     {
-      if(verbose) cat("Calling fia_gst", "\n", "\n")
+      if(verbose) cat("Calling fia_fitdb", "\n", "\n")
       
-      fia_gst(dbin = db,
+      fia_fitdb(dbin = db,
               dbout = dbout,
-              gst_table = gst_table,
+              fitdb_table = fitdb_table,
               verbose = verbose)
     }
 
@@ -144,7 +144,7 @@ build_gst <- function(dbin = NULL,
 #'This function accepts a list of dataframes containing containing information
 #'that will be paired by a measurement interval (cycle or year). This function 
 #'is called from the code that prepares a growth sample tree database (e.g.
-#'fia_gst).
+#'fia_fitdb).
 #
 #'@param data:
 #'List of dataframes for each unique value of interval argument
@@ -271,7 +271,7 @@ merge_inv <- function(data,
 #'This function accepts a list of dataframes containing containing information
 #'that will be paired by a measurement interval (cycle or year). This function 
 #'is called from the code that prepares a growth sample tree database (e.g.
-#'fia_gst).
+#'fia_fitdb).
 #
 #'@param data:
 #'List of dataframes for each unique value of interval argument
@@ -395,19 +395,19 @@ merge_inv_dt <- function(data,
 }
 
 ################################################################################
-#'write_gst
-#'@name write_gst
+#'write_fitdb
+#'@name write_fitdb
 #'@description
 #' This function is used to write a dataframe containing growth sample tree data
 #' to a specified output SQLite database.
 #
-#'@param gst:
+#'@param fitdb:
 #'Dataframe that will be written to GST database specified in dbout argument.
 #
 #'@param dbout:       
 #'Character string corresponding to file path of output SQLite database.
 #
-#'@param gst_table
+#'@param fitdb_table
 #'Name of database table that will contain the growth sample tree information in
 #'dbout argument.
 #
@@ -415,9 +415,9 @@ merge_inv_dt <- function(data,
 #' None
 ################################################################################
 
-write_gst <- function(gst,
+write_fitdb <- function(fitdb,
                       dbout,
-                      gst_table = "GST")
+                      fitdb_table = "GST")
 {
 
   #Connect to the database
@@ -429,26 +429,26 @@ write_gst <- function(gst,
   silent = TRUE))
 
   #Get GST fields and data types
-  gst_fields <- names(gst_vars)
-  gst_field_types <- gst_vars
+  fitdb_fields <- names(fitdb_vars)
+  fitdb_field_types <- fitdb_vars
 
   #Handling for when output database table already exists
-  if(RSQLite::dbExistsTable(con, name = gst_table))
+  if(RSQLite::dbExistsTable(con, name = fitdb_table))
   {
     db_fields <- RSQLite::dbListFields(conn = con,
-                                       name = gst_table)
+                                       name = fitdb_table)
 
-    if(length(gst_fields) < length(db_fields))
+    if(length(fitdb_fields) < length(db_fields))
     {
-      missing <- db_fields[! db_fields %in% gst_fields]
+      missing <- db_fields[! db_fields %in% fitdb_fields]
       stop(paste("The following columns are missing from GST dataframe:",
                  paste(missing, collapse = ", "),
                  "\n"))
     }
 
-    if(length(gst_fields) > length(db_fields))
+    if(length(fitdb_fields) > length(db_fields))
     {
-      missing <- gst_fields[! gst_fields %in% db_fields]
+      missing <- fitdb_fields[! fitdb_fields %in% db_fields]
       stop(paste("The following columns are missing from GST database:",
                  dbout,
                  "\n",
@@ -458,8 +458,8 @@ write_gst <- function(gst,
 
     #Append data to existing table
     RSQLite::dbWriteTable(conn = con,
-                          name = gst_table,
-                          value = gst,
+                          name = fitdb_table,
+                          value = fitdb,
                           append = T)
   }
 
@@ -467,9 +467,9 @@ write_gst <- function(gst,
   else
   {
     RSQLite::dbWriteTable(conn = con,
-                          name = gst_table,
-                          value = gst,
-                          field.types = gst_field_types)
+                          name = fitdb_table,
+                          value = fitdb,
+                          field.types = fitdb_field_types)
   }
 
   RSQLite::dbDisconnect(con)

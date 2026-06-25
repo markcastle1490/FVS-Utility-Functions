@@ -1,14 +1,13 @@
 ################################################################################
-#gst_vars:
+#fitdb_vars:
 #
-#This is a named vector containg variables that are included in a growth sample
-#tree database (gst). The names of the vector are fields (columns) that are 
-#included in the output gst database and the values are the associated data
-#types. This vector can be updated as needed to add or remove variables from the
-#gst template.
+#This is a named vector containg variables that are included in an equation
+#fitting database (fitdb). The names of the vector are fields (columns) that are 
+#included in the output fitdb database and the values are the associated data
+#types.
 ################################################################################
 
-gst_vars <- c("UNIQUEPLOTID" = "TEXT",
+fitdb_vars <- c("UNIQUEPLOTID" = "TEXT",
                "UNIQUESUBPID" = "TEXT",
                "UNIQUETREEID" = "TEXT",
                "STATECD" = "INTEGER",
@@ -81,4 +80,16 @@ gst_vars <- c("UNIQUEPLOTID" = "TEXT",
                "TRTCD1" = "INTEGER",
                "TRTCD2" = "INTEGER",
                "TRTCD3" = "INTEGER",
-               "DATAPROVIDER" = "TEXT")
+               "DATAPROVIDER" = "TEXT",
+               "TPA1" = "REAL",
+               "TPA2" = "REAL",
+               "QMD1" = "REAL",
+               "QMD2" = "REAL",
+               "BA1" = "REAL",
+               "BA2" = "REAL",
+               "RSDI1" = "REAL",
+               "RSDI2" = "REAL",
+               "ZSDI1" = "REAL",
+               "ZSDI2" = "REAL",
+               "BAL1" = "REAL",
+               "BAL2" = "REAL")

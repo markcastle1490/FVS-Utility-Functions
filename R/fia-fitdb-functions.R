@@ -1,12 +1,12 @@
 ################################################################################
-#'fia_gst
-#'@name fia_gst
+#'fia_fitdb
+#'@name fia_fitdb
 #'@description
 #' 
 #' This function takes in a FIA SQLite database and writes infromation to a
-#' growth sample tree (gst) database with variables described in the 
-#' gst-variables.R file. This function is called from function build_fia defined 
-#' in gst-functions.R file.
+#' growth sample tree (fitdb) database with variables described in the 
+#' fitdb-variables.R file. This function is called from function build_fia defined 
+#' in fitdb-functions.R file.
 #
 #'@param dbin:
 #' Character string of file path FIA SQLite database.
@@ -15,7 +15,7 @@
 #' Character string of file path to SQLite database where growth sample tree 
 #' information will be written to.
 #
-#'@param gst_table: 
+#'@param fitdb_table: 
 #' Character string corresponding to name of growth sample tree database table 
 #' written to dbout argument.
 #' 
@@ -24,10 +24,10 @@
 ################################################################################
 
 #'@export
-fia_gst <- function(dbin = NULL,
-                    dbout = NULL,
-                    gst_table = "GST",
-                    verbose = FALSE)
+fia_fitdb <- function(dbin = NULL,
+                      dbout = NULL,
+                      fitdb_table = "GST",
+                      verbose = FALSE)
 {
 
   #=============================================================================
@@ -264,7 +264,7 @@ fia_gst <- function(dbin = NULL,
                   HT2 = dplyr::coalesce(HT2, 0.0)) |>
                   #dplyr::filter(VALIDYEAR > 0) |>
     dplyr::rename_with(toupper) |>
-    dplyr::select(any_of(names(gst_vars)))
+    dplyr::select(any_of(names(fitdb_vars)))
 
   #=============================================================================
   #Step 6
@@ -280,7 +280,7 @@ fia_gst <- function(dbin = NULL,
     cat("Step 6:", "Writing GST...", "\n")
 
   #Write GST to dbout
-  write_gst(gst = tree, dbout = dbout, gst_table = gst_table)
+  write_fitdb(fitdb = tree, dbout = dbout, fitdb_table = fitdb_table)
 
   invisible()
 }
@@ -296,13 +296,13 @@ fia_gst <- function(dbin = NULL,
 ################################################################################
 # 'Implementation seems to be nearly equivalent to dplyr in terms of speed.
 #' Not sure if I am missing out on something key with syntax...
-#'@name fia_gst_dt
+#'@name fia_fitdb_dt
 #'@description
 #'
 #' This function takes in a FIA SQLite database and writes infromation to a
-#' growth sample tree (gst) database with variables described in the
-#' gst-variables.R file. This function is called from function build_fia defined
-#' in gst-functions.R file.
+#' growth sample tree (fitdb) database with variables described in the
+#' fitdb-variables.R file. This function is called from function build_fia defined
+#' in fitdb-functions.R file.
 #
 #'@param dbin:
 #' Character string of file path FIA SQLite database.
@@ -311,7 +311,7 @@ fia_gst <- function(dbin = NULL,
 #' Character string of file path to SQLite database where growth sample tree
 #' information will be written to.
 #
-#'@param gst_table:
+#'@param fitdb_table:
 #' Character string corresponding to name of growth sample tree database table
 #' written to dbout argument.
 #'
@@ -322,9 +322,9 @@ fia_gst <- function(dbin = NULL,
 .datatable.aware <- TRUE
 
 #'@export
-fia_gst_dt <- function(dbin = NULL,
+fia_fitdb_dt <- function(dbin = NULL,
                      dbout = NULL,
-                     gst_table = NULL,
+                     fitdb_table = NULL,
                      verbose = FALSE)
  {
 
@@ -458,6 +458,15 @@ fia_gst_dt <- function(dbin = NULL,
   tree[, ':=' (TEXPF = data.table::fifelse(STATUSCD == 2, 0.0, EXPF),
                TDIA = data.table::fifelse(STATUSCD == 2, 0.0, DIA))]   
   
+  #.by statement can change based on how plot variables should be calculated
+  tree[, ':=' (BA = ba(dbh = TDIA, expf = TEXPF),
+               TPA = tpa(expf = TEXPF),
+               QMD = qmd(dbh = TDIA, expf = TEXPF),
+               RSDI = rsdi_stage(dbh = TDIA, expf = TEXPF),
+               ZSDI = zsdi(dbh = TDIA, expf = TEXPF),
+               BAL = bal(dbh = TDIA, expf = TEXPF)),
+        by = .(STATECD, INVYR, UNITCD, COUNTYCD, PLOT)]
+  
   #Calculate 
   #TPA
   #QMD
@@ -481,7 +490,8 @@ fia_gst_dt <- function(dbin = NULL,
   #to merge_inv function
   merge_vars <- c(
     "CYCLE", "MEASYEAR", "MEASMON", "MEASDAY", "DIA", "HT", "CR", "STATUSCD",
-    "AGENTCD", "DIACHECK", "HTDMP", "DESIGNCD")
+    "AGENTCD", "DIACHECK", "HTDMP", "DESIGNCD", "TPA", "QMD", "BA", "RSDI",
+    "ZSDI", "BAL")
 
   #Create list of data frames
   merge_df <- split(tree[, c("UNIQUETREEID",
@@ -551,9 +561,9 @@ fia_gst_dt <- function(dbin = NULL,
                                            HTDMP2 >= 4 & HTDMP2 < 5, 0.0,
                                            default = HTDMP2))]
 
-  tree[, ':=' (#Mortality observation indicator
-                  #Assume 1 for missing DIAHTCD values
+  tree[, ':=' (#Assume 1 for missing DIAHTCD values
                   DIAHTCD = data.table::fcoalesce(DIAHTCD, 1L),
+                  #Mortality observation indicator
                   MORT = data.table::fcase(
                     STATUSCD1 == 1 & STATUSCD2 == 2 & MEASLEN > 0, 1L,
                     STATUSCD1 == 1 & STATUSCD2 == 1 & MEASLEN > 0, 0L,
@@ -581,9 +591,9 @@ fia_gst_dt <- function(dbin = NULL,
                   HCB1 = HT1 - (HT1 * CR1/100),
                   HCB2 = HT2 - (HT2 * CR2/100))]
   
-  #Upper case column names and get gst variables
+  #Upper case column names and get fitdb variables
   data.table::setnames(x = tree, toupper)
-  tree = tree[, .SD, .SDcols = names(gst_vars)]
+  tree = tree[, .SD, .SDcols = names(fitdb_vars)]
 
   #=============================================================================
   # Write GST dataframe to output database
@@ -593,7 +603,7 @@ fia_gst_dt <- function(dbin = NULL,
     cat("Writing GST...", "\n")
   
   #Write GST to dbout
-  write_gst(gst = tree, dbout = dbout, gst_table = gst_table)
+  write_fitdb(fitdb = tree, dbout = dbout, fitdb_table = fitdb_table)
 
   invisible()
 }

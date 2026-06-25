@@ -1,7 +1,7 @@
 ################################################################################
 #This file contains the logic that is used to query a FIA SQLite database to
-#build a growth sample tree database (gst). The queries in this file are used in
-#fia-gst.R.
+#build a growth sample tree database (fitdb). The queries in this file are used in
+#fia-fitdb.R.
 ################################################################################
 
 #Variables from TREE table
