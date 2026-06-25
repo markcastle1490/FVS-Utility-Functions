@@ -34,7 +34,7 @@
 #'@export
 build_fitdb <- function(dbin = NULL,
                       dbout = NULL,
-                      fitdb_table = "GST",
+                      fitdb_table = "FITDB",
                       fitdb_type = 1,
                       overwrite = FALSE,
                       verbose = FALSE)
@@ -95,7 +95,7 @@ build_fitdb <- function(dbin = NULL,
   
   #Catch bad fitdb values
   if(is.na(fitdb_table) || is.null(fitdb_table) || !is.character(fitdb_table)) 
-    fitdb_table = "GST"
+    fitdb_table = "FITDB"
   
   #Catch bad fitdb type values
   if(! fitdb_type %in% 1) fitdb_type = 1
@@ -417,7 +417,7 @@ merge_inv_dt <- function(data,
 
 write_fitdb <- function(fitdb,
                       dbout,
-                      fitdb_table = "GST")
+                      fitdb_table = "FITDB")
 {
 
   #Connect to the database

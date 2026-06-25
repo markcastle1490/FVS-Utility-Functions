@@ -26,7 +26,7 @@
 #'@export
 fia_fitdb <- function(dbin = NULL,
                       dbout = NULL,
-                      fitdb_table = "GST",
+                      fitdb_table = "FITDB",
                       verbose = FALSE)
 {
 
