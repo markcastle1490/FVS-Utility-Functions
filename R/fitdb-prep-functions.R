@@ -14,9 +14,9 @@
 #'@param dbout:	    
 #'Character string corresponding to output sqlite GST database (.db or .sqlite).
 #' 
-#'@param fitdb_table: 
-#'Character string corresponding to name of growth sample tree database table 
-#'written to dbout argument.
+#'@param fitdb_name: 
+#'Character string corresponding to name of database table written to dbout 
+#'argument.
 #' 
 #'@param fitdb_type: 
 #'Numeric value corresponding to type of GST database to create. 
@@ -33,11 +33,11 @@
 
 #'@export
 build_fitdb <- function(dbin = NULL,
-                      dbout = NULL,
-                      fitdb_table = "FITDB",
-                      fitdb_type = 1,
-                      overwrite = FALSE,
-                      verbose = FALSE)
+                        dbout = NULL,
+                        fitdb_name = "FITDB",
+                        fitdb_type = 1,
+                        overwrite = FALSE,
+                        verbose = FALSE)
 {
 
   #=============================================================================
@@ -94,8 +94,8 @@ build_fitdb <- function(dbin = NULL,
   if(! overwrite %in% c(TRUE, FALSE)) overwrite = FALSE
   
   #Catch bad fitdb values
-  if(is.na(fitdb_table) || is.null(fitdb_table) || !is.character(fitdb_table)) 
-    fitdb_table = "FITDB"
+  if(is.na(fitdb_name) || is.null(fitdb_name) || !is.character(fitdb_name)) 
+    fitdb_name = "FITDB"
   
   #Catch bad fitdb type values
   if(! fitdb_type %in% 1) fitdb_type = 1
@@ -125,7 +125,7 @@ build_fitdb <- function(dbin = NULL,
       
       fia_fitdb(dbin = db,
               dbout = dbout,
-              fitdb_table = fitdb_table,
+              fitdb_name = fitdb_name,
               verbose = verbose)
     }
 
@@ -172,12 +172,12 @@ build_fitdb <- function(dbin = NULL,
 ################################################################################
 
 merge_inv <- function(data,
-                    plot_id = "PLOTMERGEID",
-                    tree_id = "UNIQUETREEID",
-                    merge_id = "TREEMERGEID",
-                    interval = "CYCLE",
-                    #species = "SPCD",
-                    verbose = TRUE)
+                      plot_id = "PLOTMERGEID",
+                      tree_id = "UNIQUETREEID",
+                      merge_id = "TREEMERGEID",
+                      interval = "CYCLE",
+                      #species = "SPCD",
+                      verbose = TRUE)
 {
   if(verbose) cat("\n", "Entering merge_inv function.", "\n", "\n")
 
@@ -263,8 +263,6 @@ merge_inv <- function(data,
 }
 
 ################################################################################
-#'merge_inv_dt (data.table implementation). May explore at a later date. There
-#'is a bug on linux that is causing problems with data.table.
 #'@name merge_inv_dt
 #'@description
 #' 
@@ -274,37 +272,32 @@ merge_inv <- function(data,
 #'fia_fitdb).
 #
 #'@param data:
-#'List of dataframes for each unique value of interval argument
+#'List of data tables for each unique value of interval argument
 #
 #'@param plot_id:   
 #'Character string of column name used to represent a unique plot ID.
 #
 #'@param tree_id:  
 #' Character string of column name used to represent a unique tree ID.
+#' 
+#'@param merge_id:
+#'Character string of column name used to merge re-measurement periods together
+#'at the tree level.
 #
 #'@param interval:  
-#'Character string of column name used to specify a measurement year. This 
-#'variable is used to pair re-measurement observations. 
-#
-#'@param merge_id:
-#'Character string of column name used to merge re-measurement periods together.
-#
-#'@param species:
-#'Character string of column name that contains species codes in dataframes 
-#'within data argument. This argument is used in the merging of remeasurement
-#'data.
+#'Character string of column name used to specify a measurement year or cycle. 
+#'This variable is used to pair re-measurement observations.
 #
 #'@return
 #'Data frame with paired remeasurement data.
 ################################################################################
 
 merge_inv_dt <- function(data,
-                      plot_id = "PLOTMERGEID",
-                      tree_id = "UNIQUETREEID",
-                      merge_id = "TREEMERGEID",
-                      interval = "CYCLE",
-                      #species = "SPCD",
-                      verbose = TRUE)
+                         plot_id = "PLOTMERGEID",
+                         tree_id = "UNIQUETREEID",
+                         merge_id = "TREEMERGEID",
+                         interval = "CYCLE",
+                         verbose = TRUE)
 {
   if(verbose) cat("\n", "Entering merge_inv function.", "\n", "\n")
   
@@ -313,7 +306,7 @@ merge_inv_dt <- function(data,
   if(verbose) cat("Intervals considered: ", paste(intervals, collapse = ", "), "\n")
   
   #Define list used to store merged dataframes
-  df_list <-vector(mode = "list", length = length(intervals)^2)
+  df_list <-vector(mode = "list", length = choose(length(intervals), 2))
 
   #Setup labels needed for column headers after joins
   tree_lab_x = paste0(tree_id, ".x")
@@ -321,7 +314,7 @@ merge_inv_dt <- function(data,
   int_lab_x = paste0(interval, ".x")
   int_lab_y = paste0(interval, ".y")
   
-  #Intialize variable that will be used to track number of insertions into
+  #Initialize variable that will be used to track number of insertions into
   #df_list
   n_insert <- 1
   
@@ -373,11 +366,12 @@ merge_inv_dt <- function(data,
         
         new_cols = c(tree_lab_x, int_lab_x, int_lab_y)
         
-        df[, (new_cols) := list(data.table::fcoalesce(get(tree_lab_x), get(tree_lab_y)),
-                                 data.table::fcoalesce(get(int_lab_x), as.integer(interval1)),
-                                 data.table::fcoalesce(get(int_lab_y), as.integer(interval2)))]
+        df[, (new_cols) := 
+             list(data.table::fcoalesce(get(tree_lab_x), get(tree_lab_y)),
+                  data.table::fcoalesce(get(int_lab_x), as.integer(interval1)),
+                  data.table::fcoalesce(get(int_lab_y), as.integer(interval2)))]
         
-      #Add data.table to list
+        #Add data.table to list
         df_list[[n_insert]] <- df
         
         #Increment n_insert
@@ -402,12 +396,12 @@ merge_inv_dt <- function(data,
 #' to a specified output SQLite database.
 #
 #'@param fitdb:
-#'Dataframe that will be written to GST database specified in dbout argument.
+#'Dataframe that will be written to fitdb database specified in dbout argument.
 #
 #'@param dbout:       
 #'Character string corresponding to file path of output SQLite database.
 #
-#'@param fitdb_table
+#'@param fitdb_name
 #'Name of database table that will contain the growth sample tree information in
 #'dbout argument.
 #
@@ -416,8 +410,8 @@ merge_inv_dt <- function(data,
 ################################################################################
 
 write_fitdb <- function(fitdb,
-                      dbout,
-                      fitdb_table = "FITDB")
+                        dbout,
+                        fitdb_name = "FITDB")
 {
 
   #Connect to the database
@@ -433,10 +427,10 @@ write_fitdb <- function(fitdb,
   fitdb_field_types <- fitdb_vars
 
   #Handling for when output database table already exists
-  if(RSQLite::dbExistsTable(con, name = fitdb_table))
+  if(RSQLite::dbExistsTable(con, name = fitdb_name))
   {
     db_fields <- RSQLite::dbListFields(conn = con,
-                                       name = fitdb_table)
+                                       name = fitdb_name)
 
     if(length(fitdb_fields) < length(db_fields))
     {
@@ -458,7 +452,7 @@ write_fitdb <- function(fitdb,
 
     #Append data to existing table
     RSQLite::dbWriteTable(conn = con,
-                          name = fitdb_table,
+                          name = fitdb_name,
                           value = fitdb,
                           append = T)
   }
@@ -467,7 +461,7 @@ write_fitdb <- function(fitdb,
   else
   {
     RSQLite::dbWriteTable(conn = con,
-                          name = fitdb_table,
+                          name = fitdb_name,
                           value = fitdb,
                           field.types = fitdb_field_types)
   }

@@ -3,21 +3,25 @@
 #'@name fia_fitdb
 #'@description
 #' 
-#' This function takes in a FIA SQLite database and writes infromation to a
-#' growth sample tree (fitdb) database with variables described in the 
-#' fitdb-variables.R file. This function is called from function build_fia defined 
-#' in fitdb-functions.R file.
+#' This function takes in a FIA SQLite database and writes information to a
+#' database that is used for fitting equations for the Forest Vegetation
+#' Simulator (FVS) fitdb-variables.R file. This function is called from function
+#' build_fitdb defined in fitdb-functions.R file.
 #
 #'@param dbin:
 #' Character string of file path FIA SQLite database.
 #
 #'@param dbout:		
-#' Character string of file path to SQLite database where growth sample tree 
+#' Character string of file path to SQLite database where equation fitting
 #' information will be written to.
 #
-#'@param fitdb_table: 
-#' Character string corresponding to name of growth sample tree database table 
-#' written to dbout argument.
+#'@param fitdb_name: 
+#' Character string corresponding to name of database table written to dbout 
+#' argument.
+#' 
+#'@param verbose:
+#' Logical variable where if TRUE, progress messages will be output to the
+#' console.
 #' 
 #'@return
 #' None
@@ -26,7 +30,7 @@
 #'@export
 fia_fitdb <- function(dbin = NULL,
                       dbout = NULL,
-                      fitdb_table = "FITDB",
+                      fitdb_name = "FITDB",
                       verbose = FALSE)
 {
 
@@ -280,7 +284,7 @@ fia_fitdb <- function(dbin = NULL,
     cat("Step 6:", "Writing GST...", "\n")
 
   #Write GST to dbout
-  write_fitdb(fitdb = tree, dbout = dbout, fitdb_table = fitdb_table)
+  write_fitdb(fitdb = tree, dbout = dbout, fitdb_name = fitdb_name)
 
   invisible()
 }
@@ -294,37 +298,40 @@ fia_fitdb <- function(dbin = NULL,
 #                     .default = 0),
 
 ################################################################################
-# 'Implementation seems to be nearly equivalent to dplyr in terms of speed.
-#' Not sure if I am missing out on something key with syntax...
 #'@name fia_fitdb_dt
 #'@description
 #'
-#' This function takes in a FIA SQLite database and writes infromation to a
-#' growth sample tree (fitdb) database with variables described in the
-#' fitdb-variables.R file. This function is called from function build_fia defined
-#' in fitdb-functions.R file.
+#' This function takes in a FIA SQLite database and writes information to a
+#' database that is used for fitting equations for the Forest Vegetation
+#' Simulator (FVS) fitdb-variables.R file. This function is called from function
+#' build_fitdb defined in fitdb-functions.R file.
 #
 #'@param dbin:
 #' Character string of file path FIA SQLite database.
 #
-#'@param dbout:
-#' Character string of file path to SQLite database where growth sample tree
+#'@param dbout:		
+#' Character string of file path to SQLite database where equation fitting
 #' information will be written to.
 #
-#'@param fitdb_table:
-#' Character string corresponding to name of growth sample tree database table
-#' written to dbout argument.
+#'@param fitdb_name: 
+#' Character string corresponding to name of database table written to dbout 
+#' argument.
+#' 
+#'@param verbose:
+#' Logical variable where if TRUE, progress messages will be output to the
+#' console.
 #'
 #'@return
 #' None
 ################################################################################
 
+#Required when data.table is used within R package.
 .datatable.aware <- TRUE
 
 #'@export
 fia_fitdb_dt <- function(dbin = NULL,
                      dbout = NULL,
-                     fitdb_table = NULL,
+                     fitdb_name = NULL,
                      verbose = FALSE)
  {
 
@@ -453,7 +460,18 @@ fia_fitdb_dt <- function(dbin = NULL,
   if(verbose)
   cat("Calculating competition and density measures...", "\n")
 
-  #Caclulate temporary variables for plot calculations
+  #Calculate temporary variables for plot calculations
+  #Calculate 
+  #TPA
+  #QMD
+  #BA
+  #RSDI
+  #ZSDI
+  #BAL
+  #Others...
+  #Variables like SDI max would need to be spatially extracted
+  #Top height would require heights for all trees...
+  
   #EXPF could be scaled to plot level or condition here..
   tree[, ':=' (TEXPF = data.table::fifelse(STATUSCD == 2, 0.0, EXPF),
                TDIA = data.table::fifelse(STATUSCD == 2, 0.0, DIA))]   
@@ -466,17 +484,6 @@ fia_fitdb_dt <- function(dbin = NULL,
                ZSDI = zsdi(dbh = TDIA, expf = TEXPF),
                BAL = bal(dbh = TDIA, expf = TEXPF)),
         by = .(STATECD, INVYR, UNITCD, COUNTYCD, PLOT)]
-  
-  #Calculate 
-  #TPA
-  #QMD
-  #BA
-  #RSDI
-  #ZSDI
-  #BAL
-  #Others...
-  #Variables like SDI max would need to be spatially extracted
-  #Top height would require heights for all trees...
   
   #=============================================================================
   # Align time 1 and time 2 variables together and then merge with other
@@ -603,7 +610,7 @@ fia_fitdb_dt <- function(dbin = NULL,
     cat("Writing GST...", "\n")
   
   #Write GST to dbout
-  write_fitdb(fitdb = tree, dbout = dbout, fitdb_table = fitdb_table)
+  write_fitdb(fitdb = tree, dbout = dbout, fitdb_name = fitdb_name)
 
   invisible()
 }
