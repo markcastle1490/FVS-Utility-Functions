@@ -376,8 +376,10 @@ fia_fitdb_dt <- function(dbin = NULL,
                             "SUBP", "TREE", "SPCD"))[
     , 
     list( 
-      SI     = round(mean(SITREE[VALIDCD == 1], na.rm = TRUE), 0),
-      SIBASE = round(max(SIBASE[VALIDCD == 1], na.rm = TRUE), 0)
+      SI_FIA = round(mean(SITREE[VALIDCD == 1], na.rm = TRUE), 0),
+      SIBASE_FIA = round(mean(SIBASE[VALIDCD == 1], na.rm = TRUE), 0),
+      SI_FVS     = round(mean(SITREE_FVS[VALIDCD == 1], na.rm = TRUE), 0),
+      SIBASE_FVS = round(mean(SIBASE_FVS[VALIDCD == 1], na.rm = TRUE), 0)
     ),
     by = list(STATECD, UNITCD, COUNTYCD, PLOT, SPCD)
   ]
@@ -404,7 +406,7 @@ fia_fitdb_dt <- function(dbin = NULL,
 
   #Create temporary HTCD for determining HT
   tree[, HTCD_TEMP := data.table::fcoalesce(HTCD, 1L)
-  ][, ':=' (DATAPROVIDER = 'FIA',
+  ][, ':=' (DATASOURCE = 'FIA',
                   #Unique plot ID
                   UNIQUEPLOTID = paste(STATECD,
                                        INVYR,
@@ -460,7 +462,6 @@ fia_fitdb_dt <- function(dbin = NULL,
   if(verbose)
   cat("Calculating competition and density measures...", "\n")
 
-  #Calculate temporary variables for plot calculations
   #Calculate 
   #TPA
   #QMD
@@ -472,6 +473,7 @@ fia_fitdb_dt <- function(dbin = NULL,
   #Variables like SDI max would need to be spatially extracted
   #Top height would require heights for all trees...
   
+  #Calculate temporary variables for plot calculations
   #EXPF could be scaled to plot level or condition here..
   tree[, ':=' (TEXPF = data.table::fifelse(STATUSCD == 2, 0.0, EXPF),
                TDIA = data.table::fifelse(STATUSCD == 2, 0.0, DIA))]   
@@ -493,8 +495,7 @@ fia_fitdb_dt <- function(dbin = NULL,
   if(verbose)
     cat("Pairing remeasurements...", "\n")
 
-  #Obtain variables that will be included in the fia_meas data frame and passed
-  #to merge_inv function
+  #Obtain variables that will be included in the merge_inv function
   merge_vars <- c(
     "CYCLE", "MEASYEAR", "MEASMON", "MEASDAY", "DIA", "HT", "CR", "STATUSCD",
     "AGENTCD", "DIACHECK", "HTDMP", "DESIGNCD", "TPA", "QMD", "BA", "RSDI",
@@ -518,7 +519,7 @@ fia_fitdb_dt <- function(dbin = NULL,
                            interval = "CYCLE",
                            verbose = verbose)
 
-  #Remove uneccessary columns
+  #Remove unnecessary columns
   merge_df <- merge_df[, c("UNIQUETREEID.y",
                            "PLOTMERGEID.y", 
                            "PLOTMERGEID.x") := NULL]
@@ -551,7 +552,7 @@ fia_fitdb_dt <- function(dbin = NULL,
   #=============================================================================
 
   if(verbose)
-    cat("Calculating final variables...", "\n")
+    cat("Calculating variables post remeasurement pairing...", "\n")
   
   #Sum DIACHECK value by TREEMERGEID. These values will be used to determine
   #if DIA measurement location changed during a remeasurement interval.
@@ -562,7 +563,7 @@ fia_fitdb_dt <- function(dbin = NULL,
   #Compute measurement interval length and define acceptable HTDMP values (0.0)
   tree[,  ':=' (MEASLEN = MEASYEAR2 - MEASYEAR1,
                 HTDMP1 = data.table::fcase(is.na(HTDMP1), 0.0,
-                                           HTDMP1 > 4 & HTDMP1 < 5, 0.0,
+                                           HTDMP1 >= 4 & HTDMP1 < 5, 0.0,
                                            default = HTDMP1),
                 HTDMP2 = data.table::fcase(is.na(HTDMP2), 0.0,
                                            HTDMP2 >= 4 & HTDMP2 < 5, 0.0,
@@ -590,7 +591,8 @@ fia_fitdb_dt <- function(dbin = NULL,
                   #Height growth observation indicator
                   IHGRM = data.table::fifelse(
                     HT2 >= HT1 & 
-                    (STATUSCD1 == 1 & STATUSCD2 == 1) & 
+                    STATUSCD1 == 1 & 
+                    STATUSCD2 == 1 & 
                     MEASLEN > 0, 1L, NA_integer_),
                   #Height increment
                   HI = HT2 - HT1,
@@ -603,11 +605,11 @@ fia_fitdb_dt <- function(dbin = NULL,
   tree = tree[, .SD, .SDcols = names(fitdb_vars)]
 
   #=============================================================================
-  # Write GST dataframe to output database
+  # Write tree (fitdb) dataframe to output database
   #=============================================================================
 
   if(verbose)
-    cat("Writing GST...", "\n")
+    cat("Writing FITDB...", "\n")
   
   #Write GST to dbout
   write_fitdb(fitdb = tree, dbout = dbout, fitdb_name = fitdb_name)

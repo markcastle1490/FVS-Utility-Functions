@@ -35,7 +35,7 @@ ref_species = paste0("REF_SPECIES.",
 sitree <- paste0("SITETREE.",
                  c("STATECD", "UNITCD", "COUNTYCD", "PLOT", "INVYR", "SUBP",
                    "CONDID", "SPCD", "TREE", "AGEDIA", "HT", "SITREE", "SIBASE",
-                   "VALIDCD"))
+                   "VALIDCD", "SITREE_FVS", "SIBASE_FVS"))
 
 #Combine variables into single string
 fia_vars = paste(c(tree, cond, plot, subplot, ref_species), collapse = ", ")
@@ -68,7 +68,7 @@ fia_query = paste(c("SELECT",
                   "LEFT JOIN REF_SPECIES ON
                   TREE.SPCD = REF_SPECIES.SPCD",
                   "WHERE PLOT.KINDCD IN (1, 2, 3) AND
-                  PLOT.PLOT_STATUS_CD = 1 AND
+                  COND.COND_STATUS_CD = 1 AND
                   PLOT.MEASYEAR IS NOT NULL AND
                   PLOT.CYCLE IS NOT NULL AND
                   TREE.DIA IS NOT NULL AND

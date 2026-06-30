@@ -7,7 +7,7 @@
 build_fitdb(
   dbin = NULL,
   dbout = NULL,
-  fitdb_table = "FITDB",
+  fitdb_name = "FITDB",
   fitdb_type = 1,
   overwrite = FALSE,
   verbose = FALSE
@@ -18,8 +18,8 @@ build_fitdb(
 
 \item{dbout:}{Character string corresponding to output sqlite GST database (.db or .sqlite).}
 
-\item{fitdb_table:}{Character string corresponding to name of growth sample tree database table
-written to dbout argument.}
+\item{fitdb_name:}{Character string corresponding to name of database table written to dbout
+argument.}
 
 \item{fitdb_type:}{Numeric value corresponding to type of GST database to create.
 1 = GST built from FIA data}

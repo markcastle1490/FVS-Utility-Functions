@@ -4,13 +4,13 @@
 \alias{write_fitdb}
 \title{write_fitdb}
 \usage{
-write_fitdb(fitdb, dbout, fitdb_table = "FITDB")
+write_fitdb(fitdb, dbout, fitdb_name = "FITDB")
 }
 \arguments{
-\item{fitdb_table}{Name of database table that will contain the growth sample tree information in
+\item{fitdb_name}{Name of database table that will contain the growth sample tree information in
 dbout argument.}
 
-\item{fitdb:}{Dataframe that will be written to GST database specified in dbout argument.}
+\item{fitdb:}{Dataframe that will be written to fitdb database specified in dbout argument.}
 
 \item{dbout:}{Character string corresponding to file path of output SQLite database.}
 }
