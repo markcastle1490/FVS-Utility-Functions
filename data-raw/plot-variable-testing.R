@@ -255,7 +255,4 @@ nrow(tree2[tree$PtBAL != tree$PtBAL2,])
 #Clean up
 rm(list=ls()); gc()
 
-library(fvstools)
-getLoadedDLLs()[["fvstools"]]$path
-system2("dumpbin", c("/symbols", dll))
-        
+system.file(package = "fvstools")

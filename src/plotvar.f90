@@ -1,4 +1,4 @@
-subroutine ba (dbh, expf, ht, species, dbhmin, dbhmax, htmin, htmax, & 
+subroutine ba (dbh, expf, ht, species, dbhmin, dbhmax, htmin, htmax, &
 all_species, select_species, ntree, nsp, ba_)
 use constants
 implicit none
