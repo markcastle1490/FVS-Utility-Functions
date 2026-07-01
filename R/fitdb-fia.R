@@ -442,7 +442,8 @@ fia_fitdb_dt <- function(dbin = NULL,
                                         HTCD_TEMP == 1 & is.na(ACTUALHT), HT),
                   #Grab PREVIA for dead trees if needed
                   DIA = data.table::fifelse(is.na(DIA) & STATUSCD == 2, PREVDIA, DIA),
-                  EXPF = data.table::fcoalesce(TPA_UNADJ, 0.0))
+                  EXPF = data.table::fcoalesce(TPA_UNADJ, 0.0),
+                  CRTYPE = 0L)
   #Create variables used in re-measurement alignment
   ][, TREEMERGEID := .GRP, by = .(paste(STATECD,
                                         UNITCD,
@@ -557,8 +558,8 @@ fia_fitdb_dt <- function(dbin = NULL,
   #Sum DIACHECK value by TREEMERGEID. These values will be used to determine
   #if DIA measurement location changed during a remeasurement interval.
   tree[, ':=' (DIASUM1 = sum(DIACHECK1, na.rm = TRUE),
-                 DIASUM2 = sum(DIACHECK2, na.rm = TRUE)),
-                 by = TREEMERGEID]
+               DIASUM2 = sum(DIACHECK2, na.rm = TRUE)),
+               by = TREEMERGEID]
   
   #Compute measurement interval length and define acceptable HTDMP values (0.0)
   #Setup date variables for REMPER calculation
@@ -575,8 +576,8 @@ fia_fitdb_dt <- function(dbin = NULL,
                 HTDMP2 = data.table::fcase(is.na(HTDMP2), 0.0,
                                            HTDMP2 >= 4 & HTDMP2 < 5, 0.0,
                                            default = HTDMP2))]
-                
 
+  #Calculate REMPER, MORT, IDGRM, DI, IHGRM, HI, and HCB
   tree[, ':=' (REMPER = round(((DATE2 - DATE1)/365.25), 1),
                  #Assume 1 for missing DIAHTCD values
                   DIAHTCD = data.table::fcoalesce(DIAHTCD, 1L),
@@ -619,7 +620,7 @@ fia_fitdb_dt <- function(dbin = NULL,
   #=============================================================================
 
   if(verbose)
-    cat("Writing FITDB...", "\n")
+    cat("Writing", paste0(fitdb_name, "..."), "\n")
   
   #Write GST to dbout
   write_fitdb(fitdb = tree, dbout = dbout, fitdb_name = fitdb_name)
