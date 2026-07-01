@@ -622,14 +622,14 @@ implicit none
 integer, intent(in) :: ntree, sorted_idx(ntree), handle_ties
 real, intent(in) :: dbh(ntree), expf(ntree)
 real, intent(out) :: bal_arr(ntree)
-real :: temp_dbh, temp_bal, bal_sum, ba_tree
-integer :: idx
+real :: dbh_, expf_, ht_, tpa_, temp_dbh, temp_bal, bal_sum, ba_tree
+integer :: i, idx
 
 !Initialize variables
 bal_arr = 0.0
 bal_sum  = 0.0
 temp_bal = 0.0
-temp_dbh_ = 10000.0
+temp_dbh = 10000.0
 
 !Begin loop across trees
 do i = 1, ntree, 1

@@ -53,7 +53,7 @@
 ################################################################################
 
 #Constants for calculations
-for_constant = 0.005454154
+f_con = 0.005454154
 r_slope = 1.605
 
 ################################################################################
@@ -241,7 +241,7 @@ ba = function(dbh = NULL,
     (all_species | species %in% select_species)
   
   #Calculate BA over DBH, HT, and species
-  ba_ = sum((dbh^2 * expf * for_constant)[include], na.rm = TRUE)
+  ba_ = sum((dbh^2 * expf * f_con)[include], na.rm = TRUE)
   
   #Capture bad values
   if(is.na(ba_)) ba_ = 0
@@ -581,7 +581,7 @@ gmd = function(dbh = NULL,
 #' species.
 #'
 #'@return
-#' Numeric quadratic mean diameter value
+#' Numeric basal area weighted (lorey) diameter value
 ################################################################################
 
 #'@export
@@ -608,7 +608,7 @@ lorey_dia = function(dbh = NULL,
   if(!valid_vectors(dbh, expf, ht, species)) return(lorey_dia_)
   
   #Calculate treeba
-  treeba = dbh^2 * expf * for_constant 
+  treeba = dbh^2 * expf * f_con 
   
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
@@ -915,8 +915,8 @@ bal = function(dbh = NULL,
   {
     #Do a cumulative sum of basal area and then subtract ba of tree from each 
     #record.
-    bal = cumsum((dbh^2)[dbh_order] * expf[dbh_order] * for_constant) -
-      (dbh^2)[dbh_order] * expf[dbh_order] * for_constant
+    bal = cumsum((dbh^2)[dbh_order] * expf[dbh_order] * f_con) -
+      (dbh^2)[dbh_order] * expf[dbh_order] * f_con
   }
   
   #Handle ties.
@@ -928,8 +928,8 @@ bal = function(dbh = NULL,
 
     #Do a cumulative sum of basal area and then subtract ba of tree from each 
     #record. Note use of temp_dbh in cumulative sum and dbh in subtraction.
-    bal = cumsum((temp_dbh^2)[dbh_order] * expf[dbh_order] * for_constant) -
-      (dbh^2)[dbh_order] * expf[dbh_order] * for_constant
+    bal = cumsum((temp_dbh^2)[dbh_order] * expf[dbh_order] * f_con) -
+      (dbh^2)[dbh_order] * expf[dbh_order] * f_con
   }
   
   #Reorder bal by original order
@@ -991,7 +991,7 @@ bal = function(dbh = NULL,
 #' will only be used if values are provided for species. d
 #
 #' @return 
-#' Reineke SDI calculated using stage formulation.
+#' Numeric Reineke SDI calculated using stage formulation.
 ################################################################################
 
 #'@export
@@ -1118,7 +1118,7 @@ lorey_ht = function(dbh = NULL,
   if(!valid_vectors(dbh, expf, ht, species)) return(lorey_ht_)
   
   #Calculate treeba
-  treeba = dbh^2 * expf * for_constant 
+  treeba = dbh^2 * expf * f_con 
   
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
@@ -1251,7 +1251,7 @@ top_ht = function(dbh = NULL,
 #' 3 = Reineke diameter
 #
 #' @return 
-#' Top diameter weighted by TPA or QMD.
+#' Numeric top diameter value.
 ################################################################################
 
 #'@export
@@ -1897,3 +1897,58 @@ count_attr = function(attr = NULL,
   
   return(count_)
 }
+
+################################################################################
+#' ba_f
+#' @name ba_f
+#' @description
+#' 
+#' This function calculates a basal area per acre given input vectors 
+#' containing diameter at breast height and expansion factor values. This 
+#' attribute can be calculated for user defined size ranges and for select 
+#' species.
+#' 
+#' @param dbh:
+#' Numeric vector containing DBH values.
+#'
+#' @param expf: 
+#' Numeric vector containing expansion factors.
+#' 
+#' @param ht:
+#' Optional numeric vector containing total tree height values. If heights are
+#' provided, then attribute will be calculated between the values specified in
+#' htmin and htmax.
+#'
+#' @param species:
+#' Optional vector containing species codes. If species are provided then
+#' attribute will be calculated for species entered in select_species argument.
+#' Attribute will be calculated for all species if select_species is left as 
+#' NULL.
+#' 
+#' @param dbhmin:
+#' Numeric value corresponding to lower DBH bound to calculate attribute in. 
+#' This value is inclusive (>=).
+#'
+#' @param dbhmax: 
+#' Numeric value corresponding to upper DBH bound to calculate attribute in. 
+#' This value is exclusive (<).
+#' 
+#' @param htmin:
+#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' in. This value is inclusive (>=). This argument is only used if ht argument 
+#' is specified.
+#
+#' @param htmax: 
+#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' in. This value is exclusive (<). This argument is only used if ht argument 
+#' is specified.
+#' 
+#' @param select_species
+#' Optional vector containing species codes. This variable will be used to
+#' select which species get included in calculation of attribute. If left as
+#' NULL, attribute will be calculated using observations from across all 
+#' species.
+#' 
+#' @return
+#' Numeric basal area per acre value
+################################################################################
