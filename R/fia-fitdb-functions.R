@@ -561,15 +561,24 @@ fia_fitdb_dt <- function(dbin = NULL,
                  by = TREEMERGEID]
   
   #Compute measurement interval length and define acceptable HTDMP values (0.0)
+  #Setup date variables for REMPER calculation
   tree[,  ':=' (MEASLEN = MEASYEAR2 - MEASYEAR1,
+                DATE1 = as.Date(sprintf("%04d-%02d-%02d", MEASYEAR1, MEASMON1, MEASDAY1),
+                                format = "%Y-%m-%d",
+                                na.strings = "NA-NA-NA"),
+                DATE2 = as.Date(sprintf("%04d-%02d-%02d", MEASYEAR2, MEASMON2, MEASDAY2),
+                                format = "%Y-%m-%d",
+                                na.strings = "NA-NA-NA"),
                 HTDMP1 = data.table::fcase(is.na(HTDMP1), 0.0,
                                            HTDMP1 >= 4 & HTDMP1 < 5, 0.0,
                                            default = HTDMP1),
                 HTDMP2 = data.table::fcase(is.na(HTDMP2), 0.0,
                                            HTDMP2 >= 4 & HTDMP2 < 5, 0.0,
                                            default = HTDMP2))]
+                
 
-  tree[, ':=' (#Assume 1 for missing DIAHTCD values
+  tree[, ':=' (REMPER = round(((DATE2 - DATE1)/365.25), 1),
+                 #Assume 1 for missing DIAHTCD values
                   DIAHTCD = data.table::fcoalesce(DIAHTCD, 1L),
                   #Mortality observation indicator
                   MORT = data.table::fcase(
@@ -599,6 +608,7 @@ fia_fitdb_dt <- function(dbin = NULL,
                   #Height to crown base
                   HCB1 = HT1 - (HT1 * CR1/100),
                   HCB2 = HT2 - (HT2 * CR2/100))]
+                 
   
   #Upper case column names and get fitdb variables
   data.table::setnames(x = tree, toupper)
