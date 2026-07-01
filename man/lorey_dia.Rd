@@ -50,7 +50,7 @@ NULL, attribute will be calculated using observations from across all
 species.}
 }
 \value{
-Numeric quadratic mean diameter value
+Numeric basal area weighted (lorey) diameter value
 }
 \description{
 This function calculates Lorey diameter (basal area weighted average

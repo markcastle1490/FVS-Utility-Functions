@@ -23,7 +23,7 @@ not null then it will supersede the value in top_tpa argument.}
 3 = Reineke diameter}
 }
 \value{
-Top diameter weighted by TPA or QMD.
+Numeric top diameter value.
 }
 \description{
 This function is used to calculate QMD or average diameter weighted by TPA

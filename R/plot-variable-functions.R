@@ -229,9 +229,14 @@ ba = function(dbh = NULL,
   all_species = TRUE
   
   #Check optional vectors
-  if(is.null(ht) && !is.null(expf)) ht = rep(0, times = length(expf))
-  if(is.null(species) && !is.null(expf)) species = rep("ALL", times = length(expf))
-  if(!is.null(select_species)) all_species = FALSE
+  if(is.null(ht) && !is.null(expf)) 
+    ht = vector(mode = "numeric", length = length(expf))
+  
+  if(is.null(species) && !is.null(expf))
+    species = vector(mode = "character", length = length(expf))
+  
+  if(!is.null(select_species)) 
+    all_species = FALSE
   
   #Check validity of vectors
   if(!valid_vectors(dbh, expf, ht, species)) return(ba_)
@@ -322,10 +327,17 @@ tpa = function(expf = NULL,
   all_species = TRUE
   
   #Check optional vectors.
-  if(is.null(dbh) && !is.null(expf)) dbh = rep(0, times = length(expf))
-  if(is.null(ht) && !is.null(expf)) ht = rep(0, times = length(expf))
-  if(is.null(species) && !is.null(expf)) species = rep("ALL", times = length(expf))
-  if(!is.null(select_species)) all_species = FALSE
+  if(is.null(dbh) && !is.null(expf)) 
+    dbh = vector(mode = "numeric", length = length(expf))
+  
+  if(is.null(ht) && !is.null(expf)) 
+    ht = vector(mode = "numeric", length = length(expf))
+  
+  if(is.null(species) && !is.null(expf))
+    species = vector(mode = "character", length = length(expf))
+  
+  if(!is.null(select_species)) 
+    all_species = FALSE
   
   #Check validity of vectors
   if(!valid_vectors(dbh, expf, ht, species)) return(tpa_)
@@ -414,9 +426,14 @@ qmd = function(dbh = NULL,
   all_species = TRUE
   
   #Check optional vectors.
-  if(is.null(ht) && !is.null(expf)) ht = rep(0, times = length(expf))
-  if(is.null(species) && !is.null(expf)) species = rep("ALL", times = length(expf))
-  if(!is.null(select_species)) all_species = FALSE
+  if(is.null(ht) && !is.null(expf)) 
+    ht = vector(mode = "numeric", length = length(expf))
+  
+  if(is.null(species) && !is.null(expf))
+    species = vector(mode = "character", length = length(expf))
+  
+  if(!is.null(select_species)) 
+    all_species = FALSE
   
   #Check validity of vectors
   if(!valid_vectors(dbh, expf, ht, species)) return(qmd_)
@@ -507,9 +524,14 @@ gmd = function(dbh = NULL,
   all_species = TRUE
   
   #Check optional vectors.
-  if(is.null(ht) && !is.null(expf)) ht = rep(0, times = length(expf))
-  if(is.null(species) && !is.null(expf)) species = rep("ALL", times = length(expf))
-  if(!is.null(select_species)) all_species = FALSE
+  if(is.null(ht) && !is.null(expf)) 
+    ht = vector(mode = "numeric", length = length(expf))
+  
+  if(is.null(species) && !is.null(expf))
+    species = vector(mode = "character", length = length(expf))
+  
+  if(!is.null(select_species)) 
+    all_species = FALSE
   
   #Check validity of vectors
   if(!valid_vectors(dbh, expf, ht, species)) return(gmd_)
@@ -600,9 +622,14 @@ lorey_dia = function(dbh = NULL,
   all_species = TRUE
   
   #Check optional vectors.
-  if(is.null(ht) && !is.null(expf)) ht = rep(0, times = length(expf))
-  if(is.null(species) && !is.null(expf)) species = rep("ALL", times = length(expf))
-  if(!is.null(select_species)) all_species = FALSE
+  if(is.null(ht) && !is.null(expf)) 
+    ht = vector(mode = "numeric", length = length(expf))
+  
+  if(is.null(species) && !is.null(expf))
+    species = vector(mode = "character", length = length(expf))
+  
+  if(!is.null(select_species)) 
+    all_species = FALSE
   
   #Check validity of vectors
   if(!valid_vectors(dbh, expf, ht, species)) return(lorey_dia_)
@@ -729,9 +756,14 @@ zsdi = function(dbh = NULL,
   all_species = TRUE
   
   #Check optional vectors.
-  if(is.null(ht) && !is.null(expf)) ht = rep(0, times = length(expf))
-  if(is.null(species) && !is.null(expf)) species = rep("ALL", times = length(expf))
-  if(!is.null(select_species)) all_species = FALSE
+  if(is.null(ht) && !is.null(expf)) 
+    ht = vector(mode = "numeric", length = length(expf))
+  
+  if(is.null(species) && !is.null(expf))
+    species = vector(mode = "character", length = length(expf))
+  
+  if(!is.null(select_species)) 
+    all_species = FALSE
   
   #Check validity of vectors
   if(!valid_vectors(dbh, expf, ht, species)) return(zsdi_)
@@ -820,9 +852,15 @@ cc = function(crwidth = NULL,
   all_species = TRUE
   
   #Check optional vectors.
-  if(is.null(dbh) && !is.null(expf)) dbh = rep(0, times = length(expf))
-  if(is.null(ht) && !is.null(expf)) ht = rep(0, times = length(expf))
-  if(is.null(species) && !is.null(expf)) species = rep("ALL", times = length(expf))
+  if(is.null(dbh) && !is.null(expf)) 
+    dbh = vector(mode = "numeric", length = length(expf))
+  
+  if(is.null(ht) && !is.null(expf)) 
+    ht = vector(mode = "numeric", length = length(expf))
+  
+  if(is.null(species) && !is.null(expf))
+    species = vector(mode = "character", length = length(expf))
+  
   if(!is.null(select_species)) all_species = FALSE
   
   #Check validity of vectors
@@ -1009,9 +1047,14 @@ rsdi_stage = function(dbh = NULL,
   all_species = TRUE
   
   #Check optional vectors
-  if(is.null(ht) && !is.null(expf)) ht = rep(0, times = length(expf))
-  if(is.null(species) && !is.null(expf)) species = rep("ALL", times = length(expf))
-  if(!is.null(select_species)) all_species = FALSE
+  if(is.null(ht) && !is.null(expf)) 
+    ht = vector(mode = "numeric", length = length(expf))
+  
+  if(is.null(species) && !is.null(expf))
+    species = vector(mode = "character", length = length(expf))
+  
+  if(!is.null(select_species)) 
+    all_species = FALSE
   
   #Check validity of vectors
   if(!valid_vectors(dbh, expf, ht, species)) return(rsdi_)
@@ -1110,9 +1153,14 @@ lorey_ht = function(dbh = NULL,
   all_species = TRUE
   
   #Check optional vectors.
-  if(is.null(dbh) && !is.null(expf)) dbh = rep(0, times = length(expf))
-  if(is.null(species) && !is.null(expf)) species = rep("ALL", times = length(expf))
-  if(!is.null(select_species)) all_species = FALSE
+  if(is.null(dbh) && !is.null(expf)) 
+    dbh = vector(mode = "numeric", length = length(expf))
+  
+  if(is.null(species) && !is.null(expf))
+    species = vector(mode = "character", length = length(expf))
+  
+  if(!is.null(select_species)) 
+    all_species = FALSE
   
   #Check validity of vectors
   if(!valid_vectors(dbh, expf, ht, species)) return(lorey_ht_)
@@ -1415,11 +1463,20 @@ mean_attr = function(attr = NULL,
   all_species = TRUE
   
   #Check optional vectors.
-  if(is.null(dbh) && !is.null(attr)) dbh = rep(0, times = length(attr))
-  if(is.null(ht) && !is.null(attr)) ht = rep(0, times = length(attr))
-  if(is.null(species) && !is.null(attr)) species = rep("ALL", times = length(attr))
-  if(!is.null(select_species)) all_species = FALSE
-  if(is.null(weight)) weight = rep(x = 1, times = length(attr))
+  if(is.null(dbh) && !is.null(attr)) 
+    dbh = vector("numeric", length = length(attr))
+  
+  if(is.null(ht) && !is.null(attr)) 
+    ht = vector("numeric", length = length(attr))
+  
+  if(is.null(species) && !is.null(attr)) 
+    species = vector("character", length = length(attr))
+  
+  if(!is.null(select_species)) 
+    all_species = FALSE
+  
+  if(is.null(weight)) 
+    weight = rep(x = 1, times = length(attr))
   
   #Check validity of vectors
   if(!valid_vectors(attr, dbh, ht, species)) return(mean_attr_)
@@ -1515,10 +1572,17 @@ expand_attr = function(attr = NULL,
   all_species = TRUE
   
   #Check optional vectors.
-  if(is.null(dbh) && !is.null(expf)) dbh = rep(0, times = length(expf))
-  if(is.null(ht) && !is.null(expf)) ht = rep(0, times = length(expf))
-  if(is.null(species) && !is.null(expf)) species = rep("ALL", times = length(expf))
-  if(!is.null(select_species)) all_species = FALSE
+  if(is.null(dbh) && !is.null(expf)) 
+    dbh = vector("numeric", length = length(expf))
+  
+  if(is.null(ht) && !is.null(expf)) 
+    ht = vector(mode = "numeric", length = length(expf))
+  
+  if(is.null(species) && !is.null(expf))
+    species = vector(mode = "character", length = length(expf))
+  
+  if(!is.null(select_species)) 
+    all_species = FALSE
   
   #Check validity of vectors
   if(!valid_vectors(attr, dbh, ht, species)) return(attr_expand_)
@@ -1605,10 +1669,17 @@ median_attr = function(attr = NULL,
   all_species = TRUE
   
   #Check optional vectors.
-  if(is.null(dbh) && !is.null(attr)) dbh = rep(0, times = length(attr))
-  if(is.null(ht) && !is.null(attr)) ht = rep(0, times = length(attr))
-  if(is.null(species) && !is.null(attr)) species = rep("ALL", times = length(attr))
-  if(!is.null(select_species)) all_species = FALSE
+  if(is.null(dbh) && !is.null(attr)) 
+    dbh = vector("numeric", length = length(attr))
+  
+  if(is.null(ht) && !is.null(attr)) 
+    ht = vector("numeric", length = length(attr))
+  
+  if(is.null(species) && !is.null(attr)) 
+    species = vector("character", length = length(attr))
+  
+  if(!is.null(select_species)) 
+    all_species = FALSE
   
   #Check validity of vectors
   if(!valid_vectors(attr, dbh, ht, species)) return(median_attr_)
@@ -1695,10 +1766,17 @@ min_attr = function(attr = NULL,
   all_species = TRUE
   
   #Check optional vectors.
-  if(is.null(dbh) && !is.null(attr)) dbh = rep(0, times = length(attr))
-  if(is.null(ht) && !is.null(attr)) ht = rep(0, times = length(attr))
-  if(is.null(species) && !is.null(attr)) species = rep("ALL", times = length(attr))
-  if(!is.null(select_species)) all_species = FALSE
+  if(is.null(dbh) && !is.null(attr)) 
+    dbh = vector("numeric", length = length(attr))
+  
+  if(is.null(ht) && !is.null(attr)) 
+    ht = vector("numeric", length = length(attr))
+  
+  if(is.null(species) && !is.null(attr)) 
+    species = vector("character", length = length(attr))
+  
+  if(!is.null(select_species)) 
+    all_species = FALSE
   
   #Check validity of vectors
   if(!valid_vectors(attr, dbh, ht, species)) return(min_attr_)
@@ -1786,10 +1864,17 @@ max_attr = function(attr = NULL,
   all_species = TRUE
 
   #Check optional vectors.
-  if(is.null(dbh) && !is.null(attr)) dbh = rep(0, times = length(attr))
-  if(is.null(ht) && !is.null(attr)) ht = rep(0, times = length(attr))
-  if(is.null(species) && !is.null(attr)) species = rep("ALL", times = length(attr))
-  if(!is.null(select_species)) all_species = FALSE
+  if(is.null(dbh) && !is.null(attr)) 
+    dbh = vector("numeric", length = length(attr))
+  
+  if(is.null(ht) && !is.null(attr)) 
+    ht = vector("numeric", length = length(attr))
+  
+  if(is.null(species) && !is.null(attr)) 
+    species = vector("character", length = length(attr))
+  
+  if(!is.null(select_species)) 
+    all_species = FALSE
   
   #Check validity of vectors
   if(!valid_vectors(attr, dbh, ht, species)) return(max_attr_)
@@ -1877,10 +1962,17 @@ count_attr = function(attr = NULL,
   all_species = TRUE
   
   #Check optional vectors.
-  if(is.null(dbh) && !is.null(attr)) dbh = rep(0, times = length(attr))
-  if(is.null(ht) && !is.null(attr)) ht = rep(0, times = length(attr))
-  if(is.null(species) && !is.null(attr)) species = rep("ALL", times = length(attr))
-  if(!is.null(select_species)) all_species = FALSE
+  if(is.null(dbh) && !is.null(attr)) 
+    dbh = vector("numeric", length = length(attr))
+  
+  if(is.null(ht) && !is.null(attr)) 
+    ht = vector("numeric", length = length(attr))
+  
+  if(is.null(species) && !is.null(attr)) 
+    species = vector("character", length = length(attr))
+  
+  if(!is.null(select_species)) 
+    all_species = FALSE
   
   #Check validity of vectors
   if(!valid_vectors(attr, dbh, ht, species)) return(count_)
@@ -1952,3 +2044,47 @@ count_attr = function(attr = NULL,
 #' @return
 #' Numeric basal area per acre value
 ################################################################################
+
+#'@export
+ba_f = function(dbh = NULL,
+                expf = NULL,
+                ht = NULL,
+                species = NULL,
+                dbhmin = 0,
+                dbhmax = 999,
+                htmin = 0,
+                htmax = 999,
+                select_species = NULL)
+              
+{
+  
+  ba_ = 0
+  all_species = TRUE
+  
+  #Check optional vectors
+  if(is.null(ht) && !is.null(expf)) 
+    ht = vector(mode = "numeric", length(expf))
+  
+  if(is.null(species) && !is.null(expf)) 
+    species = vector(mode = "integer", length(expf))
+  
+  if(!is.null(select_species)) 
+    all_species = FALSE
+  
+  #Check validity of vectors
+  if(!valid_vectors(dbh, expf, ht, species)) return(ba_)
+  
+  #Convert species and select_species to integer
+  if(is.null(select_species)) select_species = 0L
+  if(!is.integer(species)) species = as.integer(as.factor(species))
+  if(!is.integer(select_species)) select_species = as.integer(as.factor(select_species))
+  
+  #Get ntree and nsp
+  ntree = length(expf)
+  nsp = length(unique(select_species))
+  
+  #Call the ba subroutine
+  
+  #Return ba
+  return(ba_)
+}

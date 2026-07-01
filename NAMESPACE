@@ -2,6 +2,7 @@
 
 export(add_col_query)
 export(ba)
+export(ba_f)
 export(bal)
 export(bin_search)
 export(build_fitdb)
