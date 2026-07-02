@@ -1,5 +1,5 @@
 subroutine ba (dbh, expf, ht, species, dbhmin, dbhmax, htmin, htmax, &
-all_species, select_species, ntree, nsp, ba_)
+ntree, ba_)
 use constants
 implicit none
 
@@ -10,9 +10,9 @@ implicit none
 !###############################################################################
 
 !Arguments
-integer, intent(in) :: ntree, nsp, all_species
+integer, intent(in) :: ntree
 double precision, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
-integer, intent(in) :: species(ntree), select_species(nsp)
+integer, intent(in) :: species(ntree)
 double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
 double precision, intent(out) :: ba_
 double precision :: dbh_, expf_, ht_
@@ -32,7 +32,7 @@ do i = 1, ntree, 1
     !Determine if tree should be skipped in calculation
     if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
     if(ht_ < htmin .or. ht_ >= htmax) cycle
-    if(all_species /= 0 .and. .not. any(species_ == select_species)) cycle
+    if(species_ < 0) cycle
 
     ba_ = ba_ + (dbh_**2 * expf_ * f_con)
 
@@ -46,14 +46,14 @@ end subroutine ba
 !###############################################################################
 
 subroutine tpa (dbh, expf, ht, species, dbhmin, dbhmax, htmin, htmax, & 
-all_species, select_species, ntree, nsp, tpa_)
+ntree, tpa_)
 use constants
 implicit none
 
 !Arguments
-integer, intent(in) :: ntree, nsp, all_species
+integer, intent(in) :: ntree
 real, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
-integer, intent(in) :: species(ntree), select_species(nsp)
+integer, intent(in) :: species(ntree)
 real, intent(in) :: dbhmin, dbhmax, htmin, htmax
 real, intent(out) :: tpa_
 real :: dbh_, expf_, ht_
@@ -73,7 +73,7 @@ do i = 1, ntree, 1
     !Determine if tree should be skipped in calculation
     if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
     if(ht_ < htmin .or. ht_ >= htmax) cycle
-    if(all_species /= 0 .and. .not. any(species_ == select_species)) cycle
+    if(species_ < 0) cycle
 
     tpa_ = tpa_ + expf_
 
@@ -88,14 +88,14 @@ end subroutine tpa
 !###############################################################################
 
 subroutine qmd (dbh, expf, ht, species, dbhmin, dbhmax, htmin, htmax, & 
-all_species, select_species, ntree, nsp, qmd_)
+ntree, qmd_)
 use constants
 implicit none
 
 !Arguments
-integer, intent(in) :: ntree, nsp, all_species
+integer, intent(in) :: ntree
 real, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
-integer, intent(in) :: species(ntree), select_species(nsp)
+integer, intent(in) :: species(ntree)
 real, intent(in) :: dbhmin, dbhmax, htmin, htmax
 real, intent(out) :: qmd_
 real :: dbh_, expf_, ht_,  tpa_, dbhsq
@@ -117,7 +117,7 @@ do i = 1, ntree, 1
     !Determine if tree should be skipped in calculation
     if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
     if(ht_ < htmin .or. ht_ >= htmax) cycle
-    if(all_species /= 0 .and. .not. any(species_ == select_species)) cycle
+    if(species_ < 0) cycle
 
     dbhsq = dbhsq + dbh_**2 * expf_
     tpa_ = tpa_ + expf_
@@ -137,14 +137,14 @@ end subroutine qmd
 !###############################################################################
 
 subroutine gmd (dbh, expf, ht, species, dbhmin, dbhmax, htmin, htmax, & 
-all_species, select_species, ntree, nsp, gmd_)
+ntree, gmd_)
 use constants
 implicit none
 
 !Arguments
-integer, intent(in) :: ntree, nsp, all_species
+integer, intent(in) :: ntree
 real, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
-integer, intent(in) :: species(ntree), select_species(nsp)
+integer, intent(in) :: species(ntree)
 real, intent(in) :: dbhmin, dbhmax, htmin, htmax
 real, intent(out) :: gmd_
 real :: dbh_, expf_, ht_, tpa_, gmd_sum
@@ -166,7 +166,7 @@ do i = 1, ntree, 1
     !Determine if tree should be skipped in calculation
     if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
     if(ht_ < htmin .or. ht_ >= htmax) cycle
-    if(all_species /= 0 .and. .not. any(species_ == select_species)) cycle
+    if(species_ < 0) cycle
 
     gmd_sum = gmd_sum + dbh_**r_slope * expf_
     tpa_ = tpa_ + expf_
@@ -186,14 +186,14 @@ end subroutine gmd
 !###############################################################################
 
 subroutine lorey_dia (dbh, expf, ht, species, dbhmin, dbhmax, htmin, &
-htmax, all_species, select_species, ntree, nsp, lorey_dia_)
+htmax, ntree, lorey_dia_)
 use constants
 implicit none
 
 !Arguments
-integer, intent(in) :: ntree, nsp, all_species
+integer, intent(in) :: ntree
 real, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
-integer, intent(in) :: species(ntree), select_species(nsp)
+integer, intent(in) :: species(ntree)
 real, intent(in) :: dbhmin, dbhmax, htmin, htmax
 real, intent(out) :: lorey_dia_
 real :: dbh_, expf_, ht_, tpa_, dbh_sum, ba_, ba_tree
@@ -216,7 +216,7 @@ do i = 1, ntree, 1
     !Determine if tree should be skipped in calculation
     if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
     if(ht_ < htmin .or. ht_ >= htmax) cycle
-    if(all_species /= 0 .and. .not. any(species_ == select_species)) cycle
+    if(species_ < 0) cycle
 
     dbh_sum = dbh_sum + dbh_* ba_tree
     ba_ = ba_ + ba_tree
@@ -236,14 +236,14 @@ end subroutine lorey_dia
 !###############################################################################
 
 subroutine zsdi (dbh, expf, ht, species, dbhmin, dbhmax, htmin, &
-htmax, all_species, select_species, ntree, nsp, zsdi_)
+htmax, ntree, zsdi_)
 use constants
 implicit none
 
 !Arguments
-integer, intent(in) :: ntree, nsp, all_species
+integer, intent(in) :: ntree
 real, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
-integer, intent(in) :: species(ntree), select_species(nsp)
+integer, intent(in) :: species(ntree)
 real, intent(in) :: dbhmin, dbhmax, htmin, htmax
 real, intent(out) :: zsdi_
 real :: dbh_, expf_, ht_
@@ -263,7 +263,7 @@ do i = 1, ntree, 1
     !Determine if tree should be skipped in calculation
     if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
     if(ht_ < htmin .or. ht_ >= htmax) cycle
-    if(all_species /= 0 .and. .not. any(species_ == select_species)) cycle
+    if(species_ < 0) cycle
 
     zsdi_ = zsdi_ + ((dbh_ / 10)**r_slope * expf_)
 
@@ -278,14 +278,14 @@ end subroutine zsdi
 !###############################################################################
 
 subroutine cc (crwidth, dbh, expf, ht, species, dbhmin, dbhmax, & 
-htmin, htmax, all_species, select_species, ntree, nsp, cc_)
+htmin, htmax, ntree, cc_)
 use constants
 implicit none
 
 !Arguments
-integer, intent(in) :: ntree, nsp, all_species
+integer, intent(in) :: ntree
 real, intent(in) :: crwidth(ntree), dbh(ntree), expf(ntree), ht(ntree)
-integer, intent(in) :: species(ntree), select_species(nsp)
+integer, intent(in) :: species(ntree)
 real, intent(in) :: dbhmin, dbhmax, htmin, htmax
 real, intent(out) :: cc_
 real :: crwidth_, dbh_, expf_, ht_, correct_cc
@@ -306,7 +306,7 @@ do i = 1, ntree, 1
     !Determine if tree should be skipped in calculation
     if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
     if(ht_ < htmin .or. ht_ >= htmax) cycle
-    if(all_species /= 0 .and. .not. any(species_ == select_species)) cycle
+    if(species_ < 0) cycle
 
     cc_ = cc_ + ((crwidth_/2)**2 * (expf_/43560) * pi * 100)
 
@@ -345,14 +345,14 @@ end function correct_cc
 !###############################################################################
 
 subroutine rsdi_stage (dbh, expf, ht, species, dbhmin, dbhmax, htmin, &
-htmax, all_species, select_species, ntree, nsp, rsdi_)
+htmax, ntree, rsdi_)
 use constants
 implicit none
 
 !Arguments
-integer, intent(in) :: ntree, nsp, all_species
+integer, intent(in) :: ntree
 real, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
-integer, intent(in) :: species(ntree), select_species(nsp)
+integer, intent(in) :: species(ntree)
 real, intent(in) :: dbhmin, dbhmax, htmin, htmax
 real, intent(out) :: rsdi_
 real :: dbh_, expf_, ht_, tpa_, dbhsq, a, b
@@ -387,7 +387,7 @@ if(tpa_ > 0 ) then
         !Determine if tree should be skipped in calculation
         if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
         if(ht_ < htmin .or. ht_ >= htmax) cycle
-        if(all_species /= 0 .and. .not. any(species_ == select_species)) cycle
+        if(species_ < 0) cycle
 
         rsdi_ = rsdi_ + (a * expf_ + b * dbh_**2 * expf_)
     end do
@@ -402,14 +402,14 @@ end subroutine rsdi_stage
 !###############################################################################
 
 subroutine lorey_ht(dbh, expf, ht, species, dbhmin, dbhmax, htmin, &
-htmax, all_species, select_species, ntree, nsp, lorey_ht_)
+htmax, ntree, lorey_ht_)
 use constants
 implicit none
 
 !Arguments
-integer, intent(in) :: ntree, nsp, all_species
+integer, intent(in) :: ntree
 real, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
-integer, intent(in) :: species(ntree), select_species(nsp)
+integer, intent(in) :: species(ntree)
 real, intent(in) :: dbhmin, dbhmax, htmin, htmax
 real, intent(out) :: lorey_ht_
 real :: dbh_, expf_, ht_, ba_, ba_tree, ba_sum
@@ -432,7 +432,7 @@ do i = 1, ntree, 1
     !Determine if tree should be skipped in calculation
     if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
     if(ht_ < htmin .or. ht_ >= htmax) cycle
-    if(all_species /= 0 .and. .not. any(species_ == select_species)) cycle
+    if(species_ < 0) cycle
 
     ba_sum = ba_sum + ba_tree * ht_
     ba_ = ba_ + ba_tree

@@ -2059,7 +2059,6 @@ ba_f = function(dbh = NULL,
 {
   
   ba_ = 0
-  all_species = 0L
   
   #Check optional vectors
   if(is.null(ht) && !is.null(expf)) 
@@ -2068,35 +2067,23 @@ ba_f = function(dbh = NULL,
   if(is.null(species) && !is.null(expf)) 
     species = vector(mode = "integer", length(expf))
   
-  if(!is.null(select_species)) 
-    all_species = 1L
-  
   #Check validity of vectors
   if(!valid_vectors(dbh, expf, ht, species)) return(ba_)
   
-  #Convert species and select_species to integer
-  if(is.null(select_species)) 
-    select_species = vector("integer", length = 1)
-  
-  if(!is.integer(species)) 
+  if(!is.null(select_species))
+    species = match(species, select_species, nomatch = -1)
+  else
     species = match(species, unique(species))
-  
-  if(!is.integer(select_species)) 
-    select_species = match(select_species, unique(select_species))
-  
-  cat("select_species type:", typeof(select_species), "\n")
-  cat("all_species:", all_species, "\n")
-  
-  #Get ntree and nsp
+
   ntree = length(expf)
-  nsp = length(select_species)
+  cat("SPECIES:", species, "\n")
+  cat("SELECT_SPECIES:", select_species, "\n")
 
   #Call the ba subroutine
   ba_ <- dotCall64::.C64(
     .NAME = "ba",
     SIGNATURE = c("double","double","double","integer", "double","double",
-                  "double","double", "integer","integer","integer","integer",
-                  "double"),
+                  "double","double", "integer","double"),
     dbh = dbh,
     expf = expf,
     ht = ht,
@@ -2105,16 +2092,14 @@ ba_f = function(dbh = NULL,
     dbhmax = dbhmax,
     htmin = htmin,
     htmax = htmax,
-    all_species = all_species,
-    select_species = select_species,
     ntree = ntree,
-    nsp = nsp,
     ba_ = double(1),
     INTENT = c("r", "r", "r", "r", "r", "r",
-               "r", 'r', "r", "r", "r", "r",
-               "rw"),
+               "r", 'r', "r", "rw"),
     PACKAGE = "fvstools")$ba_
   
   #Return ba
   return(ba_)
 }
+
+match(c(1, 2, 3), c(0), nomatch = -1)
