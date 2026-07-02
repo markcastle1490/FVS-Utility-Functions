@@ -11,12 +11,12 @@ implicit none
 
 !Arguments
 integer, intent(in) :: ntree, nsp, all_species
-real, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
+double precision, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
 integer, intent(in) :: species(ntree), select_species(nsp)
-real, intent(in) :: dbhmin, dbhmax, htmin, htmax
-real, intent(out) :: ba_
-real :: dbh_, expf_, ht_, species_
-integer :: i
+double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
+double precision, intent(out) :: ba_
+double precision :: dbh_, expf_, ht_
+integer :: i, species_
 
 !intialize ba_ to 0
 ba_ = 0.0
@@ -56,8 +56,8 @@ real, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
 integer, intent(in) :: species(ntree), select_species(nsp)
 real, intent(in) :: dbhmin, dbhmax, htmin, htmax
 real, intent(out) :: tpa_
-real :: dbh_, expf_, ht_, species_
-integer :: i
+real :: dbh_, expf_, ht_
+integer :: i, species_
 
 !intialize tpa_ to 0
 tpa_ = 0.0
@@ -98,8 +98,8 @@ real, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
 integer, intent(in) :: species(ntree), select_species(nsp)
 real, intent(in) :: dbhmin, dbhmax, htmin, htmax
 real, intent(out) :: qmd_
-real :: dbh_, expf_, ht_, species_, tpa_, dbhsq
-integer :: i
+real :: dbh_, expf_, ht_,  tpa_, dbhsq
+integer :: i, species_
 
 !intialize tvariables
 tpa_ = 0.0
@@ -147,8 +147,8 @@ real, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
 integer, intent(in) :: species(ntree), select_species(nsp)
 real, intent(in) :: dbhmin, dbhmax, htmin, htmax
 real, intent(out) :: gmd_
-real :: dbh_, expf_, ht_, species_, tpa_, gmd_sum
-integer :: i
+real :: dbh_, expf_, ht_, tpa_, gmd_sum
+integer :: i, species_
 
 !intialize tvariables
 tpa_ = 0.0
@@ -196,8 +196,8 @@ real, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
 integer, intent(in) :: species(ntree), select_species(nsp)
 real, intent(in) :: dbhmin, dbhmax, htmin, htmax
 real, intent(out) :: lorey_dia_
-real :: dbh_, expf_, ht_, species_, tpa_, dbh_sum, ba_, ba_tree
-integer :: i
+real :: dbh_, expf_, ht_, tpa_, dbh_sum, ba_, ba_tree
+integer :: i, species_
 
 !intialize tvariables
 tpa_ = 0.0
@@ -246,8 +246,8 @@ real, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
 integer, intent(in) :: species(ntree), select_species(nsp)
 real, intent(in) :: dbhmin, dbhmax, htmin, htmax
 real, intent(out) :: zsdi_
-real :: dbh_, expf_, ht_, species_
-integer :: i
+real :: dbh_, expf_, ht_
+integer :: i, species_
 
 !intialize variables
 zsdi_ = 0.0
@@ -288,8 +288,8 @@ real, intent(in) :: crwidth(ntree), dbh(ntree), expf(ntree), ht(ntree)
 integer, intent(in) :: species(ntree), select_species(nsp)
 real, intent(in) :: dbhmin, dbhmax, htmin, htmax
 real, intent(out) :: cc_
-real :: crwidth_, dbh_, expf_, ht_, species_, correct_cc
-integer :: i
+real :: crwidth_, dbh_, expf_, ht_, correct_cc
+integer :: i, species_
 
 !intialize variables
 cc_ = 0.0
@@ -355,8 +355,8 @@ real, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
 integer, intent(in) :: species(ntree), select_species(nsp)
 real, intent(in) :: dbhmin, dbhmax, htmin, htmax
 real, intent(out) :: rsdi_
-real :: dbh_, expf_, ht_, species_, tpa_, dbhsq, a, b
-integer :: i
+real :: dbh_, expf_, ht_, tpa_, dbhsq, a, b
+integer :: i, species_
 
 !intialize variables
 rsdi_ = 0.0
@@ -412,8 +412,8 @@ real, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
 integer, intent(in) :: species(ntree), select_species(nsp)
 real, intent(in) :: dbhmin, dbhmax, htmin, htmax
 real, intent(out) :: lorey_ht_
-real :: dbh_, expf_, ht_, species_, ba_, ba_tree, ba_sum
-integer :: i
+real :: dbh_, expf_, ht_, ba_, ba_tree, ba_sum
+integer :: i, species_
 
 !Initialize variables
 lorey_ht_ = 0.0

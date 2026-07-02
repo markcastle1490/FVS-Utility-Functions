@@ -298,6 +298,7 @@ fia_fitdb <- function(dbin = NULL,
 #                     .default = 0),
 
 ################################################################################
+#'fia_fitdb_dt'
 #'@name fia_fitdb_dt
 #'@description
 #'

@@ -6,8 +6,7 @@ module constants
     implicit none
     save
 
-    !Reineke's slope and foresters constant
-    real, parameter :: r_slope = 1.605, f_con = 0.005454154
-    real, parameter :: pi = 3.141593
+    double precision, parameter :: r_slope = 1.605, f_con = 0.005454154
+    double precision, parameter :: pi = 3.141593
 
 end module
