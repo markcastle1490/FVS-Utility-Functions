@@ -52,11 +52,11 @@ implicit none
 
 !Arguments
 integer, intent(in) :: ntree
-real, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
+double precision, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
 integer, intent(in) :: species(ntree)
-real, intent(in) :: dbhmin, dbhmax, htmin, htmax
-real, intent(out) :: tpa_
-real :: dbh_, expf_, ht_
+double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
+double precision, intent(out) :: tpa_
+double precision :: dbh_, expf_, ht_
 integer :: i, species_
 
 !intialize tpa_ to 0
@@ -94,11 +94,11 @@ implicit none
 
 !Arguments
 integer, intent(in) :: ntree
-real, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
+double precision, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
 integer, intent(in) :: species(ntree)
-real, intent(in) :: dbhmin, dbhmax, htmin, htmax
-real, intent(out) :: qmd_
-real :: dbh_, expf_, ht_,  tpa_, dbhsq
+double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
+double precision, intent(out) :: qmd_
+double precision :: dbh_, expf_, ht_,  tpa_, dbhsq
 integer :: i, species_
 
 !intialize tvariables
@@ -143,11 +143,11 @@ implicit none
 
 !Arguments
 integer, intent(in) :: ntree
-real, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
+double precision, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
 integer, intent(in) :: species(ntree)
-real, intent(in) :: dbhmin, dbhmax, htmin, htmax
-real, intent(out) :: gmd_
-real :: dbh_, expf_, ht_, tpa_, gmd_sum
+double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
+double precision, intent(out) :: gmd_
+double precision :: dbh_, expf_, ht_, tpa_, gmd_sum
 integer :: i, species_
 
 !intialize tvariables
@@ -192,17 +192,18 @@ implicit none
 
 !Arguments
 integer, intent(in) :: ntree
-real, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
+double precision, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
 integer, intent(in) :: species(ntree)
-real, intent(in) :: dbhmin, dbhmax, htmin, htmax
-real, intent(out) :: lorey_dia_
-real :: dbh_, expf_, ht_, tpa_, dbh_sum, ba_, ba_tree
+double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
+double precision, intent(out) :: lorey_dia_
+double precision :: dbh_, expf_, ht_, tpa_, dbh_sum, ba_, ba_tree
 integer :: i, species_
 
 !intialize tvariables
 tpa_ = 0.0
 dbh_sum = 0.0
 lorey_dia_ = 0.0
+ba_ = 0.0
 
 !Determine trees to include in Lorey dia calculation
 do i = 1, ntree, 1
@@ -229,113 +230,100 @@ if (ba_ > 0) lorey_dia_ = (dbh_sum / ba_)
 end subroutine lorey_dia
 
 !###############################################################################
-!This subroutine calculates stand density index using Zeide's method given input
-!vectors containing diameter at breast height and expansion factor values. This 
-!attribute can be calculated for user defined size ranges and for select 
-!species.
+!This function is used to calculate QMD, GMD (reinekes diameter) or average 
+!diameter weighted by TPA for the largest trees by DBH within a specified 
+!percentage of TPA or an explicit TPA value. This value is calculated from a set
+!of input vectors containing DBH values and expansion factors.
 !###############################################################################
 
-subroutine zsdi (dbh, expf, ht, species, dbhmin, dbhmax, htmin, &
-htmax, ntree, zsdi_)
+subroutine top_dia(dbh, sorted_idx, expf, top_tpa, top_per, dia_type, ntree,  &
+top_dia_)
 use constants
 implicit none
 
 !Arguments
-integer, intent(in) :: ntree
-real, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
-integer, intent(in) :: species(ntree)
-real, intent(in) :: dbhmin, dbhmax, htmin, htmax
-real, intent(out) :: zsdi_
-real :: dbh_, expf_, ht_
-integer :: i, species_
+integer, intent(in) :: ntree, sorted_idx(ntree), dia_type
+double precision, intent(in) :: dbh(ntree), expf(ntree)
+double precision, intent(inout) :: top_tpa, top_per
+double precision, intent(out) :: top_dia_
+double precision :: dbh_, expf_, ht_, tpa_, top, tpa_sum, dbh_sum, tpa_dif
+double precision :: expf_temp
+integer :: i, idx
+logical :: top_exceed
 
-!intialize variables
-zsdi_ = 0.0
+!Initialize variables
+top_dia_ = 0.0
+tpa_ = 0.0
+tpa_sum = 0.0
+dbh_sum = 0.0
+tpa_dif = 0.0
+expf_temp = 0.0
+top_exceed = .false.
 
-!Determine trees to include in ZSDI calculation
+!Do checks on top_tpa and top_per
+if(top_tpa < 0.0) top_tpa = 40.0
+if(top_per < 0.0 .or. top_per > 100.0) top_per = 20.0
+
+!Calculate TPA for stand
 do i = 1, ntree, 1
-
-    dbh_ = dbh(i)
-    expf_ = expf(i)
-    ht_ = ht(i)
-    species_ = species(i)
-
-    !Determine if tree should be skipped in calculation
-    if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
-    if(ht_ < htmin .or. ht_ >= htmax) cycle
-    if(species_ < 0) cycle
-
-    zsdi_ = zsdi_ + ((dbh_ / 10)**r_slope * expf_)
-
+    tpa_ = tpa_ + expf(i)
 end do
 
-end subroutine zsdi
+!Do top diameter calculation if tpa_ > 0
+if(tpa_ > 0.0) then
 
-!###############################################################################
-!This subroutine calculates percent canopy cover corrected for overlap given 
-!input vectors containing crown width and expansion factor values. This 
-!attribute can be calculated for user defined size ranges and for select species.
-!###############################################################################
+    !Determine value of top
+    top = top_tpa
+    if(top >= tpa_) top = top_tpa
+    if(top_per > 0) top = tpa_ * (top_per/100)
 
-subroutine cc (crwidth, dbh, expf, ht, species, dbhmin, dbhmax, & 
-htmin, htmax, ntree, cc_)
-use constants
-implicit none
+    !Determine trees to included in top diameter
+    do i = 1, ntree, 1
 
-!Arguments
-integer, intent(in) :: ntree
-real, intent(in) :: crwidth(ntree), dbh(ntree), expf(ntree), ht(ntree)
-integer, intent(in) :: species(ntree)
-real, intent(in) :: dbhmin, dbhmax, htmin, htmax
-real, intent(out) :: cc_
-real :: crwidth_, dbh_, expf_, ht_, correct_cc
-integer :: i, species_
+        idx = sorted_idx(i)
+        dbh_ = dbh(idx)
+        expf_ = expf(idx)
 
-!intialize variables
-cc_ = 0.0
+        expf_temp = expf_
+        
+        !Determine if top is exceeded
+        if(tpa_sum + expf_temp >= top) then
+            expf_temp = top - tpa_sum
+            top_exceed = .true. 
+        end if
 
-!Determine trees to include in CC calculation
-do i = 1, ntree, 1
+        !Update tpa_sum
+        tpa_sum = tpa_sum + expf_temp
 
-    crwidth_ = crwidth(i)
-    dbh_ = dbh(i)
-    expf_ = expf(i)
-    ht_ = ht(i)
-    species_ = species(i)
+        !Update dbh_sum based on dia_type
+        select case (dia_type)
+        case(1)
+            dbh_sum = dbh_sum + dbh_**2 * expf_temp
+        case(2)
+            dbh_sum = dbh_sum + dbh_ * expf_temp
+        case default 
+            dbh_sum = dbh_sum + dbh_**r_slope * expf_temp
+        end select
 
-    !Determine if tree should be skipped in calculation
-    if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
-    if(ht_ < htmin .or. ht_ >= htmax) cycle
-    if(species_ < 0) cycle
+        !Break if top value has been exceeded
+        if(top_exceed) exit
 
-    cc_ = cc_ + ((crwidth_/2)**2 * (expf_/43560) * pi * 100)
+    end do
+end if
 
-end do
+!Calculate top diameter if tpa_sum > 0
+if(tpa_sum > 0.0) then
+    select case(dia_type)
+    case(1)
+        top_dia_ = sqrt(dbh_sum / tpa_sum)
+    case(2)
+        top_dia_ = dbh_sum / tpa_sum
+    case(3)
+        top_dia_ = (dbh_sum / tpa_sum)**(1 / r_slope)
+    end select
+end if
 
-!Correct CC for overlap
-cc_ = correct_cc(cc_)
-
-end subroutine cc
-
-!###############################################################################
-!This function takes in an uncorrected percent canopy cover value and returns a 
-!corrected value using the relationship described on page 2  of Crookston, 
-!Nicholas L.; Stage, Albert R. 1999. Percent canopy cover and stand structure 
-!statistics from the Forest Vegetation Simulator. Gen. Tech. Rep. RMRS-GTR-24.
-!Ogden, UT: U. S. Department of Agriculture, Forest Service, Rocky Mountain 
-!Research Station. 11 p.
-!###############################################################################
-
-real function correct_cc (cc)
-implicit none
-
-!Arugments
-real, intent(in) :: cc
-
-!Correct CC
-correct_cc = 100 * (1 - exp(-0.01 * cc))
-
-end function correct_cc
+end subroutine top_dia
 
 !###############################################################################
 !This subroutine calculates Reinekes stand density index using the methodology 
@@ -351,11 +339,11 @@ implicit none
 
 !Arguments
 integer, intent(in) :: ntree
-real, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
+double precision, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
 integer, intent(in) :: species(ntree)
-real, intent(in) :: dbhmin, dbhmax, htmin, htmax
-real, intent(out) :: rsdi_
-real :: dbh_, expf_, ht_, tpa_, dbhsq, a, b
+double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
+double precision, intent(out) :: rsdi_
+double precision :: dbh_, expf_, ht_, tpa_, dbhsq, a, b
 integer :: i, species_
 
 !intialize variables
@@ -396,6 +384,115 @@ end if
 end subroutine rsdi_stage
 
 !###############################################################################
+!This subroutine calculates stand density index using Zeide's method given input
+!vectors containing diameter at breast height and expansion factor values. This 
+!attribute can be calculated for user defined size ranges and for select 
+!species.
+!###############################################################################
+
+subroutine zsdi (dbh, expf, ht, species, dbhmin, dbhmax, htmin, &
+htmax, ntree, zsdi_)
+use constants
+implicit none
+
+!Arguments
+integer, intent(in) :: ntree
+double precision, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
+integer, intent(in) :: species(ntree)
+double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
+double precision, intent(out) :: zsdi_
+double precision :: dbh_, expf_, ht_
+integer :: i, species_
+
+!intialize variables
+zsdi_ = 0.0
+
+!Determine trees to include in ZSDI calculation
+do i = 1, ntree, 1
+
+    dbh_ = dbh(i)
+    expf_ = expf(i)
+    ht_ = ht(i)
+    species_ = species(i)
+
+    !Determine if tree should be skipped in calculation
+    if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
+    if(ht_ < htmin .or. ht_ >= htmax) cycle
+    if(species_ < 0) cycle
+
+    zsdi_ = zsdi_ + ((dbh_ / 10)**r_slope * expf_)
+
+end do
+
+end subroutine zsdi
+
+!###############################################################################
+!This subroutine calculates percent canopy cover corrected for overlap given 
+!input vectors containing crown width and expansion factor values. This 
+!attribute can be calculated for user defined size ranges and for select species.
+!###############################################################################
+
+subroutine cc (crwidth, dbh, expf, ht, species, dbhmin, dbhmax, & 
+htmin, htmax, ntree, cc_)
+use constants
+implicit none
+
+!Arguments
+integer, intent(in) :: ntree
+double precision, intent(in) :: crwidth(ntree), dbh(ntree), expf(ntree), ht(ntree)
+integer, intent(in) :: species(ntree)
+double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
+double precision, intent(out) :: cc_
+double precision :: crwidth_, dbh_, expf_, ht_, correct_cc
+integer :: i, species_
+
+!intialize variables
+cc_ = 0.0
+
+!Determine trees to include in CC calculation
+do i = 1, ntree, 1
+
+    crwidth_ = crwidth(i)
+    dbh_ = dbh(i)
+    expf_ = expf(i)
+    ht_ = ht(i)
+    species_ = species(i)
+
+    !Determine if tree should be skipped in calculation
+    if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
+    if(ht_ < htmin .or. ht_ >= htmax) cycle
+    if(species_ < 0) cycle
+
+    cc_ = cc_ + ((crwidth_/2)**2 * (expf_/43560) * pi * 100)
+
+end do
+
+!Correct CC for overlap
+cc_ = correct_cc(cc_)
+
+end subroutine cc
+
+!###############################################################################
+!This function takes in an uncorrected percent canopy cover value and returns a 
+!corrected value using the relationship described on page 2  of Crookston, 
+!Nicholas L.; Stage, Albert R. 1999. Percent canopy cover and stand structure 
+!statistics from the Forest Vegetation Simulator. Gen. Tech. Rep. RMRS-GTR-24.
+!Ogden, UT: U. S. Department of Agriculture, Forest Service, Rocky Mountain 
+!Research Station. 11 p.
+!###############################################################################
+
+double precision function correct_cc (cc)
+implicit none
+
+!Arugments
+double precision, intent(in) :: cc
+
+!Correct CC
+correct_cc = 100 * (1 - exp(-0.01 * cc))
+
+end function correct_cc
+
+!###############################################################################
 !This subroutine calculates Lorey height using input vectors containing DBH,
 !total tree height and expansion factors. This attribute can be calculated for
 !user defined size ranges and for select species.
@@ -408,11 +505,11 @@ implicit none
 
 !Arguments
 integer, intent(in) :: ntree
-real, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
+double precision, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
 integer, intent(in) :: species(ntree)
-real, intent(in) :: dbhmin, dbhmax, htmin, htmax
-real, intent(out) :: lorey_ht_
-real :: dbh_, expf_, ht_, ba_, ba_tree, ba_sum
+double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
+double precision, intent(out) :: lorey_ht_
+double precision :: dbh_, expf_, ht_, ba_, ba_tree, ba_sum
 integer :: i, species_
 
 !Initialize variables
@@ -455,10 +552,10 @@ implicit none
 
 !Arguments
 integer, intent(in) :: ntree, sorted_idx(ntree)
-real, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
-real, intent(inout) :: top_tpa, top_per
-real, intent(out) :: top_ht_
-real :: dbh_, expf_, ht_, tpa_, top, tpa_sum, ht_sum, tpa_dif
+double precision, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
+double precision, intent(inout) :: top_tpa, top_per
+double precision, intent(out) :: top_ht_
+double precision :: dbh_, expf_, ht_, tpa_, top, tpa_sum, ht_sum, tpa_dif
 integer :: i, idx
 logical :: top_exceed
 
@@ -518,111 +615,18 @@ end if
 end subroutine top_ht
 
 !###############################################################################
-!This function is used to calculate QMD, GMD (reinekes diameter) or average 
-!diameter weighted by TPA for the largest trees by DBH within a specified 
-!percentage of TPA or an explicit TPA value. This value is calculated from a set
-!of input vectors containing DBH values and expansion factors.
-!###############################################################################
-
-subroutine top_dia(dbh, sorted_idx, expf, top_tpa, top_per, ntree, dia_type, &
-top_dia_)
-use constants
-implicit none
-
-!Arguments
-integer, intent(in) :: ntree, sorted_idx(ntree), dia_type
-real, intent(in) :: dbh(ntree), expf(ntree)
-real, intent(inout) :: top_tpa, top_per
-real, intent(out) :: top_dia_
-real :: dbh_, expf_, ht_, tpa_, top, tpa_sum, dbh_sum, tpa_dif
-integer :: i, idx
-logical :: top_exceed
-
-!Initialize variables
-top_dia_ = 0.0
-tpa_ = 0.0
-tpa_sum = 0.0
-dbh_sum = 0.0
-tpa_dif = 0.0
-top_exceed = .false.
-
-!Do checks on top_tpa and top_per
-if(top_tpa < 0.0) top_tpa = 40.0
-if(top_per < 0.0 .or. top_per > 100.0) top_per = 20.0
-
-!Calculate TPA for stand
-do i = 1, ntree, 1
-    tpa_ = tpa_ + expf(i)
-end do
-
-!Do top diameter calculation if tpa_ > 0
-if(tpa_ > 0.0) then
-
-    !Determine value of top
-    top = top_tpa
-    if(top >= tpa_) top = top_tpa
-    if(top_per > 0) top = tpa_ * (top_per/100)
-
-    !Determine trees to included in top diameter
-    do i = 1, ntree, 1
-
-        idx = sorted_idx(i)
-        dbh_ = dbh(i)
-        expf_ = expf(i)
-        
-        !Update tpa_sum
-        tpa_sum = tpa_sum + expf_
-
-        !Determine if top is exceeded
-        if(tpa_sum >= top) then
-            tpa_dif = tpa_sum - top
-            tpa_sum = tpa_sum - tpa_dif
-            top_exceed = .true. 
-        end if
-
-        !Update dbh_sum based on dia_type
-        select case (dia_type)
-        case(1)
-            dbh_sum = dbh_sum + dbh_**2 * (expf_ - tpa_dif)
-        case(2)
-            dbh_sum = dbh_sum + dbh_ * (expf_ - tpa_dif)
-        case default 
-            dbh_sum = dbh_sum + dbh_**r_slope * (expf_ - tpa_dif)
-        end select
-
-        !Break if top value has been exceeded
-        if(top_exceed) exit
-
-    end do
-end if
-
-!Calculate top diameter if tpa_sum > 0
-if(tpa_sum > 0.0) then
-    select case(dia_type)
-    case(1)
-        top_dia_ = sqrt(dbh_sum / tpa_sum)
-    case(2)
-        top_dia_ = dbh_sum / tpa_sum
-    case(3)
-        top_dia_ = (dbh_sum / tpa_sum)**(1 / r_slope)
-    end select
-end if
-
-end subroutine top_dia
-
-!###############################################################################
 !This subroutine calculates basal area in trees larger than subject tree using 
 !input vectors containing DBH and expansion factors. 
 !###############################################################################
 
-subroutine bal(dbh, sorted_idx, expf, ntree, handle_ties, bal_arr)
+subroutine bal(dbh, sorted_idx, expf, handle_ties, ntree, bal_arr)
 use constants
 implicit none 
 
 integer, intent(in) :: ntree, sorted_idx(ntree), handle_ties
-real, intent(in) :: dbh(ntree), expf(ntree)
-real, intent(out) :: bal_arr(ntree)
-real :: dbh_, expf_, ht_, tpa_, temp_dbh, temp_bal, bal_sum, ba_tree
+double precision, intent(in) :: dbh(ntree), expf(ntree)
+double precision, intent(out) :: bal_arr(ntree)
+double precision :: dbh_, expf_, temp_dbh, temp_bal, bal_sum, ba_tree
 integer :: i, idx
 
 !Initialize variables
@@ -630,6 +634,7 @@ bal_arr = 0.0
 bal_sum  = 0.0
 temp_bal = 0.0
 temp_dbh = 10000.0
+ba_tree = 0.0
 
 !Begin loop across trees
 do i = 1, ntree, 1
@@ -645,7 +650,7 @@ do i = 1, ntree, 1
     case(1)
         !DBH values are not equal
         if(dbh_ < temp_dbh) then
-            bal_arr(i) = bal_sum
+            bal_arr(idx) = bal_sum
             temp_dbh = dbh_
             temp_bal = bal_sum
             bal_sum = bal_sum + ba_tree
@@ -653,13 +658,13 @@ do i = 1, ntree, 1
         !DBH values are equal, so use temp_bal for bal. Update bal_sum 
         !as this will be used for bal for the next tree with smaller DBH.
         else
-            bal_arr(i) = temp_bal
+            bal_arr(idx) = temp_bal
             bal_sum = bal_sum + ba_tree     
         end if     
     
     !Do not deal with ties in DBH values
     case default
-        bal_arr(i) = bal_sum
+        bal_arr(idx) = bal_sum
         bal_sum = bal_sum + ba_tree
     end select
 end do    

@@ -8,18 +8,6 @@
 #additional arguments. Most of the attributes in this file can be calculated for
 #custom size ranges (DBH and total tree height) and desired species.
 #
-#Development notes: 
-#The functions in this file rely heavily on vectorized base-R functions (sum, 
-#mean, weighted.mean, etc.) to derive competition and density attributes. The 
-#vectorized functions are optimized for R and are preferable to using for loops. 
-#Faster and more memory efficient implementations of the functions in this file
-#could likely be achieved by writing the functions in compiled languages like C,
-#C++, FORTRAN, etc. and calling them through an API. The primary gains in speed
-#from coding in a low level language would likely be realized from not having to
-#create intermediate vectors or copy vectors during the calculation of the 
-#attributes. Coding in a lower level language would still provide some unique
-#challenges.
-#
 #Usage notes:
 #Although these functions can be called within loops for subsets of data, they 
 #are best used in dplyr or data.table calculation sequences. Below are examples
@@ -226,24 +214,28 @@ ba = function(dbh = NULL,
 {
   
   ba_ = 0
-  all_species = TRUE
   
   #Check optional vectors
   if(is.null(ht) && !is.null(expf)) 
     ht = vector(mode = "numeric", length = length(expf))
   
   if(is.null(species) && !is.null(expf))
-    species = vector(mode = "character", length = length(expf))
-  
-  if(!is.null(select_species)) 
-    all_species = FALSE
+    species = vector(mode = "integer", length(expf))
   
   #Check validity of vectors
   if(!valid_vectors(dbh, expf, ht, species)) return(ba_)
+
+  #See what species match with select_species
+  if(!is.null(select_species))
+    species = match(species, select_species, nomatch = -1)
+  
+  #Convert species to integer if needed
+  if(!is.integer(species))
+    species = match(species, unique(species))
   
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
-    (all_species | species %in% select_species)
+    (species >= 0)
   
   #Calculate BA over DBH, HT, and species
   ba_ = sum((dbh^2 * expf * f_con)[include], na.rm = TRUE)
@@ -324,7 +316,6 @@ tpa = function(expf = NULL,
 {
   
   tpa_ = 0
-  all_species = TRUE
   
   #Check optional vectors.
   if(is.null(dbh) && !is.null(expf)) 
@@ -334,17 +325,22 @@ tpa = function(expf = NULL,
     ht = vector(mode = "numeric", length = length(expf))
   
   if(is.null(species) && !is.null(expf))
-    species = vector(mode = "character", length = length(expf))
-  
-  if(!is.null(select_species)) 
-    all_species = FALSE
+    species = vector(mode = "integer", length(expf))
   
   #Check validity of vectors
   if(!valid_vectors(dbh, expf, ht, species)) return(tpa_)
   
+  #See what species match with select_species
+  if(!is.null(select_species))
+    species = match(species, select_species, nomatch = -1)
+  
+  #Convert species to integer if needed
+  if(!is.integer(species))
+    species = match(species, unique(species))
+  
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
-    (all_species | species %in% select_species)
+    (species >= 0)
 
   #Calculate TPA Over DBH, HT, and species
   tpa_ = sum(expf[include], na.rm = TRUE)
@@ -423,24 +419,28 @@ qmd = function(dbh = NULL,
 {
   
   qmd_ = 0
-  all_species = TRUE
   
   #Check optional vectors.
   if(is.null(ht) && !is.null(expf)) 
     ht = vector(mode = "numeric", length = length(expf))
   
   if(is.null(species) && !is.null(expf))
-    species = vector(mode = "character", length = length(expf))
-  
-  if(!is.null(select_species)) 
-    all_species = FALSE
-  
+    species = vector(mode = "integer", length(expf))
+
   #Check validity of vectors
   if(!valid_vectors(dbh, expf, ht, species)) return(qmd_)
   
+  #See what species match with select_species
+  if(!is.null(select_species))
+    species = match(species, select_species, nomatch = -1)
+  
+  #Convert species to integer if needed
+  if(!is.integer(species))
+    species = match(species, unique(species))
+  
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
-    (all_species | species %in% select_species)
+    (species >= 0)
   
   #Calculate QMD over DBH, HT, and species
   dbhsq = sum((dbh^2*expf)[include], na.rm = TRUE)
@@ -521,24 +521,28 @@ gmd = function(dbh = NULL,
 {
   
   gmd_ = 0
-  all_species = TRUE
   
   #Check optional vectors.
   if(is.null(ht) && !is.null(expf)) 
     ht = vector(mode = "numeric", length = length(expf))
   
   if(is.null(species) && !is.null(expf))
-    species = vector(mode = "character", length = length(expf))
-  
-  if(!is.null(select_species)) 
-    all_species = FALSE
-  
+    species = vector(mode = "integer", length(expf))
+
   #Check validity of vectors
   if(!valid_vectors(dbh, expf, ht, species)) return(gmd_)
   
+  #See what species match with select_species
+  if(!is.null(select_species))
+    species = match(species, select_species, nomatch = -1)
+  
+  #Convert species to integer if needed
+  if(!is.integer(species))
+    species = match(species, unique(species))
+  
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
-    (all_species | species %in% select_species)
+    (species >= 0)
   
   #Calculate Reineke diameter over DBH, HT, and species
   gmd_sum = sum((expf * dbh^r_slope)[include], na.rm = TRUE)
@@ -550,6 +554,124 @@ gmd = function(dbh = NULL,
   
   #Return gmd
   return(gmd_)
+}
+
+################################################################################
+#' top_dia
+#' @name top_dia
+#' @description
+#'
+#' This function is used to calculate QMD or average diameter weighted by TPA
+#' for the largest trees by DBH within a specified percentage of TPA or an 
+#' explicit TPA value. This value is calculated from a set of input vectors
+#' containing DBH values and expansion factors.
+#
+#' @param dbh:     
+#' Numeric vector containing DBH values.
+#
+#' @param expf:     
+#' Numeric vector containing expansion factors values.
+#'
+#' @param top_tpa:
+#' Amount of TPA to include in top QMD calculation. Largest 40 trees, Largest 
+#' 100, etc.
+#
+#' @param top_per:
+#' Percentage of trees to include in the top QMD calculation. If this value is
+#' not null then it will supersede the value in top_tpa argument. 
+#'
+#' @param dia_type:
+#' Integer value used to specify what type of diameter should be calculated.
+#' 1 = QMD
+#' 2 = average diameter weighted by trees per acre
+#' 3 = GMD (Reineke diameter)
+#
+#' @return 
+#' Numeric top diameter value.
+################################################################################
+
+#'@export
+top_dia = function(dbh = NULL,
+                   expf = NULL,
+                   top_tpa = 40,
+                   top_per = NULL,
+                   dia_type = 1)
+{
+  #Initialize top_dia_
+  top_dia_ = 0
+  
+  #Check validity of vectors
+  if(!valid_vectors(dbh, expf)) return(top_dia_)
+  
+  #Validate top_tpa
+  if(is.null(top_tpa) || top_tpa < 0) top_tpa = 40
+  
+  #Validate top_per. If top_per is not null but has an invalid value, set it to 
+  #0.
+  if(!is.null(top_per)) 
+  {
+    if(top_per < 0 || top_per > 100) top_per = 20
+  }
+  
+  #Validate dia_type
+  if(!dia_type %in% c(1, 2, 3)) dia_type = 1
+  
+  #Calculate TPA for the entire stand
+  tpa_ = tpa(dbh = dbh, expf = expf)
+  
+  #Do calculations if tpa is > 0
+  if(tpa_ > 0)
+  {
+    #Determine amount TPA value that will be included in top height calculation
+    top = top_tpa
+    if(top > tpa_) top = tpa_
+    if(!is.null(top_per))top = tpa_ * (top_per/100)
+    
+    #Get order of DBH values in descending order
+    dbh_order = order(-dbh)
+    
+    #Find the index where top is exceeded
+    top_exceed = which.max(cumsum(expf[dbh_order]) >= top)
+    
+    #Sum expf up to this index
+    tpa_sum = sum(expf[dbh_order][1:top_exceed], na.rm = TRUE)
+    
+    #Calculate tpa_dif and adjust tpa_sum
+    tpa_dif = tpa_sum - top
+    tpa_sum = tpa_sum - tpa_dif
+    
+    #QMD
+    if(dia_type == 1) {
+      dbh_sum = sum((dbh^2*expf)[dbh_order][1:top_exceed-1], na.rm = TRUE) + 
+        (dbh^2)[dbh_order][top_exceed] * (expf[dbh_order][top_exceed] - 
+                                            tpa_dif)
+      
+      if(tpa_sum > 0) top_dia_ = sqrt(dbh_sum / tpa_sum)
+    }
+    
+    #Average diameter weighted by TPA
+    else if (dia_type == 2)
+    {
+      dbh_sum = sum((dbh*expf)[dbh_order][1:top_exceed-1], na.rm = TRUE) + 
+        (dbh)[dbh_order][top_exceed] * (expf[dbh_order][top_exceed] - 
+                                          tpa_dif)
+      
+      if(tpa_sum > 0) top_dia_ = dbh_sum / tpa_sum
+    }
+    
+    #GMD
+    else 
+    {
+      dbh_sum = sum((dbh^r_slope * expf)[dbh_order][1:top_exceed-1], 
+                    na.rm = TRUE) + 
+        (dbh^r_slope)[dbh_order][top_exceed] * (expf[dbh_order][top_exceed] - 
+                                                  tpa_dif)
+      
+      if(tpa_sum > 0) top_dia_ = (dbh_sum / tpa_sum)^(1 / r_slope)
+    }
+  }
+  
+  return(top_dia_)
 }
 
 ################################################################################
@@ -619,27 +741,31 @@ lorey_dia = function(dbh = NULL,
 {
   
   lorey_dia_ = 0
-  all_species = TRUE
   
   #Check optional vectors.
   if(is.null(ht) && !is.null(expf)) 
     ht = vector(mode = "numeric", length = length(expf))
   
   if(is.null(species) && !is.null(expf))
-    species = vector(mode = "character", length = length(expf))
-  
-  if(!is.null(select_species)) 
-    all_species = FALSE
+    species = vector(mode = "integer", length(expf))
   
   #Check validity of vectors
   if(!valid_vectors(dbh, expf, ht, species)) return(lorey_dia_)
+  
+  #See what species match with select_species
+  if(!is.null(select_species))
+    species = match(species, select_species, nomatch = -1)
+  
+  #Convert species to integer if needed
+  if(!is.integer(species))
+    species = match(species, unique(species))
   
   #Calculate treeba
   treeba = dbh^2 * expf * f_con 
   
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
-    (all_species | species %in% select_species)
+    (species >= 0)
   
   #Calculate Lorey diameter over DBH, HT, and species
   dbhsum = sum((dbh * treeba)[include], na.rm = TRUE)
@@ -686,6 +812,121 @@ rsdi = function(dbh = NULL,
   
   #Return rsdi
   return(rsdi)
+}
+
+################################################################################
+#'rsdi_stage
+#'@name rsdi_stage
+#'@description
+#'
+#' This function is used to calculate Reineke SDI used the methodology proposed
+#' by Stage 1968. From Section 7.3.2.1 of EFVS using input vectors containing 
+#' DBH and expansion factors. This attribute can be calculated for user defined 
+#' size ranges and for select species.
+#
+# SDI = sum(a * TPAi + b * DBHi^2 * TPA)
+# a = 10^(-1.605) * (1-(1.605/2)) * qmd^1.605
+# b = 10^(−1.605) * (1.605/2) * QMD^(1.605-2)
+#
+#' @param dbh:     
+#' Numeric vector containing DBH values.
+#
+#' @param expf:     
+#' Numeric vector containing expansion factors.
+#'
+#' @param ht:
+#' Optional numeric vector containing total tree height values. If heights are 
+#' provided, then attribute will be calculated between the values specified in 
+#' htmin and htmax.
+#' 
+#' @param species:
+#' Optional vector containing species codes. If species are provided then
+#' attribute will be calculated for species entered in select_species argument.
+#' Attribute will be calculated for all species if select_species is left as 
+#' NULL.
+#
+#' @param dbhmin:
+#' Numeric value corresponding to lower DBH bound to calculate attribute in. 
+#' This value is inclusive (>=).
+#
+#' @param dbhmax: 
+#' Numeric value corresponding to upper DBH bound to calculate attribute in. 
+#' This value is exclusive (<).
+#' 
+#' @param htmin:
+#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' in. This value is inclusive (>=). This argument is only used if ht argument 
+#' is specified.
+#
+#' @param htmax: 
+#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' in. This value is exclusive (<). This argument is only used if ht argument 
+#' is specified.
+#' 
+#' @param select_species:
+#' Optional vector containing species codes. This variable will be used to
+#' select which species get included in calculation of attribute. This argument
+#' will only be used if values are provided for species. d
+#
+#' @return 
+#' Numeric Reineke SDI calculated using stage formulation.
+################################################################################
+
+#'@export
+rsdi_stage = function(dbh = NULL,
+                     expf = NULL,
+                     ht = NULL,
+                     species = NULL,
+                     dbhmin = 0,
+                     dbhmax = 999,
+                     htmin = 0,
+                     htmax = 999,
+                     select_species = NULL)
+{
+  rsdi_ = 0
+  
+  #Check optional vectors
+  if(is.null(ht) && !is.null(expf)) 
+    ht = vector(mode = "numeric", length = length(expf))
+  
+  if(is.null(species) && !is.null(expf))
+    species = vector(mode = "integer", length(expf))
+
+  #Check validity of vectors
+  if(!valid_vectors(dbh, expf, ht, species)) return(rsdi_)
+  
+  #See what species match with select_species
+  if(!is.null(select_species))
+    species = match(species, select_species, nomatch = -1)
+  
+  #Convert species to integer if needed
+  if(!is.integer(species))
+    species = match(species, unique(species))
+
+  #Calculate stand level tpa and dbhsq. Also initialize qmd
+  stand_tpa = sum(expf)
+  dbhsq = sum(dbh^2 * expf)
+  qmd = 0
+  
+  #Return if stand_tpa is less than or equal to 0
+  if(stand_tpa <= 0) return(rsdi_)
+  
+  #Initialize a and b parameters
+  a = 10^(-r_slope) * (1-(r_slope/2)) * (dbhsq/stand_tpa)^(r_slope/2)
+  b = 10^(-r_slope) * (r_slope/2) * (dbhsq/stand_tpa)^(r_slope/2 - 1)
+  
+  #Identify records to include in calculation
+  include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
+    (species >= 0)
+  
+  #Calculate RSDI over DBH, HT, and species
+  rsdi_ = sum((a*expf)[include], (b * dbh^2 * expf)[include], na.rm = TRUE)
+  
+  #Capture bad values
+  if(is.na(rsdi_)) rsdi_ = 0
+  
+  #Return rsdi
+  return(rsdi_)
 }
 
 ################################################################################
@@ -753,24 +994,28 @@ zsdi = function(dbh = NULL,
 {
   
   zsdi_ = 0
-  all_species = TRUE
   
   #Check optional vectors.
   if(is.null(ht) && !is.null(expf)) 
     ht = vector(mode = "numeric", length = length(expf))
   
   if(is.null(species) && !is.null(expf))
-    species = vector(mode = "character", length = length(expf))
-  
-  if(!is.null(select_species)) 
-    all_species = FALSE
-  
+    species = vector(mode = "integer", length(expf))
+
   #Check validity of vectors
   if(!valid_vectors(dbh, expf, ht, species)) return(zsdi_)
   
+  #See what species match with select_species
+  if(!is.null(select_species))
+    species = match(species, select_species, nomatch = -1)
+  
+  #Convert species to integer if needed
+  if(!is.integer(species))
+    species = match(species, unique(species))
+  
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
-    (all_species | species %in% select_species)
+    (species >= 0)
   
   #Calculate ZSDI over DBH, HT, and species
   zsdi_ = sum(((dbh/10)^r_slope * expf)[include], na.rm = TRUE)
@@ -849,7 +1094,6 @@ cc = function(crwidth = NULL,
               select_species = NULL)
 {
   cc_ = 0
-  all_species = TRUE
   
   #Check optional vectors.
   if(is.null(dbh) && !is.null(expf)) 
@@ -859,16 +1103,22 @@ cc = function(crwidth = NULL,
     ht = vector(mode = "numeric", length = length(expf))
   
   if(is.null(species) && !is.null(expf))
-    species = vector(mode = "character", length = length(expf))
-  
-  if(!is.null(select_species)) all_species = FALSE
-  
+    species = vector(mode = "integer", length(expf))
+
   #Check validity of vectors
   if(!valid_vectors(dbh, expf, ht, species)) return(cc_)
   
+  #See what species match with select_species
+  if(!is.null(select_species))
+    species = match(species, select_species, nomatch = -1)
+  
+  #Convert species to integer if needed
+  if(!is.integer(species))
+    species = match(species, unique(species))
+  
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
-    (all_species | species %in% select_species)
+    (species >= 0)
   
   #Calculate CC over DBH, HT, and species
   cc_ = sum((((crwidth/2)^2) * (expf/43560) * pi * 100)[include], na.rm = TRUE)
@@ -975,117 +1225,6 @@ bal = function(dbh = NULL,
 }
 
 ################################################################################
-#'rsdi_stage
-#'@name rsdi_stage
-#'@description
-#'
-#' This function is used to calculate Reineke SDI used the methodology proposed
-#' by Stage 1968. From Section 7.3.2.1 of EFVS using input vectors containing 
-#' DBH and expansion factors. This attribute can be calculated for user defined 
-#' size ranges and for select species.
-#
-# SDI = sum(a * TPAi + b * DBHi^2 * TPA)
-# a = 10^(-1.605) * (1-(1.605/2)) * qmd^1.605
-# b = 10^(−1.605) * (1.605/2) * QMD^(1.605-2)
-#
-#' @param dbh:     
-#' Numeric vector containing DBH values.
-#
-#' @param expf:     
-#' Numeric vector containing expansion factors.
-#'
-#' @param ht:
-#' Optional numeric vector containing total tree height values. If heights are 
-#' provided, then attribute will be calculated between the values specified in 
-#' htmin and htmax.
-#' 
-#' @param species:
-#' Optional vector containing species codes. If species are provided then
-#' attribute will be calculated for species entered in select_species argument.
-#' Attribute will be calculated for all species if select_species is left as 
-#' NULL.
-#
-#' @param dbhmin:
-#' Numeric value corresponding to lower DBH bound to calculate attribute in. 
-#' This value is inclusive (>=).
-#
-#' @param dbhmax: 
-#' Numeric value corresponding to upper DBH bound to calculate attribute in. 
-#' This value is exclusive (<).
-#' 
-#' @param htmin:
-#' Numeric value corresponding to lower tree height bound to calculate attribute
-#' in. This value is inclusive (>=). This argument is only used if ht argument 
-#' is specified.
-#
-#' @param htmax: 
-#' Numeric value corresponding to upper tree height bound to calculate attribute
-#' in. This value is exclusive (<). This argument is only used if ht argument 
-#' is specified.
-#' 
-#' @param select_species:
-#' Optional vector containing species codes. This variable will be used to
-#' select which species get included in calculation of attribute. This argument
-#' will only be used if values are provided for species. d
-#
-#' @return 
-#' Numeric Reineke SDI calculated using stage formulation.
-################################################################################
-
-#'@export
-rsdi_stage = function(dbh = NULL,
-                     expf = NULL,
-                     ht = NULL,
-                     species = NULL,
-                     dbhmin = 0,
-                     dbhmax = 999,
-                     htmin = 0,
-                     htmax = 999,
-                     select_species = NULL)
-{
-  rsdi_ = 0
-  all_species = TRUE
-  
-  #Check optional vectors
-  if(is.null(ht) && !is.null(expf)) 
-    ht = vector(mode = "numeric", length = length(expf))
-  
-  if(is.null(species) && !is.null(expf))
-    species = vector(mode = "character", length = length(expf))
-  
-  if(!is.null(select_species)) 
-    all_species = FALSE
-  
-  #Check validity of vectors
-  if(!valid_vectors(dbh, expf, ht, species)) return(rsdi_)
-
-  #Calculate stand level tpa and dbhsq. Also initialize qmd
-  stand_tpa = sum(expf)
-  dbhsq = sum(dbh^2 * expf)
-  qmd = 0
-  
-  #Return if stand_tpa is less than or equal to 0
-  if(stand_tpa <= 0) return(rsdi_)
-  
-  #Initialize a and b parameters
-  a = 10^(-r_slope) * (1-(r_slope/2)) * (dbhsq/stand_tpa)^(r_slope/2)
-  b = 10^(-r_slope) * (r_slope/2) * (dbhsq/stand_tpa)^(r_slope/2 - 1)
-  
-  #Identify records to include in calculation
-  include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
-    (all_species | species %in% select_species)
-  
-  #Calculate RSDI over DBH, HT, and species
-  rsdi_ = sum((a*expf)[include], (b * dbh^2 * expf)[include], na.rm = TRUE)
-  
-  #Capture bad values
-  if(is.na(rsdi_)) rsdi_ = 0
-  
-  #Return rsdi
-  return(rsdi_)
-}
-
-################################################################################
 #' lorey_ht
 #' @name lorey_ht
 #' @description
@@ -1150,17 +1289,13 @@ lorey_ht = function(dbh = NULL,
 {
   
   lorey_ht_ = 0
-  all_species = TRUE
   
   #Check optional vectors.
   if(is.null(dbh) && !is.null(expf)) 
     dbh = vector(mode = "numeric", length = length(expf))
   
   if(is.null(species) && !is.null(expf))
-    species = vector(mode = "character", length = length(expf))
-  
-  if(!is.null(select_species)) 
-    all_species = FALSE
+    species = vector(mode = "integer", length(expf))
   
   #Check validity of vectors
   if(!valid_vectors(dbh, expf, ht, species)) return(lorey_ht_)
@@ -1170,7 +1305,7 @@ lorey_ht = function(dbh = NULL,
   
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
-    (all_species | species %in% select_species)
+    (species >= 0)
   
   #Calculate Lorey height over DBH, HT, and species
   htsum = sum((ht * treeba)[include], na.rm = TRUE)
@@ -1269,124 +1404,6 @@ top_ht = function(dbh = NULL,
 }
 
 ################################################################################
-#' top_dia
-#' @name top_dia
-#' @description
-#'
-#' This function is used to calculate QMD or average diameter weighted by TPA
-#' for the largest trees by DBH within a specified percentage of TPA or an 
-#' explicit TPA value. This value is calculated from a set of input vectors
-#' containing DBH values and expansion factors.
-#
-#' @param dbh:     
-#' Numeric vector containing DBH values.
-#
-#' @param expf:     
-#' Numeric vector containing expansion factors values.
-#'
-#' @param top_tpa:
-#' Amount of TPA to include in top QMD calculation. Largest 40 trees, Largest 
-#' 100, etc.
-#
-#' @param top_per:
-#' Percentage of trees to include in the top QMD calculation. If this value is
-#' not null then it will supersede the value in top_tpa argument. 
-#'
-#' @param dia_type:
-#' Integer value used to specify what type of diameter should be calculated.
-#' 1 = QMD
-#' 2 = average diameter weighted by trees per acre
-#' 3 = Reineke diameter
-#
-#' @return 
-#' Numeric top diameter value.
-################################################################################
-
-#'@export
-top_dia = function(dbh = NULL,
-                   expf = NULL,
-                   top_tpa = 40,
-                   top_per = NULL,
-                   dia_type = 1)
-{
-  #Initialize top_dia_
-  top_dia_ = 0
-  
-  #Check validity of vectors
-  if(!valid_vectors(dbh, expf)) return(top_dia_)
-  
-  #Validate top_tpa
-  if(is.null(top_tpa) || top_tpa < 0) top_tpa = 40
-  
-  #Validate top_per. If top_per is not null but has an invalid value, set it to 
-  #0.
-  if(!is.null(top_per)) 
-  {
-    if(top_per < 0 || top_per > 100) top_per = 20
-  }
-  
-  #Validate dia_type
-  if(!dia_type %in% c(1, 2, 3)) dia_type = 1
-  
-  #Calculate TPA for the entire stand
-  tpa_ = tpa(dbh = dbh, expf = expf)
-  
-  #Do calculations if tpa is > 0
-  if(tpa_ > 0)
-  {
-    #Determine amount TPA value that will be included in top height calculation
-    top = top_tpa
-    if(top > tpa_) top = tpa_
-    if(!is.null(top_per))top = tpa_ * (top_per/100)
-    
-    #Get order of DBH values in descending order
-    dbh_order = order(-dbh)
-    
-    #Find the index where top is exceeded
-    top_exceed = which.max(cumsum(expf[dbh_order]) >= top)
-    
-    #Sum expf up to this index
-    tpa_sum = sum(expf[dbh_order][1:top_exceed], na.rm = TRUE)
-    
-    #Calculate tpa_dif and adjust tpa_sum
-    tpa_dif = tpa_sum - top
-    tpa_sum = tpa_sum - tpa_dif
-    
-    #QMD
-    if(dia_type == 1) {
-      dbh_sum = sum((dbh^2*expf)[dbh_order][1:top_exceed-1], na.rm = TRUE) + 
-        (dbh^2)[dbh_order][top_exceed] * (expf[dbh_order][top_exceed] - 
-                                            tpa_dif)
-      
-      if(tpa_sum > 0) top_dia_ = sqrt(dbh_sum / tpa_sum)
-    }
-    
-    #Average diameter weighted by TPA
-    else if (dia_type == 2)
-    {
-      dbh_sum = sum((dbh*expf)[dbh_order][1:top_exceed-1], na.rm = TRUE) + 
-        (dbh)[dbh_order][top_exceed] * (expf[dbh_order][top_exceed] - 
-                                          tpa_dif)
-      
-      if(tpa_sum > 0) top_dia_ = dbh_sum / tpa_sum
-    }
-    
-    #GMD
-    else 
-    {
-      dbh_sum = sum((dbh^r_slope * expf)[dbh_order][1:top_exceed-1], 
-                    na.rm = TRUE) + 
-        (dbh^r_slope)[dbh_order][top_exceed] * (expf[dbh_order][top_exceed] - 
-                                                  tpa_dif)
-      
-      if(tpa_sum > 0) top_dia_ = (dbh_sum / tpa_sum)^(1 / r_slope)
-    }
-  }
-  
-  return(top_dia_)
-}
-
-################################################################################
 #' mean_attr
 #' @name mean_attr
 #' @description
@@ -1460,7 +1477,6 @@ mean_attr = function(attr = NULL,
                      select_species = NULL)
 {
   mean_attr_ = 0
-  all_species = TRUE
   
   #Check optional vectors.
   if(is.null(dbh) && !is.null(attr)) 
@@ -1470,10 +1486,7 @@ mean_attr = function(attr = NULL,
     ht = vector("numeric", length = length(attr))
   
   if(is.null(species) && !is.null(attr)) 
-    species = vector("character", length = length(attr))
-  
-  if(!is.null(select_species)) 
-    all_species = FALSE
+    species = vector("integer", length = length(attr))
   
   if(is.null(weight)) 
     weight = rep(x = 1, times = length(attr))
@@ -1481,9 +1494,17 @@ mean_attr = function(attr = NULL,
   #Check validity of vectors
   if(!valid_vectors(attr, dbh, ht, species)) return(mean_attr_)
   
+  #See what species match with select_species
+  if(!is.null(select_species))
+    species = match(species, select_species, nomatch = -1)
+  
+  #Convert species to integer if needed
+  if(!is.integer(species))
+    species = match(species, unique(species))
+  
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
-    (all_species | species %in% select_species)
+    (species >= 0)
 
   #Calculate mean
   mean_attr_ = weighted.mean(x = attr[include], 
@@ -1569,7 +1590,6 @@ expand_attr = function(attr = NULL,
 {
   
   attr_expand_ = 0
-  all_species = TRUE
   
   #Check optional vectors.
   if(is.null(dbh) && !is.null(expf)) 
@@ -1579,17 +1599,22 @@ expand_attr = function(attr = NULL,
     ht = vector(mode = "numeric", length = length(expf))
   
   if(is.null(species) && !is.null(expf))
-    species = vector(mode = "character", length = length(expf))
-  
-  if(!is.null(select_species)) 
-    all_species = FALSE
-  
+    species = vector(mode = "integer", length(expf))
+
   #Check validity of vectors
   if(!valid_vectors(attr, dbh, ht, species)) return(attr_expand_)
   
+  #See what species match with select_species
+  if(!is.null(select_species))
+    species = match(species, select_species, nomatch = -1)
+  
+  #Convert species to integer if needed
+  if(!is.integer(species))
+    species = match(species, unique(species))
+  
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
-    (all_species | species %in% select_species)
+    (species >= 0)
   
   #Expand attr over DBH, HT, and species
   attr_expand_ = sum((attr * expf)[include], na.rm = TRUE)
@@ -1666,7 +1691,6 @@ median_attr = function(attr = NULL,
 {
   
   median_attr_ = 0
-  all_species = TRUE
   
   #Check optional vectors.
   if(is.null(dbh) && !is.null(attr)) 
@@ -1676,17 +1700,22 @@ median_attr = function(attr = NULL,
     ht = vector("numeric", length = length(attr))
   
   if(is.null(species) && !is.null(attr)) 
-    species = vector("character", length = length(attr))
-  
-  if(!is.null(select_species)) 
-    all_species = FALSE
-  
+    species = vector("integer", length = length(attr))
+
   #Check validity of vectors
   if(!valid_vectors(attr, dbh, ht, species)) return(median_attr_)
   
+  #See what species match with select_species
+  if(!is.null(select_species))
+    species = match(species, select_species, nomatch = -1)
+  
+  #Convert species to integer if needed
+  if(!is.integer(species))
+    species = match(species, unique(species))
+  
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
-    (all_species | species %in% select_species)
+    (species >= 0)
   
   #Over DBH, HT, and species
   median_attr_ = median(attr[include], na.rm = TRUE)
@@ -1763,7 +1792,6 @@ min_attr = function(attr = NULL,
 {
   
   min_attr_ = 0
-  all_species = TRUE
   
   #Check optional vectors.
   if(is.null(dbh) && !is.null(attr)) 
@@ -1773,17 +1801,22 @@ min_attr = function(attr = NULL,
     ht = vector("numeric", length = length(attr))
   
   if(is.null(species) && !is.null(attr)) 
-    species = vector("character", length = length(attr))
-  
-  if(!is.null(select_species)) 
-    all_species = FALSE
+    species = vector("integer", length = length(attr))
   
   #Check validity of vectors
   if(!valid_vectors(attr, dbh, ht, species)) return(min_attr_)
   
+  #See what species match with select_species
+  if(!is.null(select_species))
+    species = match(species, select_species, nomatch = -1)
+  
+  #Convert species to integer if needed
+  if(!is.integer(species))
+    species = match(species, unique(species))
+  
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
-    (all_species | species %in% select_species) & !is.na(attr)
+    (species >= 0) & !is.na(attr)
   
   #Find minimum over DBH, HT, and species
   if(any(include))
@@ -1861,8 +1894,7 @@ max_attr = function(attr = NULL,
 {
   
   max_attr_ = 0
-  all_species = TRUE
-
+  
   #Check optional vectors.
   if(is.null(dbh) && !is.null(attr)) 
     dbh = vector("numeric", length = length(attr))
@@ -1871,17 +1903,22 @@ max_attr = function(attr = NULL,
     ht = vector("numeric", length = length(attr))
   
   if(is.null(species) && !is.null(attr)) 
-    species = vector("character", length = length(attr))
-  
-  if(!is.null(select_species)) 
-    all_species = FALSE
-  
+    species = vector("integer", length = length(attr))
+
   #Check validity of vectors
   if(!valid_vectors(attr, dbh, ht, species)) return(max_attr_)
   
+  #See what species match with select_species
+  if(!is.null(select_species))
+    species = match(species, select_species, nomatch = -1)
+  
+  #Convert species to integer if needed
+  if(!is.integer(species))
+    species = match(species, unique(species))
+  
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
-    (all_species | species %in% select_species) & !is.na(attr)
+    (species >= 0) & !is.na(attr)
   
   #Find minimum over DBH, HT, and species
   if(any(include))
@@ -1959,7 +1996,6 @@ count_attr = function(attr = NULL,
 {
   
   count_ = 0
-  all_species = TRUE
   
   #Check optional vectors.
   if(is.null(dbh) && !is.null(attr)) 
@@ -1969,17 +2005,22 @@ count_attr = function(attr = NULL,
     ht = vector("numeric", length = length(attr))
   
   if(is.null(species) && !is.null(attr)) 
-    species = vector("character", length = length(attr))
-  
-  if(!is.null(select_species)) 
-    all_species = FALSE
+    species = vector("integer", length = length(attr))
   
   #Check validity of vectors
   if(!valid_vectors(attr, dbh, ht, species)) return(count_)
   
+  #See what species match with select_species
+  if(!is.null(select_species))
+    species = match(species, select_species, nomatch = -1)
+  
+  #Convert species to integer if needed
+  if(!is.integer(species))
+    species = match(species, unique(species))
+  
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
-    (all_species | species %in% select_species)
+    (species >= 0)
   
   #Count over DBH, ht, and species
   count_ = length(attr[include])
@@ -2070,14 +2111,16 @@ ba_f = function(dbh = NULL,
   #Check validity of vectors
   if(!valid_vectors(dbh, expf, ht, species)) return(ba_)
   
+  #See what species match with select_species
   if(!is.null(select_species))
     species = match(species, select_species, nomatch = -1)
-  else
+  
+  #Convert species to integer if needed
+  if(!is.integer(species))
     species = match(species, unique(species))
 
+  #Get number of trees
   ntree = length(expf)
-  cat("SPECIES:", species, "\n")
-  cat("SELECT_SPECIES:", select_species, "\n")
 
   #Call the ba subroutine
   ba_ <- dotCall64::.C64(
@@ -2098,7 +2141,1102 @@ ba_f = function(dbh = NULL,
                "r", 'r', "r", "rw"),
     PACKAGE = "fvstools")$ba_
   
-  #Return ba
   return(ba_)
 }
+
+################################################################################
+#' tpa_f
+#' @name tpa_f
+#' @description
+#' 
+#' This function calculates a trees/stems per acre given an input vector 
+#' containing expansion factors. This attribute can be calculated for user
+#' defined size ranges and for select species.
+#
+#' @param expf: 
+#' Vector of numeric vector containing expansion factors.
+#' 
+#' @param dbh:
+#' Optional numeric vector containing DBH values. If DBH values are provided, 
+#' then attribute will be calculated between the values specified in dbhmin and 
+#' dbhmax.
+#
+#' @param ht:
+#' Optional vector containing total tree height values. If heights are provided,
+#' then attribute will be calculated between the values specified in htmin and
+#' htmax.
+#
+#' @param species:
+#' Optional vector containing species codes. If species are provided then
+#' attribute will be calculated for species entered in select_species argument.
+#' Attribute will be calculated for all species if select_species is left as 
+#' NULL.
+#
+#' @param dbhmin:
+#' Numeric value corresponding to lower DBH bound to calculate attribute in. 
+#' This value is inclusive (>=).
+#
+#' @param dbhmax: 
+#'Numeric value corresponding to upper DBH bound to calculate attribute in. This
+#'value is exclusive (<).
+#' 
+#' @param htmin:
+#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' in. This value is inclusive (>=). This argument is only used if ht argument 
+#' is specified.
+#
+#' @param htmax: 
+#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' in. This value is exclusive (<). This argument is only used if ht argument 
+#' is specified.
+#' 
+#' @param select_spcies:
+#' Optional vector containing species codes. This variable will be used to
+#' select which species get included in calculation of attribute. If left as
+#' NULL, attribute will be calculated using observations from across all 
+#' species.
+#' 
+#'@return
+#' Numeric trees per acre value
+################################################################################
+
+#'@export
+tpa_f = function(expf = NULL,
+               dbh = NULL,
+               ht = NULL,
+               species = NULL,
+               dbhmin = 0,
+               dbhmax = 999,
+               htmin = 0,
+               htmax = 999,
+               select_species = NULL)
+{
+  
+  tpa_ = 0
+  
+  #Check optional vectors
+  if(is.null(ht) && !is.null(expf)) 
+    ht = vector(mode = "numeric", length(expf))
+  
+  if(is.null(species) && !is.null(expf)) 
+    species = vector(mode = "integer", length(expf))
+  
+  #Check validity of vectors
+  if(!valid_vectors(dbh, expf, ht, species)) return(tpa_)
+  
+  #See what species match with select_species
+  if(!is.null(select_species))
+    species = match(species, select_species, nomatch = -1)
+  
+  #Convert species to integer if needed
+  if(!is.integer(species))
+    species = match(species, unique(species))
+
+  #Get number of trees
+  ntree = length(expf)
+
+  #Call the tpa subroutine
+  tpa_ <- dotCall64::.C64(
+    .NAME = "tpa",
+    SIGNATURE = c("double","double","double","integer", "double","double",
+                  "double","double", "integer","double"),
+    dbh = dbh,
+    expf = expf,
+    ht = ht,
+    species = species,
+    dbhmin = dbhmin,
+    dbhmax = dbhmax,
+    htmin = htmin,
+    htmax = htmax,
+    ntree = ntree,
+    tpa_ = double(1),
+    INTENT = c("r", "r", "r", "r", "r", "r",
+               "r", 'r', "r", "rw"),
+    PACKAGE = "fvstools")$tpa_
+
+  return(tpa_)
+}
+
+################################################################################
+#' qmd_f
+#' @name qmd_f
+#' @description
+#' 
+#' This function calculates quadratic mean diameter given vectors containing 
+#' DBH and expansion factors. This attribute can be calculated for user
+#' defined size ranges and for select species.
+#
+#' @param dbh:
+#' Numeric vector containing DBH values.
+#
+#' @param expf: 
+#' Numeric vector containing expansion factors.
+#' 
+#' @param ht:
+#' Optional numeric vector containing total tree height values. If heights are 
+#' provided, then attribute will be calculated between the values specified in
+#' htmin and htmax.
+#' 
+#' @param species:
+#' Optional vector containing species codes. If species are provided then
+#' attribute will be calculated for species entered in select_species argument.
+#' Attribute will be calculated for all species if select_species is left as 
+#' NULL.
+#' 
+#' @param dbhmin:
+#' Numeric value corresponding to lower DBH bound to calculate attribute in. 
+#' This value is inclusive (>=).
+#
+#' @param dbhmax: 
+#' Numeric value corresponding to upper DBH bound to calculate attribute in. 
+#' This value is exclusive (<).
+#' 
+#' @param htmin:
+#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' in. This value is inclusive (>=). This argument is only used if ht argument 
+#' is specified.
+#
+#' @param htmax: 
+#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' in. This value is exclusive (<). This argument is only used if ht argument 
+#' is specified.
+#' 
+#' @param select_species:
+#' Optional vector containing species codes. This variable will be used to
+#' select which species get included in calculation of attribute. If left as
+#' NULL, attribute will be calculated using observations from across all 
+#' species.
+#'
+#'@return
+#' Numeric quadratic mean diameter value
+################################################################################
+
+#'@export
+qmd_f = function(dbh = NULL,
+               expf = NULL,
+               ht = NULL,
+               species = NULL,
+               dbhmin = 0,
+               dbhmax = 999,
+               htmin = 0,
+               htmax = 999,
+               select_species = NULL)
+{
+  qmd_ = 0
+  
+  #Check optional vectors
+  if(is.null(ht) && !is.null(expf)) 
+    ht = vector(mode = "numeric", length(expf))
+  
+  if(is.null(species) && !is.null(expf)) 
+    species = vector(mode = "integer", length(expf))
+  
+  #Check validity of vectors
+  if(!valid_vectors(dbh, expf, ht, species)) return(qmd_)
+  
+  #See what species match with select_species
+  if(!is.null(select_species))
+    species = match(species, select_species, nomatch = -1)
+  
+  #Convert species to integer if needed
+  if(!is.integer(species))
+    species = match(species, unique(species))
+
+  #Get number of trees
+  ntree = length(expf)
+
+  #Call the qmd subroutine
+  qmd_ <- dotCall64::.C64(
+    .NAME = "qmd",
+    SIGNATURE = c("double","double","double","integer", "double","double",
+                  "double","double", "integer","double"),
+    dbh = dbh,
+    expf = expf,
+    ht = ht,
+    species = species,
+    dbhmin = dbhmin,
+    dbhmax = dbhmax,
+    htmin = htmin,
+    htmax = htmax,
+    ntree = ntree,
+    qmd_ = double(1),
+    INTENT = c("r", "r", "r", "r", "r", "r",
+               "r", 'r', "r", "rw"),
+    PACKAGE = "fvstools")$qmd_
+
+  return(qmd_)
+}
+
+###############################################################################
+#' gmd_f
+#' @name gmd_f
+#' @description
+#' 
+#' This function calculates generalized mean diameter (Reineke diameter) given 
+#' vectors containing DBH and expansion factors. This attribute can be 
+#' calculated for user defined size ranges and for select species.
+#
+#' @param dbh:
+#' Numeric vector containing DBH values.
+#
+#' @param expf: 
+#' Numeric vector containing expansion factors.
+#' 
+#' @param ht:
+#' Optional numeric vector containing total tree height values. If heights are 
+#' provided, then attribute will be calculated between the values specified in
+#' htmin and htmax.
+#' 
+#' @param species:
+#' Optional vector containing species codes. If species are provided then
+#' attribute will be calculated for species entered in select_species argument.
+#' Attribute will be calculated for all species if select_species is left as 
+#' NULL.
+#' 
+#' @param dbhmin:
+#' Numeric value corresponding to lower DBH bound to calculate attribute in. 
+#' This value is inclusive (>=).
+#
+#' @param dbhmax: 
+#' Numeric value corresponding to upper DBH bound to calculate attribute in. 
+#' This value is exclusive (<).
+#' 
+#' @param htmin:
+#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' in. This value is inclusive (>=). This argument is only used if ht argument 
+#' is specified.
+#
+#' @param htmax: 
+#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' in. This value is exclusive (<). This argument is only used if ht argument 
+#' is specified.
+#' 
+#' @param select_species:
+#' Optional vector containing species codes. This variable will be used to
+#' select which species get included in calculation of attribute. If left as
+#' NULL, attribute will be calculated using observations from across all 
+#' species.
+#'
+#'@return
+#' Numeric GMD value
+################################################################################
+
+#'@export
+gmd_f = function(dbh = NULL,
+               expf = NULL,
+               ht = NULL,
+               species = NULL,
+               dbhmin = 0,
+               dbhmax = 999,
+               htmin = 0,
+               htmax = 999,
+               select_species = NULL)
+{
+  
+  gmd_ = 0
+  
+  #Check optional vectors.
+  if(is.null(ht) && !is.null(expf)) 
+    ht = vector(mode = "numeric", length = length(expf))
+  
+  if(is.null(species) && !is.null(expf))
+    species = vector(mode = "integer", length(expf))
+
+  #Check validity of vectors
+  if(!valid_vectors(dbh, expf, ht, species)) return(gmd_)
+  
+  #See what species match with select_species
+  if(!is.null(select_species))
+    species = match(species, select_species, nomatch = -1)
+  
+  #Convert species to integer if needed
+  if(!is.integer(species))
+    species = match(species, unique(species))
+
+  #Get number of trees
+  ntree = length(expf)
+  
+  #Call the qmd subroutine
+  gmd_ <- dotCall64::.C64(
+    .NAME = "gmd",
+    SIGNATURE = c("double","double","double","integer", "double","double",
+                  "double","double", "integer","double"),
+    dbh = dbh,
+    expf = expf,
+    ht = ht,
+    species = species,
+    dbhmin = dbhmin,
+    dbhmax = dbhmax,
+    htmin = htmin,
+    htmax = htmax,
+    ntree = ntree,
+    gmd_ = double(1),
+    INTENT = c("r", "r", "r", "r", "r", "r",
+               "r", 'r', "r", "rw"),
+    PACKAGE = "fvstools")$gmd_
+  
+  return(gmd_)
+}
+
+################################################################################
+#' lorey_dia_f
+#' @name lorey_dia_f
+#' @description
+#' 
+#' This function calculates Lorey diameter (basal area weighted average 
+#' diameter). This attribute can be calculated for user defined size ranges and 
+#' for select species.
+#
+#' @param dbh:
+#' Numeric vector containing DBH values.
+#
+#' @param expf: 
+#' Numeric vector containing expansion factors.
+#' 
+#' @param ht:
+#' Optional numeric vector containing total tree height values. If heights are 
+#' provided, then attribute will be calculated between the values specified in
+#' htmin and htmax.
+#' 
+#' @param species:
+#' Optional vector containing species codes. If species are provided then
+#' attribute will be calculated for species entered in select_species argument.
+#' Attribute will be calculated for all species if select_species is left as 
+#' NULL.
+#' 
+#' @param dbhmin:
+#' Numeric value corresponding to lower DBH bound to calculate attribute in. 
+#' This value is inclusive (>=).
+#
+#' @param dbhmax: 
+#' Numeric value corresponding to upper DBH bound to calculate attribute in. 
+#' This value is exclusive (<).
+#' 
+#' @param htmin:
+#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' in. This value is inclusive (>=). This argument is only used if ht argument 
+#' is specified.
+#
+#' @param htmax: 
+#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' in. This value is exclusive (<). This argument is only used if ht argument 
+#' is specified.
+#' 
+#' @param select_species:
+#' Optional vector containing species codes. This variable will be used to
+#' select which species get included in calculation of attribute. If left as
+#' NULL, attribute will be calculated using observations from across all 
+#' species.
+#'
+#'@return
+#' Numeric basal area weighted (lorey) diameter value
+################################################################################
+
+#'@export
+lorey_dia_f = function(dbh = NULL,
+                     expf = NULL,
+                     ht = NULL,
+                     species = NULL,
+                     dbhmin = 0,
+                     dbhmax = 999,
+                     htmin = 0,
+                     htmax = 999,
+                     select_species = NULL)
+{
+  
+  lorey_dia_ = 0
+  
+  #Check optional vectors.
+  if(is.null(ht) && !is.null(expf)) 
+    ht = vector(mode = "numeric", length = length(expf))
+  
+  if(is.null(species) && !is.null(expf))
+    species = vector(mode = "integer", length(expf))
+  
+  #Check validity of vectors
+  if(!valid_vectors(dbh, expf, ht, species)) return(lorey_dia_)
+  
+  #See what species match with select_species
+  if(!is.null(select_species))
+    species = match(species, select_species, nomatch = -1)
+  
+  #Convert species to integer if needed
+  if(!is.integer(species))
+    species = match(species, unique(species))
+  
+  #Get number of trees
+  ntree = length(expf)
+  
+  #Call the lorey_dia subroutine
+  lorey_dia_ <- dotCall64::.C64(
+    .NAME = "lorey_dia",
+    SIGNATURE = c("double","double","double","integer", "double","double",
+                  "double","double", "integer","double"),
+    dbh = dbh,
+    expf = expf,
+    ht = ht,
+    species = species,
+    dbhmin = dbhmin,
+    dbhmax = dbhmax,
+    htmin = htmin,
+    htmax = htmax,
+    ntree = ntree,
+    lorey_dia_ = double(1),
+    INTENT = c("r", "r", "r", "r", "r", "r",
+               "r", 'r', "r", "rw"),
+    PACKAGE = "fvstools")$lorey_dia_
+  
+  return(lorey_dia_)
+}
+
+################################################################################
+#' top_dia_f
+#' @name top_dia_f
+#' @description
+#'
+#' This function is used to calculate QMD or average diameter weighted by TPA
+#' for the largest trees by DBH within a specified percentage of TPA or an 
+#' explicit TPA value. This value is calculated from a set of input vectors
+#' containing DBH values and expansion factors.
+#
+#' @param dbh:     
+#' Numeric vector containing DBH values.
+#
+#' @param expf:     
+#' Numeric vector containing expansion factors values.
+#'
+#' @param top_tpa:
+#' Amount of TPA to include in top QMD calculation. Largest 40 trees, Largest 
+#' 100, etc.
+#
+#' @param top_per:
+#' Percentage of trees to include in the top QMD calculation. If this value is
+#' not null then it will supersede the value in top_tpa argument. 
+#'
+#' @param dia_type:
+#' Integer value used to specify what type of diameter should be calculated.
+#' 1 = QMD
+#' 2 = average diameter weighted by trees per acre
+#' 3 = GMD (Reineke diameter)
+#
+#' @return 
+#' Numeric top diameter value.
+################################################################################
+
+#'@export
+top_dia_f = function(dbh = NULL,
+                    expf = NULL,
+                    top_tpa = 40,
+                    top_per = 0,
+                    dia_type = 1)
+{
+  #Initialize top_dia_
+  top_dia_ = 0
+  
+  #Check validity of vectors
+  if(!valid_vectors(dbh, expf)) return(top_dia_)
+  
+  #Validate dia_type
+  if(!dia_type %in% c(1, 2, 3)) dia_type = 1
+  
+  #Get order of DBH values in descending order
+  dbh_order = order(-dbh)
+  
+  #Get number of trees
+  ntree = length(expf)
+  
+  #Call the top_dia subroutine
+  top_dia_ <- dotCall64::.C64(
+    .NAME = "top_dia",
+    SIGNATURE = c("double","integer","double", "double","double",
+                  "integer","integer", "double"),
+    dbh = dbh,
+    sorted_idx = dbh_order,
+    expf = expf,
+    top_tpa = top_tpa ,
+    top_per = top_per,
+    dia_type = dia_type,
+    ntree = ntree,
+    top_dia_ = double(1),
+    INTENT = c("r", "r", "r", "r", "r", "r",
+               "r", "rw"),
+    PACKAGE = "fvstools")$top_dia_
+  
+  return(top_dia_)
+}
+
+################################################################################
+#'rsdi_stage_f
+#'@name rsdi_stage_f
+#'@description
+#'
+#' This function is used to calculate Reineke SDI used the methodology proposed
+#' by Stage 1968. From Section 7.3.2.1 of EFVS using input vectors containing 
+#' DBH and expansion factors. This attribute can be calculated for user defined 
+#' size ranges and for select species.
+#
+# SDI = sum(a * TPAi + b * DBHi^2 * TPA)
+# a = 10^(-1.605) * (1-(1.605/2)) * qmd^1.605
+# b = 10^(−1.605) * (1.605/2) * QMD^(1.605-2)
+#
+#' @param dbh:     
+#' Numeric vector containing DBH values.
+#
+#' @param expf:     
+#' Numeric vector containing expansion factors.
+#'
+#' @param ht:
+#' Optional numeric vector containing total tree height values. If heights are 
+#' provided, then attribute will be calculated between the values specified in 
+#' htmin and htmax.
+#' 
+#' @param species:
+#' Optional vector containing species codes. If species are provided then
+#' attribute will be calculated for species entered in select_species argument.
+#' Attribute will be calculated for all species if select_species is left as 
+#' NULL.
+#
+#' @param dbhmin:
+#' Numeric value corresponding to lower DBH bound to calculate attribute in. 
+#' This value is inclusive (>=).
+#
+#' @param dbhmax: 
+#' Numeric value corresponding to upper DBH bound to calculate attribute in. 
+#' This value is exclusive (<).
+#' 
+#' @param htmin:
+#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' in. This value is inclusive (>=). This argument is only used if ht argument 
+#' is specified.
+#
+#' @param htmax: 
+#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' in. This value is exclusive (<). This argument is only used if ht argument 
+#' is specified.
+#' 
+#' @param select_species:
+#' Optional vector containing species codes. This variable will be used to
+#' select which species get included in calculation of attribute. This argument
+#' will only be used if values are provided for species. d
+#
+#' @return 
+#' Numeric Reineke SDI calculated using stage formulation.
+################################################################################
+
+#'@export
+rsdi_stage_f = function(dbh = NULL,
+                     expf = NULL,
+                     ht = NULL,
+                     species = NULL,
+                     dbhmin = 0,
+                     dbhmax = 999,
+                     htmin = 0,
+                     htmax = 999,
+                     select_species = NULL)
+{
+  rsdi_ = 0
+  
+  #Check optional vectors
+  if(is.null(ht) && !is.null(expf)) 
+    ht = vector(mode = "numeric", length = length(expf))
+  
+  if(is.null(species) && !is.null(expf))
+    species = vector(mode = "integer", length(expf))
+
+  #Check validity of vectors
+  if(!valid_vectors(dbh, expf, ht, species)) return(rsdi_)
+  
+  #See what species match with select_species
+  if(!is.null(select_species))
+    species = match(species, select_species, nomatch = -1)
+  
+  #Convert species to integer if needed
+  if(!is.integer(species))
+    species = match(species, unique(species))
+  
+  #Get number of trees
+  ntree = length(expf)
+  
+  #Call the rsdi_stage subroutine
+  rsdi_stage_ <- dotCall64::.C64(
+    .NAME = "rsdi_stage",
+    SIGNATURE = c("double","double","double","integer", "double","double",
+                  "double","double", "integer","double"),
+    dbh = dbh,
+    expf = expf,
+    ht = ht,
+    species = species,
+    dbhmin = dbhmin,
+    dbhmax = dbhmax,
+    htmin = htmin,
+    htmax = htmax,
+    ntree = ntree,
+    rsdi_stage_ = double(1),
+    INTENT = c("r", "r", "r", "r", "r", "r",
+               "r", 'r', "r", "rw"),
+    PACKAGE = "fvstools")$rsdi_stage_
+  
+  return(rsdi_stage_)
+}
+
+################################################################################
+#' zsdi_f
+#' @name zsdi_f
+#' @description
+#' 
+#' This function calculates Zeide SDI using input vectors containing dbh and
+#' expansion factor values. This attribute can be calculated for user defined 
+#' size ranges and for select species.
+#
+#' @param dbh:
+#' Numeric vector containing DBH values.
+#
+#' @param expf: 
+#' Numeric vector containing expansion factors.
+#' 
+#' @param ht:
+#' Optional numeric vector containing total tree height values. If heights are 
+#' provided, then attribute will be calculated between the values specified in 
+#' htmin and htmax.
+#' 
+#' @param species:
+#' Optional vector containing species codes. If species are provided then
+#' attribute will be calculated for species entered in select_species argument.
+#' Attribute will be calculated for all species if select_species is left as 
+#' NULL.
+#' 
+#' @param dbhmin:
+#' Numeric value corresponding to lower DBH bound to calculate attribute in. This
+#' value is inclusive (>=).
+#
+#' @param dbhmax: 
+#' Numeric value corresponding to upper DBH bound to calculate attribute in. This
+#' value is exclusive (<).
+#' 
+#' @param htmin:
+#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' in. This value is inclusive (>=). This argument is only used if ht argument 
+#' is specified.
+#
+#' @param htmax: 
+#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' in. This value is exclusive (<). This argument is only used if ht argument 
+#' is specified.
+#' 
+#' @param select_species:
+#' Optional vector containing species codes. This variable will be used to
+#' select which species get included in calculation of attribute.
+#' 
+#'@return
+#' Numeric Zeide SDI value
+################################################################################
+
+#'@export
+zsdi_f = function(dbh = NULL,
+                expf = NULL,
+                ht = NULL,
+                species = NULL,
+                dbhmin = 0,
+                dbhmax = 999,
+                htmin = 0,
+                htmax = 999,
+                select_species = NULL)
+{
+  
+  zsdi_ = 0
+  
+  #Check optional vectors.
+  if(is.null(ht) && !is.null(expf)) 
+    ht = vector(mode = "numeric", length = length(expf))
+  
+  if(is.null(species) && !is.null(expf))
+    species = vector(mode = "integer", length(expf))
+
+  #Check validity of vectors
+  if(!valid_vectors(dbh, expf, ht, species)) return(zsdi_)
+  
+  #See what species match with select_species
+  if(!is.null(select_species))
+    species = match(species, select_species, nomatch = -1)
+  
+  #Convert species to integer if needed
+  if(!is.integer(species))
+    species = match(species, unique(species))
+
+  #Get number of trees
+  ntree = length(expf)
+  
+  #Call the rsdi_stage subroutine
+  zsdi_ <- dotCall64::.C64(
+    .NAME = "zsdi",
+    SIGNATURE = c("double","double","double","integer", "double","double",
+                  "double","double", "integer","double"),
+    dbh = dbh,
+    expf = expf,
+    ht = ht,
+    species = species,
+    dbhmin = dbhmin,
+    dbhmax = dbhmax,
+    htmin = htmin,
+    htmax = htmax,
+    ntree = ntree,
+    zsdi_  = double(1),
+    INTENT = c("r", "r", "r", "r", "r", "r",
+               "r", 'r', "r", "rw"),
+    PACKAGE = "fvstools")$zsdi_
+  
+  return(zsdi_)
+}
+
+################################################################################
+#' cc_f
+#' @name cc_f
+#' @description
+#' 
+#' This function calculates a percent canopy cover value corrected for overlap
+#' using input vectors containing crown width values and expansion factors. This
+#' attribute can be calculated for user defined size ranges and for select 
+#' species.
+#' 
+#' @param crwidth:
+#' Numeric vector containing crown width (diameter) values.
+#
+#' @param expf: 
+#' Numeric vector containing expansion factors.
+#' 
+#' @param dbh:
+#' Optional numeric vector containing DBH values. If DBH values are provided, 
+#' then attribute will be calculated between the values specified in dbhmin and 
+#' dbhmax.
+#' 
+#' @param ht:
+#' Optional numeric vector containing total tree height values. If heights are
+#' provided, then attribute will be calculated between the values specified in
+#' htmin and htmax.
+#' 
+#' @param species:
+#' Optional vector containing species codes. If species are provided then
+#' attribute will be calculated for species entered in select_species argument.
+#' Attribute will be calculated for all species if select_species is left as 
+#' NULL.
+#' 
+#' @param dbhmin:
+#' Numeric value corresponding to lower DBH bound to calculate attribute in. This
+#' value is inclusive (>=).
+#' 
+#' @param htmin:
+#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' in. This value is inclusive (>=). This argument is only used if ht argument 
+#' is specified.
+#
+#' @param htmax: 
+#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' in. This value is exclusive (<). This argument is only used if ht argument 
+#' is specified.
+#' 
+#' @param select_species:
+#' Optional vector containing species codes. This variable will be used to
+#' select which species get included in calculation of attribute.
+#' 
+#'@return
+#' Numeric percent canopy cover value
+################################################################################
+
+#'@export
+cc_f = function(crwidth = NULL,
+              expf = NULL,
+              dbh = NULL,
+              ht = NULL,
+              species = NULL,
+              dbhmin = 0,
+              dbhmax = 999,
+              htmin = 0,
+              htmax = 999,
+              select_species = NULL)
+{
+  cc_ = 0
+  
+  #Check optional vectors.
+  if(is.null(dbh) && !is.null(expf)) 
+    dbh = vector(mode = "numeric", length = length(expf))
+  
+  if(is.null(ht) && !is.null(expf)) 
+    ht = vector(mode = "numeric", length = length(expf))
+  
+  if(is.null(species) && !is.null(expf))
+    species = vector(mode = "integer", length(expf))
+
+  #Check validity of vectors
+  if(!valid_vectors(dbh, expf, ht, species)) return(cc_)
+  
+  #See what species match with select_species
+  if(!is.null(select_species))
+    species = match(species, select_species, nomatch = -1)
+  
+  #Convert species to integer if needed
+  if(!is.integer(species))
+    species = match(species, unique(species))
+  
+  #Get number of trees
+  ntree = length(expf)
+  
+  #Call the cc subroutine
+  cc_ <- dotCall64::.C64(
+    .NAME = "cc",
+    SIGNATURE = c("double", "double","double","double","integer", "double",
+                  "double", "double","double", "integer","double"),
+    crwidth = crwidth,
+    dbh = dbh,
+    expf = expf,
+    ht = ht,
+    species = species,
+    dbhmin = dbhmin,
+    dbhmax = dbhmax,
+    htmin = htmin,
+    htmax = htmax,
+    ntree = ntree,
+    cc_  = double(1),
+    INTENT = c("r", "r", "r", "r", "r", "r", "r",
+               "r", 'r', "r", "rw"),
+    PACKAGE = "fvstools")$cc_
+  
+  return(cc_)
+}
+
+################################################################################
+#' lorey_ht_f
+#' @name lorey_ht_f
+#' @description
+#' 
+#' This function calculates Lorey height (basal area weighted average height). 
+#' This attribute can be calculated for user defined size ranges and for select
+#' species.
+#
+#' @param dbh:
+#' Numeric vector containing DBH values.
+#' 
+#' @param ht:
+#' Numeric vector containing total tree height values.
+#
+#' @param expf: 
+#' Numeric vector containing expansion factors.
+#'
+#' @param species:
+#' Optional vector containing species codes. If species are provided then
+#' attribute will be calculated for species entered in select_species argument.
+#' Attribute will be calculated for all species if select_species is left as 
+#' NULL.
+#' 
+#' @param dbhmin:
+#' Numeric value corresponding to lower DBH bound to calculate attribute in. 
+#' This value is inclusive (>=).
+#
+#' @param dbhmax: 
+#' Numeric value corresponding to upper DBH bound to calculate attribute in. 
+#' This value is exclusive (<).
+#' 
+#' @param htmin:
+#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' in. This value is inclusive (>=). This argument is only used if ht argument 
+#' is specified.
+#
+#' @param htmax: 
+#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' in. This value is exclusive (<). This argument is only used if ht argument 
+#' is specified.
+#' 
+#' @param select_species:
+#' Optional vector containing species codes. This variable will be used to
+#' select which species get included in calculation of attribute. If left as
+#' NULL, attribute will be calculated using observations from across all 
+#' species.
+#'
+#'@return
+#' Numeric Lorey height value
+################################################################################
+
+#'@export
+lorey_ht_f = function(dbh = NULL,
+                    ht = NULL,
+                    expf = NULL,
+                    species = NULL,
+                    dbhmin = 0,
+                    dbhmax = 999,
+                    htmin = 0,
+                    htmax = 999,
+                    select_species = NULL)
+{
+  
+  lorey_ht_ = 0
+  
+  #Check optional vectors.
+  if(is.null(dbh) && !is.null(expf)) 
+    dbh = vector(mode = "numeric", length = length(expf))
+  
+  if(is.null(species) && !is.null(expf))
+    species = vector(mode = "integer", length(expf))
+  
+  #Check validity of vectors
+  if(!valid_vectors(dbh, expf, ht, species)) return(lorey_ht_)
+  
+  #Get number of trees
+  ntree = length(expf)
+  
+  #Call the lorey_ht subroutine
+  lorey_ht_ <- dotCall64::.C64(
+    .NAME = "lorey_ht",
+    SIGNATURE = c("double","double","double","integer", "double",
+                  "double", "double","double", "integer","double"),
+    dbh = dbh,
+    expf = expf,
+    ht = ht,
+    species = species,
+    dbhmin = dbhmin,
+    dbhmax = dbhmax,
+    htmin = htmin,
+    htmax = htmax,
+    ntree = ntree,
+    lorey_ht_  = double(1),
+    INTENT = c("r", "r", "r", "r", "r", "r",
+               "r", 'r', "r", "rw"),
+    PACKAGE = "fvstools")$lorey_ht_
+
+  return(lorey_ht_)
+}
+
+################################################################################
+#'top_ht_f
+#'@name top_ht_f
+#'@description
+#'
+#'This function is used to calculate top height for a specified percentage of
+#'trees in the stand or and explicit number of trees (trees per acre) value. 
+#'
+#'@param dbh:     
+#'Numeric vector containing DBH values.
+#
+#'@param expf:     
+#'Numeric vector containing expansion factors values.
+#'
+#'@param ht:     
+#'Numeric vector of tree heights.
+#
+#'@param top_tpa:
+#'Amount of TPA to include in top height calculation. Top 40, trees, top 100, 
+#'etc.
+#
+#'@param top_per:
+#'Percentage of trees to include in the top height calculation. Largest 20% of 
+#'trees, largest 40% of trees etc. If this value is not null then it will 
+#'take precedence over the value in top_tpa argument. 
+#
+#'@return 
+#'Top height value.
+################################################################################
+
+#'@export
+top_ht_f = function(dbh = NULL,
+                  expf = NULL,
+                  ht = NULL,
+                  top_tpa = 40,
+                  top_per = 0)
+{
+  #Initialize top_ht_
+  top_ht_ = 0
+  
+  #Check validity of vectors
+  if(!valid_vectors(dbh, expf, ht)) return(top_ht_)
+  
+  #Get order of DBH values in descending order
+  dbh_order = order(-dbh)
+  
+  #Get number of trees
+  ntree = length(expf)
+  
+  #Call the top_ht subroutine
+  top_ht_ <- dotCall64::.C64(
+    .NAME = "top_ht",
+    SIGNATURE = c("double", "integer", "double", "double", "double", "double",
+                  "integer", "double"),
+    dbh = dbh,
+    sorted_idx = dbh_order,
+    expf = expf,
+    ht = ht,
+    top_tpa = top_tpa ,
+    top_per = top_per,
+    ntree = ntree,
+    top_ht_ = double(1),
+    INTENT = c("r", "r", "r", "r", "r", "r",
+               "r", "rw"),
+    PACKAGE = "fvstools")$top_ht_
+  
+  return(top_ht_)
+}
+
+################################################################################
+#' bal_f
+#' @name bal_f
+#' @description
+#' 
+#' This function calculates basal area in trees larger than subject tree (BAL)
+#' from input vectors containing dbh and expansion factor values.
+#
+#' @param dbh
+#' Numeric vector containing DBH values.
+#
+#' @param expf: 
+#' Numeric vector containing expansion factors.
+#' 
+#' @param handle_ties
+#' Logical variable used to determine if dbh values with equivalent values get 
+#' the same BAL return. If this value is TRUE, then trees with equivalent DBH 
+#' values will have the same BAL value (e.g. 3 trees with 10 inch DBH will all
+#' have the same BAL). If this value is FALSE, then trees with equivalent DBH 
+#' values will have a different BAL (3 trees with 10 inch DBH will each have a
+#' different BAL).
+#' 
+#' @return
+#' Numeric vector containing BAL values
+################################################################################
+
+#'@export
+bal_f = function(dbh = NULL,
+                 expf = NULL,
+                 handle_ties = 0)
+{
+  #Return if dbh or expf is NULL or not of equal length
+  if(!valid_vectors(dbh, expf)) return(0)
+  
+  #Check handle_ties
+  if(!handle_ties %in% c(0, 1)) handle_ties = 0
+
+  #Get order of DBH values in descending order
+  dbh_order = order(-dbh)
+  
+  #Get number of trees
+  ntree = length(expf)
+  
+  #Create sequence of integers. This will be used to reorder bal at the end of 
+  #the function.
+  orig_order = 1:length(dbh)
+  
+  #Get indices of sorted DBH in descending order
+  dbh_order = order(-dbh)
+  
+  #Call the top_ht subroutine
+  bal_ <- dotCall64::.C64(
+    .NAME = "bal",
+    SIGNATURE = c("double", "integer", "double", "integer", "integer", "double"),
+    dbh = dbh,
+    sorted_idx = dbh_order,
+    expf = expf,
+    handle_ties = handle_ties,
+    ntree = ntree,
+    bal_ = double(ntree),
+    INTENT = c("r", "r", "r", "r", "r", "rw"),
+    PACKAGE = "fvstools")$bal_
+  
+  return(bal_)
+}
+
 
