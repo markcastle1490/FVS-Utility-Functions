@@ -1,3 +1,5 @@
 
-#' @useDynLib fvstools
+#' @useDynLib fvstools, .registration = TRUE
 NULL
+
+

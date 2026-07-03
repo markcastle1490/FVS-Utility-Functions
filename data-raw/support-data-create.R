@@ -16,9 +16,9 @@
 
 #Define directories to read from and write to. Also set the path to FVS dll
 #files which are used to create fvs_species.csv.
-read_dir = "C:/FVS_Utility/FVS-Utility-Functions/external"
-write_dir = "C:/FVS_Utility/FVS-Utility-Functions/inst/extdata/"
-fvs_bin = "C:/FVS/FVSSoftware/FVSbin"
+read_dir = "/home/mark/FVS_Tools/fvstools/data-raw"
+write_dir = "/home/mark/FVS_Tools/fvstools/data-raw"
+fvs_bin = "/FVS/FVSSoftware/FVSbin"
 
 #===============================================================================
 # Create support_sp.csv

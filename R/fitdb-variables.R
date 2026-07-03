@@ -7,9 +7,10 @@
 #types.
 ################################################################################
 
-fitdb_vars <- c("UNIQUEPLOTID" = "TEXT",
-               "UNIQUESUBPID" = "TEXT",
-               "UNIQUETREEID" = "TEXT",
+fitdb_vars <- function()
+{
+  vars <- c("UNIQUEPLOTID" = "TEXT",
+            "UNIQUETREEID" = "TEXT",
                "STATECD" = "INTEGER",
                "INVYR" = "INTEGER",
                "UNITCD" = "INTEGER",
@@ -97,3 +98,5 @@ fitdb_vars <- c("UNIQUEPLOTID" = "TEXT",
                "ZSDI2" = "REAL",
                "BAL1" = "REAL",
                "BAL2" = "REAL")
+  return(vars)
+}

@@ -1,3 +1,5 @@
+data_raw = "/home/mark/FVS_Tools/fvstools/data-raw"
+
 ################################################################################
 #Valid PV_CODES by variant, for those that use this variable in simulations. 
 ################################################################################
@@ -1018,7 +1020,7 @@ variant_pvcode = do.call("rbind",
 variant_pvcode$PV_CODE = trimws(variant_pvcode$PV_CODE)
 
 #Write csv with PV_CODES
-write.csv(file = "C:/FVS_Utility/FVS-Utility-Functions/inst/extdata/pv_codes.csv",
+write.csv(file = file.path(data_raw, "pv_codes.csv"),
           x = variant_pvcode,
           row.names = FALSE)
 
@@ -1068,7 +1070,7 @@ extract_pv = function(file,
 }
 
 #Get list of pvref files (skip NI)
-pvref_files = list.files(path = 'C:/FVS_Utility/FVS-Utility-Functions/data-raw',
+pvref_files = list.files(path = file.path(data_raw),
                          pattern = 'pvref',
                          full.names = TRUE)[2:19]
 
@@ -1142,7 +1144,7 @@ pv_regions = do.call("rbind", pv_list)
 pv_regions$PVREF = as.character(pv_regions$PVREF)
 
 #Write csv with PV_CODES
-write.csv(file = "C:/FVS_Utility/FVS-Utility-Functions/inst/extdata/pv_codes_regions.csv",
+write.csv(file = file.path(data_raw, "pv_codes_regions.csv"),
           x = pv_regions,
           row.names = FALSE)
 

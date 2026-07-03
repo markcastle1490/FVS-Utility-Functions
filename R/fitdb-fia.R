@@ -53,11 +53,11 @@ fia_fitdb <- function(dbin = NULL,
 
   #Query all tables except SITREE
   tree <- RSQLite::dbGetQuery(con,
-                                  fia_query)
+                              fia_tree_query())
 
   #Query SITREE
   site <- RSQLite::dbGetQuery(con,
-                                  fia_si_query)
+                              fia_si_query())
 
   #Disconnect from dbin
   RSQLite::dbDisconnect(con)
@@ -268,12 +268,7 @@ fia_fitdb <- function(dbin = NULL,
                   HT2 = dplyr::coalesce(HT2, 0.0)) |>
                   #dplyr::filter(VALIDYEAR > 0) |>
     dplyr::rename_with(toupper) |>
-    dplyr::select(any_of(names(fitdb_vars)))
-
-  #=============================================================================
-  #Step 6
-  #Calculate density and competition metrics
-  #=============================================================================
+    dplyr::select(any_of(names(fitdb_vars())))
 
   #=============================================================================
   # Step 7
@@ -353,10 +348,10 @@ fia_fitdb_dt <- function(dbin = NULL,
                 silent = TRUE))
 
   #Query all tables except SITREE
-  tree <- data.table::setDT(x = RSQLite::dbGetQuery(con, fia_query))
+  tree <- data.table::setDT(x = RSQLite::dbGetQuery(con, fia_tree_query()))
 
   #Query SITREE
-  site <- data.table::setDT(x = RSQLite::dbGetQuery(con, fia_si_query))
+  site <- data.table::setDT(x = RSQLite::dbGetQuery(con, fia_si_query()))
 
   #Disconnect from dbin
   RSQLite::dbDisconnect(con)
@@ -614,7 +609,7 @@ fia_fitdb_dt <- function(dbin = NULL,
   
   #Upper case column names and get fitdb variables
   data.table::setnames(x = tree, toupper)
-  tree = tree[, .SD, .SDcols = names(fitdb_vars)]
+  tree = tree[, .SD, .SDcols = names(fitdb_vars())]
 
   #=============================================================================
   # Write tree (fitdb) dataframe to output database

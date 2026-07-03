@@ -4,13 +4,13 @@
 ################################################################################
 
 #Repository path
-repo_path = "C:/FVS_GitHub"
+repo_path = "/FVS_GitHub"
 
 #data-raw path
-data_raw = "C:/FVS_Utility/FVS-Utility-Functions/data-raw"
+data_raw = "/FVS_Utility/FVS-Utility-Functions/data-raw"
 
 #Get pvreffiles
-pvref_files = list.files(path = repo_path,
+pvref_files = list.files(path = file.path(repo_path),
                          recursive = TRUE,
                          pattern = "pvref",
                          full.names = TRUE)
