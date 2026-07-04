@@ -15,7 +15,7 @@
 #summarize statement for each stand and year in an input dataframe:
 #
 #Variables
-#BA: basal area of all trees in Stand
+#BA: basal area of all trees in stand
 #BA_GE5: basal area of trees with DBH >= 5" in stand
 #BA_PINE: basal area of trees with DBH >= 5" and are from a user defined set of
 #pine species in stand.
@@ -1589,7 +1589,7 @@ expand_attr = function(attr = NULL,
                        select_species = NULL)
 {
   
-  attr_expand_ = 0
+  expand_attr_ = 0
   
   #Check optional vectors.
   if(is.null(dbh) && !is.null(expf)) 
@@ -1602,7 +1602,7 @@ expand_attr = function(attr = NULL,
     species = vector(mode = "integer", length(expf))
 
   #Check validity of vectors
-  if(!valid_vectors(attr, dbh, ht, species)) return(attr_expand_)
+  if(!valid_vectors(attr, dbh, ht, species)) return(expand_attr_)
   
   #See what species match with select_species
   if(!is.null(select_species))
@@ -1617,12 +1617,12 @@ expand_attr = function(attr = NULL,
     (species >= 0)
   
   #Expand attr over DBH, HT, and species
-  attr_expand_ = sum((attr * expf)[include], na.rm = TRUE)
+  expand_attr_ = sum((attr * expf)[include], na.rm = TRUE)
   
-  #If attr_expand_ is NaN or NA set to 0
-  if(is.na(attr_expand_)) attr_expand_ = 0
+  #If expand_attr_ is NaN or NA set to 0
+  if(is.na(expand_attr_)) expand_attr_ = 0
   
-  return(attr_expand_)
+  return(expand_attr_)
 }
 
 ################################################################################
@@ -1703,7 +1703,7 @@ median_attr = function(attr = NULL,
     species = vector("integer", length = length(attr))
 
   #Check validity of vectors
-  if(!valid_vectors(attr, dbh, ht, species)) return(median_attr_)
+  if(!valid_vectors(attr, weight, dbh, ht, species)) return(median_attr_)
   
   #See what species match with select_species
   if(!is.null(select_species))
@@ -3333,5 +3333,631 @@ bal_f = function(dbh = NULL,
   
   return(bal_)
 }
+
+################################################################################
+#' mean_attr_f
+#' @name mean_attr_f
+#' @description
+#'
+#' This function is used to calculate the arithmetic or weighted mean (average) 
+#' of an attribute. The weighted mean will only be calculated if weights are 
+#' provided as an input argument. These mean values can be calculated within 
+#' custom size ranges and for select species.
+#'
+#' @param attr:
+#' Numeric vector containing numeric attribute
+#'
+#' @param weight:     
+#' Optional numeric vector containing a weighting value. This could be an 
+#' expansion factor, tree basal area, or other user defined weight. If this 
+#' argument is left as NULL, then the arithmetic average will be returned.. 
+#'
+#' @param dbh:     
+#' Optional numeric vector containing diameter values. If DBH values are provided, 
+#' then attribute will be calculated between the values specified in dbhmin and 
+#' dbhmax.
+#'
+#' @param ht:
+#' Optional numeric vector containing total tree height values. If heights are
+#' provided, then attribute will be calculated between the values specified in
+#' htmin and htmax.
+#' 
+#' @param species:
+#' Optional vector containing species codes. If species are provided then
+#' attribute will be calculated for species entered in select_species argument.
+#' Attribute will be calculated for all species if select_species is left as 
+#' NULL.
+#
+#' @param dbhmin:
+#' Numeric value corresponding to lower DBH bound to calculate attribute in. 
+#' This value is inclusive (>=).
+#
+#' @param dbhmax: 
+#' Numeric value corresponding to upper DBH bound to calculate attribute in. 
+#' This value is exclusive (<).
+#' 
+#' @param htmin:
+#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' in. This value is inclusive (>=). This argument is only used if ht argument 
+#' is specified.
+#
+#' @param htmax: 
+#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' in. This value is exclusive (<). This argument is only used if ht argument 
+#' is specified.
+#' 
+#' @param select_species:
+#' Optional vector containing species codes. This variable will be used to
+#' select which species get included in calculation of attribute. This argument
+#' will only be used if values are provided for species. 
+#' 
+#' @param naok
+#' Logical variable where if FALSE, an error will be thrown if input vectors 
+#' contain NA values. If TRUE, checks for NA values will not be done. Setting 
+#' this value to TRUE will speed up processing but can be risky if input vectors
+#' are not vetted for NA values prior.
+#
+#' @return 
+#' Average or weighted average of attribute.
+################################################################################
+
+#'@export
+mean_attr_f = function(attr = NULL,
+                      weight = NULL,
+                      dbh = NULL,
+                      ht = NULL,
+                      species = NULL,
+                      dbhmin = 0,
+                      dbhmax = 999,
+                      htmin = 0,
+                      htmax = 999,
+                      select_species = NULL,
+                      naok = FALSE)
+{
+  mean_attr_ = 0
+  
+  #Check optional vectors.
+  if(is.null(dbh) && !is.null(attr)) 
+    dbh = vector("numeric", length = length(attr))
+  
+  if(is.null(ht) && !is.null(attr)) 
+    ht = vector("numeric", length = length(attr))
+  
+  if(is.null(species) && !is.null(attr)) 
+    species = vector("integer", length = length(attr))
+  
+  if(is.null(weight)) 
+    weight = rep(x = 1, times = length(attr))
+  
+  #Check validity of vectors
+  if(!valid_vectors(attr, weight, dbh, ht, species)) return(mean_attr_)
+  
+  #See what species match with select_species
+  if(!is.null(select_species))
+    species = match(species, select_species, nomatch = -1)
+  
+  #Convert species to integer if needed
+  if(!is.integer(species))
+    species = match(species, unique(species))
+  
+  #Get number of trees
+  ntree = length(attr)
+
+  #Call the mean_attr subroutine
+  mean_attr_ <- dotCall64::.C64(
+    .NAME = "mean_attr",
+    SIGNATURE = c("double", "double", "double", "double", "integer", "double",
+                  "double", "double", "double", "integer", "double"),
+    attr = attr,
+    weight = weight,
+    dbh = dbh,
+    ht = ht,
+    species = species,
+    dbhmin = dbhmin,
+    dbhmax = dbhmax,
+    htmin = htmin,
+    htmax = htmax,
+    ntree = ntree,
+    mean_attr_  = double(1),
+    INTENT = c("r", "r", "r", "r", "r", "r",
+               "r", 'r', "r", "r", "rw"),
+    NAOK = naok,
+    PACKAGE = "fvstools")$mean_attr_
+  
+  return(mean_attr_)
+}
+
+################################################################################
+#' expand_attr_f
+#' @name expand_attr_f
+#' @description
+#' 
+#' This function sums and expands an input numeric attribute to a per unit area
+#' basis using numeric vectors containing diameter, attribute of interest, and 
+#' expansion factors. The numeric attribute could be a tree-level volume, 
+#' biomass, carbon, etc.This attribute can be calculated for user defined size 
+#' ranges and for select species.
+#' 
+#' @param attr:
+#' Numeric vector containing numeric attribute
+#
+#' @param expf: 
+#' Numeric vector containing expansion factors.
+#' 
+#' @param dbh:
+#' Optional numeric vector containing diameter values. If DBH values are provided, 
+#' then attribute will be calculated between the values specified in dbhmin and 
+#' dbhmax.
+#' 
+#' @param ht:
+#' Optional numeric vector containing total tree height values. If heights are 
+#' provided, then attribute will be calculated between the values specified in 
+#' htmin and htmax.
+#' 
+#' @param species:
+#' Optional vector containing species codes. If species are provided then
+#' attribute will be calculated for species entered in select_species argument.
+#' Attribute will be calculated for all species if select_species is left as 
+#' NULL.
+#
+#' @param dbhmin:
+#' Numeric value corresponding to lower DBH bound to calculate attribute in. 
+#' This value is inclusive (>=).
+#
+#' @param dbhmax: 
+#' Numeric value corresponding to upper DBH bound to calculate attribute in. This
+#' value is exclusive (<).
+#' 
+#' @param htmin:
+#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' in. This value is inclusive (>=). This argument is only used if ht argument 
+#' is specified.
+#
+#' @param htmax: 
+#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' in. This value is exclusive (<). This argument is only used if ht argument 
+#' is specified.
+#' 
+#' @param select_species:
+#' Optional vector containing species codes. This variable will be used to
+#' select which species get included in calculation of attribute.
+#' 
+#' @param naok
+#' Logical variable where if FALSE, an error will be thrown if input vectors 
+#' contain NA values. If TRUE, checks for NA values will not be done. Setting 
+#' this value to TRUE will speed up processing but can be risky if input vectors
+#' are not vetted for NA values prior.
+#'
+#'@return
+#' Sum of attribute expanded to a per unit area
+################################################################################
+
+#'@export
+expand_attr_f = function(attr = NULL,
+                        expf = NULL,
+                        dbh = NULL,
+                        ht = NULL,
+                        species = NULL,
+                        dbhmin = 0,
+                        dbhmax = 999,
+                        htmin = 0,
+                        htmax = 999,
+                        select_species = NULL,
+                        naok = FALSE)
+{
+  
+  expand_attr_ = 0
+  
+  #Check optional vectors.
+  if(is.null(dbh) && !is.null(expf)) 
+    dbh = vector("numeric", length = length(expf))
+  
+  if(is.null(ht) && !is.null(expf)) 
+    ht = vector(mode = "numeric", length = length(expf))
+  
+  if(is.null(species) && !is.null(expf))
+    species = vector(mode = "integer", length(expf))
+
+  #Check validity of vectors
+  if(!valid_vectors(attr, dbh, ht, species)) return(expand_attr_)
+  
+  #See what species match with select_species
+  if(!is.null(select_species))
+    species = match(species, select_species, nomatch = -1)
+  
+  #Convert species to integer if needed
+  if(!is.integer(species))
+    species = match(species, unique(species))
+
+  #Get number of trees
+  ntree = length(attr)
+
+  #Call the expand_attr subroutine
+  expand_attr_ <- dotCall64::.C64(
+    .NAME = "expand_attr",
+    SIGNATURE = c("double", "double", "double", "double", "integer", "double",
+                  "double", "double", "double", "integer", "double"),
+    attr = attr,
+    expf = expf,
+    dbh = dbh,
+    ht = ht,
+    species = species,
+    dbhmin = dbhmin,
+    dbhmax = dbhmax,
+    htmin = htmin,
+    htmax = htmax,
+    ntree = ntree,
+    expand_attr_  = double(1),
+    INTENT = c("r", "r", "r", "r", "r", "r",
+               "r", 'r', "r", "r", "rw"),
+    NAOK = naok,
+    PACKAGE = "fvstools")$expand_attr_
+  
+  return(expand_attr_)
+}
+
+################################################################################
+#' count_attr_f
+#' @name count_attr_f
+#' @description
+#' 
+#' This function counts the number of tree records between specified DBH and HT
+#' ranges and for select species. 
+#' 
+#' @param attr:
+#' Vector containing an attribute. In this context, this would likely be a tree
+#' ID value. Technically you can pass any vector into this argument to have
+#' counted.
+#' 
+#' @param dbh:
+#' Optional numeric vector containing diameter values.
+#' 
+#' @param ht:
+#' Optional vector containing total tree height values. If heights are provided,
+#' then attribute will be calculated between the values specified in htmin and
+#' htmax.
+#' 
+#' @param species:
+#' Optional vector containing species codes. If species are provided then
+#' attribute will be calculated for species entered in select_species argument.
+#' Attribute will be calculated for all species if select_species is left as 
+#' NULL.
+#
+#' @param dbhmin:
+#' Numeric value corresponding to lower DBH bound to calculate attribute in. 
+#' This value is inclusive (>=).
+#
+#' @param dbhmax: 
+#' Numeric value corresponding to upper DBH bound to calculate attribute in. This
+#' value is exclusive (<).
+#' 
+#' @param htmin:
+#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' in. This value is inclusive (>=). This argument is only used if ht argument 
+#' is specified.
+#
+#' @param htmax: 
+#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' in. This value is exclusive (<). This argument is only used if ht argument 
+#' is specified.
+#' 
+#' @param select_species:
+#' Optional vector containing species codes. This variable will be used to
+#' select which species get included in calculation of attribute.
+#' 
+#' @param naok
+#' Logical variable where if FALSE, an error will be thrown if input vectors 
+#' contain NA values. If TRUE, checks for NA values will not be done. Setting 
+#' this value to TRUE will speed up processing but can be risky if input vectors
+#' are not vetted for NA values prior.
+#'
+#'@return
+#' Numeric count of records.
+################################################################################
+
+#'@export
+count_attr_f = function(attr = NULL,
+                      dbh = NULL,
+                      ht = NULL,
+                      species = NULL,
+                      dbhmin = 0,
+                      dbhmax = 999,
+                      htmin = 0,
+                      htmax = 999,
+                      select_species = NULL,
+                      naok = FALSE)
+{
+  
+  count_ = 0
+  
+  #Check optional vectors.
+  if(is.null(dbh) && !is.null(attr)) 
+    dbh = vector("numeric", length = length(attr))
+  
+  if(is.null(ht) && !is.null(attr)) 
+    ht = vector("numeric", length = length(attr))
+  
+  if(is.null(species) && !is.null(attr)) 
+    species = vector("integer", length = length(attr))
+  
+  #Check validity of vectors
+  if(!valid_vectors(attr, dbh, ht, species)) return(count_)
+  
+  #See what species match with select_species
+  if(!is.null(select_species))
+    species = match(species, select_species, nomatch = -1)
+
+  #Convert species to integer if needed
+  if(!is.integer(species))
+    species = match(species, unique(species))
+
+  #Get number of trees
+  ntree = length(attr)
+
+  #Call the count_attr subroutine
+  count_attr_ <- dotCall64::.C64(
+    .NAME = "count_attr",
+    SIGNATURE = c("double", "double", "integer", "double", "double", "double",
+                  "double", "integer", "double"),
+    dbh = dbh,
+    ht = ht,
+    species = species,
+    dbhmin = dbhmin,
+    dbhmax = dbhmax,
+    htmin = htmin,
+    htmax = htmax,
+    ntree = ntree,
+    count_attr_  = double(1),
+    INTENT = c("r", "r", "r", "r", "r", 'r',
+               "r", "r", "rw"),
+    NAOK = naok,
+    PACKAGE = "fvstools")$count_attr_
+
+  return(count_attr_)
+
+}
+
+################################################################################
+#' min_attr_f
+#' @name min_attr_f
+#' @description
+#' 
+#' This function determines the minimum value for an input attribute. This can 
+#' be calculated for custom size ranges and for select species.
+#' 
+#' @param attr:
+#' Numeric vector containing numeric attribute
+#' 
+#' @param dbh:
+#' Optional numeric vector containing diameter values. If DBH values are provided, 
+#' then attribute will be calculated between the values specified in dbhmin and 
+#' dbhmax.
+#' 
+#' @param ht:
+#' Optional numeric vector containing total tree height values. If heights are 
+#' provided, then attribute will be calculated between the values specified in 
+#' htmin and htmax.
+#' 
+#' @param species:
+#' Optional vector containing species codes. If species are provided then
+#' attribute will be calculated for species entered in select_species argument.
+#' Attribute will be calculated for all species if select_species is left as 
+#' NULL.
+#
+#' @param dbhmin:
+#' Numeric value corresponding to lower DBH bound to calculate attribute in. 
+#' This value is inclusive (>=).
+#
+#' @param dbhmax: 
+#' Numeric value corresponding to upper DBH bound to calculate attribute in. This
+#' value is exclusive (<).
+#' 
+#' @param htmin:
+#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' in. This value is inclusive (>=). This argument is only used if ht argument 
+#' is specified.
+#
+#' @param htmax: 
+#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' in. This value is exclusive (<). This argument is only used if ht argument 
+#' is specified.
+#' 
+#' @param select_species:
+#' Optional vector containing species codes. This variable will be used to
+#' select which species get included in calculation of attribute.
+#' 
+#' @param naok
+#' Logical variable where if FALSE, an error will be thrown if input vectors 
+#' contain NA values. If TRUE, checks for NA values will not be done. Setting 
+#' this value to TRUE will speed up processing but can be risky if input vectors
+#' are not vetted for NA values prior.
+#'
+#'@return
+#' Minimum value of attribute.
+################################################################################
+
+#'@export
+min_attr_f = function(attr = NULL,
+                    dbh = NULL,
+                    ht = NULL,
+                    species = NULL,
+                    dbhmin = 0,
+                    dbhmax = 999,
+                    htmin = 0,
+                    htmax = 999,
+                    select_species = NULL,
+                    naok = FALSE)
+{
+  
+  min_attr_ = 0
+  
+  #Check optional vectors.
+  if(is.null(dbh) && !is.null(attr)) 
+    dbh = vector("numeric", length = length(attr))
+  
+  if(is.null(ht) && !is.null(attr)) 
+    ht = vector("numeric", length = length(attr))
+  
+  if(is.null(species) && !is.null(attr)) 
+    species = vector("integer", length = length(attr))
+  
+  #Check validity of vectors
+  if(!valid_vectors(attr, dbh, ht, species)) return(min_attr_)
+  
+  #See what species match with select_species
+  if(!is.null(select_species))
+    species = match(species, select_species, nomatch = -1)
+  
+  #Convert species to integer if needed
+  if(!is.integer(species))
+    species = match(species, unique(species))
+  
+  #Get number of trees
+  ntree = length(attr)
+
+  #Call the min_attr subroutine
+  min_attr_ <- dotCall64::.C64(
+    .NAME = "min_attr",
+    SIGNATURE = c("double", "double", "double", "integer", "double", "double",
+                  "double", "double", "integer", "double"),
+    attr = attr,
+    dbh = dbh,
+    ht = ht,
+    species = species,
+    dbhmin = dbhmin,
+    dbhmax = dbhmax,
+    htmin = htmin,
+    htmax = htmax,
+    ntree = ntree,
+    min_attr_  = double(1),
+    INTENT = c("r", "r", "r", "r", "r", 'r',
+               "r", "r", "r", "rw"),
+    NAOK = naok,
+    PACKAGE = "fvstools")$min_attr_
+
+  return(min_attr_)
+}
+
+################################################################################
+#' max_attr_f
+#' @name max_attr_f
+#' @description
+#' 
+#' This function determines the maximum value for an input attribute. This can 
+#' be calculated for custom size ranges and for select species.
+#' 
+#' @param attr:
+#' Numeric vector containing numeric attribute
+#' 
+#' @param dbh:
+#' Optional numeric vector containing diameter values. If DBH values are provided, 
+#' then attribute will be calculated between the values specified in dbhmin and 
+#' dbhmax.
+#' 
+#' @param ht:
+#' Optional numeric vector containing total tree height values. If heights are 
+#' provided, then attribute will be calculated between the values specified in 
+#' htmin and htmax.
+#' 
+#' @param species:
+#' Optional vector containing species codes. If species are provided then
+#' attribute will be calculated for species entered in select_species argument.
+#' Attribute will be calculated for all species if select_species is left as 
+#' NULL.
+#
+#' @param dbhmin:
+#' Numeric value corresponding to lower DBH bound to calculate attribute in. 
+#' This value is inclusive (>=).
+#
+#' @param dbhmax: 
+#' Numeric value corresponding to upper DBH bound to calculate attribute in. This
+#' value is exclusive (<).
+#' 
+#' @param htmin:
+#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' in. This value is inclusive (>=). This argument is only used if ht argument 
+#' is specified.
+#
+#' @param htmax: 
+#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' in. This value is exclusive (<). This argument is only used if ht argument 
+#' is specified.
+#' 
+#' @param select_species:
+#' Optional vector containing species codes. This variable will be used to
+#' select which species get included in calculation of attribute.
+#' 
+#' @param naok
+#' Logical variable where if FALSE, an error will be thrown if input vectors 
+#' contain NA values. If TRUE, checks for NA values will not be done. Setting 
+#' this value to TRUE will speed up processing but can be risky if input vectors
+#' are not vetted for NA values prior.
+#'
+#'@return
+#' Maximum value of attribute.
+################################################################################
+
+#'@export
+max_attr_f = function(attr = NULL,
+                    dbh = NULL,
+                    ht = NULL,
+                    species = NULL,
+                    dbhmin = 0,
+                    dbhmax = 999,
+                    htmin = 0,
+                    htmax = 999,
+                    select_species = NULL,
+                    naok = FALSE)
+{
+  
+  max_attr_ = 0
+  
+  #Check optional vectors.
+  if(is.null(dbh) && !is.null(attr)) 
+    dbh = vector("numeric", length = length(attr))
+  
+  if(is.null(ht) && !is.null(attr)) 
+    ht = vector("numeric", length = length(attr))
+  
+  if(is.null(species) && !is.null(attr)) 
+    species = vector("integer", length = length(attr))
+
+  #Check validity of vectors
+  if(!valid_vectors(attr, dbh, ht, species)) return(max_attr_)
+  
+  #See what species match with select_species
+  if(!is.null(select_species))
+    species = match(species, select_species, nomatch = -1)
+  
+  #Convert species to integer if needed
+  if(!is.integer(species))
+    species = match(species, unique(species))
+  
+  #Get number of trees
+  ntree = length(attr)
+
+  #Call the max_attr subroutine
+  max_attr_ <- dotCall64::.C64(
+    .NAME = "max_attr",
+    SIGNATURE = c("double", "double", "double", "integer", "double", "double",
+                  "double", "double", "integer", "double"),
+    attr = attr,
+    dbh = dbh,
+    ht = ht,
+    species = species,
+    dbhmin = dbhmin,
+    dbhmax = dbhmax,
+    htmin = htmin,
+    htmax = htmax,
+    ntree = ntree,
+    max_attr_  = double(1),
+    INTENT = c("r", "r", "r", "r", "r", 'r',
+               "r", "r", "r", "rw"),
+    NAOK = naok,
+    PACKAGE = "fvstools")$max_attr_
+
+  return(max_attr_)
+}
+
 
 

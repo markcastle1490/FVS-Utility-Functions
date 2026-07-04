@@ -60,29 +60,45 @@ rsdi_stage_f(dbh = c(4, 4, 12), expf = c(10, 10, 10), species = c(3, 3, 3), sele
 rsdi_stage(dbh = c(4, 4, 12), expf = c(10, 10, 10), species = c(3, 3, 3), select_species = 3, dbhmin = 10)
 zsdi_f(dbh = c(4, 4, 12), expf = c(10, 10, 10), species = c(3, 3, 3), select_species = 3, dbhmin = 10)
 zsdi(dbh = c(4, 4, 12), expf = c(10, 10, 10), species = c(3, 3, 3), select_species = 3, dbhmin = 10)
-cc_f(crwidth = c(NA, 14, 15), dbh = c(4, 4, 12), expf = c(10, 10, 10), species = c(3, 3, 3), select_species = 3, dbhmin = 10)
+cc_f(crwidth = c(12, 14, 15), dbh = c(4, 4, 12), expf = c(10, 10, 10), species = c(3, 3, 3), select_species = 3, dbhmin = 10)
 cc(crwidth = c(12, 14, 15), dbh = c(4, 4, 12), expf = c(10, 10, 10), species = c(3, 3, 3), select_species = 3, dbhmin = 10)
 lorey_ht_f(dbh = c(4, 4, 12), ht=c(32, 40, 70), expf = c(10, 10, 10), species = c(3, 3, 3), select_species = 3)
 lorey_ht(dbh = c(4, 4, 12), ht=c(32, 40, 70), expf = c(10, 10, 10), species = c(3, 3, 3), select_species = 3)
-top_ht_f(dbh = c(4, 4, 12), ht=c(NA, NA, NA), expf = c(NA, NA, NA))
+top_ht_f(dbh = c(4, 4, 12), ht=c(32, 40, 70), expf = c(10, 10, 10), naok = TRUE)
 top_ht(dbh = c(4, 4, 12), ht=c(32, 40, 70), expf = c(10, 10, 10))
-bal_f(dbh = c(10, 10, 10), expf = c(10, 10, 10), handle_ties = 1)
+bal_f(dbh = c(10, 10, 10), expf = c(10, 10, 10), handle_ties = 1, naok = TRUE)
 bal(dbh = c(10, 10, 10), expf = c(10, 10, 10), handle_ties = TRUE)
+mean_attr_f(dbh = c(10, 11, 12), attr = c(5, 10, 7), weight = c(2, 4, 6), species = c(0, 0, 0), select_species = 0)
+mean_attr(dbh = c(10, 11, 12), attr = c(5, 10, 7), weight = c(2, 4, 6), species = c(0, 0, 0), select_species = 0)
+expand_attr_f(dbh = c(10, 11, 12), attr = c(5, 10, 7), expf = c(10, 10, 10), species = c(1, 0, 0), select_species = 0)
+expand_attr(dbh = c(10, 11, 12), attr = c(5, 10, 7), expf = c(10, 10, 10), species = c(1, 0, 0), select_species = 0)
+count_attr_f(dbh = c(10, 11, 12), attr = c(5, 10, 7), species = c(1, 1, 0), select_species = 0)
+count_attr(dbh = c(10, 11, 12), attr = c(5, 10, 7), species = c(1, 1, 0), select_species = 0)
+min_attr_f(dbh = c(10, 11, 12), attr = c(5, 10, 7), species = c(1, 1, 1), select_species = 0)
+min_attr(dbh = c(10, 11, 12), attr = c(5, 10, 7), species = c(1, 1, 1), select_species = 0)
+max_attr_f(dbh = c(10, 11, 12), attr = c(5, 10, 7), species = c(1, 1, 1), select_species = 1)
+max_attr(dbh = c(10, 11, 12), attr = c(5, 10, 7), species = c(1, 1, 1), select_species = 1)
+
+n = 1000
+nloop = 10000
 
 system.time({
-  dbh = runif(n=1000, min=1, max=20)
-  expf = rep(10, times = 1000)
-  ht= runif(n=1000, min=1, max=120)
-  for(i in 1:10000) {
-    zsdi(dbh = dbh, expf = expf)
+  attr = rep(1, times = n)
+  attr = runif(n = n, min = 0, max = 50)
+  expf = rep(10, times = n)
+  for(i in 1:nloop)
+    {
+    max_attr(attr, expf)
   }
 })
 
 system.time({
-  dbh = runif(n=1000, min=1, max=20)
-  expf = rep(10, times = 1000)
-  ht= runif(n=1000, min=1, max=120)
-  for(i in 1:10000) {
-    zsdi_f(dbh = dbh, expf = expf)
+  attr = rep(1, times = n)
+  attr = runif(n = n, min = 0, max = 50)
+  expf = rep(10, times = n)
+  for(i in 1:nloop)
+    {
+    max_attr_f(attr, expf, naok = TRUE)
   }
 })
+

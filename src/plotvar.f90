@@ -10,9 +10,8 @@ implicit none
 !###############################################################################
 
 !Arguments
-integer, intent(in) :: ntree
+integer, intent(in) :: ntree, species(ntree)
 double precision, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
-integer, intent(in) :: species(ntree)
 double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
 double precision, intent(out) :: ba_
 double precision :: dbh_, expf_, ht_
@@ -51,9 +50,8 @@ use constants
 implicit none
 
 !Arguments
-integer, intent(in) :: ntree
+integer, intent(in) :: ntree, species(ntree)
 double precision, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
-integer, intent(in) :: species(ntree)
 double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
 double precision, intent(out) :: tpa_
 double precision :: dbh_, expf_, ht_
@@ -93,9 +91,8 @@ use constants
 implicit none
 
 !Arguments
-integer, intent(in) :: ntree
+integer, intent(in) :: ntree, species(ntree)
 double precision, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
-integer, intent(in) :: species(ntree)
 double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
 double precision, intent(out) :: qmd_
 double precision :: dbh_, expf_, ht_,  tpa_, dbhsq
@@ -142,9 +139,8 @@ use constants
 implicit none
 
 !Arguments
-integer, intent(in) :: ntree
+integer, intent(in) :: ntree, species(ntree)
 double precision, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
-integer, intent(in) :: species(ntree)
 double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
 double precision, intent(out) :: gmd_
 double precision :: dbh_, expf_, ht_, tpa_, gmd_sum
@@ -191,9 +187,8 @@ use constants
 implicit none
 
 !Arguments
-integer, intent(in) :: ntree
+integer, intent(in) :: ntree, species(ntree)
 double precision, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
-integer, intent(in) :: species(ntree)
 double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
 double precision, intent(out) :: lorey_dia_
 double precision :: dbh_, expf_, ht_, tpa_, dbh_sum, ba_, ba_tree
@@ -338,9 +333,8 @@ use constants
 implicit none
 
 !Arguments
-integer, intent(in) :: ntree
+integer, intent(in) :: ntree, species(ntree)
 double precision, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
-integer, intent(in) :: species(ntree)
 double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
 double precision, intent(out) :: rsdi_
 double precision :: dbh_, expf_, ht_, tpa_, dbhsq, a, b
@@ -396,9 +390,8 @@ use constants
 implicit none
 
 !Arguments
-integer, intent(in) :: ntree
+integer, intent(in) :: ntree, species(ntree)
 double precision, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
-integer, intent(in) :: species(ntree)
 double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
 double precision, intent(out) :: zsdi_
 double precision :: dbh_, expf_, ht_
@@ -438,9 +431,8 @@ use constants
 implicit none
 
 !Arguments
-integer, intent(in) :: ntree
+integer, intent(in) :: ntree, species(ntree)
 double precision, intent(in) :: crwidth(ntree), dbh(ntree), expf(ntree), ht(ntree)
-integer, intent(in) :: species(ntree)
 double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
 double precision, intent(out) :: cc_
 double precision :: crwidth_, dbh_, expf_, ht_, correct_cc
@@ -504,9 +496,8 @@ use constants
 implicit none
 
 !Arguments
-integer, intent(in) :: ntree
+integer, intent(in) :: ntree, species(ntree)
 double precision, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
-integer, intent(in) :: species(ntree)
 double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
 double precision, intent(out) :: lorey_ht_
 double precision :: dbh_, expf_, ht_, ba_, ba_tree, ba_sum
@@ -670,6 +661,262 @@ do i = 1, ntree, 1
 end do    
 
 end subroutine bal
+
+!###############################################################################
+!This function sums and expands an input numeric attribute to a per unit area
+!basis using numeric vectors containing diameter, attribute of interest, and 
+!expansion factors. The numeric attribute could be a tree-level volume, 
+!biomass, carbon, etc. This attribute can be calculated for user defined size 
+!ranges and for select species.
+!###############################################################################
+
+subroutine expand_attr(attr, expf, dbh, ht, species, dbhmin, dbhmax, htmin, &
+htmax, ntree, expand_attr_)
+use constants
+implicit none
+
+!Arguments
+integer, intent(in) :: ntree, species(ntree)
+double precision, intent(in) :: dbh(ntree), ht(ntree), attr(ntree), expf(ntree)
+double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
+double precision, intent(out) :: expand_attr_
+double precision :: dbh_, expf_, ht_, attr_
+integer :: i, species_
+
+!Initialize variables
+expand_attr_ = 0.0
+
+!Determine trees to include in attribute sum
+do i = 1, ntree, 1
+
+    attr_ = attr(i)
+    expf_ = expf(i)
+    dbh_ = dbh(i)
+    ht_ = ht(i)
+    species_ = species(i)
+
+    !Determine if tree should be skipped in calculation
+    if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
+    if(ht_ < htmin .or. ht_ >= htmax) cycle
+    if(species_ < 0) cycle
+
+    expand_attr_ = expand_attr_ + (attr_ * expf_)
+
+end do
+
+end subroutine expand_attr
+
+!###############################################################################
+! This function is used to calculate the arithmetic or weighted mean (average) 
+! of an attribute. The weighted mean will only be calculated if weights are 
+! provided as an input argument. These mean values can be calculated within 
+! custom size ranges and for select species.
+!###############################################################################
+
+subroutine mean_attr(attr, weight, dbh, ht, species, dbhmin, dbhmax, htmin, &
+htmax, ntree, mean_attr_)
+use constants
+implicit none
+
+!Arguments
+integer, intent(in) :: ntree, species(ntree)
+double precision, intent(in) :: dbh(ntree), ht(ntree), attr(ntree), weight(ntree)
+double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
+double precision, intent(out) :: mean_attr_
+double precision :: dbh_, attr_, ht_, weight_, weight_sum, attr_sum
+integer :: i, species_
+
+!Initialize variables
+mean_attr_ = 0.0
+weight_sum = 0.0
+attr_sum = 0.0
+
+!Determine trees to include in mean calculation
+do i = 1, ntree, 1
+
+    attr_ = attr(i)
+    weight_ = weight(i)
+    dbh_ = dbh(i)
+    ht_ = ht(i)
+    species_ = species(i)
+
+    !Determine if tree should be skipped in calculation
+    if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
+    if(ht_ < htmin .or. ht_ >= htmax) cycle
+    if(species_ < 0) cycle
+
+    attr_sum = attr_sum + (attr_ * weight_)
+    weight_sum = weight_sum + weight_
+
+end do
+
+!Calculate average
+if(weight_sum > 0) mean_attr_ = attr_sum / weight_sum
+
+end subroutine mean_attr
+
+!###############################################################################
+!This function counts the number of tree records between specified DBH and HT
+!ranges and for select species.
+!###############################################################################
+
+subroutine count_attr(dbh, ht, species, dbhmin, dbhmax, htmin, &
+htmax, ntree, count_attr_)
+use constants
+implicit none
+
+!Arguments
+integer, intent(in) :: ntree, species(ntree)
+double precision, intent(in) :: dbh(ntree), ht(ntree)
+double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
+double precision, intent(out) :: count_attr_
+double precision :: dbh_, ht_
+integer :: i, species_
+
+!Initialize variables
+count_attr_ = 0.0
+
+!Determine trees to include in count
+do i = 1, ntree, 1
+
+    dbh_ = dbh(i)
+    ht_ = ht(i)
+    species_ = species(i)
+
+    !Determine if tree should be skipped in calculation
+    if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
+    if(ht_ < htmin .or. ht_ >= htmax) cycle
+    if(species_ < 0) cycle
+
+    count_attr_ = count_attr_ + 1
+
+end do
+
+end subroutine count_attr
+
+!###############################################################################
+!This function determines the minimum value for an input attribute. This can 
+!be calculated for custom size ranges and for select species.
+!###############################################################################
+
+subroutine min_attr(attr, dbh, ht, species, dbhmin, dbhmax, htmin, &
+htmax, ntree, min_attr_)
+use constants
+implicit none
+
+!Arguments
+integer, intent(in) :: ntree, species(ntree)
+double precision, intent(in) :: dbh(ntree), ht(ntree), attr(ntree)
+double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
+double precision, intent(out) :: min_attr_
+double precision :: dbh_, attr_, ht_
+integer :: i, species_, idx
+
+!Initialize variables
+idx = 0
+min_attr_ = 0.0
+
+!Find initial minimum value
+do i =1, ntree, 1
+    attr_ = attr(i)
+    dbh_ = dbh(i)
+    ht_ = ht(i)
+    species_ = species(i)
+
+    if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
+    if(ht_ < htmin .or. ht_ >= htmax) cycle
+    if(species_ < 0) cycle
+
+    idx = i
+    exit
+end do
+
+!Now find minimum across all possible values
+if(idx > 0) then
+
+    min_attr_ = attr(idx)
+    
+    do i = 1, ntree, 1
+
+        attr_ = attr(i)
+        dbh_ = dbh(i)
+        ht_ = ht(i)
+        species_ = species(i)
+
+        !Determine if tree should be skipped in calculation
+        if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
+        if(ht_ < htmin .or. ht_ >= htmax) cycle
+        if(species_ < 0) cycle
+
+        if(attr_ < min_attr_) min_attr_ = attr_
+
+    end do
+
+endif
+
+end subroutine min_attr
+
+!###############################################################################
+!This function determines the maximum value for an input attribute. This can 
+!be calculated for custom size ranges and for select species.
+!###############################################################################
+
+subroutine max_attr(attr, dbh, ht, species, dbhmin, dbhmax, htmin, &
+htmax, ntree, max_attr_)
+use constants
+implicit none
+
+!Arguments
+integer, intent(in) :: ntree, species(ntree)
+double precision, intent(in) :: dbh(ntree), ht(ntree), attr(ntree)
+double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
+double precision, intent(out) :: max_attr_
+double precision :: dbh_, attr_, ht_
+integer :: i, species_, idx
+
+!Initialize variables
+idx = 0
+max_attr_ = 0.0
+
+!Find initial maximum value
+do i =1, ntree, 1
+    attr_ = attr(i)
+    dbh_ = dbh(i)
+    ht_ = ht(i)
+    species_ = species(i)
+
+    if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
+    if(ht_ < htmin .or. ht_ >= htmax) cycle
+    if(species_ < 0) cycle
+
+    idx = i
+    exit
+end do
+
+!Now find maximum across all possible values
+if(idx > 0) then
+
+    max_attr_ = attr(idx)
+    
+    do i = 1, ntree, 1
+
+        attr_ = attr(i)
+        dbh_ = dbh(i)
+        ht_ = ht(i)
+        species_ = species(i)
+
+        !Determine if tree should be skipped in calculation
+        if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
+        if(ht_ < htmin .or. ht_ >= htmax) cycle
+        if(species_ < 0) cycle
+
+        if(attr_ > max_attr_) max_attr_ = attr_
+
+    end do
+
+endif
+
+end subroutine max_attr
 
 
 
