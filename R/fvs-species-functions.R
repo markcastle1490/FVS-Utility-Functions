@@ -1,6 +1,6 @@
 ################################################################################
-#'fvs_get_spdf
-#'@name fvs_get_spdf
+#'fvs_spdf
+#'@name fvs_spdf
 #'@description
 #'
 #'This function returns all species codes for a given FVS variant, set of FVS 
@@ -29,7 +29,7 @@
 ################################################################################
 
 #'@export
-fvs_get_spdf <- function(var_code = NULL,
+fvs_spdf <- function(var_code = NULL,
                          all_var = FALSE)
 {
   #Initialize empty dataframe
@@ -80,8 +80,8 @@ fvs_get_spdf <- function(var_code = NULL,
 }
 
 ################################################################################
-#'fvs_get_sp
-#'@name fvs_get_sp
+#'fvs_sp
+#'@name fvs_sp
 #'@description
 #'
 #'This function returns a vector of species codes for a given variant, set of 
@@ -121,7 +121,7 @@ fvs_get_spdf <- function(var_code = NULL,
 ################################################################################
 
 #'@export
-fvs_get_sp <- function(var_code = NULL,
+fvs_sp <- function(var_code = NULL,
                        all_var = FALSE,
                        type = 2)
 {
@@ -229,9 +229,9 @@ fvs_sp_lookup <- function(var_code = "",
     return(sp_to)
   
   #Determine which species codes to search through based on from code
-  sp_index <- fvs_sp_get_index(var_code = var_code,
-                               sp = sp,
-                               from = from)
+  sp_index <- fvs_sp_index(var_code = var_code,
+                           sp = sp,
+                           from = from)
   
   #If sp_index is not NA, determine sp_to
   if(!is.na(sp_index))
@@ -257,8 +257,8 @@ fvs_sp_lookup <- function(var_code = "",
 }  
 
 ################################################################################
-#'fvs_sp_get_index
-#'@name fvs_sp_get_index
+#'fvs_sp_index
+#'@name fvs_sp_index
 #'@description
 #'This a function that is used to obtain a row index value from one of the four
 #'following lists from commons.R:
@@ -294,9 +294,9 @@ fvs_sp_lookup <- function(var_code = "",
 #'Numeric row index value from species code list.
 ################################################################################
 
-fvs_sp_get_index <- function(var_code = "",
-                             sp = "",
-                             from = 0)
+fvs_sp_index <- function(var_code = "",
+                         sp = "",
+                         from = 0)
 {
   #Initialize sp_index
   sp_index <- NA

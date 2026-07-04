@@ -14,5 +14,5 @@ Numeric index value.
 }
 \description{
 This function is used to obtain an index value (row number) from the data
-frame that is returned from sp_get_df function.
+frame that is returned from sp_df function.
 }

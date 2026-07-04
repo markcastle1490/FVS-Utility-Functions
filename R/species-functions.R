@@ -1,6 +1,6 @@
 ################################################################################
-#'sp_get_df
-#'@name sp_get_df
+#'sp_df
+#'@name sp_df
 #'@description
 #'
 #'This function returns the support_sp dataframe that contains information from
@@ -12,7 +12,7 @@
 ################################################################################
 
 #'@export
-sp_get_df <- function()
+sp_df <- function()
   return(support_sp)
 
 ################################################################################
@@ -80,8 +80,8 @@ sp_lookup <- function(sp = "",
     return(sp_to)
 
   #Determine which species codes to search through based on from code
-  sp_index <- sp_get_index(sp = sp,
-                           from = from)
+  sp_index <- sp_index(sp = sp,
+                       from = from)
 
   #If sp_index is not NA, determine sp_to
   if(!is.na(sp_index))
@@ -127,8 +127,8 @@ sp_lookup <- function(sp = "",
 }
 
 ################################################################################
-#'sp_get_index
-#'@name sp_get_index
+#'sp_index
+#'@name sp_index
 #'@description
 #'This a function that is used to obtain a row index value from the support_sp
 #'dataframe (see commons. R) based on an incoming species code. The species code
@@ -150,7 +150,7 @@ sp_lookup <- function(sp = "",
 #'Numeric row index value from support_sp dataframe.
 ################################################################################
 
-sp_get_index <- function(sp = NULL,
+sp_index <- function(sp = NULL,
                          from = 0)
 {
   #Initialize sp_index
@@ -186,7 +186,7 @@ sp_get_index <- function(sp = NULL,
 #'@description 
 #'
 #'This function is used to obtain an index value (row number) from the data
-#'frame that is returned from sp_get_df function.
+#'frame that is returned from sp_df function.
 #
 #'@param spcd: 
 #'Numeric FIA species code.

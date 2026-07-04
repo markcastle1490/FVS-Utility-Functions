@@ -1,6 +1,6 @@
 ################################################################################
-#'state_get_df
-#'@name state_get_df
+#'state_df
+#'@name state_df
 #'@description
 #'This function returns the state names, FIPS state codes, and two character
 #'state abbreviations in a dataframe (see state_codes dataframe in commons.R).
@@ -10,7 +10,7 @@
 ################################################################################
 
 #'@export
-state_get_df <- function()
+state_df <- function()
   return(state_codes)
 
 ################################################################################
@@ -67,8 +67,8 @@ state_lookup <-function(state = NULL,
   state_index <- NA
   
   #Get state_index
-  state_index <- state_get_index(state = state,
-                                 from = from)
+  state_index <- state_index(state = state,
+                             from = from)
   
   #If state_index is not NA, get the state attribute based on argument to. If
   #state_index is still NA, return.
@@ -88,8 +88,8 @@ state_lookup <-function(state = NULL,
 }
 
 ################################################################################
-#'state_get_index
-#'@name sp_get_index
+#'state_index
+#'@name sp_index
 #'@description
 #'This a function that is used to obtain a row index value from the state_codes
 #'dataframe (see commons. R) based on an incoming state value. The state value
@@ -111,7 +111,7 @@ state_lookup <-function(state = NULL,
 #'Numeric row index value from state_codes dataframe.
 ################################################################################
 
-state_get_index <- function(state = NULL,
+state_index <- function(state = NULL,
                             from = 0)
   
 {

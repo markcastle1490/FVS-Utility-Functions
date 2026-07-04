@@ -1,6 +1,6 @@
 ################################################################################
-#'fvs_get_variants
-#'@name fvs_get_variants
+#'fvs_variants
+#'@name fvs_variants
 #'@description
 #'
 #'This function returns a character vector of all FVS variant codes (e.g. "CA").
@@ -10,5 +10,5 @@
 ################################################################################
 
 #'@export
-fvs_get_variants <- function()
+fvs_variants <- function()
   return(variants)
