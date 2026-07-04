@@ -136,135 +136,137 @@ build_fitdb <- function(dbin = NULL,
   invisible()
 }
 
+### Archived dplyr version
+
+# ################################################################################
+# #'merge_inv
+# #'@name merge_inv
+# #'@description
+# #' 
+# #'This function accepts a list of dataframes containing containing information
+# #'that will be paired by a measurement interval (cycle or year). This function 
+# #'is called from the code that prepares a growth sample tree database (e.g.
+# #'fia_fitdb).
+# #
+# #'@param data:
+# #'List of dataframes for each unique value of interval argument
+# #
+# #'@param plot_id:   
+# #'Character string of column name used to represent a unique plot ID.
+# #
+# #'@param tree_id:  
+# #' Character string of column name used to represent a unique tree ID.
+# #
+# #'@param interval:  
+# #'Character string of column name used to specify a measurement year. This 
+# #'variable is used to pair re-measurement observations. 
+# #
+# #'@param merge_id:
+# #'Character string of column name used to merge re-measurement periods together.
+# #
+# #'@param species:
+# #'Character string of column name that contains species codes in dataframes 
+# #'within data argument. This argument is used in the merging of remeasurement
+# #'data.
+# #
+# #'@return
+# #'Data frame with paired remeasurement data.
+# ################################################################################
+
+# merge_inv <- function(data,
+#                       plot_id = "PLOTMERGEID",
+#                       tree_id = "UNIQUETREEID",
+#                       merge_id = "TREEMERGEID",
+#                       interval = "CYCLE",
+#                       #species = "SPCD",
+#                       verbose = TRUE)
+# {
+#   if(verbose) cat("\n", "Entering merge_inv function.", "\n", "\n")
+
+#   #Get unique INTERVAL values and sort
+#   intervals <- sort(as.numeric(unique(names(data))))
+#   if(verbose) cat("Intervals considered: ", paste(intervals, collapse = ", "), "\n")
+
+#   #Define list used to store merged dataframes
+#   df_list <-vector(mode = "list", length = choose(length(intervals), 2))
+
+#   #Setup labels
+#   tree_lab_x = paste0(tree_id, ".x")
+#   tree_lab_y = paste0(tree_id, ".y")
+#   int_lab_x = paste0(interval, ".x")
+#   int_lab_y = paste0(interval, ".y")
+
+#   #Intialize variable that will be used to track number of insertions into
+#   #df_list
+#   n_insert <- 1
+  
+#   #Start outer loop across intervals. Combine remeasurements when criteria is 
+#   #met
+#   for(interval1 in intervals)
+#   {
+#     for(interval2 in intervals)
+#     {
+#       #Criteria for merging is met
+#       if(interval2 > interval1)
+#       {
+#         if(verbose)
+#         {
+#           cat("Interval 1:", interval1, "\n")
+#           cat("Interval 2:", interval2, "\n")
+#           cat("Merging remeasurements", "\n", "\n")
+#         }
+
+#         #Get dataframes associated with interval
+#         x = data[[as.character(interval1)]]
+#         y = data[[as.character(interval2)]]
+        
+#         #Find plots that exist in both x and y
+#         match_plot = intersect(x[[plot_id]], y[[plot_id]])
+        
+#         #Get only plots that exist at both points in time
+#         x = x |> dplyr::filter(.data[[plot_id]] %in% match_plot)
+#         y = y |> dplyr::filter(.data[[plot_id]] %in% match_plot) 
+
+#         #Join the tree level information
+#         #Full join is used to capture tree records that may not have a matched
+#         #record between remeasurement periods
+#         df <- dplyr::full_join(x = x, y = y, by = merge_id)
+        
+#         #Now do the following:
+#         #   If tree_id.x is NA, use the value from tree_id.y. These are ingrowth,
+#         #   missed trees, or those not accounted for due to change in DESIGNCD
+#         #   between initial (interval1) and subsequent inventory (interval2).
+#         #   Records with NA interval values have a value filled in.
+        
+#         df <- df |>
+#           dplyr::mutate("{tree_lab_x}" := 
+#                           dplyr::coalesce(.data[[tree_lab_x]], 
+#                                           .data[[tree_lab_y]]),
+#                         "{int_lab_x}" := 
+#                           dplyr::coalesce(.data[[int_lab_x]], interval1),
+#                         "{int_lab_y}" := 
+#                           dplyr::coalesce(.data[[int_lab_y]], interval2))
+
+#         #Add dataframe to list
+#         df_list[[n_insert]] <- df
+
+#         #Increment n_insert
+#         n_insert<- n_insert + 1
+#       }
+#     }
+#   }
+
+#   #Bind all items in df_list into a single dataframe and return
+#   df <- dplyr::bind_rows(df_list)
+
+#   if(verbose) cat("Leaving merge_inv function.", "\n", "\n")
+  
+#   return(df)
+# }
+
 ################################################################################
 #'merge_inv
 #'@name merge_inv
-#'@description
-#' 
-#'This function accepts a list of dataframes containing containing information
-#'that will be paired by a measurement interval (cycle or year). This function 
-#'is called from the code that prepares a growth sample tree database (e.g.
-#'fia_fitdb).
-#
-#'@param data:
-#'List of dataframes for each unique value of interval argument
-#
-#'@param plot_id:   
-#'Character string of column name used to represent a unique plot ID.
-#
-#'@param tree_id:  
-#' Character string of column name used to represent a unique tree ID.
-#
-#'@param interval:  
-#'Character string of column name used to specify a measurement year. This 
-#'variable is used to pair re-measurement observations. 
-#
-#'@param merge_id:
-#'Character string of column name used to merge re-measurement periods together.
-#
-#'@param species:
-#'Character string of column name that contains species codes in dataframes 
-#'within data argument. This argument is used in the merging of remeasurement
-#'data.
-#
-#'@return
-#'Data frame with paired remeasurement data.
-################################################################################
-
-merge_inv <- function(data,
-                      plot_id = "PLOTMERGEID",
-                      tree_id = "UNIQUETREEID",
-                      merge_id = "TREEMERGEID",
-                      interval = "CYCLE",
-                      #species = "SPCD",
-                      verbose = TRUE)
-{
-  if(verbose) cat("\n", "Entering merge_inv function.", "\n", "\n")
-
-  #Get unique INTERVAL values and sort
-  intervals <- sort(as.numeric(unique(names(data))))
-  if(verbose) cat("Intervals considered: ", paste(intervals, collapse = ", "), "\n")
-
-  #Define list used to store merged dataframes
-  df_list <-vector(mode = "list", length = choose(length(intervals), 2))
-
-  #Intialize variable that will be used to track number of insertions into
-  #df_list
-  n_insert <- 1
-  
-  #Start outer loop across intervals. Combine remeasurements when criteria is 
-  #met
-  for(interval1 in intervals)
-  {
-    for(interval2 in intervals)
-    {
-      if(verbose)
-      {
-        cat("Interval 1:", interval1, "\n")
-        cat("Interval 2:", interval2, "\n", "\n")
-      }
-
-      #Criteria for merging is met
-      if(interval2 > interval1)
-      {
-        if(verbose) cat("Merging remeasurements", "\n", "\n")
-        
-        #Get dataframes associated with interval
-        x = data[[as.character(interval1)]]
-        y = data[[as.character(interval2)]]
-        
-        #Find plots that exist in both x and y
-        match_plot = intersect(x[[plot_id]], y[[plot_id]])
-        
-        #Get only plots that exist at both points in time
-        x = x |> dplyr::filter(.data[[plot_id]] %in% match_plot)
-        y = y |> dplyr::filter(.data[[plot_id]] %in% match_plot) 
-
-        #Join the tree level information
-        #Full join is used to capture tree records that may not have a matched
-        #record between remeasurement periods
-        df <- dplyr::full_join(x = x, y = y, by = merge_id)
-        
-        #Now do the following:
-        #   If tree_id.x is NA, use the value from tree_id.y. These are ingrowth,
-        #   missed trees, or those not accounted for due to change in DESIGNCD
-        #   between initial (interval1) and subsequent inventory (interval2).
-        #   Records with NA interval values have a value filled in.
-
-        tree_lab_x = paste0(tree_id, ".x")
-        tree_lab_y = paste0(tree_id, ".y")
-        int_lab_x = paste0(interval, ".x")
-        int_lab_y = paste0(interval, ".y")
-        
-        df <- df |>
-          dplyr::mutate("{tree_lab_x}" := 
-                          dplyr::coalesce(.data[[tree_lab_x]], 
-                                          .data[[tree_lab_y]]),
-                        "{int_lab_x}" := 
-                          dplyr::coalesce(.data[[int_lab_x]], interval1),
-                        "{int_lab_y}" := 
-                          dplyr::coalesce(.data[[int_lab_y]], interval2))
-
-        #Add dataframe to list
-        df_list[[n_insert]] <- df
-
-        #Increment n_insert
-        n_insert<- n_insert + 1
-      }
-    }
-  }
-
-  #Bind all items in df_list into a single dataframe and return
-  df <- dplyr::bind_rows(df_list)
-
-  if(verbose) cat("Leaving merge_inv function.", "\n", "\n")
-  
-  return(df)
-}
-
-################################################################################
-#'merge_inv_dt
-#'@name merge_inv_dt
 #'@description
 #' 
 #'This function accepts a list of dataframes containing containing information
@@ -424,8 +426,8 @@ write_fitdb <- function(fitdb,
   silent = TRUE))
 
   #Get GST fields and data types
-  fitdb_fields <- names(fitdb_vars)
-  fitdb_field_types <- fitdb_vars
+  fitdb_fields <- names(fitdb_vars())
+  fitdb_field_types <- fitdb_vars()
 
   #Handling for when output database table already exists
   if(RSQLite::dbExistsTable(con, name = fitdb_name))

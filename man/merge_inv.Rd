@@ -2,9 +2,10 @@
 % Please edit documentation in R/fitdb-build.R
 \name{merge_inv}
 \alias{merge_inv}
+\alias{merge_inv_dt}
 \title{merge_inv}
 \usage{
-merge_inv(
+merge_inv_dt(
   data,
   plot_id = "PLOTMERGEID",
   tree_id = "UNIQUETREEID",
@@ -14,20 +15,17 @@ merge_inv(
 )
 }
 \arguments{
-\item{data:}{List of dataframes for each unique value of interval argument}
+\item{data:}{List of data tables for each unique value of interval argument}
 
 \item{plot_id:}{Character string of column name used to represent a unique plot ID.}
 
 \item{tree_id:}{Character string of column name used to represent a unique tree ID.}
 
-\item{interval:}{Character string of column name used to specify a measurement year. This
-variable is used to pair re-measurement observations.}
+\item{merge_id:}{Character string of column name used to merge re-measurement periods together
+at the tree level.}
 
-\item{merge_id:}{Character string of column name used to merge re-measurement periods together.}
-
-\item{species:}{Character string of column name that contains species codes in dataframes
-within data argument. This argument is used in the merging of remeasurement
-data.}
+\item{interval:}{Character string of column name used to specify a measurement year or cycle.
+This variable is used to pair re-measurement observations.}
 }
 \value{
 Data frame with paired remeasurement data.

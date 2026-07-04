@@ -4,7 +4,7 @@
 \alias{fia_fitdb}
 \title{fia_fitdb}
 \usage{
-fia_fitdb(dbin = NULL, dbout = NULL, fitdb_name = "FITDB", verbose = FALSE)
+fia_fitdb(dbin = NULL, dbout = NULL, fitdb_name = NULL, verbose = FALSE)
 }
 \arguments{
 \item{dbin:}{Character string of file path FIA SQLite database.}
