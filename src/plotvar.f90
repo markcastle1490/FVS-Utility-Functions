@@ -11,14 +11,14 @@ implicit none
 
 !Arguments
 integer, intent(in) :: ntree, species(ntree)
-double precision, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
-double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
-double precision, intent(out) :: ba_
-double precision :: dbh_, expf_, ht_
+real(real64), intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
+real(real64), intent(in) :: dbhmin, dbhmax, htmin, htmax
+real(real64), intent(out) :: ba_
+real(real64) :: dbh_, expf_, ht_
 integer :: i, species_
 
 !intialize ba_ to 0
-ba_ = 0.0
+ba_ = 0.0_REAL64
 
 !Do the basal area calculation
 do i = 1, ntree, 1
@@ -51,14 +51,14 @@ implicit none
 
 !Arguments
 integer, intent(in) :: ntree, species(ntree)
-double precision, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
-double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
-double precision, intent(out) :: tpa_
-double precision :: dbh_, expf_, ht_
+real(real64), intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
+real(real64), intent(in) :: dbhmin, dbhmax, htmin, htmax
+real(real64), intent(out) :: tpa_
+real(real64) :: dbh_, expf_, ht_
 integer :: i, species_
 
 !intialize tpa_ to 0
-tpa_ = 0.0
+tpa_ = 0.0_REAL64
 
 !Do the basal area calculation
 do i = 1, ntree, 1
@@ -92,16 +92,16 @@ implicit none
 
 !Arguments
 integer, intent(in) :: ntree, species(ntree)
-double precision, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
-double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
-double precision, intent(out) :: qmd_
-double precision :: dbh_, expf_, ht_,  tpa_, dbhsq
+real(real64), intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
+real(real64), intent(in) :: dbhmin, dbhmax, htmin, htmax
+real(real64), intent(out) :: qmd_
+real(real64) :: dbh_, expf_, ht_,  tpa_, dbhsq
 integer :: i, species_
 
 !intialize tvariables
-tpa_ = 0.0
-dbhsq = 0.0
-qmd_ = 0.0
+tpa_ = 0.0_REAL64
+dbhsq = 0.0_REAL64
+qmd_ = 0.0_REAL64
 
 !Determine trees to include in QMD calculation
 do i = 1, ntree, 1
@@ -140,16 +140,16 @@ implicit none
 
 !Arguments
 integer, intent(in) :: ntree, species(ntree)
-double precision, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
-double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
-double precision, intent(out) :: gmd_
-double precision :: dbh_, expf_, ht_, tpa_, gmd_sum
+real(real64), intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
+real(real64), intent(in) :: dbhmin, dbhmax, htmin, htmax
+real(real64), intent(out) :: gmd_
+real(real64) :: dbh_, expf_, ht_, tpa_, gmd_sum
 integer :: i, species_
 
 !intialize tvariables
-tpa_ = 0.0
-gmd_sum = 0.0
-gmd_ = 0.0
+tpa_ = 0.0_REAL64
+gmd_sum = 0.0_REAL64
+gmd_ = 0.0_REAL64
 
 !Determine trees to include in QMD calculation
 do i = 1, ntree, 1
@@ -170,7 +170,7 @@ do i = 1, ntree, 1
 end do
 
 ! Calculate GMD if TPA is greater than 0
-if (tpa_ > 0) gmd_ = (gmd_sum / tpa_)**(1 / r_slope)
+if (tpa_ > 0.0_REAL64) gmd_ = (gmd_sum / tpa_)**(1.0_REAL64 / r_slope)
 
 end subroutine gmd
 
@@ -188,17 +188,17 @@ implicit none
 
 !Arguments
 integer, intent(in) :: ntree, species(ntree)
-double precision, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
-double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
-double precision, intent(out) :: lorey_dia_
-double precision :: dbh_, expf_, ht_, tpa_, dbh_sum, ba_, ba_tree
+real(real64), intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
+real(real64), intent(in) :: dbhmin, dbhmax, htmin, htmax
+real(real64), intent(out) :: lorey_dia_
+real(real64) :: dbh_, expf_, ht_, tpa_, dbh_sum, ba_, ba_tree
 integer :: i, species_
 
 !intialize tvariables
-tpa_ = 0.0
-dbh_sum = 0.0
-lorey_dia_ = 0.0
-ba_ = 0.0
+tpa_ = 0.0_REAL64
+dbh_sum = 0.0_REAL64
+lorey_dia_ = 0.0_REAL64
+ba_ = 0.0_REAL64
 
 !Determine trees to include in Lorey dia calculation
 do i = 1, ntree, 1
@@ -238,26 +238,26 @@ implicit none
 
 !Arguments
 integer, intent(in) :: ntree, sorted_idx(ntree), dia_type
-double precision, intent(in) :: dbh(ntree), expf(ntree)
-double precision, intent(inout) :: top_tpa, top_per
-double precision, intent(out) :: top_dia_
-double precision :: dbh_, expf_, ht_, tpa_, top, tpa_sum, dbh_sum, tpa_dif
-double precision :: expf_temp
+real(real64), intent(in) :: dbh(ntree), expf(ntree)
+real(real64), intent(inout) :: top_tpa, top_per
+real(real64), intent(out) :: top_dia_
+real(real64) :: dbh_, expf_, ht_, tpa_, top, tpa_sum, dbh_sum, tpa_dif
+real(real64) :: expf_temp
 integer :: i, idx
 logical :: top_exceed
 
 !Initialize variables
-top_dia_ = 0.0
-tpa_ = 0.0
-tpa_sum = 0.0
-dbh_sum = 0.0
-tpa_dif = 0.0
-expf_temp = 0.0
+top_dia_ = 0.0_REAL64
+tpa_ = 0.0_REAL64
+tpa_sum = 0.0_REAL64
+dbh_sum = 0.0_REAL64
+tpa_dif = 0.0_REAL64
+expf_temp = 0.0_REAL64
 top_exceed = .false.
 
 !Do checks on top_tpa and top_per
-if(top_tpa < 0.0) top_tpa = 40.0
-if(top_per < 0.0 .or. top_per > 100.0) top_per = 20.0
+if(top_tpa < 0.0_REAL64) top_tpa = 40.0_REAL64
+if(top_per < 0.0_REAL64 .or. top_per > 100.0_REAL64) top_per = 20.0_REAL64
 
 !Calculate TPA for stand
 do i = 1, ntree, 1
@@ -265,12 +265,12 @@ do i = 1, ntree, 1
 end do
 
 !Do top diameter calculation if tpa_ > 0
-if(tpa_ > 0.0) then
+if(tpa_ > 0.0_REAL64) then
 
     !Determine value of top
     top = top_tpa
     if(top >= tpa_) top = top_tpa
-    if(top_per > 0) top = tpa_ * (top_per/100)
+    if(top_per > 0.0_REAL64) top = tpa_ * (top_per/100.0_REAL64)
 
     !Determine trees to included in top diameter
     do i = 1, ntree, 1
@@ -293,7 +293,7 @@ if(tpa_ > 0.0) then
         !Update dbh_sum based on dia_type
         select case (dia_type)
         case(1)
-            dbh_sum = dbh_sum + dbh_**2 * expf_temp
+            dbh_sum = dbh_sum + dbh_**2.0_REAL64 * expf_temp
         case(2)
             dbh_sum = dbh_sum + dbh_ * expf_temp
         case default 
@@ -307,14 +307,14 @@ if(tpa_ > 0.0) then
 end if
 
 !Calculate top diameter if tpa_sum > 0
-if(tpa_sum > 0.0) then
+if(tpa_sum > 0.0_REAL64) then
     select case(dia_type)
     case(1)
         top_dia_ = sqrt(dbh_sum / tpa_sum)
     case(2)
         top_dia_ = dbh_sum / tpa_sum
     case(3)
-        top_dia_ = (dbh_sum / tpa_sum)**(1 / r_slope)
+        top_dia_ = (dbh_sum / tpa_sum)**(1.0_real64 / r_slope)
     end select
 end if
 
@@ -334,21 +334,21 @@ implicit none
 
 !Arguments
 integer, intent(in) :: ntree, species(ntree)
-double precision, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
-double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
-double precision, intent(out) :: rsdi_
-double precision :: dbh_, expf_, ht_, tpa_, dbhsq, a, b
+real(real64), intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
+real(real64), intent(in) :: dbhmin, dbhmax, htmin, htmax
+real(real64), intent(out) :: rsdi_
+real(real64) :: dbh_, expf_, ht_, tpa_, dbhsq, a, b
 integer :: i, species_
 
 !intialize variables
-rsdi_ = 0.0
-tpa_ = 0.0
-dbhsq = 0.0
+rsdi_ = 0.0_REAL64
+tpa_ = 0.0_REAL64
+dbhsq = 0.0_REAL64
 
 !Calculate tpa, dbhsq, and qmd for all trees
 do i = 1, ntree, 1
     tpa_ = tpa_ + expf(i)
-    dbhsq = dbhsq + dbh(i)**2 * expf(i)
+    dbhsq = dbhsq + dbh(i)**2.0_REAL64 * expf(i)
 end do
 
 !Do RSDI calculation if tpa_ > 0
@@ -371,7 +371,7 @@ if(tpa_ > 0 ) then
         if(ht_ < htmin .or. ht_ >= htmax) cycle
         if(species_ < 0) cycle
 
-        rsdi_ = rsdi_ + (a * expf_ + b * dbh_**2 * expf_)
+        rsdi_ = rsdi_ + (a * expf_ + b * dbh_**2.0_REAL64 * expf_)
     end do
 end if
 
@@ -391,14 +391,14 @@ implicit none
 
 !Arguments
 integer, intent(in) :: ntree, species(ntree)
-double precision, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
-double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
-double precision, intent(out) :: zsdi_
-double precision :: dbh_, expf_, ht_
+real(real64), intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
+real(real64), intent(in) :: dbhmin, dbhmax, htmin, htmax
+real(real64), intent(out) :: zsdi_
+real(real64) :: dbh_, expf_, ht_
 integer :: i, species_
 
 !intialize variables
-zsdi_ = 0.0
+zsdi_ = 0.0_REAL64
 
 !Determine trees to include in ZSDI calculation
 do i = 1, ntree, 1
@@ -413,7 +413,7 @@ do i = 1, ntree, 1
     if(ht_ < htmin .or. ht_ >= htmax) cycle
     if(species_ < 0) cycle
 
-    zsdi_ = zsdi_ + ((dbh_ / 10)**r_slope * expf_)
+    zsdi_ = zsdi_ + ((dbh_ / 10.0_REAL64)**r_slope * expf_)
 
 end do
 
@@ -432,14 +432,14 @@ implicit none
 
 !Arguments
 integer, intent(in) :: ntree, species(ntree)
-double precision, intent(in) :: crwidth(ntree), dbh(ntree), expf(ntree), ht(ntree)
-double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
-double precision, intent(out) :: cc_
-double precision :: crwidth_, dbh_, expf_, ht_, correct_cc
+real(real64), intent(in) :: crwidth(ntree), dbh(ntree), expf(ntree), ht(ntree)
+real(real64), intent(in) :: dbhmin, dbhmax, htmin, htmax
+real(real64), intent(out) :: cc_
+real(real64) :: crwidth_, dbh_, expf_, ht_, correct_cc
 integer :: i, species_
 
 !intialize variables
-cc_ = 0.0
+cc_ = 0.0_REAL64
 
 !Determine trees to include in CC calculation
 do i = 1, ntree, 1
@@ -455,7 +455,8 @@ do i = 1, ntree, 1
     if(ht_ < htmin .or. ht_ >= htmax) cycle
     if(species_ < 0) cycle
 
-    cc_ = cc_ + ((crwidth_/2)**2 * (expf_/43560) * pi * 100)
+    cc_ = cc_ + ((crwidth_/2.0_REAL64)**2.0_REAL64 * &
+     (expf_/43560.0_REAL64) * pi * 100.0_REAL64)
 
 end do
 
@@ -473,14 +474,15 @@ end subroutine cc
 !Research Station. 11 p.
 !###############################################################################
 
-double precision function correct_cc (cc)
+real(real64) function correct_cc (cc)
+use iso_fortran_env, only: real64
 implicit none
 
 !Arugments
-double precision, intent(in) :: cc
+real(real64), intent(in) :: cc
 
 !Correct CC
-correct_cc = 100 * (1 - exp(-0.01 * cc))
+correct_cc = 100.0_REAL64 * (1 - exp(-0.01_REAL64 * cc))
 
 end function correct_cc
 
@@ -497,16 +499,16 @@ implicit none
 
 !Arguments
 integer, intent(in) :: ntree, species(ntree)
-double precision, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
-double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
-double precision, intent(out) :: lorey_ht_
-double precision :: dbh_, expf_, ht_, ba_, ba_tree, ba_sum
+real(real64), intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
+real(real64), intent(in) :: dbhmin, dbhmax, htmin, htmax
+real(real64), intent(out) :: lorey_ht_
+real(real64) :: dbh_, expf_, ht_, ba_, ba_tree, ba_sum
 integer :: i, species_
 
 !Initialize variables
-lorey_ht_ = 0.0
-ba_ = 0.0
-ba_sum = 0.0
+lorey_ht_ = 0.0_REAL64
+ba_ = 0.0_REAL64
+ba_sum = 0.0_REAL64
 
 !Determine trees to include in Lorey Height calculation
 do i = 1, ntree, 1
@@ -515,7 +517,7 @@ do i = 1, ntree, 1
     expf_ = expf(i)
     ht_ = ht(i)
     species_ = species(i)
-    ba_tree = dbh_**2 * expf_ * f_con
+    ba_tree = dbh_**2.0_REAL64 * expf_ * f_con
 
     !Determine if tree should be skipped in calculation
     if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
@@ -528,7 +530,7 @@ do i = 1, ntree, 1
 end do
 
 !Calculate lorey height if ba_ > 0
-if(ba_ > 0) lorey_ht_ = ba_sum / ba_
+if(ba_ > 0.0_REAL64) lorey_ht_ = ba_sum / ba_
 
 end subroutine lorey_ht
 
@@ -539,28 +541,29 @@ end subroutine lorey_ht
 !###############################################################################
 
 subroutine top_ht(dbh, sorted_idx, expf, ht, top_tpa, top_per, ntree, top_ht_)
+use constants
 implicit none
 
 !Arguments
 integer, intent(in) :: ntree, sorted_idx(ntree)
-double precision, intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
-double precision, intent(inout) :: top_tpa, top_per
-double precision, intent(out) :: top_ht_
-double precision :: dbh_, expf_, ht_, tpa_, top, tpa_sum, ht_sum, tpa_dif
+real(real64), intent(in) :: dbh(ntree), expf(ntree), ht(ntree)
+real(real64), intent(inout) :: top_tpa, top_per
+real(real64), intent(out) :: top_ht_
+real(real64) :: dbh_, expf_, ht_, tpa_, top, tpa_sum, ht_sum, tpa_dif
 integer :: i, idx
 logical :: top_exceed
 
 !Initialize variables
-top_ht_ = 0.0
-tpa_ = 0.0
-tpa_sum = 0.0
-ht_sum = 0.0
-tpa_dif = 0.0
+top_ht_ = 0.0_REAL64
+tpa_ = 0.0_REAL64
+tpa_sum = 0.0_REAL64
+ht_sum = 0.0_REAL64
+tpa_dif = 0.0_REAL64
 top_exceed = .false.
 
 !Do checks on top_tpa and top_per
-if(top_tpa < 0.0) top_tpa = 40.0
-if(top_per < 0.0 .or. top_per > 100.0) top_per = 20.0
+if(top_tpa < 0.0_REAL64) top_tpa = 40.0
+if(top_per < 0.0_REAL64 .or. top_per > 100.0) top_per = 20.0
 
 !Calculate tpa of stand
 do i = 1, ntree, 1
@@ -568,12 +571,12 @@ do i = 1, ntree, 1
 end do
 
 !Do top height calculation if tpa > 0
-if(tpa_ > 0) then
+if(tpa_ > 0.0_REAL64) then
 
     !Determine value of top
     top = top_tpa
     if(top >= tpa_) top = top_tpa
-    if(top_per > 0) top = tpa_ * (top_per/100)
+    if(top_per > 0.0_REAL64) top = tpa_ * (top_per/100.0_REAL64)
 
     !Determine trees to include in Top Height calculation
     do i = 1, ntree, 1
@@ -600,7 +603,7 @@ if(tpa_ > 0) then
     end do
 
     !Calculate top height if tpa_sum > 0
-    if(tpa_sum > 0) top_ht_ = ht_sum / tpa_sum
+    if(tpa_sum > 0.0_REAL64) top_ht_ = ht_sum / tpa_sum
 end if
 
 end subroutine top_ht
@@ -615,24 +618,24 @@ use constants
 implicit none 
 
 integer, intent(in) :: ntree, sorted_idx(ntree), handle_ties
-double precision, intent(in) :: dbh(ntree), expf(ntree)
-double precision, intent(out) :: bal_arr(ntree)
-double precision :: dbh_, expf_, temp_dbh, temp_bal, bal_sum, ba_tree
+real(real64), intent(in) :: dbh(ntree), expf(ntree)
+real(real64), intent(out) :: bal_arr(ntree)
+real(real64) :: dbh_, expf_, temp_dbh, temp_bal, bal_sum, ba_tree
 integer :: i, idx
 
 !Initialize variables
-bal_arr = 0.0
-bal_sum  = 0.0
-temp_bal = 0.0
-temp_dbh = 10000.0
-ba_tree = 0.0
+bal_arr = 0.0_REAL64
+bal_sum  = 0.0_REAL64
+temp_bal = 0.0_REAL64
+temp_dbh = 10000.0_REAL64
+ba_tree = 0.0_REAL64
 
 !Begin loop across trees
 do i = 1, ntree, 1
     idx = sorted_idx(i)
     dbh_ = dbh(idx)
     expf_ = expf(idx)
-    ba_tree = dbh_**2 * expf_ * f_con
+    ba_tree = dbh_**2.0_REAL64 * expf_ * f_con
 
     !Update BAL based on value of handle_ties
     select case(handle_ties)
@@ -677,14 +680,14 @@ implicit none
 
 !Arguments
 integer, intent(in) :: ntree, species(ntree)
-double precision, intent(in) :: dbh(ntree), ht(ntree), attr(ntree), expf(ntree)
-double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
-double precision, intent(out) :: expand_attr_
-double precision :: dbh_, expf_, ht_, attr_
+real(real64), intent(in) :: dbh(ntree), ht(ntree), attr(ntree), expf(ntree)
+real(real64), intent(in) :: dbhmin, dbhmax, htmin, htmax
+real(real64), intent(out) :: expand_attr_
+real(real64) :: dbh_, expf_, ht_, attr_
 integer :: i, species_
 
 !Initialize variables
-expand_attr_ = 0.0
+expand_attr_ = 0.0_REAL64
 
 !Determine trees to include in attribute sum
 do i = 1, ntree, 1
@@ -720,16 +723,16 @@ implicit none
 
 !Arguments
 integer, intent(in) :: ntree, species(ntree)
-double precision, intent(in) :: dbh(ntree), ht(ntree), attr(ntree), weight(ntree)
-double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
-double precision, intent(out) :: mean_attr_
-double precision :: dbh_, attr_, ht_, weight_, weight_sum, attr_sum
+real(real64), intent(in) :: dbh(ntree), ht(ntree), attr(ntree), weight(ntree)
+real(real64), intent(in) :: dbhmin, dbhmax, htmin, htmax
+real(real64), intent(out) :: mean_attr_
+real(real64) :: dbh_, attr_, ht_, weight_, weight_sum, attr_sum
 integer :: i, species_
 
 !Initialize variables
-mean_attr_ = 0.0
-weight_sum = 0.0
-attr_sum = 0.0
+mean_attr_ = 0.0_REAL64
+weight_sum = 0.0_REAL64
+attr_sum = 0.0_REAL64
 
 !Determine trees to include in mean calculation
 do i = 1, ntree, 1
@@ -751,7 +754,7 @@ do i = 1, ntree, 1
 end do
 
 !Calculate average
-if(weight_sum > 0) mean_attr_ = attr_sum / weight_sum
+if(weight_sum > 0.0_REAL64) mean_attr_ = attr_sum / weight_sum
 
 end subroutine mean_attr
 
@@ -767,14 +770,14 @@ implicit none
 
 !Arguments
 integer, intent(in) :: ntree, species(ntree)
-double precision, intent(in) :: dbh(ntree), ht(ntree)
-double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
-double precision, intent(out) :: count_attr_
-double precision :: dbh_, ht_
+real(real64), intent(in) :: dbh(ntree), ht(ntree)
+real(real64), intent(in) :: dbhmin, dbhmax, htmin, htmax
+real(real64), intent(out) :: count_attr_
+real(real64) :: dbh_, ht_
 integer :: i, species_
 
 !Initialize variables
-count_attr_ = 0.0
+count_attr_ = 0.0_REAL64
 
 !Determine trees to include in count
 do i = 1, ntree, 1
@@ -788,7 +791,7 @@ do i = 1, ntree, 1
     if(ht_ < htmin .or. ht_ >= htmax) cycle
     if(species_ < 0) cycle
 
-    count_attr_ = count_attr_ + 1
+    count_attr_ = count_attr_ + 1.0_REAL64
 
 end do
 
@@ -806,15 +809,15 @@ implicit none
 
 !Arguments
 integer, intent(in) :: ntree, species(ntree)
-double precision, intent(in) :: dbh(ntree), ht(ntree), attr(ntree)
-double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
-double precision, intent(out) :: min_attr_
-double precision :: dbh_, attr_, ht_
+real(real64), intent(in) :: dbh(ntree), ht(ntree), attr(ntree)
+real(real64), intent(in) :: dbhmin, dbhmax, htmin, htmax
+real(real64), intent(out) :: min_attr_
+real(real64) :: dbh_, attr_, ht_
 integer :: i, species_, idx
 
 !Initialize variables
 idx = 0
-min_attr_ = 0.0
+min_attr_ = 0.0_REAL64
 
 !Find initial minimum value
 do i =1, ntree, 1
@@ -868,15 +871,15 @@ implicit none
 
 !Arguments
 integer, intent(in) :: ntree, species(ntree)
-double precision, intent(in) :: dbh(ntree), ht(ntree), attr(ntree)
-double precision, intent(in) :: dbhmin, dbhmax, htmin, htmax
-double precision, intent(out) :: max_attr_
-double precision :: dbh_, attr_, ht_
+real(real64), intent(in) :: dbh(ntree), ht(ntree), attr(ntree)
+real(real64), intent(in) :: dbhmin, dbhmax, htmin, htmax
+real(real64), intent(out) :: max_attr_
+real(real64) :: dbh_, attr_, ht_
 integer :: i, species_, idx
 
 !Initialize variables
 idx = 0
-max_attr_ = 0.0
+max_attr_ = 0.0_REAL64
 
 !Find initial maximum value
 do i =1, ntree, 1

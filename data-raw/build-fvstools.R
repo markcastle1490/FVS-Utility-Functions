@@ -49,9 +49,13 @@ system(paste(
 library(fvstools)
 
 ba_f(dbh = c(10, 11, 12), expf = c(10, 10, 10), species = c(0, 0, 0), select_species = 0)
+ba(dbh = c(10, 11, 12), expf = c(10, 10, 10), species = c(0, 0, 0), select_species = 0)
 tpa_f(dbh = c(10, 11, 12), expf = c(10, 10, 10), species = c(3, 3, 3), select_species = 3)
+tpa(dbh = c(10, 11, 12), expf = c(10, 10, 10), species = c(3, 3, 3), select_species = 3)
 qmd_f(dbh = c(10, 11, 12), expf = c(10, 10, 10), species = c(1, 3, 3), select_species = 3)
+qmd(dbh = c(10, 11, 12), expf = c(10, 10, 10), species = c(1, 3, 3), select_species = 3)
 gmd_f(dbh = c(10, 11, 12), expf = c(10, 10, 10), species = c(1, 3, 3), select_species = 3)
+gmd(dbh = c(10, 11, 12), expf = c(10, 10, 10), species = c(1, 3, 3), select_species = 3)
 lorey_dia_f(dbh = c(4, 4, 12), expf = c(10, 10, 10), species = c(3, 3, 3), select_species = 3)
 lorey_dia(dbh = c(4, 4, 12), expf = c(10, 10, 10), species = c(3, 3, 3), select_species = 3)
 top_dia_f(dbh = c(4, 4, 12), expf = c(10, 10, 10), dia_type = 1)
@@ -79,7 +83,7 @@ min_attr(dbh = c(10, 11, 12), attr = c(5, 10, 7), species = c(1, 1, 1), select_s
 max_attr_f(dbh = c(10, 11, 12), attr = c(5, 10, 7), species = c(1, 1, 1), select_species = 1)
 max_attr(dbh = c(10, 11, 12), attr = c(5, 10, 7), species = c(1, 1, 1), select_species = 1)
 
-n = 1000
+n = 100
 nloop = 10000
 
 system.time({
