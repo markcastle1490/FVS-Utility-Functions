@@ -656,12 +656,10 @@ time_keys <- function(invyear = NULL,
   time_keys_ <- ""
   
   #If any required inputs are NULL, return
-  if(is.null(invyear) || is.null(start_year) || is.null(end_year) || 
-     is.null(cycle_length)) return(time_keys_)
+  if(null_vector(invyear, start_year, end_year, cycle_length)) return(time_keys_)
   
   #if any required inputs are NA values, return
-  if(is.na(invyear) || is.na(start_year) || is.na(end_year) || 
-     is.na(cycle_length)) return(time_keys_)
+  if(any(is.na(c(invyear, start_year, end_year, cycle_length)))) return(time_keys_)
   
   #If start_year is greater than or equal to end_year, then set end_year to 
   #start_year + 1 default cycle length
@@ -670,71 +668,20 @@ time_keys <- function(invyear = NULL,
   #If invyear is greater than start_year, reset it to start_year
   if(invyear > start_year) invyear <- start_year
   
-  #Cast cycle length to integer
-  cycle_length <- as.integer(cycle_length)
-  
-  #Determine initial number of cycles from inventory year to end year based
-  #on a uniform cycle length.
-  num_cycles <- ceiling((end_year - invyear)/cycle_length)
+  #Remove any factional part of cycle_length
+  cycle_length <- floor(cycle_length)
 
   #Catch bad max cycles values
   if(is.na(max_cycles) || max_cycles <= 0) max_cycles <- 40
   
-  #Declare years vector. This vector will initially contain the inventory year,
-  #start year, end year and all other cycle years based on a common cycle
-  #length. Length of this initial vector will always be one more than value of
-  #num_cycles determined above.
-  years <- vector(mode = "numeric",
-                  length = num_cycles + 1)
-  
-  #Initialize current_year and past_start. Set value of year[1] to inventory year.
-  current_year <- invyear
-  past_start = FALSE
-  years[1] <- current_year
-  
-  #Adjust past_start if inventory year is equal to common start year
-  if(invyear == start_year) past_start <- TRUE
-  
-  #Populate years vector
-  for(i in 2:length(years))
-  {
-    
-    # #Store inventory year. If inventory year and common start year are the same
-    # #set past_start to TRUE and proceed to next iteration
-    # if(i == 1)
-    # {
-    #   years[i] <- current_year
-    #   if(current_year == start_year) past_start <- TRUE
-    #   next
-    # }
-    
-    #Calculate following year assuming default cycle length
-    next_year <- current_year + cycle_length
-    
-    #If we have gone past the start_year after incrementing by cycle_length, set
-    #next_year to the start_year. past_start will also be set to TRUE
-    if(!past_start && next_year >= start_year)
-    {
-      next_year <- start_year
-      past_start <- TRUE
-    }
-    
-    #If we have gone past the end_year after incrementing by cycle_length, set
-    #next_year to the end_year.
-    if(next_year >= end_year) next_year <- end_year
-
-    #Store next_year in years variable
-    years[i] <- next_year
-    
-    #next_year becomes current_year for next loop iteration
-    current_year <- next_year
-  }
+  #Obtain years from start year to end_year
+  years = c(seq(from = invyear, to = start_year, by = cycle_length),
+            seq(from = start_year, to = end_year, by = cycle_length),
+            end_year)
   
   #if cycle_at has values, add them to years and then sort years.
   if(length(cycle_at) > 0) years <- sort(c(years, cycle_at))
   
-  #Years will now contain all cycle years to potentially consider in the
-  #simulation.
   #Do debug if requested.
   if(debug)
   {
@@ -743,6 +690,7 @@ time_keys <- function(invyear = NULL,
     cat("End year:", end_year, "\n")
     cat("Default cycle length:", cycle_length, "\n")
     cat("Years to consider:", "\n")
+    cat("Length of years:", length(years), "\n")
     for(year in years)
     {
       cat(year, "\n")
@@ -762,19 +710,11 @@ time_keys <- function(invyear = NULL,
   #length in years differs from the default cycle length.
   for(i in 1:(length(years) - 1))
   {
-    
     year1 <- years[i]
     year2 <- years[i + 1]
     
-    #If year1 less than invyear skip (should only occur if a cycle_at value less
-    #than inventory year was entered)
     if(year1 < invyear) next
-    
-    #If year2 greater than end_year skip (should only occur if a cycle_at value 
-    #greater than inventory year was entered)
     if(year2 > end_year) next
-    
-    #If year 1 equals year 2 skip
     if(year1 == year2) next
     
     #Calculate difference between years

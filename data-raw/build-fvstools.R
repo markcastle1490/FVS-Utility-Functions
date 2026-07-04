@@ -4,6 +4,7 @@
 
 pkg_root <- "/home/mark/FVS_Tools/fvstools"
 pkg_name <- "fvstools"
+build_dir <- "/home/mark/FVS_Tools"
 r_lib <- "/home/mark/R/x86_64-pc-linux-gnu-library/4.5"
 
 #===============================================================================
@@ -22,21 +23,20 @@ if (paste0("package:", pkg_name) %in% search()) {
 roxygen2::roxygenise(pkg_root, clean = TRUE)
 
 #Build package
-system(paste("R CMD build", shQuote(pkg_root)))
+system(paste("cd", shQuote(build_dir), "&&", "R CMD build", shQuote(pkg_root)))
 
 # Find actual tarball after installation
 tarball <- list.files(
-  path = ".",
+  path = build_dir,
   pattern = paste0(pkg_name, "_.*\\.tar\\.gz"),
   full.names = TRUE
 )
 
-if (length(tarball) != 1) {
-  stop("Could not uniquely identify tarball")
-}
+if(!length(tarball)) stop("No fvstools tarball found.")
+tarball = tarball[which.max(file.info(tarball)$mtime)]
 
 #===============================================================================
-# Install the package
+# Install the package from the tarball
 #===============================================================================
 
 system(paste(
@@ -60,11 +60,29 @@ rsdi_stage_f(dbh = c(4, 4, 12), expf = c(10, 10, 10), species = c(3, 3, 3), sele
 rsdi_stage(dbh = c(4, 4, 12), expf = c(10, 10, 10), species = c(3, 3, 3), select_species = 3, dbhmin = 10)
 zsdi_f(dbh = c(4, 4, 12), expf = c(10, 10, 10), species = c(3, 3, 3), select_species = 3, dbhmin = 10)
 zsdi(dbh = c(4, 4, 12), expf = c(10, 10, 10), species = c(3, 3, 3), select_species = 3, dbhmin = 10)
-cc_f(crwidth = c(12, 14, 15), dbh = c(4, 4, 12), expf = c(10, 10, 10), species = c(3, 3, 3), select_species = 3, dbhmin = 10)
+cc_f(crwidth = c(NA, 14, 15), dbh = c(4, 4, 12), expf = c(10, 10, 10), species = c(3, 3, 3), select_species = 3, dbhmin = 10)
 cc(crwidth = c(12, 14, 15), dbh = c(4, 4, 12), expf = c(10, 10, 10), species = c(3, 3, 3), select_species = 3, dbhmin = 10)
 lorey_ht_f(dbh = c(4, 4, 12), ht=c(32, 40, 70), expf = c(10, 10, 10), species = c(3, 3, 3), select_species = 3)
 lorey_ht(dbh = c(4, 4, 12), ht=c(32, 40, 70), expf = c(10, 10, 10), species = c(3, 3, 3), select_species = 3)
-top_ht_f(dbh = c(4, 4, 12), ht=c(32, 40, 70), expf = c(10, 10, 10))
+top_ht_f(dbh = c(4, 4, 12), ht=c(NA, NA, NA), expf = c(NA, NA, NA))
 top_ht(dbh = c(4, 4, 12), ht=c(32, 40, 70), expf = c(10, 10, 10))
-bal_f(dbh = c(10, 10, 12), expf = c(10, 10, 10), handle_ties = 1)
-bal(dbh = c(10, 10, 12), expf = c(10, 10, 10), handle_ties = TRUE)
+bal_f(dbh = c(10, 10, 10), expf = c(10, 10, 10), handle_ties = 1)
+bal(dbh = c(10, 10, 10), expf = c(10, 10, 10), handle_ties = TRUE)
+
+system.time({
+  dbh = runif(n=1000, min=1, max=20)
+  expf = rep(10, times = 1000)
+  ht= runif(n=1000, min=1, max=120)
+  for(i in 1:10000) {
+    zsdi(dbh = dbh, expf = expf)
+  }
+})
+
+system.time({
+  dbh = runif(n=1000, min=1, max=20)
+  expf = rep(10, times = 1000)
+  ht= runif(n=1000, min=1, max=120)
+  for(i in 1:10000) {
+    zsdi_f(dbh = dbh, expf = expf)
+  }
+})

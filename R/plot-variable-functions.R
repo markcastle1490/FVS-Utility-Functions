@@ -2139,6 +2139,7 @@ ba_f = function(dbh = NULL,
     ba_ = double(1),
     INTENT = c("r", "r", "r", "r", "r", "r",
                "r", 'r', "r", "rw"),
+    NAOK = TRUE,
     PACKAGE = "fvstools")$ba_
   
   return(ba_)
@@ -3168,6 +3169,7 @@ top_ht_f = function(dbh = NULL,
     top_ht_ = double(1),
     INTENT = c("r", "r", "r", "r", "r", "r",
                "r", "rw"),
+    NAOK = FALSE,
     PACKAGE = "fvstools")$top_ht_
   
   return(top_ht_)
@@ -3234,6 +3236,7 @@ bal_f = function(dbh = NULL,
     ntree = ntree,
     bal_ = double(ntree),
     INTENT = c("r", "r", "r", "r", "r", "rw"),
+    NAOK = TRUE,
     PACKAGE = "fvstools")$bal_
   
   return(bal_)
