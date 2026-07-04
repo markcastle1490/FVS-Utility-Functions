@@ -13,11 +13,17 @@ lorey_ht_f(
   dbhmax = 999,
   htmin = 0,
   htmax = 999,
-  select_species = NULL
+  select_species = NULL,
+  naok = FALSE
 )
 }
 \arguments{
-\item{dbh:}{Numeric vector containing DBH values.}
+\item{naok}{Logical variable where if FALSE, an error will be thrown if input vectors
+contain NA values. If TRUE, checks for NA values will not be done. Setting
+this value to TRUE will speed up processing but can be risky if input vectors
+are not vetted for NA values prior.}
+
+\item{dbh:}{Numeric vector containing diameter values.}
 
 \item{ht:}{Numeric vector containing total tree height values.}
 

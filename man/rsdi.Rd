@@ -7,7 +7,7 @@
 rsdi(dbh = NULL, expf = NULL)
 }
 \arguments{
-\item{dbh:}{Numeric vector containing DBH values.}
+\item{dbh:}{Numeric vector containing diameter values.}
 
 \item{expf:}{Numeric vector containing expansion factors.}
 }
@@ -15,6 +15,6 @@ rsdi(dbh = NULL, expf = NULL)
 Numeric Reineke SDI value
 }
 \description{
-This function calculates Reineke SDI using input vectors containing DBH and
+This function calculates Reineke SDI using input vectors containing diameter and
 expansion factor values.
 }

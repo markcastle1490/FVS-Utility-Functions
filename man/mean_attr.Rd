@@ -24,7 +24,7 @@ mean_attr(
 expansion factor, tree basal area, or other user defined weight. If this
 argument is left as NULL, then the arithmetic average will be returned..}
 
-\item{dbh:}{Optional numeric vector containing DBH values. If DBH values are provided,
+\item{dbh:}{Optional numeric vector containing diameter values. If DBH values are provided,
 then attribute will be calculated between the values specified in dbhmin and
 dbhmax.}
 

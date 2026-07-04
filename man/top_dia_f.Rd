@@ -4,10 +4,22 @@
 \alias{top_dia_f}
 \title{top_dia_f}
 \usage{
-top_dia_f(dbh = NULL, expf = NULL, top_tpa = 40, top_per = 0, dia_type = 1)
+top_dia_f(
+  dbh = NULL,
+  expf = NULL,
+  top_tpa = 40,
+  top_per = 0,
+  dia_type = 1,
+  naok = FALSE
+)
 }
 \arguments{
-\item{dbh:}{Numeric vector containing DBH values.}
+\item{naok}{Logical variable where if FALSE, an error will be thrown if input vectors
+contain NA values. If TRUE, checks for NA values will not be done. Setting
+this value to TRUE will speed up processing but can be risky if input vectors
+are not vetted for NA values prior.}
+
+\item{dbh:}{Numeric vector containing diameter values.}
 
 \item{expf:}{Numeric vector containing expansion factors values.}
 
@@ -26,8 +38,8 @@ not null then it will supersede the value in top_tpa argument.}
 Numeric top diameter value.
 }
 \description{
-This function is used to calculate QMD or average diameter weighted by TPA
-for the largest trees by DBH within a specified percentage of TPA or an
-explicit TPA value. This value is calculated from a set of input vectors
-containing DBH values and expansion factors.
+This function is used to calculate QMD, GMD, or average diameter weighted by
+TPA for the largest trees by diameter within a specified percentage of TPA or
+an explicit TPA value. This value is calculated from a set of input vectors
+containing diameter values and expansion factors.
 }

@@ -7,7 +7,7 @@
 bal(dbh = NULL, expf = NULL, handle_ties = FALSE)
 }
 \arguments{
-\item{dbh}{Numeric vector containing DBH values.}
+\item{dbh}{Numeric vector containing diameter values.}
 
 \item{handle_ties}{Logical variable used to determine if dbh values with equivalent values get
 the same BAL return. If this value is TRUE, then trees with equivalent DBH
@@ -23,5 +23,5 @@ Numeric vector containing BAL values
 }
 \description{
 This function calculates basal area in trees larger than subject tree (BAL)
-from input vectors containing dbh and expansion factor values.
+from input vectors containing diameter and expansion factor values.
 }

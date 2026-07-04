@@ -17,7 +17,7 @@ gmd(
 )
 }
 \arguments{
-\item{dbh:}{Numeric vector containing DBH values.}
+\item{dbh:}{Numeric vector containing diameter values.}
 
 \item{expf:}{Numeric vector containing expansion factors.}
 
@@ -54,6 +54,6 @@ Numeric GMD value
 }
 \description{
 This function calculates generalized mean diameter (Reineke diameter) given
-vectors containing DBH and expansion factors. This attribute can be
+vectors containing diameter and expansion factors. This attribute can be
 calculated for user defined size ranges and for select species.
 }

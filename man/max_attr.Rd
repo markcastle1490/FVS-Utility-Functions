@@ -19,7 +19,7 @@ max_attr(
 \arguments{
 \item{attr:}{Numeric vector containing numeric attribute}
 
-\item{dbh:}{Optional numeric vector containing DBH values. If DBH values are provided,
+\item{dbh:}{Optional numeric vector containing diameter values. If DBH values are provided,
 then attribute will be calculated between the values specified in dbhmin and
 dbhmax.}
 

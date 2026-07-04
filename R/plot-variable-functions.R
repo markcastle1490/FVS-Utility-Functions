@@ -152,12 +152,12 @@ unequal_vector = function(...)
 #' @description
 #' 
 #' This function calculates a basal area per acre given input vectors 
-#' containing diameter at breast height and expansion factor values. This 
+#' containing diameter and expansion factor values. This 
 #' attribute can be calculated for user defined size ranges and for select 
 #' species.
 #' 
 #' @param dbh:
-#' Numeric vector containing DBH values.
+#' Numeric vector containing diameter values.
 #'
 #' @param expf: 
 #' Numeric vector containing expansion factors.
@@ -260,7 +260,7 @@ ba = function(dbh = NULL,
 #' Vector of numeric vector containing expansion factors.
 #' 
 #' @param dbh:
-#' Optional numeric vector containing DBH values. If DBH values are provided, 
+#' Optional numeric vector containing diameter values. If DBH values are provided, 
 #' then attribute will be calculated between the values specified in dbhmin and 
 #' dbhmax.
 #
@@ -362,7 +362,7 @@ tpa = function(expf = NULL,
 #' defined size ranges and for select species.
 #
 #' @param dbh:
-#' Numeric vector containing DBH values.
+#' Numeric vector containing diameter values.
 #
 #' @param expf: 
 #' Numeric vector containing expansion factors.
@@ -460,11 +460,11 @@ qmd = function(dbh = NULL,
 #' @description
 #' 
 #' This function calculates generalized mean diameter (Reineke diameter) given 
-#' vectors containing DBH and expansion factors. This attribute can be 
+#' vectors containing diameter and expansion factors. This attribute can be 
 #' calculated for user defined size ranges and for select species.
 #
 #' @param dbh:
-#' Numeric vector containing DBH values.
+#' Numeric vector containing diameter values.
 #
 #' @param expf: 
 #' Numeric vector containing expansion factors.
@@ -564,10 +564,10 @@ gmd = function(dbh = NULL,
 #' This function is used to calculate QMD or average diameter weighted by TPA
 #' for the largest trees by DBH within a specified percentage of TPA or an 
 #' explicit TPA value. This value is calculated from a set of input vectors
-#' containing DBH values and expansion factors.
+#' containing diameter values and expansion factors.
 #
 #' @param dbh:     
-#' Numeric vector containing DBH values.
+#' Numeric vector containing diameter values.
 #
 #' @param expf:     
 #' Numeric vector containing expansion factors values.
@@ -684,7 +684,7 @@ top_dia = function(dbh = NULL,
 #' for select species.
 #
 #' @param dbh:
-#' Numeric vector containing DBH values.
+#' Numeric vector containing diameter values.
 #
 #' @param expf: 
 #' Numeric vector containing expansion factors.
@@ -784,11 +784,11 @@ lorey_dia = function(dbh = NULL,
 #' @name rsdi
 #' @description
 #' 
-#' This function calculates Reineke SDI using input vectors containing DBH and
+#' This function calculates Reineke SDI using input vectors containing diameter and
 #' expansion factor values.
 #
 #' @param dbh:
-#' Numeric vector containing DBH values.
+#' Numeric vector containing diameter values.
 #
 #' @param expf: 
 #' Numeric vector containing expansion factors.
@@ -829,7 +829,7 @@ rsdi = function(dbh = NULL,
 # b = 10^(−1.605) * (1.605/2) * QMD^(1.605-2)
 #
 #' @param dbh:     
-#' Numeric vector containing DBH values.
+#' Numeric vector containing diameter values.
 #
 #' @param expf:     
 #' Numeric vector containing expansion factors.
@@ -934,12 +934,12 @@ rsdi_stage = function(dbh = NULL,
 #' @name zsdi
 #' @description
 #' 
-#' This function calculates Zeide SDI using input vectors containing dbh and
+#' This function calculates Zeide SDI using input vectors containing diameter and
 #' expansion factor values. This attribute can be calculated for user defined 
 #' size ranges and for select species.
 #
 #' @param dbh:
-#' Numeric vector containing DBH values.
+#' Numeric vector containing diameter values.
 #
 #' @param expf: 
 #' Numeric vector containing expansion factors.
@@ -1038,13 +1038,13 @@ zsdi = function(dbh = NULL,
 #' species.
 #' 
 #' @param crwidth:
-#' Numeric vector containing crown width (diameter) values.
+#' Numeric vector containing crown width values.
 #
 #' @param expf: 
 #' Numeric vector containing expansion factors.
 #' 
 #' @param dbh:
-#' Optional numeric vector containing DBH values. If DBH values are provided, 
+#' Optional numeric vector containing diameter values. If DBH values are provided, 
 #' then attribute will be calculated between the values specified in dbhmin and 
 #' dbhmax.
 #' 
@@ -1163,10 +1163,10 @@ correct_cc = function(cc = 0)
 #' @description
 #' 
 #' This function calculates basal area in trees larger than subject tree (BAL)
-#' from input vectors containing dbh and expansion factor values.
+#' from input vectors containing diameter and expansion factor values.
 #
 #' @param dbh
-#' Numeric vector containing DBH values.
+#' Numeric vector containing diameter values.
 #
 #' @param expf: 
 #' Numeric vector containing expansion factors.
@@ -1234,7 +1234,7 @@ bal = function(dbh = NULL,
 #' species.
 #
 #' @param dbh:
-#' Numeric vector containing DBH values.
+#' Numeric vector containing diameter values.
 #' 
 #' @param ht:
 #' Numeric vector containing total tree height values.
@@ -1328,7 +1328,7 @@ lorey_ht = function(dbh = NULL,
 #'trees in the stand or and explicit number of trees (trees per acre) value. 
 #'
 #'@param dbh:     
-#'Numeric vector containing DBH values.
+#'Numeric vector containing diameter values.
 #
 #'@param expf:     
 #'Numeric vector containing expansion factors values.
@@ -1422,7 +1422,7 @@ top_ht = function(dbh = NULL,
 #' argument is left as NULL, then the arithmetic average will be returned.. 
 #'
 #' @param dbh:     
-#' Optional numeric vector containing DBH values. If DBH values are provided, 
+#' Optional numeric vector containing diameter values. If DBH values are provided, 
 #' then attribute will be calculated between the values specified in dbhmin and 
 #' dbhmax.
 #'
@@ -1523,7 +1523,7 @@ mean_attr = function(attr = NULL,
 #' @description
 #' 
 #' This function sums and expands an input numeric attribute to a per unit area
-#' basis using numeric vectors containing dbh, attribute of interest, and 
+#' basis using numeric vectors containing diameter, attribute of interest, and 
 #' expansion factors. The numeric attribute could be a tree-level volume, 
 #' biomass, carbon, etc.This attribute can be calculated for user defined size 
 #' ranges and for select species.
@@ -1535,7 +1535,7 @@ mean_attr = function(attr = NULL,
 #' Numeric vector containing expansion factors.
 #' 
 #' @param dbh:
-#' Optional numeric vector containing DBH values. If DBH values are provided, 
+#' Optional numeric vector containing diameter values. If DBH values are provided, 
 #' then attribute will be calculated between the values specified in dbhmin and 
 #' dbhmax.
 #' 
@@ -1637,7 +1637,7 @@ expand_attr = function(attr = NULL,
 #' Numeric vector containing numeric attribute
 #' 
 #' @param dbh:
-#' Optional numeric vector containing DBH values. If DBH values are provided, 
+#' Optional numeric vector containing diameter values. If DBH values are provided, 
 #' then attribute will be calculated between the values specified in dbhmin and 
 #' dbhmax.
 #' 
@@ -1738,7 +1738,7 @@ median_attr = function(attr = NULL,
 #' Numeric vector containing numeric attribute
 #' 
 #' @param dbh:
-#' Optional numeric vector containing DBH values. If DBH values are provided, 
+#' Optional numeric vector containing diameter values. If DBH values are provided, 
 #' then attribute will be calculated between the values specified in dbhmin and 
 #' dbhmax.
 #' 
@@ -1840,7 +1840,7 @@ min_attr = function(attr = NULL,
 #' Numeric vector containing numeric attribute
 #' 
 #' @param dbh:
-#' Optional numeric vector containing DBH values. If DBH values are provided, 
+#' Optional numeric vector containing diameter values. If DBH values are provided, 
 #' then attribute will be calculated between the values specified in dbhmin and 
 #' dbhmax.
 #' 
@@ -1944,7 +1944,7 @@ max_attr = function(attr = NULL,
 #' counted.
 #' 
 #' @param dbh:
-#' Optional numeric vector containing DBH values.
+#' Optional numeric vector containing diameter values.
 #' 
 #' @param ht:
 #' Optional vector containing total tree height values. If heights are provided,
@@ -2037,12 +2037,11 @@ count_attr = function(attr = NULL,
 #' @description
 #' 
 #' This function calculates a basal area per acre given input vectors 
-#' containing diameter at breast height and expansion factor values. This 
-#' attribute can be calculated for user defined size ranges and for select 
-#' species.
+#' containing diameter and expansion factor values. This attribute can be 
+#' calculated for user defined size ranges and for select species.
 #' 
 #' @param dbh:
-#' Numeric vector containing DBH values.
+#' Numeric vector containing diameter values.
 #'
 #' @param expf: 
 #' Numeric vector containing expansion factors.
@@ -2082,6 +2081,12 @@ count_attr = function(attr = NULL,
 #' NULL, attribute will be calculated using observations from across all 
 #' species.
 #' 
+#' @param naok
+#' Logical variable where if FALSE, an error will be thrown if input vectors 
+#' contain NA values. If TRUE, checks for NA values will not be done. Setting 
+#' this value to TRUE will speed up processing but can be risky if input vectors
+#' are not vetted for NA values prior.
+#' 
 #' @return
 #' Numeric basal area per acre value
 ################################################################################
@@ -2095,7 +2100,8 @@ ba_f = function(dbh = NULL,
                 dbhmax = 999,
                 htmin = 0,
                 htmax = 999,
-                select_species = NULL)
+                select_species = NULL,
+                naok = FALSE)
               
 {
   
@@ -2139,7 +2145,7 @@ ba_f = function(dbh = NULL,
     ba_ = double(1),
     INTENT = c("r", "r", "r", "r", "r", "r",
                "r", 'r', "r", "rw"),
-    NAOK = TRUE,
+    NAOK = naok,
     PACKAGE = "fvstools")$ba_
   
   return(ba_)
@@ -2158,7 +2164,7 @@ ba_f = function(dbh = NULL,
 #' Vector of numeric vector containing expansion factors.
 #' 
 #' @param dbh:
-#' Optional numeric vector containing DBH values. If DBH values are provided, 
+#' Optional numeric vector containing diameter values. If DBH values are provided, 
 #' then attribute will be calculated between the values specified in dbhmin and 
 #' dbhmax.
 #
@@ -2197,6 +2203,12 @@ ba_f = function(dbh = NULL,
 #' NULL, attribute will be calculated using observations from across all 
 #' species.
 #' 
+#' @param naok
+#' Logical variable where if FALSE, an error will be thrown if input vectors 
+#' contain NA values. If TRUE, checks for NA values will not be done. Setting 
+#' this value to TRUE will speed up processing but can be risky if input vectors
+#' are not vetted for NA values prior.
+#' 
 #'@return
 #' Numeric trees per acre value
 ################################################################################
@@ -2210,7 +2222,8 @@ tpa_f = function(expf = NULL,
                dbhmax = 999,
                htmin = 0,
                htmax = 999,
-               select_species = NULL)
+               select_species = NULL,
+               naok = FALSE)
 {
   
   tpa_ = 0
@@ -2253,6 +2266,7 @@ tpa_f = function(expf = NULL,
     tpa_ = double(1),
     INTENT = c("r", "r", "r", "r", "r", "r",
                "r", 'r', "r", "rw"),
+    NAOK = naok,
     PACKAGE = "fvstools")$tpa_
 
   return(tpa_)
@@ -2264,11 +2278,11 @@ tpa_f = function(expf = NULL,
 #' @description
 #' 
 #' This function calculates quadratic mean diameter given vectors containing 
-#' DBH and expansion factors. This attribute can be calculated for user
-#' defined size ranges and for select species.
+#' diameter and expansion factor values. This attribute can be calculated for 
+#' user defined size ranges and for select species.
 #
 #' @param dbh:
-#' Numeric vector containing DBH values.
+#' Numeric vector containing diameter values.
 #
 #' @param expf: 
 #' Numeric vector containing expansion factors.
@@ -2307,6 +2321,12 @@ tpa_f = function(expf = NULL,
 #' select which species get included in calculation of attribute. If left as
 #' NULL, attribute will be calculated using observations from across all 
 #' species.
+#' 
+#' @param naok
+#' Logical variable where if FALSE, an error will be thrown if input vectors 
+#' contain NA values. If TRUE, checks for NA values will not be done. Setting 
+#' this value to TRUE will speed up processing but can be risky if input vectors
+#' are not vetted for NA values prior.
 #'
 #'@return
 #' Numeric quadratic mean diameter value
@@ -2321,7 +2341,8 @@ qmd_f = function(dbh = NULL,
                dbhmax = 999,
                htmin = 0,
                htmax = 999,
-               select_species = NULL)
+               select_species = NULL,
+               naok = FALSE)
 {
   qmd_ = 0
   
@@ -2363,6 +2384,7 @@ qmd_f = function(dbh = NULL,
     qmd_ = double(1),
     INTENT = c("r", "r", "r", "r", "r", "r",
                "r", 'r', "r", "rw"),
+    NAOK = naok,
     PACKAGE = "fvstools")$qmd_
 
   return(qmd_)
@@ -2374,11 +2396,11 @@ qmd_f = function(dbh = NULL,
 #' @description
 #' 
 #' This function calculates generalized mean diameter (Reineke diameter) given 
-#' vectors containing DBH and expansion factors. This attribute can be 
-#' calculated for user defined size ranges and for select species.
+#' vectors containing diameter and expansion factor values. This attribute can 
+#' be calculated for user defined size ranges and for select species.
 #
 #' @param dbh:
-#' Numeric vector containing DBH values.
+#' Numeric vector containing diameter values.
 #
 #' @param expf: 
 #' Numeric vector containing expansion factors.
@@ -2417,6 +2439,12 @@ qmd_f = function(dbh = NULL,
 #' select which species get included in calculation of attribute. If left as
 #' NULL, attribute will be calculated using observations from across all 
 #' species.
+#' 
+#' @param naok
+#' Logical variable where if FALSE, an error will be thrown if input vectors 
+#' contain NA values. If TRUE, checks for NA values will not be done. Setting 
+#' this value to TRUE will speed up processing but can be risky if input vectors
+#' are not vetted for NA values prior.
 #'
 #'@return
 #' Numeric GMD value
@@ -2431,7 +2459,8 @@ gmd_f = function(dbh = NULL,
                dbhmax = 999,
                htmin = 0,
                htmax = 999,
-               select_species = NULL)
+               select_species = NULL,
+               naok = FALSE)
 {
   
   gmd_ = 0
@@ -2457,7 +2486,7 @@ gmd_f = function(dbh = NULL,
   #Get number of trees
   ntree = length(expf)
   
-  #Call the qmd subroutine
+  #Call the gmd subroutine
   gmd_ <- dotCall64::.C64(
     .NAME = "gmd",
     SIGNATURE = c("double","double","double","integer", "double","double",
@@ -2474,6 +2503,7 @@ gmd_f = function(dbh = NULL,
     gmd_ = double(1),
     INTENT = c("r", "r", "r", "r", "r", "r",
                "r", 'r', "r", "rw"),
+    NAOK = naok,
     PACKAGE = "fvstools")$gmd_
   
   return(gmd_)
@@ -2489,7 +2519,7 @@ gmd_f = function(dbh = NULL,
 #' for select species.
 #
 #' @param dbh:
-#' Numeric vector containing DBH values.
+#' Numeric vector containing diameter values.
 #
 #' @param expf: 
 #' Numeric vector containing expansion factors.
@@ -2528,6 +2558,12 @@ gmd_f = function(dbh = NULL,
 #' select which species get included in calculation of attribute. If left as
 #' NULL, attribute will be calculated using observations from across all 
 #' species.
+#' 
+#' @param naok
+#' Logical variable where if FALSE, an error will be thrown if input vectors 
+#' contain NA values. If TRUE, checks for NA values will not be done. Setting 
+#' this value to TRUE will speed up processing but can be risky if input vectors
+#' are not vetted for NA values prior.
 #'
 #'@return
 #' Numeric basal area weighted (lorey) diameter value
@@ -2542,7 +2578,8 @@ lorey_dia_f = function(dbh = NULL,
                      dbhmax = 999,
                      htmin = 0,
                      htmax = 999,
-                     select_species = NULL)
+                     select_species = NULL,
+                     naok = FALSE)
 {
   
   lorey_dia_ = 0
@@ -2585,6 +2622,7 @@ lorey_dia_f = function(dbh = NULL,
     lorey_dia_ = double(1),
     INTENT = c("r", "r", "r", "r", "r", "r",
                "r", 'r', "r", "rw"),
+    NAOK = naok,
     PACKAGE = "fvstools")$lorey_dia_
   
   return(lorey_dia_)
@@ -2595,13 +2633,13 @@ lorey_dia_f = function(dbh = NULL,
 #' @name top_dia_f
 #' @description
 #'
-#' This function is used to calculate QMD or average diameter weighted by TPA
-#' for the largest trees by DBH within a specified percentage of TPA or an 
-#' explicit TPA value. This value is calculated from a set of input vectors
-#' containing DBH values and expansion factors.
+#' This function is used to calculate QMD, GMD, or average diameter weighted by 
+#' TPA for the largest trees by diameter within a specified percentage of TPA or
+#' an explicit TPA value. This value is calculated from a set of input vectors
+#' containing diameter values and expansion factors.
 #
 #' @param dbh:     
-#' Numeric vector containing DBH values.
+#' Numeric vector containing diameter values.
 #
 #' @param expf:     
 #' Numeric vector containing expansion factors values.
@@ -2619,6 +2657,12 @@ lorey_dia_f = function(dbh = NULL,
 #' 1 = QMD
 #' 2 = average diameter weighted by trees per acre
 #' 3 = GMD (Reineke diameter)
+#' 
+#' @param naok
+#' Logical variable where if FALSE, an error will be thrown if input vectors 
+#' contain NA values. If TRUE, checks for NA values will not be done. Setting 
+#' this value to TRUE will speed up processing but can be risky if input vectors
+#' are not vetted for NA values prior.
 #
 #' @return 
 #' Numeric top diameter value.
@@ -2629,7 +2673,8 @@ top_dia_f = function(dbh = NULL,
                     expf = NULL,
                     top_tpa = 40,
                     top_per = 0,
-                    dia_type = 1)
+                    dia_type = 1,
+                    naok = FALSE)
 {
   #Initialize top_dia_
   top_dia_ = 0
@@ -2661,6 +2706,7 @@ top_dia_f = function(dbh = NULL,
     top_dia_ = double(1),
     INTENT = c("r", "r", "r", "r", "r", "r",
                "r", "rw"),
+    NAOK = naok,
     PACKAGE = "fvstools")$top_dia_
   
   return(top_dia_)
@@ -2673,15 +2719,15 @@ top_dia_f = function(dbh = NULL,
 #'
 #' This function is used to calculate Reineke SDI used the methodology proposed
 #' by Stage 1968. From Section 7.3.2.1 of EFVS using input vectors containing 
-#' DBH and expansion factors. This attribute can be calculated for user defined 
-#' size ranges and for select species.
+#' diameter and expansion factor values. This attribute can be calculated for 
+#' user defined size ranges and for select species.
 #
 # SDI = sum(a * TPAi + b * DBHi^2 * TPA)
 # a = 10^(-1.605) * (1-(1.605/2)) * qmd^1.605
 # b = 10^(−1.605) * (1.605/2) * QMD^(1.605-2)
 #
 #' @param dbh:     
-#' Numeric vector containing DBH values.
+#' Numeric vector containing diameter values.
 #
 #' @param expf:     
 #' Numeric vector containing expansion factors.
@@ -2718,7 +2764,13 @@ top_dia_f = function(dbh = NULL,
 #' @param select_species:
 #' Optional vector containing species codes. This variable will be used to
 #' select which species get included in calculation of attribute. This argument
-#' will only be used if values are provided for species. d
+#' will only be used if values are provided for species.
+#' 
+#' @param naok
+#' Logical variable where if FALSE, an error will be thrown if input vectors 
+#' contain NA values. If TRUE, checks for NA values will not be done. Setting 
+#' this value to TRUE will speed up processing but can be risky if input vectors
+#' are not vetted for NA values prior.
 #
 #' @return 
 #' Numeric Reineke SDI calculated using stage formulation.
@@ -2733,7 +2785,8 @@ rsdi_stage_f = function(dbh = NULL,
                      dbhmax = 999,
                      htmin = 0,
                      htmax = 999,
-                     select_species = NULL)
+                     select_species = NULL,
+                     naok = FALSE)
 {
   rsdi_ = 0
   
@@ -2775,6 +2828,7 @@ rsdi_stage_f = function(dbh = NULL,
     rsdi_stage_ = double(1),
     INTENT = c("r", "r", "r", "r", "r", "r",
                "r", 'r', "r", "rw"),
+    NAOK = naok,
     PACKAGE = "fvstools")$rsdi_stage_
   
   return(rsdi_stage_)
@@ -2785,12 +2839,12 @@ rsdi_stage_f = function(dbh = NULL,
 #' @name zsdi_f
 #' @description
 #' 
-#' This function calculates Zeide SDI using input vectors containing dbh and
+#' This function calculates Zeide SDI using input vectors containing diameter and
 #' expansion factor values. This attribute can be calculated for user defined 
 #' size ranges and for select species.
 #
 #' @param dbh:
-#' Numeric vector containing DBH values.
+#' Numeric vector containing diameter values.
 #
 #' @param expf: 
 #' Numeric vector containing expansion factors.
@@ -2828,6 +2882,12 @@ rsdi_stage_f = function(dbh = NULL,
 #' Optional vector containing species codes. This variable will be used to
 #' select which species get included in calculation of attribute.
 #' 
+#' @param naok
+#' Logical variable where if FALSE, an error will be thrown if input vectors 
+#' contain NA values. If TRUE, checks for NA values will not be done. Setting 
+#' this value to TRUE will speed up processing but can be risky if input vectors
+#' are not vetted for NA values prior.
+#' 
 #'@return
 #' Numeric Zeide SDI value
 ################################################################################
@@ -2841,7 +2901,8 @@ zsdi_f = function(dbh = NULL,
                 dbhmax = 999,
                 htmin = 0,
                 htmax = 999,
-                select_species = NULL)
+                select_species = NULL,
+                naok = FALSE)
 {
   
   zsdi_ = 0
@@ -2867,7 +2928,7 @@ zsdi_f = function(dbh = NULL,
   #Get number of trees
   ntree = length(expf)
   
-  #Call the rsdi_stage subroutine
+  #Call the zsdi subroutine
   zsdi_ <- dotCall64::.C64(
     .NAME = "zsdi",
     SIGNATURE = c("double","double","double","integer", "double","double",
@@ -2884,6 +2945,7 @@ zsdi_f = function(dbh = NULL,
     zsdi_  = double(1),
     INTENT = c("r", "r", "r", "r", "r", "r",
                "r", 'r', "r", "rw"),
+    NAOK = naok,
     PACKAGE = "fvstools")$zsdi_
   
   return(zsdi_)
@@ -2900,13 +2962,13 @@ zsdi_f = function(dbh = NULL,
 #' species.
 #' 
 #' @param crwidth:
-#' Numeric vector containing crown width (diameter) values.
+#' Numeric vector containing crown width values.
 #
 #' @param expf: 
 #' Numeric vector containing expansion factors.
 #' 
 #' @param dbh:
-#' Optional numeric vector containing DBH values. If DBH values are provided, 
+#' Optional numeric vector containing diameter values. If DBH values are provided, 
 #' then attribute will be calculated between the values specified in dbhmin and 
 #' dbhmax.
 #' 
@@ -2939,6 +3001,12 @@ zsdi_f = function(dbh = NULL,
 #' Optional vector containing species codes. This variable will be used to
 #' select which species get included in calculation of attribute.
 #' 
+#' @param naok
+#' Logical variable where if FALSE, an error will be thrown if input vectors 
+#' contain NA values. If TRUE, checks for NA values will not be done. Setting 
+#' this value to TRUE will speed up processing but can be risky if input vectors
+#' are not vetted for NA values prior.
+#' 
 #'@return
 #' Numeric percent canopy cover value
 ################################################################################
@@ -2953,7 +3021,8 @@ cc_f = function(crwidth = NULL,
               dbhmax = 999,
               htmin = 0,
               htmax = 999,
-              select_species = NULL)
+              select_species = NULL,
+              naok = FALSE)
 {
   cc_ = 0
   
@@ -2999,6 +3068,7 @@ cc_f = function(crwidth = NULL,
     cc_  = double(1),
     INTENT = c("r", "r", "r", "r", "r", "r", "r",
                "r", 'r', "r", "rw"),
+    NAOK = naok,
     PACKAGE = "fvstools")$cc_
   
   return(cc_)
@@ -3014,7 +3084,7 @@ cc_f = function(crwidth = NULL,
 #' species.
 #
 #' @param dbh:
-#' Numeric vector containing DBH values.
+#' Numeric vector containing diameter values.
 #' 
 #' @param ht:
 #' Numeric vector containing total tree height values.
@@ -3051,6 +3121,12 @@ cc_f = function(crwidth = NULL,
 #' select which species get included in calculation of attribute. If left as
 #' NULL, attribute will be calculated using observations from across all 
 #' species.
+#' 
+#' @param naok
+#' Logical variable where if FALSE, an error will be thrown if input vectors 
+#' contain NA values. If TRUE, checks for NA values will not be done. Setting 
+#' this value to TRUE will speed up processing but can be risky if input vectors
+#' are not vetted for NA values prior.
 #'
 #'@return
 #' Numeric Lorey height value
@@ -3065,7 +3141,8 @@ lorey_ht_f = function(dbh = NULL,
                     dbhmax = 999,
                     htmin = 0,
                     htmax = 999,
-                    select_species = NULL)
+                    select_species = NULL,
+                    naok = FALSE)
 {
   
   lorey_ht_ = 0
@@ -3100,6 +3177,7 @@ lorey_ht_f = function(dbh = NULL,
     lorey_ht_  = double(1),
     INTENT = c("r", "r", "r", "r", "r", "r",
                "r", 'r', "r", "rw"),
+    NAOK = naok,
     PACKAGE = "fvstools")$lorey_ht_
 
   return(lorey_ht_)
@@ -3114,7 +3192,7 @@ lorey_ht_f = function(dbh = NULL,
 #'trees in the stand or and explicit number of trees (trees per acre) value. 
 #'
 #'@param dbh:     
-#'Numeric vector containing DBH values.
+#'Numeric vector containing diameter values.
 #
 #'@param expf:     
 #'Numeric vector containing expansion factors values.
@@ -3130,6 +3208,12 @@ lorey_ht_f = function(dbh = NULL,
 #'Percentage of trees to include in the top height calculation. Largest 20% of 
 #'trees, largest 40% of trees etc. If this value is not null then it will 
 #'take precedence over the value in top_tpa argument. 
+#' 
+#' @param naok
+#' Logical variable where if FALSE, an error will be thrown if input vectors 
+#' contain NA values. If TRUE, checks for NA values will not be done. Setting 
+#' this value to TRUE will speed up processing but can be risky if input vectors
+#' are not vetted for NA values prior.
 #
 #'@return 
 #'Top height value.
@@ -3140,7 +3224,8 @@ top_ht_f = function(dbh = NULL,
                   expf = NULL,
                   ht = NULL,
                   top_tpa = 40,
-                  top_per = 0)
+                  top_per = 0,
+                  naok = FALSE)
 {
   #Initialize top_ht_
   top_ht_ = 0
@@ -3169,7 +3254,7 @@ top_ht_f = function(dbh = NULL,
     top_ht_ = double(1),
     INTENT = c("r", "r", "r", "r", "r", "r",
                "r", "rw"),
-    NAOK = FALSE,
+    NAOK = naok,
     PACKAGE = "fvstools")$top_ht_
   
   return(top_ht_)
@@ -3181,21 +3266,27 @@ top_ht_f = function(dbh = NULL,
 #' @description
 #' 
 #' This function calculates basal area in trees larger than subject tree (BAL)
-#' from input vectors containing dbh and expansion factor values.
+#' from input vectors containing diameter and expansion factor values.
 #
 #' @param dbh
-#' Numeric vector containing DBH values.
+#' Numeric vector containing diameter values.
 #
 #' @param expf: 
 #' Numeric vector containing expansion factors.
 #' 
 #' @param handle_ties
-#' Logical variable used to determine if dbh values with equivalent values get 
-#' the same BAL return. If this value is TRUE, then trees with equivalent DBH 
+#' Integer variable used to determine if dbh values with equivalent values get 
+#' the same BAL return. If this value is 1, then trees with equivalent DBH 
 #' values will have the same BAL value (e.g. 3 trees with 10 inch DBH will all
-#' have the same BAL). If this value is FALSE, then trees with equivalent DBH 
+#' have the same BAL). If this value is 0, then trees with equivalent DBH 
 #' values will have a different BAL (3 trees with 10 inch DBH will each have a
 #' different BAL).
+#' 
+#' @param naok
+#' Logical variable where if FALSE, an error will be thrown if input vectors 
+#' contain NA values. If TRUE, checks for NA values will not be done. Setting 
+#' this value to TRUE will speed up processing but can be risky if input vectors
+#' are not vetted for NA values prior.
 #' 
 #' @return
 #' Numeric vector containing BAL values
@@ -3204,7 +3295,8 @@ top_ht_f = function(dbh = NULL,
 #'@export
 bal_f = function(dbh = NULL,
                  expf = NULL,
-                 handle_ties = 0)
+                 handle_ties = 0,
+                 naok = FALSE)
 {
   #Return if dbh or expf is NULL or not of equal length
   if(!valid_vectors(dbh, expf)) return(0)
@@ -3225,7 +3317,7 @@ bal_f = function(dbh = NULL,
   #Get indices of sorted DBH in descending order
   dbh_order = order(-dbh)
   
-  #Call the top_ht subroutine
+  #Call the bal subroutine
   bal_ <- dotCall64::.C64(
     .NAME = "bal",
     SIGNATURE = c("double", "integer", "double", "integer", "integer", "double"),
@@ -3236,7 +3328,7 @@ bal_f = function(dbh = NULL,
     ntree = ntree,
     bal_ = double(ntree),
     INTENT = c("r", "r", "r", "r", "r", "rw"),
-    NAOK = TRUE,
+    NAOK = naok,
     PACKAGE = "fvstools")$bal_
   
   return(bal_)

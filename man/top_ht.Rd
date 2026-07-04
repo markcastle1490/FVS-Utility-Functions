@@ -7,7 +7,7 @@
 top_ht(dbh = NULL, expf = NULL, ht = NULL, top_tpa = 40, top_per = NULL)
 }
 \arguments{
-\item{dbh:}{Numeric vector containing DBH values.}
+\item{dbh:}{Numeric vector containing diameter values.}
 
 \item{expf:}{Numeric vector containing expansion factors values.}
 

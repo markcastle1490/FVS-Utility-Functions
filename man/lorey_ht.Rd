@@ -17,7 +17,7 @@ lorey_ht(
 )
 }
 \arguments{
-\item{dbh:}{Numeric vector containing DBH values.}
+\item{dbh:}{Numeric vector containing diameter values.}
 
 \item{ht:}{Numeric vector containing total tree height values.}
 

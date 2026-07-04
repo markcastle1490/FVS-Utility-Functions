@@ -19,7 +19,7 @@ tpa(
 \arguments{
 \item{expf:}{Vector of numeric vector containing expansion factors.}
 
-\item{dbh:}{Optional numeric vector containing DBH values. If DBH values are provided,
+\item{dbh:}{Optional numeric vector containing diameter values. If DBH values are provided,
 then attribute will be calculated between the values specified in dbhmin and
 dbhmax.}
 

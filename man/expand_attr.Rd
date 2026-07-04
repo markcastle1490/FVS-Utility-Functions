@@ -22,7 +22,7 @@ expand_attr(
 
 \item{expf:}{Numeric vector containing expansion factors.}
 
-\item{dbh:}{Optional numeric vector containing DBH values. If DBH values are provided,
+\item{dbh:}{Optional numeric vector containing diameter values. If DBH values are provided,
 then attribute will be calculated between the values specified in dbhmin and
 dbhmax.}
 
@@ -57,7 +57,7 @@ Sum of attribute expanded to a per unit area
 }
 \description{
 This function sums and expands an input numeric attribute to a per unit area
-basis using numeric vectors containing dbh, attribute of interest, and
+basis using numeric vectors containing diameter, attribute of interest, and
 expansion factors. The numeric attribute could be a tree-level volume,
 biomass, carbon, etc.This attribute can be calculated for user defined size
 ranges and for select species.

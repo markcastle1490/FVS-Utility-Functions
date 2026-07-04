@@ -4,10 +4,22 @@
 \alias{top_ht_f}
 \title{top_ht_f}
 \usage{
-top_ht_f(dbh = NULL, expf = NULL, ht = NULL, top_tpa = 40, top_per = 0)
+top_ht_f(
+  dbh = NULL,
+  expf = NULL,
+  ht = NULL,
+  top_tpa = 40,
+  top_per = 0,
+  naok = FALSE
+)
 }
 \arguments{
-\item{dbh:}{Numeric vector containing DBH values.}
+\item{naok}{Logical variable where if FALSE, an error will be thrown if input vectors
+contain NA values. If TRUE, checks for NA values will not be done. Setting
+this value to TRUE will speed up processing but can be risky if input vectors
+are not vetted for NA values prior.}
+
+\item{dbh:}{Numeric vector containing diameter values.}
 
 \item{expf:}{Numeric vector containing expansion factors values.}
 

@@ -13,11 +13,17 @@ rsdi_stage_f(
   dbhmax = 999,
   htmin = 0,
   htmax = 999,
-  select_species = NULL
+  select_species = NULL,
+  naok = FALSE
 )
 }
 \arguments{
-\item{dbh:}{Numeric vector containing DBH values.}
+\item{naok}{Logical variable where if FALSE, an error will be thrown if input vectors
+contain NA values. If TRUE, checks for NA values will not be done. Setting
+this value to TRUE will speed up processing but can be risky if input vectors
+are not vetted for NA values prior.}
+
+\item{dbh:}{Numeric vector containing diameter values.}
 
 \item{expf:}{Numeric vector containing expansion factors.}
 
@@ -46,7 +52,7 @@ is specified.}
 
 \item{select_species:}{Optional vector containing species codes. This variable will be used to
 select which species get included in calculation of attribute. This argument
-will only be used if values are provided for species. d}
+will only be used if values are provided for species.}
 }
 \value{
 Numeric Reineke SDI calculated using stage formulation.
@@ -54,6 +60,6 @@ Numeric Reineke SDI calculated using stage formulation.
 \description{
 This function is used to calculate Reineke SDI used the methodology proposed
 by Stage 1968. From Section 7.3.2.1 of EFVS using input vectors containing
-DBH and expansion factors. This attribute can be calculated for user defined
-size ranges and for select species.
+diameter and expansion factor values. This attribute can be calculated for
+user defined size ranges and for select species.
 }

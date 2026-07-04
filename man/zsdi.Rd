@@ -17,7 +17,7 @@ zsdi(
 )
 }
 \arguments{
-\item{dbh:}{Numeric vector containing DBH values.}
+\item{dbh:}{Numeric vector containing diameter values.}
 
 \item{expf:}{Numeric vector containing expansion factors.}
 
@@ -51,7 +51,7 @@ select which species get included in calculation of attribute.}
 Numeric Zeide SDI value
 }
 \description{
-This function calculates Zeide SDI using input vectors containing dbh and
+This function calculates Zeide SDI using input vectors containing diameter and
 expansion factor values. This attribute can be calculated for user defined
 size ranges and for select species.
 }

@@ -18,11 +18,11 @@ cc(
 )
 }
 \arguments{
-\item{crwidth:}{Numeric vector containing crown width (diameter) values.}
+\item{crwidth:}{Numeric vector containing crown width values.}
 
 \item{expf:}{Numeric vector containing expansion factors.}
 
-\item{dbh:}{Optional numeric vector containing DBH values. If DBH values are provided,
+\item{dbh:}{Optional numeric vector containing diameter values. If DBH values are provided,
 then attribute will be calculated between the values specified in dbhmin and
 dbhmax.}
 

@@ -11,7 +11,7 @@ time_keys(
   cycle_length = NULL,
   cycle_at = NULL,
   max_cycles = 40,
-  debug = F
+  verbose = F
 )
 }
 \arguments{
@@ -30,7 +30,7 @@ accommodated in FVS simulation.}
 coincide with default reporting years determined by start_year, end_year, and
 cycle_length.}
 
-\item{debug:}{Logical variable where if TRUE, debug output will be printed in console.}
+\item{verbose:}{Logical variable where if TRUE, debug output will be printed in console.}
 }
 \value{
 Character string of keywords for controlling the length of a FVS simulation

@@ -21,7 +21,7 @@ count_attr(
 ID value. Technically you can pass any vector into this argument to have
 counted.}
 
-\item{dbh:}{Optional numeric vector containing DBH values.}
+\item{dbh:}{Optional numeric vector containing diameter values.}
 
 \item{ht:}{Optional vector containing total tree height values. If heights are provided,
 then attribute will be calculated between the values specified in htmin and

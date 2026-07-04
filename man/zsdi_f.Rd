@@ -13,11 +13,17 @@ zsdi_f(
   dbhmax = 999,
   htmin = 0,
   htmax = 999,
-  select_species = NULL
+  select_species = NULL,
+  naok = FALSE
 )
 }
 \arguments{
-\item{dbh:}{Numeric vector containing DBH values.}
+\item{naok}{Logical variable where if FALSE, an error will be thrown if input vectors
+contain NA values. If TRUE, checks for NA values will not be done. Setting
+this value to TRUE will speed up processing but can be risky if input vectors
+are not vetted for NA values prior.}
+
+\item{dbh:}{Numeric vector containing diameter values.}
 
 \item{expf:}{Numeric vector containing expansion factors.}
 
@@ -51,7 +57,7 @@ select which species get included in calculation of attribute.}
 Numeric Zeide SDI value
 }
 \description{
-This function calculates Zeide SDI using input vectors containing dbh and
+This function calculates Zeide SDI using input vectors containing diameter and
 expansion factor values. This attribute can be calculated for user defined
 size ranges and for select species.
 }

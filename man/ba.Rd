@@ -22,7 +22,7 @@ select which species get included in calculation of attribute. If left as
 NULL, attribute will be calculated using observations from across all
 species.}
 
-\item{dbh:}{Numeric vector containing DBH values.}
+\item{dbh:}{Numeric vector containing diameter values.}
 
 \item{expf:}{Numeric vector containing expansion factors.}
 
@@ -54,7 +54,7 @@ Numeric basal area per acre value
 }
 \description{
 This function calculates a basal area per acre given input vectors
-containing diameter at breast height and expansion factor values. This
+containing diameter and expansion factor values. This
 attribute can be calculated for user defined size ranges and for select
 species.
 }

@@ -635,7 +635,7 @@ fvs_keyword <- function(params = list(),
 #'Numeric value corresponding to the maximum number of cycles that can be
 #'accommodated in FVS simulation. 
 #
-#'@param debug:      
+#'@param verbose:      
 #'Logical variable where if TRUE, debug output will be printed in console.
 #
 #'@return
@@ -651,7 +651,7 @@ time_keys <- function(invyear = NULL,
                       cycle_length = NULL,
                       cycle_at = NULL,
                       max_cycles = 40,
-                      debug = F)
+                      verbose = F)
 {
   time_keys_ <- ""
   
@@ -674,34 +674,32 @@ time_keys <- function(invyear = NULL,
   #Catch bad max cycles values
   if(is.na(max_cycles) || max_cycles <= 0) max_cycles <- 40
   
-  #Obtain years from start year to end_year
-  years = c(seq(from = invyear, to = start_year, by = cycle_length),
-            seq(from = start_year, to = end_year, by = cycle_length),
-            end_year)
-  
-  #if cycle_at has values, add them to years and then sort years.
-  if(length(cycle_at) > 0) years <- sort(c(years, cycle_at))
+  #Obtain vector of sorted years
+  years = sort(c(seq(from = invyear, to = start_year, by = cycle_length),
+               seq(from = start_year, to = end_year, by = cycle_length),
+               end_year,
+               cycle_at))
   
   #Do debug if requested.
-  if(debug)
+  if(verbose)
   {
     cat("Inventory year:", invyear, "\n")
     cat("Start year:", start_year, "\n")
     cat("End year:", end_year, "\n")
     cat("Default cycle length:", cycle_length, "\n")
     cat("Years to consider:", "\n")
-    cat("Length of years:", length(years), "\n")
     for(year in years)
-    {
       cat(year, "\n")
-    }
   }
   
   #Create initial TIMEINT for all cycles with a common cycle length.
-  time_keys_ <- paste(fvs_keyword(params = list("TIMEINT",
+  timeint_all <- paste(fvs_keyword(params = list("TIMEINT",
                                                 "0", 
-                                                as.character(cycle_length))),
-                      sep = "\n")
+                                                as.character(cycle_length))))
+  
+  #Create add_timeint vector
+  add_timeint <- vector(mode = "character", length(max_cycles))
+  add_insert <- 1
   
   #Initialize cycle_num to keep track of number of cycles.
   cycle_num <- 0
@@ -727,19 +725,24 @@ time_keys <- function(invyear = NULL,
     #If dif != 0 then add another timeInt keyword to time_keys_
     if(dif != 0)
     {
-      time_keys_ <- paste(time_keys_,
-                        fvs_keyword(params = list("TIMEINT",
-                                                 as.character(cycle_num), 
-                                                 as.character(dif))),
-                        sep = "\n")
+      add_timeint[[add_insert]] <- paste(fvs_keyword(params = list("TIMEINT",
+                                         as.character(cycle_num), 
+                                         as.character(dif))))
+      add_insert <- add_insert + 1
     }
   }
-  
-  #Add NUMCYCLE keyword
-  time_keys_ <- paste(time_keys_,
-                    fvs_keyword(params = list("NUMCYCLE",
-                                             as.character(cycle_num))),
-                    sep = "\n")
+
+  #Drop empty values from add_timeint
+  add_timeint <- add_timeint[add_timeint != ""]
+
+  #Combine keywords
+  time_keys_ <- c(timeint_all,
+                  add_timeint,
+                  fvs_keyword(params = list("NUMCYCLE", 
+                                                as.character(cycle_num))))
+
+  #Combine timing keywords
+  time_keys_ <- paste(time_keys_, collapse = "\n")
   
   return(time_keys_)
 }
@@ -865,11 +868,12 @@ dsnout_keys <- function(dbout = 'FVSOut.db')
 #'@export
 delotab_keys <- function(delotab = NULL)
 {
-  keys <- ""
+  if(is.null(delotab)) return("")
   
   #Create empty character vector to store delotab keywords
   delo_vector <- vector(mode = "character",
-                        length = 0)
+                        length = length(delotab))
+  delo_insert <- 1
   
   for(delo in delotab)
   {
@@ -880,8 +884,11 @@ delotab_keys <- function(delotab = NULL)
     delokey <- fvs_keyword(list("DELOTAB", delo),
                           type = 1)
     
-    delo_vector <- append(delo_vector, delokey)
+    delo_vector[[delo_insert]] <- delokey
+    delo_insert <- delo_insert + 1
   }
+
+  delo_vector <- delo_vector[delo_vector != ""]
   
   #Create DELOTAB keys
   keys <- paste(delo_vector,

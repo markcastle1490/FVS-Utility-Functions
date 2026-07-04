@@ -4,17 +4,22 @@
 \alias{bal_f}
 \title{bal_f}
 \usage{
-bal_f(dbh = NULL, expf = NULL, handle_ties = 0)
+bal_f(dbh = NULL, expf = NULL, handle_ties = 0, naok = FALSE)
 }
 \arguments{
-\item{dbh}{Numeric vector containing DBH values.}
+\item{dbh}{Numeric vector containing diameter values.}
 
-\item{handle_ties}{Logical variable used to determine if dbh values with equivalent values get
-the same BAL return. If this value is TRUE, then trees with equivalent DBH
+\item{handle_ties}{Integer variable used to determine if dbh values with equivalent values get
+the same BAL return. If this value is 1, then trees with equivalent DBH
 values will have the same BAL value (e.g. 3 trees with 10 inch DBH will all
-have the same BAL). If this value is FALSE, then trees with equivalent DBH
+have the same BAL). If this value is 0, then trees with equivalent DBH
 values will have a different BAL (3 trees with 10 inch DBH will each have a
 different BAL).}
+
+\item{naok}{Logical variable where if FALSE, an error will be thrown if input vectors
+contain NA values. If TRUE, checks for NA values will not be done. Setting
+this value to TRUE will speed up processing but can be risky if input vectors
+are not vetted for NA values prior.}
 
 \item{expf:}{Numeric vector containing expansion factors.}
 }
@@ -23,5 +28,5 @@ Numeric vector containing BAL values
 }
 \description{
 This function calculates basal area in trees larger than subject tree (BAL)
-from input vectors containing dbh and expansion factor values.
+from input vectors containing diameter and expansion factor values.
 }

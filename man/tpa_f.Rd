@@ -13,13 +13,19 @@ tpa_f(
   dbhmax = 999,
   htmin = 0,
   htmax = 999,
-  select_species = NULL
+  select_species = NULL,
+  naok = FALSE
 )
 }
 \arguments{
+\item{naok}{Logical variable where if FALSE, an error will be thrown if input vectors
+contain NA values. If TRUE, checks for NA values will not be done. Setting
+this value to TRUE will speed up processing but can be risky if input vectors
+are not vetted for NA values prior.}
+
 \item{expf:}{Vector of numeric vector containing expansion factors.}
 
-\item{dbh:}{Optional numeric vector containing DBH values. If DBH values are provided,
+\item{dbh:}{Optional numeric vector containing diameter values. If DBH values are provided,
 then attribute will be calculated between the values specified in dbhmin and
 dbhmax.}
 

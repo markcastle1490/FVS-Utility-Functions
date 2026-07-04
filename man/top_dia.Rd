@@ -7,7 +7,7 @@
 top_dia(dbh = NULL, expf = NULL, top_tpa = 40, top_per = NULL, dia_type = 1)
 }
 \arguments{
-\item{dbh:}{Numeric vector containing DBH values.}
+\item{dbh:}{Numeric vector containing diameter values.}
 
 \item{expf:}{Numeric vector containing expansion factors values.}
 
@@ -29,5 +29,5 @@ Numeric top diameter value.
 This function is used to calculate QMD or average diameter weighted by TPA
 for the largest trees by DBH within a specified percentage of TPA or an
 explicit TPA value. This value is calculated from a set of input vectors
-containing DBH values and expansion factors.
+containing diameter values and expansion factors.
 }
