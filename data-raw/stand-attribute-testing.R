@@ -417,7 +417,7 @@ all.equal(as.data.frame(fvs_sum2), as.data.frame(fvs_sum2_f))
 tree2[, PtBAL_dt_f := round(bal_f(dbh = DBH, expf = TPA * N), 0), 
       by = .(CaseID, StandID, ActPt, Year)]
 
-#Same number of mistmatches as dplyr test
+#Test equivalence of BAL
 all.equal(tree2$PtBAL_dt, tree2$PtBAL_dt_f)
 
 #Clean up
