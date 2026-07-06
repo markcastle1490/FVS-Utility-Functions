@@ -339,15 +339,21 @@ merge_inv_dt <- function(data,
         }
 
         #Get data.tables associated with interval
-        time1 = data[[as.character(interval1)]]
-        time2 = data[[as.character(interval2)]]
+        time1 = data.table::copy(data[[as.character(interval1)]])
+        time2 = data.table::copy(data[[as.character(interval2)]])
         
         #Find plots that exist in both time1 and time 2
-        match_plot = intersect(time1[[plot_id]], time2[[plot_id]])
+        #match_plot = intersect(time1[[plot_id]], time2[[plot_id]])
+        match_plot <- intersect(
+          time1[, env = list(p = plot_id), (p)], 
+          time2[, env = list(p = plot_id), (p)]
+        )
         
         #Get only plots that exist at both points in time
-        time1 = time1[(get(plot_id) %in% match_plot)]
-        time2 = time2[(get(plot_id) %in% match_plot)] 
+        # time1 = time1[(get(plot_id) %in% match_plot)]
+        # time2 = time2[(get(plot_id) %in% match_plot)] 
+        time1 <- time1[env = list(p = plot_id), p %in% match_plot]
+        time2 <- time2[env = list(p = plot_id), p %in% match_plot]
 
         #Set keys for merging
         data.table::setkeyv(time1, merge_id)
@@ -369,10 +375,21 @@ merge_inv_dt <- function(data,
         
         new_cols = c(tree_lab_x, int_lab_x, int_lab_y)
         
-        df[, (new_cols) := 
-             list(data.table::fcoalesce(get(tree_lab_x), get(tree_lab_y)),
-                  data.table::fcoalesce(get(int_lab_x), as.integer(interval1)),
-                  data.table::fcoalesce(get(int_lab_y), as.integer(interval2)))]
+        # df[, (new_cols) := 
+        #      list(data.table::fcoalesce(get(tree_lab_x), get(tree_lab_y)),
+        #           data.table::fcoalesce(get(int_lab_x), as.integer(interval1)),
+        #           data.table::fcoalesce(get(int_lab_y), as.integer(interval2)))]
+        
+        df[, env = list(
+          tx = tree_lab_x, ty = tree_lab_y,
+          ix = int_lab_x,  iy = int_lab_y,
+          v1 = as.integer(interval1), v2 = as.integer(interval2)
+        ), 
+        `:=`(
+          tx = data.table::fcoalesce(tx, ty),
+          ix = data.table::fcoalesce(ix, v1),
+          iy = data.table::fcoalesce(iy, v2)
+        )]
         
         #Add data.table to list
         df_list[[n_insert]] <- df
