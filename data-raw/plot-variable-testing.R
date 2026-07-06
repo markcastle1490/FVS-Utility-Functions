@@ -6,6 +6,7 @@
 #from plot-variables-testing.kcp.
 ################################################################################
 
+#Load libraries
 library(RSQLite)
 library(dplyr)
 library(data.table)
@@ -33,19 +34,18 @@ comp = dbGetQuery(con,
                         "WHERE RunTitle = 'CI Run'",
                         "ORDER BY CaseID, Year"))
 
-#Disconnect
 dbDisconnect(con)
 
-#Define test species group
+#Define test species group for testing
 sp_group = c('DF', 'GF', 'AF')
 
 #===============================================================================
 #Testing sequence for plot variables using dplyr
 #===============================================================================
 
-fvs_sum = tree %>%
-  group_by(CaseID, StandID, Year) %>%
-  #mutate(TREEBA = DBH^2 * TPA * fvstools:::for_constant) %>%
+#dplyr with R functions
+fvs_sum = tree |>
+  group_by(CaseID, StandID, Year) |>
   summarize(BA_ = ba(dbh = DBH, expf = TPA),
             TPA_ = tpa(dbh = DBH, expf = TPA),
             QMD_ = qmd(dbh = DBH, expf = TPA),
@@ -113,7 +113,7 @@ fvs_sum = tree %>%
             BDFTSP = expand_attr(dbh = DBH, attr = BdFt, expf = TPA, species = SpeciesFVS, select_species = sp_group),
             CCSP = cc(dbh = DBH, crwidth = CrWidth, expf = TPA, species = SpeciesFVS, select_species = sp_group),
             AVGHTSP = mean_attr(dbh = DBH, attr = Ht, weight = TPA, species = SpeciesFVS, select_species = sp_group),
-            RDIA_ = gmd(dbh = DBH, expf = TPA)) %>%
+            RDIA_ = gmd(dbh = DBH, expf = TPA)) |>
   arrange(CaseID, Year)
 fvs_sum = as.data.frame(fvs_sum)
 
@@ -127,8 +127,8 @@ all.equal(comp, fvs_sum)
 #Test if top heights and top diameter values are equivalent to individual height
 #and diameter calculations when all trees in stand are included in calculation.
 
-size_test = tree %>%
-  group_by(CaseID, StandID, Year) %>%
+size_test = tree |>
+  group_by(CaseID, StandID, Year) |>
   summarize(QMD1 = qmd(dbh = DBH, expf = TPA),
             QMD2 = top_dia(dbh = DBH, expf = TPA, top_per = 100, dia_type = 1),
             AVGD1 = mean_attr(attr = DBH, weight = TPA),
@@ -155,15 +155,102 @@ all.equal(size_test$TOPHT1,
 tree <- tree |>
   mutate(N = max(PtIndex),
          .by = c(CaseID, StandID, Year)) |>
-  mutate(PtBAL2 = round(bal(dbh = DBH, expf = TPA * N), 0), 
+  mutate(PtBAL_dplyr = round(bal(dbh = DBH, expf = TPA * N), 0), 
          .by = c(CaseID, StandID, ActPt, Year))
 
-all.equal(tree$PtBAL, tree$PtBAL2)
+all.equal(tree$PtBAL, tree$PtBAL_dplyr)
 
 #Mistmatches are related to differences in tree ordering between Fortran and R.
 #This occurs primarily for inventory year and those where equal diameters can
 #occur.
-nrow(tree[tree$PtBAL != tree$PtBAL2, ])
+nrow(tree[tree$PtBAL != tree$PtBAL_dplyr, ])
+
+#Dplyr with Fortran functions
+fvs_sum_f = tree |>
+  group_by(CaseID, StandID, Year) |>
+  summarize(BA_ = ba_f(dbh = DBH, expf = TPA),
+            TPA_ = tpa_f(dbh = DBH, expf = TPA),
+            QMD_ = qmd_f(dbh = DBH, expf = TPA),
+            RSDI_ = rsdi_stage_f(dbh = DBH, expf = TPA),
+            ZSDI_ = zsdi_f(dbh = DBH, expf = TPA),
+            TCUFT_ = expand_attr_f(dbh = DBH, attr = TCuFt, expf = TPA),
+            MCUFT_ = expand_attr_f(dbh = DBH, attr = MCuFt, expf = TPA),
+            SCUFT_ = expand_attr_f(dbh = DBH, attr = SCuFt, expf = TPA),
+            BDFT_ = expand_attr_f(dbh = DBH, attr = BdFt, expf = TPA),
+            CC_ = cc_f(dbh = DBH, crwidth = CrWidth, expf = TPA),
+            TOPHT_ = top_ht_f(dbh = DBH, expf = TPA, ht = Ht),
+            AVGHT_ = mean_attr_f(dbh = DBH, attr = Ht, weight = TPA),
+            BAWTD_ = lorey_dia_f(dbh = DBH, expf = TPA),
+            BAWTH_ = lorey_ht_f(dbh = DBH, ht = Ht, expf = TPA),
+            BAG5 = ba_f(dbh = DBH, expf = TPA, dbhmin = 5),
+            TPAG5 = tpa_f(dbh = DBH, expf = TPA, dbhmin = 5),
+            QMDG5 = qmd_f(dbh = DBH, expf = TPA, dbhmin = 5),
+            RSDIG5 = rsdi_stage_f(dbh = DBH, expf = TPA, dbhmin = 5),
+            ZSDIG5 = zsdi_f(dbh = DBH, expf = TPA, dbhmin = 5),
+            TCUFTG5 = expand_attr_f(dbh = DBH, attr = TCuFt, expf = TPA, dbhmin = 5),
+            CCG5 = cc_f(dbh = DBH, crwidth = CrWidth, expf = TPA, dbhmin = 5),
+            BAL5 = ba_f(dbh = DBH, expf = TPA, dbhmax = 5),
+            TPAL5 = tpa_f(dbh = DBH, expf = TPA, dbhmax = 5),
+            QMDL5 = qmd_f(dbh = DBH, expf = TPA, dbhmax = 5),
+            RSDIL5 = rsdi_stage_f(dbh = DBH, expf = TPA, dbhmax = 5),
+            ZSDIL5 = zsdi_f(dbh = DBH, expf = TPA, dbhmax = 5),
+            TCUFTL5 = expand_attr_f(dbh = DBH, attr = TCuFt, expf = TPA, dbhmax = 5),
+            CCL5 = cc_f(dbh = DBH, crwidth = CrWidth, expf = TPA, dbhmax = 5),
+            BAG50 = ba_f(dbh = DBH, expf = TPA, ht = Ht, htmin = 50),
+            TPAG50 = tpa_f(dbh = DBH, expf = TPA, ht = Ht, htmin = 50),
+            QMDG50 = qmd_f(dbh = DBH, expf = TPA, ht = Ht, htmin = 50),
+            RSDIG50 = rsdi_stage_f(dbh = DBH, expf = TPA, ht = Ht, htmin = 50),
+            ZSDIG50 = zsdi_f(dbh = DBH, expf = TPA, ht = Ht, htmin = 50),
+            TCUFTG50 = expand_attr_f(dbh = DBH, attr = TCuFt, expf = TPA, ht = Ht, htmin = 50),
+            CCG50 = cc_f(dbh = DBH, crwidth = CrWidth, expf = TPA, ht = Ht, htmin = 50),
+            BAL50 = ba_f(dbh = DBH, expf = TPA, ht = Ht, htmax = 50),
+            TPAL50 = tpa_f(dbh = DBH, expf = TPA, ht = Ht, htmax = 50),
+            QMDL50 = qmd_f(dbh = DBH, expf = TPA, ht = Ht, htmax = 50),
+            RSDIL50 = rsdi_stage_f(dbh = DBH, expf = TPA, ht = Ht, htmax = 50),
+            ZSDIL50 = zsdi_f(dbh = DBH, expf = TPA, ht = Ht, htmax = 50),
+            TCUFTL50 = expand_attr_f(dbh = DBH, attr = TCuFt, expf = TPA, ht = Ht, htmax = 50),
+            CCL50 = cc_f(dbh = DBH, crwidth = CrWidth, expf = TPA, ht = Ht, htmax = 50),
+            BA5T10 = ba_f(dbh = DBH, expf = TPA, dbhmin = 5, dbhmax = 10),
+            TPA5T10 = tpa_f(dbh = DBH, expf = TPA, dbhmin = 5, dbhmax = 10),
+            QMD5T10 = qmd_f(dbh = DBH, expf = TPA, dbhmin = 5, dbhmax = 10),
+            RSDI5T10 = rsdi_stage_f(dbh = DBH, expf = TPA, dbhmin = 5, dbhmax = 10),
+            ZSDI5T10 = zsdi_f(dbh = DBH, expf = TPA, dbhmin = 5, dbhmax = 10),
+            TCUF5T10 = expand_attr_f(dbh = DBH, attr = TCuFt, expf = TPA, dbhmin = 5, dbhmax = 10),
+            CCG5T10 = cc_f(dbh = DBH, crwidth = CrWidth, expf = TPA, dbhmin = 5, dbhmax = 10),
+            BA50100 = ba_f(dbh = DBH, expf = TPA, ht = Ht, htmin = 50, htmax = 100),
+            TPA50100 = tpa_f(dbh = DBH, expf = TPA, ht = Ht, htmin = 50, htmax = 100),
+            QMD50100 = qmd_f(dbh = DBH, expf = TPA, ht = Ht, htmin = 50, htmax = 100),
+            RSD50100 = rsdi_stage_f(dbh = DBH, expf = TPA, ht = Ht, htmin = 50, htmax = 100),
+            ZSD50100 = zsdi_f(dbh = DBH, expf = TPA, ht = Ht, htmin = 50, htmax = 100),
+            TCU50100 = expand_attr_f(dbh = DBH, attr = TCuFt, expf = TPA, ht = Ht, htmin = 50, htmax = 100),
+            CC50100 = cc_f(dbh = DBH, crwidth = CrWidth, expf = TPA, ht = Ht, htmin = 50, htmax = 100),
+            BASP = ba_f(dbh = DBH, expf = TPA, species = SpeciesFVS, select_species = sp_group),
+            TPASP = tpa_f(dbh = DBH, expf = TPA, species = SpeciesFVS, select_species = sp_group),
+            QMDSP = qmd_f(dbh = DBH, expf = TPA, species = SpeciesFVS, select_species = sp_group),
+            RSDISP = rsdi_stage_f(dbh = DBH, expf = TPA, species = SpeciesFVS, select_species = sp_group),
+            ZSDISP = zsdi_f(dbh = DBH, expf = TPA, species = SpeciesFVS, select_species = sp_group),
+            TCUFTSP = expand_attr_f(dbh = DBH, attr = TCuFt, expf = TPA, species = SpeciesFVS, select_species = sp_group),
+            MCUFTSP = expand_attr_f(dbh = DBH, attr = MCuFt, expf = TPA, species = SpeciesFVS, select_species = sp_group),
+            SCUFTSP = expand_attr_f(dbh = DBH, attr = SCuFt, expf = TPA, species = SpeciesFVS, select_species = sp_group),
+            BDFTSP = expand_attr_f(dbh = DBH, attr = BdFt, expf = TPA, species = SpeciesFVS, select_species = sp_group),
+            CCSP = cc_f(dbh = DBH, crwidth = CrWidth, expf = TPA, species = SpeciesFVS, select_species = sp_group),
+            AVGHTSP = mean_attr_f(dbh = DBH, attr = Ht, weight = TPA, species = SpeciesFVS, select_species = sp_group),
+            RDIA_ = gmd_f(dbh = DBH, expf = TPA)) |>
+  arrange(CaseID, Year)
+fvs_sum_f = as.data.frame(fvs_sum_f)
+
+#Test if fvs_sum and fvs_sum_f are equivalent
+all.equal(fvs_sum, fvs_sum_f)
+
+#Test BAL calculation in Fortran
+tree <- tree |>
+  mutate(N = max(PtIndex),
+         .by = c(CaseID, StandID, Year)) |>
+  mutate(PtBAL_dplyr_f = round(bal_f(dbh = DBH, expf = TPA * N), 0), 
+         .by = c(CaseID, StandID, ActPt, Year))
+
+#Compare R BAL calculation to Fortran BAL
+all.equal(tree$PtBAL_dplyr, tree$PtBAL_dplyr_f)
 
 #===============================================================================
 #Testing sequence for plot variables using data.table
@@ -172,7 +259,7 @@ nrow(tree[tree$PtBAL != tree$PtBAL2, ])
 #Create datatable
 tree2 = setDT(tree)
 
-fvs_sum2 = tree2[, TREEBA := DBH^2 * TPA * fvstools:::for_constant][, .(
+fvs_sum2 = tree2[, .(
   BA_ = ba(dbh = DBH, expf = TPA),
   TPA_ = tpa(dbh = DBH, expf = TPA),
   QMD_ = qmd(dbh = DBH, expf = TPA),
@@ -185,8 +272,8 @@ fvs_sum2 = tree2[, TREEBA := DBH^2 * TPA * fvstools:::for_constant][, .(
   CC_ = cc(dbh = DBH, crwidth = CrWidth, expf = TPA),
   TOPHT_ = top_ht(dbh = DBH, expf = TPA, ht = Ht),
   AVGHT_ = mean_attr(dbh = DBH, attr = Ht, weight = TPA),
-  BAWTD_ = mean_attr(dbh = DBH, attr = DBH, weight = TREEBA),
-  BAWTH_ = mean_attr(dbh = DBH, attr = Ht, weight = TREEBA),
+  BAWTD_ = lorey_dia(dbh = DBH, expf = TPA),
+  BAWTH_ = lorey_ht(dbh = DBH, ht = Ht, expf = TPA),
   BAG5 = ba(dbh = DBH, expf = TPA, dbhmin = 5),
   TPAG5 = tpa(dbh = DBH, expf = TPA, dbhmin = 5),
   QMDG5 = qmd(dbh = DBH, expf = TPA, dbhmin = 5),
@@ -246,13 +333,92 @@ by = .(CaseID, StandID, Year)][order(CaseID, Year)]
 all.equal(as.data.frame(fvs_sum2), comp)
 
 #Test BAL calculation
-tree2[, PtBAL3 := round(bal(dbh = DBH, expf = TPA * N), 0), 
+tree2[, PtBAL_dt := round(bal(dbh = DBH, expf = TPA * N), 0), 
      by = .(CaseID, StandID, ActPt, Year)]
 
 #Same number of mistmatches as dplyr test
-nrow(tree2[tree$PtBAL != tree$PtBAL2,])
+nrow(tree2[tree$PtBAL != tree$PtBAL_dt,])
+
+#Now do Fortran comparison
+fvs_sum2_f = tree2[, .(
+  BA_ = ba_f(dbh = DBH, expf = TPA),
+  TPA_ = tpa_f(dbh = DBH, expf = TPA),
+  QMD_ = qmd_f(dbh = DBH, expf = TPA),
+  RSDI_ = rsdi_stage_f(dbh = DBH, expf = TPA),
+  ZSDI_ = zsdi_f(dbh = DBH, expf = TPA),
+  TCUFT_ = expand_attr_f(dbh = DBH, attr = TCuFt, expf = TPA),
+  MCUFT_ = expand_attr_f(dbh = DBH, attr = MCuFt, expf = TPA),
+  SCUFT_ = expand_attr_f(dbh = DBH, attr = SCuFt, expf = TPA),
+  BDFT_ = expand_attr_f(dbh = DBH, attr = BdFt, expf = TPA),
+  CC_ = cc_f(dbh = DBH, crwidth = CrWidth, expf = TPA),
+  TOPHT_ = top_ht_f(dbh = DBH, expf = TPA, ht = Ht),
+  AVGHT_ = mean_attr_f(dbh = DBH, attr = Ht, weight = TPA),
+  BAWTD_ = lorey_dia_f(dbh = DBH, expf = TPA),
+  BAWTH_ = lorey_ht_f(dbh = DBH, ht = Ht, expf = TPA),
+  BAG5 = ba_f(dbh = DBH, expf = TPA, dbhmin = 5),
+  TPAG5 = tpa_f(dbh = DBH, expf = TPA, dbhmin = 5),
+  QMDG5 = qmd_f(dbh = DBH, expf = TPA, dbhmin = 5),
+  RSDIG5 = rsdi_stage_f(dbh = DBH, expf = TPA, dbhmin = 5),
+  ZSDIG5 = zsdi_f(dbh = DBH, expf = TPA, dbhmin = 5),
+  TCUFTG5 = expand_attr_f(dbh = DBH, attr = TCuFt, expf = TPA, dbhmin = 5),
+  CCG5 = cc_f(dbh = DBH, crwidth = CrWidth, expf = TPA, dbhmin = 5),
+  BAL5 = ba_f(dbh = DBH, expf = TPA, dbhmax = 5),
+  TPAL5 = tpa_f(dbh = DBH, expf = TPA, dbhmax = 5),
+  QMDL5 = qmd_f(dbh = DBH, expf = TPA, dbhmax = 5),
+  RSDIL5 = rsdi_stage_f(dbh = DBH, expf = TPA, dbhmax = 5),
+  ZSDIL5 = zsdi_f(dbh = DBH, expf = TPA, dbhmax = 5),
+  TCUFTL5 = expand_attr_f(dbh = DBH, attr = TCuFt, expf = TPA, dbhmax = 5),
+  CCL5 = cc_f(dbh = DBH, crwidth = CrWidth, expf = TPA, dbhmax = 5),
+  BAG50 = ba_f(dbh = DBH, expf = TPA, ht = Ht, htmin = 50),
+  TPAG50 = tpa_f(dbh = DBH, expf = TPA, ht = Ht, htmin = 50),
+  QMDG50 = qmd_f(dbh = DBH, expf = TPA, ht = Ht, htmin = 50),
+  RSDIG50 = rsdi_stage_f(dbh = DBH, expf = TPA, ht = Ht, htmin = 50),
+  ZSDIG50 = zsdi_f(dbh = DBH, expf = TPA, ht = Ht, htmin = 50),
+  TCUFTG50 = expand_attr_f(dbh = DBH, attr = TCuFt, expf = TPA, ht = Ht, htmin = 50),
+  CCG50 = cc_f(dbh = DBH, crwidth = CrWidth, expf = TPA, ht = Ht, htmin = 50),
+  BAL50 = ba_f(dbh = DBH, expf = TPA, ht = Ht, htmax = 50),
+  TPAL50 = tpa_f(dbh = DBH, expf = TPA, ht = Ht, htmax = 50),
+  QMDL50 = qmd_f(dbh = DBH, expf = TPA, ht = Ht, htmax = 50),
+  RSDIL50 = rsdi_stage_f(dbh = DBH, expf = TPA, ht = Ht, htmax = 50),
+  ZSDIL50 = zsdi_f(dbh = DBH, expf = TPA, ht = Ht, htmax = 50),
+  TCUFTL50 = expand_attr_f(dbh = DBH, attr = TCuFt, expf = TPA, ht = Ht, htmax = 50),
+  CCL50 = cc_f(dbh = DBH, crwidth = CrWidth, expf = TPA, ht = Ht, htmax = 50),
+  BA5T10 = ba_f(dbh = DBH, expf = TPA, dbhmin = 5, dbhmax = 10),
+  TPA5T10 = tpa_f(dbh = DBH, expf = TPA, dbhmin = 5, dbhmax = 10),
+  QMD5T10 = qmd_f(dbh = DBH, expf = TPA, dbhmin = 5, dbhmax = 10),
+  RSDI5T10 = rsdi_stage_f(dbh = DBH, expf = TPA, dbhmin = 5, dbhmax = 10),
+  ZSDI5T10 = zsdi_f(dbh = DBH, expf = TPA, dbhmin = 5, dbhmax = 10),
+  TCUF5T10 = expand_attr_f(dbh = DBH, attr = TCuFt, expf = TPA, dbhmin = 5, dbhmax = 10),
+  CCG5T10 = cc_f(dbh = DBH, crwidth = CrWidth, expf = TPA, dbhmin = 5, dbhmax = 10),
+  BA50100 = ba_f(dbh = DBH, expf = TPA, ht = Ht, htmin = 50, htmax = 100),
+  TPA50100 = tpa_f(dbh = DBH, expf = TPA, ht = Ht, htmin = 50, htmax = 100),
+  QMD50100 = qmd_f(dbh = DBH, expf = TPA, ht = Ht, htmin = 50, htmax = 100),
+  RSD50100 = rsdi_stage_f(dbh = DBH, expf = TPA, ht = Ht, htmin = 50, htmax = 100),
+  ZSD50100 = zsdi_f(dbh = DBH, expf = TPA, ht = Ht, htmin = 50, htmax = 100),
+  TCU50100 = expand_attr_f(dbh = DBH, attr = TCuFt, expf = TPA, ht = Ht, htmin = 50, htmax = 100),
+  CC50100 = cc_f(dbh = DBH, crwidth = CrWidth, expf = TPA, ht = Ht, htmin = 50, htmax = 100),
+  BASP = ba_f(dbh = DBH, expf = TPA, species = SpeciesFVS, select_species = sp_group),
+  TPASP = tpa_f(dbh = DBH, expf = TPA, species = SpeciesFVS, select_species = sp_group),
+  QMDSP = qmd_f(dbh = DBH, expf = TPA, species = SpeciesFVS, select_species = sp_group),
+  RSDISP = rsdi_stage_f(dbh = DBH, expf = TPA, species = SpeciesFVS, select_species = sp_group),
+  ZSDISP = zsdi_f(dbh = DBH, expf = TPA, species = SpeciesFVS, select_species = sp_group),
+  TCUFTSP = expand_attr_f(dbh = DBH, attr = TCuFt, expf = TPA, species = SpeciesFVS, select_species = sp_group),
+  MCUFTSP = expand_attr_f(dbh = DBH, attr = MCuFt, expf = TPA, species = SpeciesFVS, select_species = sp_group),
+  SCUFTSP = expand_attr_f(dbh = DBH, attr = SCuFt, expf = TPA, species = SpeciesFVS, select_species = sp_group),
+  BDFTSP = expand_attr_f(dbh = DBH, attr = BdFt, expf = TPA, species = SpeciesFVS, select_species = sp_group),
+  CCSP = cc_f(dbh = DBH, crwidth = CrWidth, expf = TPA, species = SpeciesFVS, select_species = sp_group),
+  AVGHTSP = mean_attr_f(dbh = DBH, attr = Ht, weight = TPA, species = SpeciesFVS, select_species = sp_group)), 
+  by = .(CaseID, StandID, Year)][order(CaseID, Year)]
+
+#Test if fvs_sum2 and fvs_sum2_f are equivalent
+all.equal(as.data.frame(fvs_sum2), as.data.frame(fvs_sum2_f))
+
+#Test BAL calculation with Fortran
+tree2[, PtBAL_dt_f := round(bal_f(dbh = DBH, expf = TPA * N), 0), 
+      by = .(CaseID, StandID, ActPt, Year)]
+
+#Same number of mistmatches as dplyr test
+all.equal(tree2$PtBAL_dt, tree2$PtBAL_dt_f)
 
 #Clean up
 rm(list=ls()); gc()
-
-system.file(package = "fvstools")

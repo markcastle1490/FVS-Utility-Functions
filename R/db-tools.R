@@ -458,34 +458,6 @@ db_insert_tbl <- function(dbout,
                     db_fields = missing_fields)
     }
     
-    # #Now Check for fields that do exist in table in dbout but DO NOT exist in
-    # #dbinsert
-    
-    # #Get database fields and types for dbout
-    # out_types <- db_tbl_schema(con = con_out,
-    #                             db_table = table)
-     
-    # missing_fields <- names(out_types)[! names(out_types) %in% 
-    #                                      names(insert_types)]
-    # missing_fields <- out_types[missing_fields]
-    
-    # #Loop through missing_fields and add to database table in dbinsert
-    # if(length(missing_fields) > 0)
-    # {
-    #   con_in <- RSQLite::dbConnect(RSQLite::SQLite(),
-    #                             dbinsert)
-      
-    #   db_add_fields(conn = con_in,
-    #               table_name = table,
-    #               db_fields = missing_fields)
-      
-    #   RSQLite::dbDisconnect(con_in)
-    # }
-    
-    #Get updated field names
-    # db_fields <- RSQLite::dbListFields(conn = con_out,
-    #                                     name = table)
-
     #Generate insert query
     query <- insert_tbl_query(db_fields = names(insert_fields),
                               db_table = table)
