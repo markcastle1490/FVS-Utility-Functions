@@ -307,6 +307,11 @@ merge_inv_dt <- function(data,
   intervals <- sort(as.numeric(unique(names(data))))
   if(verbose) cat("Intervals considered: ", paste(intervals, collapse = ", "), "\n")
   
+  #Set keys here
+  for (i in seq_along(data)) {
+  data.table::setkeyv(data[[i]], merge_id)
+  }
+  
   #Get data.table of ordered pairs
   pairs <- combn(intervals, m = 2)
   pairs_dt <- data.table::data.table(T1 = pairs[1, ],
@@ -344,16 +349,19 @@ merge_inv_dt <- function(data,
     )
    
     #Get plots that match between time periods
-    time1 <- time1[env = list(p = plot_id), p %in% match_plot]
-    time2 <- time2[env = list(p = plot_id), p %in% match_plot]
+    time1 <- time1[time1[[plot_id]] %in% match_plot]
+    time2 <- time2[time2[[plot_id]] %in% match_plot]
+
+    print(data.table::key(time1))
+    print(data.table::key(time2))
    
-    data.table::setkeyv(time1, merge_id)
-    data.table::setkeyv(time2, merge_id)
+    #data.table::setkeyv(time1, merge_id)
+    #data.table::setkeyv(time2, merge_id)
    
     #Join the tree level information
     #Full join is used to capture tree records that may not have a matched
     #record between remeasurement periods
-    df <- merge(x = time1, y = time2, by = c(merge_id), all = TRUE)
+    df <- merge(x = time1, y = time2, by = c(merge_id), all.x = TRUE)
 
     #Now do the following:
     #If tree_id.x is NA, use the value from tree_id.y. These are ingrowth,
