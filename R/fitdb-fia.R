@@ -201,23 +201,33 @@ fia_fitdb <- function(dbin = NULL,
     "BA", "RSDI", "ZSDI", "BAL")
 
   #Call merge_inv function
-  merge_df <- merge_inv_dt(data = split(tree[, c("UNIQUETREEID",
-                             "PLOTMERGEID",
-                             "TREEMERGEID",
-                              merge_vars), with = FALSE],
-                              by = "CYCLE"),
-                           plot_id = "PLOTMERGEID",
-                           tree_id = "UNIQUETREEID",
-                           merge_id = "TREEMERGEID",
-                           interval_id = "CYCLE",
-                           verbose = verbose)
+  # merge_df <- merge_inv(data = split(tree[, c("UNIQUETREEID",
+  #                            "PLOTMERGEID",
+  #                            "TREEMERGEID",
+  #                             merge_vars), with = FALSE],
+  #                             by = "CYCLE"),
+  #                          plot_id = "PLOTMERGEID",
+  #                          merge_id = "TREEMERGEID",
+  #                          interval_id = "CYCLE",
+  #                          verbose = verbose)
+  
+  merge_df <- merge_inv(data = tree[, c("UNIQUETREEID",
+                                              "PLOTMERGEID",
+                                              "TREEMERGEID",
+                                              merge_vars), with = FALSE],
+                        plot_id = "PLOTMERGEID",
+                        merge_id = "TREEMERGEID",
+                        interval_id = "CYCLE",
+                        verbose = verbose)
+  
+  return(merge_df)
   
   #Isolate tree level variables not needed in merge_inv function
   tree = tree[, !c("TREEMERGEID", "PLOTMERGEID", merge_vars), with = FALSE]
 
   #Remove unnecessary columns
   merge_df <- merge_df[, c("UNIQUETREEID.y",
-                           "PLOTMERGEID.y", 
+                           "PLOTMERGEID.y",
                            "PLOTMERGEID.x") := NULL]
   
   #Rename columns

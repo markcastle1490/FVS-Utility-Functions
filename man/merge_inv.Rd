@@ -2,13 +2,11 @@
 % Please edit documentation in R/fitdb-build.R
 \name{merge_inv}
 \alias{merge_inv}
-\alias{merge_inv_dt}
 \title{merge_inv}
 \usage{
-merge_inv_dt(
+merge_inv(
   data,
   plot_id = "PLOTMERGEID",
-  tree_id = "UNIQUETREEID",
   merge_id = "TREEMERGEID",
   interval_id = "CYCLE",
   verbose = TRUE
@@ -18,8 +16,6 @@ merge_inv_dt(
 \item{data:}{List of data tables for each unique value of interval argument}
 
 \item{plot_id:}{Character string of column name used to represent a unique plot ID.}
-
-\item{tree_id:}{Character string of column name used to represent a unique tree ID.}
 
 \item{merge_id:}{Character string of column name used to merge re-measurement periods together
 at the tree level.}
