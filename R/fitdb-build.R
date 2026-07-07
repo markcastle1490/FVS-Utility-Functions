@@ -339,8 +339,8 @@ merge_inv_dt <- function(data,
    
     #Find plots that match from time 1 and time 2
     match_plot <- intersect(
-      time1[, env = list(p = plot_id), (p)],
-      time2[, env = list(p = plot_id), (p)]
+      time1[[plot_id]],
+      time2[[plot_id]]
     )
    
     #Get plots that match between time periods
