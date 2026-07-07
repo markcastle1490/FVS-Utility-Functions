@@ -11,7 +11,7 @@ if(.Platform$OS.type == 'windows'){
 
 #Linux
 if(.Platform$OS.type == 'unix'){
-  pkg_root <OS.typepkg_root <- "/home/mark/FVS_Tools/fvstools"
+  pkg_root <- OS.typepkg_root <- "/home/mark/FVS_Tools/fvstools"
   build_dir <- "/home/mark/FVS_Tools"
   r_lib <- "/home/mark/R/x86_64-pc-linux-gnu-library/4.5"
 }

@@ -142,7 +142,17 @@ fia_fitdb <- function(dbin = NULL,
                   #Grab PREVIA for dead trees if needed
                   DIA = data.table::fifelse(is.na(DIA) & STATUSCD == 2, PREVDIA, DIA),
                   EXPF = data.table::fcoalesce(TPA_UNADJ, 0.0),
-                  CRTYPE = 0L)
+                  #Fill in missing HTDMP values and allow for tolerance of
+                  #values (0.0 = valid HTDMP)
+                  HTDMP = data.table::fcase(is.na(HTDMP), 0.0,
+                                HTDMP >= 4 & HTDMP < 5, 0.0,
+                                default = HTDMP),
+                  #Assume 1 for missing DIAHTCD values
+                  DIAHTCD = data.table::fcoalesce(DIAHTCD, 1L),
+                  CRTYPE = 0L,
+                  DATE = as.Date(sprintf("%04d-%02d-%02d", MEASYEAR, MEASMON, MEASDAY),
+                  format = "%Y-%m-%d",
+                  na.strings = "NA-NA-NA"))
   #Create variables used in re-measurement alignment
   ][, TREEMERGEID := .GRP, by = .(paste(STATECD,
                                         UNITCD,
@@ -162,17 +172,6 @@ fia_fitdb <- function(dbin = NULL,
   if(verbose)
   cat("Calculating competition and density measures...", "\n")
 
-  #Calculate 
-  #TPA
-  #QMD
-  #BA
-  #RSDI
-  #ZSDI
-  #BAL
-  #Others...
-  #Variables like SDI max would need to be spatially extracted
-  #Top height would require heights for all trees...
-  
   #Calculate temporary variables for plot calculations
   #EXPF could be scaled to plot level or condition here..
   tree[, ':=' (TEXPF = data.table::fifelse(STATUSCD == 2, 0.0, EXPF),
@@ -197,27 +196,24 @@ fia_fitdb <- function(dbin = NULL,
 
   #Obtain variables that will be included in the merge_inv function
   merge_vars <- c(
-    "CYCLE", "MEASYEAR", "MEASMON", "MEASDAY", "DIA", "HT", "CR", "STATUSCD",
-    "AGENTCD", "DIACHECK", "HTDMP", "DESIGNCD", "TPA", "QMD", "BA", "RSDI",
-    "ZSDI", "BAL")
+    "CYCLE", "MEASYEAR", "MEASMON", "MEASDAY", "DATE", "DIA", "HT", "CR",
+    "STATUSCD", "AGENTCD", "DIACHECK", "HTDMP", "DESIGNCD", "TPA", "QMD",
+    "BA", "RSDI", "ZSDI", "BAL")
 
-  #Create list of data frames
-  merge_df <- split(tree[, c("UNIQUETREEID",
+  #Call merge_inv function
+  merge_df <- merge_inv_dt(data = split(tree[, c("UNIQUETREEID",
                              "PLOTMERGEID",
                              "TREEMERGEID",
                               merge_vars), with = FALSE],
-                    by = "CYCLE")
-
-  #Isolate tree level variables not needed in merge_inv function
-  tree = tree[, !c("TREEMERGEID", "PLOTMERGEID", merge_vars), with = FALSE]
-
-  #Call merge_inv function
-  merge_df <- merge_inv_dt(data = merge_df,
+                              by = "CYCLE"),
                            plot_id = "PLOTMERGEID",
                            tree_id = "UNIQUETREEID",
                            merge_id = "TREEMERGEID",
-                           interval = "CYCLE",
+                           interval_id = "CYCLE",
                            verbose = verbose)
+  
+  #Isolate tree level variables not needed in merge_inv function
+  tree = tree[, !c("TREEMERGEID", "PLOTMERGEID", merge_vars), with = FALSE]
 
   #Remove unnecessary columns
   merge_df <- merge_df[, c("UNIQUETREEID.y",
@@ -260,27 +256,12 @@ fia_fitdb <- function(dbin = NULL,
                DIASUM2 = sum(DIACHECK2, na.rm = TRUE)),
                by = TREEMERGEID]
   
-  #Compute measurement interval length and define acceptable HTDMP values (0.0)
-  #Setup date variables for REMPER calculation
+  #Compute measurement interval length and REMPER
   tree[,  ':=' (MEASLEN = MEASYEAR2 - MEASYEAR1,
-                DATE1 = as.Date(sprintf("%04d-%02d-%02d", MEASYEAR1, MEASMON1, MEASDAY1),
-                                format = "%Y-%m-%d",
-                                na.strings = "NA-NA-NA"),
-                DATE2 = as.Date(sprintf("%04d-%02d-%02d", MEASYEAR2, MEASMON2, MEASDAY2),
-                                format = "%Y-%m-%d",
-                                na.strings = "NA-NA-NA"),
-                HTDMP1 = data.table::fcase(is.na(HTDMP1), 0.0,
-                                           HTDMP1 >= 4 & HTDMP1 < 5, 0.0,
-                                           default = HTDMP1),
-                HTDMP2 = data.table::fcase(is.na(HTDMP2), 0.0,
-                                           HTDMP2 >= 4 & HTDMP2 < 5, 0.0,
-                                           default = HTDMP2))]
+                REMPER = round(((DATE2 - DATE1)/365.25), 1))]
 
-  #Calculate REMPER, MORT, IDGRM, DI, IHGRM, HI, and HCB
-  tree[, ':=' (REMPER = round(((DATE2 - DATE1)/365.25), 1),
-                 #Assume 1 for missing DIAHTCD values
-                  DIAHTCD = data.table::fcoalesce(DIAHTCD, 1L),
-                  #Mortality observation indicator
+  #Calculate MORT, IDGRM, DI, IHGRM, HI, and HCB
+  tree[, ':=' (#Mortality observation indicator
                   MORT = data.table::fcase(
                     STATUSCD1 == 1 & STATUSCD2 == 2 & MEASLEN > 0, 1L,
                     STATUSCD1 == 1 & STATUSCD2 == 1 & MEASLEN > 0, 0L,

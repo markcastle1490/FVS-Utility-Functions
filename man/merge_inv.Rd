@@ -10,7 +10,7 @@ merge_inv_dt(
   plot_id = "PLOTMERGEID",
   tree_id = "UNIQUETREEID",
   merge_id = "TREEMERGEID",
-  interval = "CYCLE",
+  interval_id = "CYCLE",
   verbose = TRUE
 )
 }

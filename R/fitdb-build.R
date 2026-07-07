@@ -299,105 +299,78 @@ merge_inv_dt <- function(data,
                          plot_id = "PLOTMERGEID",
                          tree_id = "UNIQUETREEID",
                          merge_id = "TREEMERGEID",
-                         interval = "CYCLE",
+                         interval_id = "CYCLE",
                          verbose = TRUE)
 {
   if(verbose) cat("\n", "Entering merge_inv function.", "\n", "\n")
   
-  #Get unique INTERVAL values and sort
   intervals <- sort(as.numeric(unique(names(data))))
   if(verbose) cat("Intervals considered: ", paste(intervals, collapse = ", "), "\n")
   
+  #Get data.table of ordered pairs
+  pairs <- combn(intervals, m = 2)
+  pairs_dt <- data.table::data.table(T1 = pairs[1, ],
+                                     T2 = pairs[2, ])
+  
   #Define list used to store merged dataframes
-  df_list <-vector(mode = "list", length = choose(length(intervals), 2))
+  df_list <-vector(mode = "list", length = nrow(pairs_dt))
 
   #Setup labels needed for column headers after joins
   tree_lab_x = paste0(tree_id, ".x")
   tree_lab_y = paste0(tree_id, ".y")
-  int_lab_x = paste0(interval, ".x")
-  int_lab_y = paste0(interval, ".y")
+  int_lab_x = paste0(interval_id, ".x")
+  int_lab_y = paste0(interval_id, ".y")
   
-  #Initialize variable that will be used to track number of insertions into
-  #df_list
-  n_insert <- 1
-  
-  #Start outer loop across intervals. Combine remeasurements when criteria is 
-  #met
-  for(interval1 in intervals)
-  {
-    for(interval2 in intervals)
-    {
+  #Loop over pairs_dt and combine information for each interval pairing
+  for(i in 1:nrow(pairs_dt)) {
 
-      #Criteria for merging is met
-      if(interval2 > interval1) 
-      {
-        if(verbose)
-        {
+    interval1 <- pairs_dt[[i, 1]]
+    interval2 <- pairs_dt[[i, 2]]
+   
+    if(verbose) {
           cat("Interval 1:", interval1, "\n")
           cat("Interval 2:", interval2, "\n")
           cat("Merging remeasurements", "\n", "\n")
-        }
-
-        #Get data.tables associated with interval
-        time1 = data.table::copy(data[[as.character(interval1)]])
-        time2 = data.table::copy(data[[as.character(interval2)]])
-        
-        #Find plots that exist in both time1 and time 2
-        #match_plot = intersect(time1[[plot_id]], time2[[plot_id]])
-        match_plot <- intersect(
-          time1[, env = list(p = plot_id), (p)], 
-          time2[, env = list(p = plot_id), (p)]
-        )
-        
-        #Get only plots that exist at both points in time
-        # time1 = time1[(get(plot_id) %in% match_plot)]
-        # time2 = time2[(get(plot_id) %in% match_plot)] 
-        time1 <- time1[env = list(p = plot_id), p %in% match_plot]
-        time2 <- time2[env = list(p = plot_id), p %in% match_plot]
-
-        #Set keys for merging
-        data.table::setkeyv(time1, merge_id)
-        data.table::setkeyv(time2, merge_id)
-
-        #Join the tree level information
-        #Full join is used to capture tree records that may not have a matched
-        #record between remeasurement periods
-        df <- merge(x = time1,
-                    y = time2,
-                    by = c(merge_id),
-                    all = TRUE)
-        
-        #Now do the following:
-        #If tree_id.x is NA, use the value from tree_id.y. These are ingrowth,
-        #missed trees, or those not accounted for due to change in DESIGNCD
-        #between initial (interval1) and subsequent inventory (interval2).
-        #Records with NA interval values have a value filled in.
-        
-        new_cols = c(tree_lab_x, int_lab_x, int_lab_y)
-        
-        # df[, (new_cols) := 
-        #      list(data.table::fcoalesce(get(tree_lab_x), get(tree_lab_y)),
-        #           data.table::fcoalesce(get(int_lab_x), as.integer(interval1)),
-        #           data.table::fcoalesce(get(int_lab_y), as.integer(interval2)))]
-        
-        df[, env = list(
-          tx = tree_lab_x, ty = tree_lab_y,
-          ix = int_lab_x,  iy = int_lab_y,
-          v1 = as.integer(interval1), v2 = as.integer(interval2)
-        ), 
-        `:=`(
-          tx = data.table::fcoalesce(tx, ty),
-          ix = data.table::fcoalesce(ix, v1),
-          iy = data.table::fcoalesce(iy, v2)
-        )]
-        
-        #Add data.table to list
-        df_list[[n_insert]] <- df
-        
-        #Increment n_insert
-        n_insert<- n_insert + 1
-      }
     }
+   
+    #Get the data for each interval
+    time1 = data.table::copy(data[[as.character(interval1)]])
+    time2 = data.table::copy(data[[as.character(interval2)]])
+   
+    #Find plots that match from time 1 and time 2
+    match_plot <- intersect(
+      time1[, env = list(p = plot_id), (p)],
+      time2[, env = list(p = plot_id), (p)]
+    )
+   
+    #Get plots that match between time periods
+    time1 <- time1[env = list(p = plot_id), p %in% match_plot]
+    time2 <- time2[env = list(p = plot_id), p %in% match_plot]
+   
+    data.table::setkeyv(time1, merge_id)
+    data.table::setkeyv(time2, merge_id)
+   
+    #Join the tree level information
+    #Full join is used to capture tree records that may not have a matched
+    #record between remeasurement periods
+    df <- merge(x = time1, y = time2, by = c(merge_id), all = TRUE)
+
+    #Now do the following:
+    #If tree_id.x is NA, use the value from tree_id.y. These are ingrowth,
+    #missed trees, or those not accounted for due to change in DESIGNCD
+    #between initial (interval1) and subsequent inventory (interval2).
+    #Records with NA interval values have a value filled in.
+    df[, env = list(
+      tx = tree_lab_x, ty = tree_lab_y,
+      ix = int_lab_x,  iy = int_lab_y,
+      v1 = as.integer(interval1), v2 = as.integer(interval2)
+    ), `:=`(
+      tx = data.table::fcoalesce(tx, ty),
+      ix = data.table::fcoalesce(ix, v1),
+      iy = data.table::fcoalesce(iy, v2)
+    )]
+   
+    df_list[[i]] <- df
   }
   
   #Bind all items in df_list into a single dataframe and return
