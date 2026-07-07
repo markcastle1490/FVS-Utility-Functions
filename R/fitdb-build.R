@@ -334,8 +334,8 @@ merge_inv_dt <- function(data,
     }
    
     #Get the data for each interval
-    time1 = data.table::copy(data[[as.character(interval1)]])
-    time2 = data.table::copy(data[[as.character(interval2)]])
+    time1 = data[[as.character(interval1)]]
+    time2 = data[[as.character(interval2)]]
    
     #Find plots that match from time 1 and time 2
     match_plot <- intersect(
