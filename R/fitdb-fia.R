@@ -215,34 +215,15 @@ fia_fitdb <- function(dbin = NULL,
                                               "PLOTMERGEID",
                                               "TREEMERGEID",
                                               merge_vars), with = FALSE],
+                        unique_id = "UNIQUETREEID",
                         plot_id = "PLOTMERGEID",
                         merge_id = "TREEMERGEID",
                         interval_id = "CYCLE",
                         verbose = verbose)
-  
-  return(merge_df)
-  
+
   #Isolate tree level variables not needed in merge_inv function
   tree = tree[, !c("TREEMERGEID", "PLOTMERGEID", merge_vars), with = FALSE]
 
-  #Remove unnecessary columns
-  merge_df <- merge_df[, c("UNIQUETREEID.y",
-                           "PLOTMERGEID.y",
-                           "PLOTMERGEID.x") := NULL]
-  
-  #Rename columns
-  data.table::setnames(x = merge_df, 
-                       old = c("UNIQUETREEID.x"), 
-                       new = c("UNIQUETREEID"))
-  
-  data.table::setnames(x = merge_df, 
-                       old = names(merge_df), 
-                       new = gsub(".x", "1", names(merge_df)))
-  
-  data.table::setnames(x = merge_df, 
-                       old = names(merge_df), 
-                       new = gsub(".y", "2", names(merge_df)))
-  
   #join merge_df to tree and then remove
   tree = merge(x = merge_df,
                y = tree, 
@@ -299,11 +280,13 @@ fia_fitdb <- function(dbin = NULL,
                   #Height to crown base
                   HCB1 = HT1 - (HT1 * CR1/100),
                   HCB2 = HT2 - (HT2 * CR2/100))]
-                 
-  
+
   #Upper case column names and get fitdb variables
   data.table::setnames(x = tree, toupper)
-  tree = tree[, .SD, .SDcols = names(fitdb_vars())]
+
+  #Eliminate columns not in fitdb_vars
+  keep_cols <- names(fitdb_vars())
+  tree <- tree[, ..keep_cols]  
 
   #=============================================================================
   # Write tree (fitdb) dataframe to output database

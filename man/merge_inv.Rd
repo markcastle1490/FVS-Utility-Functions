@@ -6,6 +6,7 @@
 \usage{
 merge_inv(
   data,
+  unique_id = "UNIQUETREEID",
   plot_id = "PLOTMERGEID",
   merge_id = "TREEMERGEID",
   interval_id = "CYCLE",
@@ -14,6 +15,8 @@ merge_inv(
 }
 \arguments{
 \item{data:}{List of data tables for each unique value of interval argument}
+
+\item{unique_id;}{Character string of column name used to repredent a unique tree ID.}
 
 \item{plot_id:}{Character string of column name used to represent a unique plot ID.}
 

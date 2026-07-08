@@ -149,6 +149,9 @@ build_fitdb <- function(dbin = NULL,
 #'@param data:
 #'List of data tables for each unique value of interval argument
 #
+#'@param unique_id;
+#'Character string of column name used to repredent a unique tree ID.
+#
 #'@param plot_id:   
 #'Character string of column name used to represent a unique plot ID.
 #' 
@@ -164,144 +167,59 @@ build_fitdb <- function(dbin = NULL,
 #'Data frame with paired remeasurement data.
 ################################################################################
 
-#There may be a way to use a non-equi join that would be more efficient than 
-#loop logic in merge_inv, but trees that are only measured once are not included.
-#These could be records that are useful for fitting HT-DBH and crown ratio 
-#relationships (or for general tracking purposes).
+merge_inv <- function(data, 
+                      unique_id = "UNIQUETREEID",
+                      plot_id = "PLOTMERGEID", 
+                      merge_id = "TREEMERGEID", 
+                      interval_id = "CYCLE", 
+                      verbose = TRUE)
+   {
+  
+  if(verbose) cat("\n", "Entering merge_inv.", "\n", "\n")
+  
+  #Add copy of interval_id to data
+   tmp_interval <- "_interval_id_"
+   data[, (tmp_interval) := get(interval_id)]
 
-#Dynamic setup for the on-liner join condition
-#on_cols <- c(merge_id, paste0(interval_id, "<", interval_id))
-
-# Evaluates as: x = earlier interval, i = later interval
-# nomatch = NA forces the Left Join behavior you want
-# data needs to be a data.table and not a list of data.tables
-#df <- data[data, on = on_cols, nomatch = NA, allow.cartesian = TRUE]
-
-# merge_inv <- function(data,
-#                       plot_id = "PLOTMERGEID",
-#                       merge_id = "TREEMERGEID",
-#                       interval_id = "CYCLE",
-#                       verbose = TRUE)
-# {
-#   if(verbose) cat("\n", "Entering merge_inv function.", "\n", "\n")
-#   
-#   intervals <- sort(as.numeric(unique(names(data))))
-#   if(verbose) cat("Intervals considered: ", paste(intervals, collapse = ", "), "\n")
-#   
-#   #Set keys here
-#   for (i in seq_along(data)) {
-#     data.table::setkeyv(data[[i]], merge_id)
-#   }
-#   
-#   #Setup labels needed for column headers after joins
-#   int_lab_x = paste0(interval_id, ".x")
-#   int_lab_y = paste0(interval_id, ".y")
-#   
-#   #Get order pairs of measurement periods
-#   pairs_list <- combn(intervals, m = 2, simplify = FALSE)
-#   
-#   #Define list used to store merged dataframes
-#   df_list <- vector(mode = "list", length = length(pairs_list))
-#   
-#   #Loop over pairs_dt and combine information for each interval pairing
-#   for(i in seq_along(pairs_list)) 
-#   {
-#     interval1 <- as.character(pairs_list[[i]][1])
-#     interval2 <- as.character(pairs_list[[i]][2])
-#     
-#     if(verbose) {
-#       cat("Interval 1:", interval1, "\n")
-#       cat("Interval 2:", interval2, "\n")
-#       cat("Merging remeasurements", "\n", "\n")
-#     }
-#     
-#     #Get the data for each interval
-#     time1 = data[[as.character(interval1)]]
-#     time2 = data[[as.character(interval2)]]
-# 
-#     #Find plots that match from time 1 and time 2
-#     match_plot <- intersect(
-#       time1[[plot_id]],
-#       time2[[plot_id]]
-#     )
-# 
-#     #Get plots that match between time periods
-#     time1 <- time1[time1[[plot_id]] %in% match_plot]
-#     time2 <- time2[time2[[plot_id]] %in% match_plot]
-#     
-#     #Join the tree level information
-#     df <- merge(x = time1,
-#                 y = time2,
-#                 by = c(merge_id), 
-#                 all.x = TRUE)
-#     
-#     #Records with NA interval values have a value filled in.
-#     df[is.na(get(int_lab_y)), (int_lab_y) := as.integer(interval2)]
-#     
-#     #Insert into list
-#     df_list[[i]] <- df
-#   }
-#   
-#   #Bind all items in df_list into a single dataframe and return
-#   df <- data.table::rbindlist(df_list, fill = TRUE)
-#   
-#   if(verbose) cat("Leaving merge_inv function.", "\n", "\n")
-#   
-#   return(df)
-# }
-
-merge_inv <- function(data, plot_id = "PLOTMERGEID", merge_id = "TREEMERGEID", interval_id = "CYCLE", verbose = TRUE) {
-  if(verbose) cat("\n", "Entering merge_inv function via non-equi join.", "\n", "\n")
-  
-  # Ensure the input is explicitly a data.table
-  data.table::setDT(data)
-  
-  # Identify tracking variables vs identifier keys dynamically
-  all_cols <- names(data)
-  
-  # Define our absolute ID columns that must never be NA
-  id_cols  <- unique(c("UNIQUETREEID", plot_id, merge_id))
-  id_cols  <- intersect(id_cols, all_cols) # Keep only IDs that exist in data
-  
-  # Everything else needs .x (baseline) and .y (future) tracking suffixes
-  measure_cols <- setdiff(all_cols, id_cols)
-  
-  # --- THE FIX: FORCE KEYS TO USE THE 'i.' ANCHOR PREFIX ---
-  # This guarantees that even if there is no future match, 
-  # UNIQUETREEID, PLOTMERGEID, and TREEMERGEID retain their baseline values.
-  j_string <- paste0(
-    "list(",
-    # Anchor keys are explicitly forced to use 'i.' to prevent NA row conversion
-    paste0(id_cols, " = i.", id_cols, collapse = ", "), ", ",
-    # Shorthand cycle columns
-    "cy.x = i.", interval_id, ", ",
-    "cy.y = x.", interval_id, ", ",
-    # Baseline observation maps to .x
-    paste0(measure_cols, ".x = i.", measure_cols, collapse = ", "), ", ",
-    # Future/comparison observation maps to .y
-    paste0(measure_cols, ".y = x.", measure_cols, collapse = ", "),
-    ")"
-  )
-  
   # Define the non-equi join conditions dynamically
+  # This will act as a left join
   on_cols <- c(plot_id, merge_id, paste0(interval_id, " > ", interval_id))
   
-  if(verbose) cat("Executing non-equi self-join matrix calculations...\n")
+  if(verbose) cat("Merging remeasurements...\n")
   
   # Perform the self-join
   df <- data[data, 
              on = on_cols, 
              nomatch = NA, 
-             allow.cartesian = TRUE, 
-             eval(parse(text = j_string))]
+             allow.cartesian = TRUE]
   
-  # Clean up missing values for trees that disappeared/have no future cycle
-  int_lab_y <- paste0(interval_id, ".y")
-  int_lab_x <- paste0(interval_id, ".x")
+  # Clean up missing values for trees that existed at time 1 but not time 2
+  int_lab_y <- paste0(interval_id)
+  int_lab_x <- paste0("i.", interval_id)
   
   df[is.na(get(int_lab_y)), (int_lab_y) := get(int_lab_x)] 
-  df[is.na(cy.y), cy.y := cy.x]
-  
+
+  #Drop columns that are no longer needed
+  df[, c(unique_id, plot_id, interval_id) := NULL]
+
+  #Rename time 1 unique id (.i)
+  data.table::setnames(df, old = paste0("i.", unique_id), new = unique_id)
+
+  # Rename i. columns: strip "i." prefix and append "1"
+  i_cols <- names(df)[grepl("^i\\.", names(df))]
+  t1_names <- sub("^i\\.", "", i_cols)
+  t1_names <- paste0(t1_names, "1")
+  data.table::setnames(df, i_cols, t1_names)
+
+  # Rename other columns (except plot_id, merge_id, unique_id, AND the renamed i_cols): append "2"
+  cols_to_rename <- names(df)[!names(df) %in% c(plot_id, merge_id, unique_id, t1_names)]
+  t2_names <- paste0(cols_to_rename, "2")
+  data.table::setnames(df, cols_to_rename, t2_names)
+
+  #Rename the temp intervals
+  data.table::setnames(df, paste0(tmp_interval, "1"), paste0(interval_id, "1"))
+  data.table::setnames(df, paste0(tmp_interval, "2"), paste0(interval_id, "2"))
+
   if(verbose) cat("Leaving merge_inv function.", "\n", "\n")
   return(df)
 }
@@ -425,6 +343,10 @@ write_fitdb <- function(fitdb,
 # #'Data frame with paired remeasurement data.
 # ################################################################################
 
+######################################
+#Dplyr Join version of merge_inv
+######################################
+
 # merge_inv <- function(data,
 #                       plot_id = "PLOTMERGEID",
 #                       tree_id = "UNIQUETREEID",
@@ -515,3 +437,100 @@ write_fitdb <- function(fitdb,
 
 #   return(df)
 # }
+
+######################################
+#Non Equi Join version of merge_inv
+######################################
+
+# merge_inv <- function(data,
+#                       plot_id = "PLOTMERGEID",
+#                       merge_id = "TREEMERGEID",
+#                       interval_id = "CYCLE",
+#                       verbose = TRUE)
+# {
+#   if(verbose) cat("\n", "Entering merge_inv function.", "\n", "\n")
+  
+#   intervals <- sort(as.numeric(unique(names(data))))
+#   if(verbose) cat("Intervals considered: ", paste(intervals, collapse = ", "), "\n")
+  
+#   #Set keys here
+#   for (i in seq_along(data)) {
+#     data.table::setkeyv(data[[i]], merge_id)
+#   }
+  
+#   #Setup labels needed for column headers after joins
+#   int_lab_x = paste0(interval_id, ".x")
+#   int_lab_y = paste0(interval_id, ".y")
+  
+#   #Get order pairs of measurement periods
+#   pairs_list <- combn(intervals, m = 2, simplify = FALSE)
+  
+#   #Define list used to store merged dataframes
+#   df_list <- vector(mode = "list", length = length(pairs_list))
+  
+#   #Loop over pairs_dt and combine information for each interval pairing
+#   for(i in seq_along(pairs_list)) 
+#   {
+#     interval1 <- as.character(pairs_list[[i]][1])
+#     interval2 <- as.character(pairs_list[[i]][2])
+    
+#     if(verbose) {
+#       cat("Interval 1:", interval1, "\n")
+#       cat("Interval 2:", interval2, "\n")
+#       cat("Merging remeasurements", "\n", "\n")
+#     }
+    
+#     #Get the data for each interval
+#     time1 = data[[as.character(interval1)]]
+#     time2 = data[[as.character(interval2)]]
+
+#     #Find plots that match from time 1 and time 2
+#     match_plot <- intersect(
+#       time1[[plot_id]],
+#       time2[[plot_id]]
+#     )
+
+#     #Get plots that match between time periods
+#     time1 <- time1[time1[[plot_id]] %in% match_plot]
+#     time2 <- time2[time2[[plot_id]] %in% match_plot]
+    
+#     #Join the tree level information
+#     df <- merge(x = time1,
+#                 y = time2,
+#                 by = c(merge_id), 
+#                 all.x = TRUE)
+    
+#     #Records with NA interval values have a value filled in.
+#     df[is.na(get(int_lab_y)), (int_lab_y) := as.integer(interval2)]
+    
+#     #Insert into list
+#     df_list[[i]] <- df
+#   }
+  
+#   #Bind all items in df_list into a single dataframe and return
+#   df <- data.table::rbindlist(df_list, fill = TRUE)
+  
+#   if(verbose) cat("Leaving merge_inv function.", "\n", "\n")
+  
+#   return(df)
+# }
+
+#Renaming part
+#  #Remove unnecessary columns
+#   merge_df <- merge_df[, c("UNIQUETREEID.y",
+#                            "PLOTMERGEID.y",
+#                            "PLOTMERGEID.x") := NULL]
+  
+#   #Rename columns
+#   data.table::setnames(x = merge_df, 
+#                        old = c("UNIQUETREEID.x"), 
+#                        new = c("UNIQUETREEID"))
+  
+#   data.table::setnames(x = merge_df, 
+#                        old = names(merge_df), 
+#                        new = gsub(".x", "1", names(merge_df)))
+  
+#   data.table::setnames(x = merge_df, 
+#                        old = names(merge_df), 
+#                        new = gsub(".y", "2", names(merge_df)))
+
