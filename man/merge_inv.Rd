@@ -14,9 +14,10 @@ merge_inv(
 )
 }
 \arguments{
-\item{data:}{List of data tables for each unique value of interval argument}
+\item{data:}{Data table (from data.table package) containing variables that should be
+paired based on a measurement interval.}
 
-\item{unique_id;}{Character string of column name used to repredent a unique tree ID.}
+\item{unique_id;}{Character string of column name used to represent a unique tree ID.}
 
 \item{plot_id:}{Character string of column name used to represent a unique plot ID.}
 
@@ -27,11 +28,11 @@ at the tree level.}
 This variable is used to pair re-measurement observations.}
 }
 \value{
-Data frame with paired remeasurement data.
+Data table with paired remeasurement data.
 }
 \description{
 This function accepts a list of dataframes containing containing information
-that will be paired by a measurement interval (cycle or year). This function
-is called from the code that prepares a growth sample tree database (e.g.
-fia_fitdb).
+that will be paired by a measurement interval (typically a cycle or year).
+This function is called from the code that prepares a fitting database
+specific to a data source (e.g.fia_fitdb).
 }

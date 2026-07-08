@@ -4,15 +4,14 @@
 #'@description
 #' 
 #'This function processes a set of sqlite databases and creates a standardized
-#'output growth sample tree database than be used for fitting equation
-#'development (GST). Currently this function is only equipped to build GST
-#'databases from FIA data.
+#'output database than be used for fitting equation development (FITDB). 
+#'Currently this function is only equipped to build FITDB databases from FIA data.
 #
 #'@param dbin:	    
 #'Character vector of file paths to sqlite database (.db or .sqlite).
 #
 #'@param dbout:	    
-#'Character string corresponding to output sqlite GST database (.db or .sqlite).
+#'Character string corresponding to output sqlite FITDB database (.db or .sqlite).
 #' 
 #'@param fitdb_name: 
 #'Character string corresponding to name of database table written to dbout 
@@ -20,7 +19,7 @@
 #' 
 #'@param fitdb_type: 
 #'Numeric value corresponding to type of GST database to create. 
-#'1 = GST built from FIA data
+#'1 = FITDB built from FIA data
 #
 #'@param overwrite:	
 #' Logical variable used to determine if currently existing dbout file should be
@@ -114,7 +113,7 @@ build_fitdb <- function(dbin = NULL,
     if(verbose) cat("Processing:", db, "\n", "\n")
 
     #===========================================================================
-    #Call function for building GST datbase. Currently only FIA data is
+    #Call function for building FITDB database. Currently only FIA data is
     #supported but this section can be updated to accommodate other data
     #sources
     #===========================================================================
@@ -142,15 +141,16 @@ build_fitdb <- function(dbin = NULL,
 #'@description
 #' 
 #'This function accepts a list of dataframes containing containing information
-#'that will be paired by a measurement interval (cycle or year). This function 
-#'is called from the code that prepares a growth sample tree database (e.g.
-#'fia_fitdb).
+#'that will be paired by a measurement interval (typically a cycle or year). 
+#'This function is called from the code that prepares a fitting database
+#'specific to a data source (e.g.fia_fitdb).
 #
 #'@param data:
-#'List of data tables for each unique value of interval argument
+#'Data table (from data.table package) containing variables that should be 
+#'paired based on a measurement interval.
 #
 #'@param unique_id;
-#'Character string of column name used to repredent a unique tree ID.
+#'Character string of column name used to represent a unique tree ID.
 #
 #'@param plot_id:   
 #'Character string of column name used to represent a unique plot ID.
@@ -164,7 +164,7 @@ build_fitdb <- function(dbin = NULL,
 #'This variable is used to pair re-measurement observations.
 #
 #'@return
-#'Data frame with paired remeasurement data.
+#'Data table with paired remeasurement data.
 ################################################################################
 
 merge_inv <- function(data, 
@@ -175,17 +175,17 @@ merge_inv <- function(data,
                       verbose = TRUE)
    {
   
-  if(verbose) cat("\n", "Entering merge_inv.", "\n", "\n")
+  #Add copy of interval_id to data. This is done because data.table does not 
+  #create time1 and time 2 interval_id variables in non-equi join.
+  tmp_interval <- "_interval_id_"
+  data[, (tmp_interval) := get(interval_id)]
   
-  #Add copy of interval_id to data
-   tmp_interval <- "_interval_id_"
-   data[, (tmp_interval) := get(interval_id)]
+  #Sort the data
+  data.table::setorderv(x = data, cols = c(plot_id, merge_id, interval_id))
 
   # Define the non-equi join conditions dynamically
   # This will act as a left join
   on_cols <- c(plot_id, merge_id, paste0(interval_id, " > ", interval_id))
-  
-  if(verbose) cat("Merging remeasurements...\n")
   
   # Perform the self-join
   df <- data[data, 
@@ -205,10 +205,9 @@ merge_inv <- function(data,
   #Rename time 1 unique id (.i)
   data.table::setnames(df, old = paste0("i.", unique_id), new = unique_id)
 
-  # Rename i. columns: strip "i." prefix and append "1"
+  # Rename i. columns (time 1): strip "i." prefix and append "1"
   i_cols <- names(df)[grepl("^i\\.", names(df))]
-  t1_names <- sub("^i\\.", "", i_cols)
-  t1_names <- paste0(t1_names, "1")
+  t1_names <- paste0(sub("^i\\.", "", i_cols), "1")
   data.table::setnames(df, i_cols, t1_names)
 
   # Rename other columns (except plot_id, merge_id, unique_id, AND the renamed i_cols): append "2"
@@ -216,11 +215,10 @@ merge_inv <- function(data,
   t2_names <- paste0(cols_to_rename, "2")
   data.table::setnames(df, cols_to_rename, t2_names)
 
-  #Rename the temp intervals
+  #Rename the temp intervals to what was carried in interval_id initially
   data.table::setnames(df, paste0(tmp_interval, "1"), paste0(interval_id, "1"))
   data.table::setnames(df, paste0(tmp_interval, "2"), paste0(interval_id, "2"))
 
-  if(verbose) cat("Leaving merge_inv function.", "\n", "\n")
   return(df)
 }
 
@@ -228,8 +226,8 @@ merge_inv <- function(data,
 #'write_fitdb
 #'@name write_fitdb
 #'@description
-#' This function is used to write a dataframe containing growth sample tree data
-#' to a specified output SQLite database.
+#' This function is used to write a data table or data.frame containing a 
+#' fitting dataset to a specified output SQLite database.
 #
 #'@param fitdb:
 #'Dataframe that will be written to fitdb database specified in dbout argument.
@@ -238,7 +236,7 @@ merge_inv <- function(data,
 #'Character string corresponding to file path of output SQLite database.
 #
 #'@param fitdb_name
-#'Name of database table that will contain the growth sample tree information in
+#'Name of database table that will contain the fitting dataset information in
 #'dbout argument.
 #
 #'@return

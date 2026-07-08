@@ -16,13 +16,13 @@ build_fitdb(
 \arguments{
 \item{dbin:}{Character vector of file paths to sqlite database (.db or .sqlite).}
 
-\item{dbout:}{Character string corresponding to output sqlite GST database (.db or .sqlite).}
+\item{dbout:}{Character string corresponding to output sqlite FITDB database (.db or .sqlite).}
 
 \item{fitdb_name:}{Character string corresponding to name of database table written to dbout
 argument.}
 
 \item{fitdb_type:}{Numeric value corresponding to type of GST database to create.
-1 = GST built from FIA data}
+1 = FITDB built from FIA data}
 
 \item{overwrite:}{Logical variable used to determine if currently existing dbout file should be
 deleted. If this argument is left as FALSE, data will be appended to existing
@@ -33,7 +33,6 @@ None
 }
 \description{
 This function processes a set of sqlite databases and creates a standardized
-output growth sample tree database than be used for fitting equation
-development (GST). Currently this function is only equipped to build GST
-databases from FIA data.
+output database than be used for fitting equation development (FITDB).
+Currently this function is only equipped to build FITDB databases from FIA data.
 }
