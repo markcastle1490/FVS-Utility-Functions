@@ -42,7 +42,7 @@ fortyp_lookup <- function(fortyp = 999,
 
 {
   #Initialize fortyp_attr
-  fortyp_attr = NA
+  fortyp_attr <- NA
   
   #Check valid to and from values
   if(!to %in% c(1:2))
@@ -52,19 +52,18 @@ fortyp_lookup <- function(fortyp = 999,
   fortyp_index <- NA
   
   #Lookup index of fortyp
-  fortyp_index = bin_search(fortyp_codes$VALUE, fortyp)
-  if(fortyp_index <= 0) fortyp_index = NA
+  fortyp_index <- match(fortyp, fortyp_codes$VALUE)
   
   #If fortyp_index is not NA, determine fortyp_attr
   if(!is.na(fortyp_index))
   {
     #Forest type description (MEANING)
     if(to == 1)
-      fortyp_attr = fortyp_codes$MEANING[fortyp_index]
+      fortyp_attr <- fortyp_codes$MEANING[fortyp_index]
     
     #Forest type group code (TYPGRPCD)
     else
-      fortyp_attr = fortyp_codes$TYPGRPCD[fortyp_index]
+      fortyp_attr <- fortyp_codes$TYPGRPCD[fortyp_index]
   }
   
   return(fortyp_attr)

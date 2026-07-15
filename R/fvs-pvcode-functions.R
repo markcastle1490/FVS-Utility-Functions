@@ -24,7 +24,7 @@ fvs_pvcodes_var <- function(var_code = NULL,
                             all_var = FALSE)
 {
   #Initialize empty dataframe
-  pvcode_df = data.frame(VARIANT = character(),
+  pvcode_df <- data.frame(VARIANT = character(),
                          SEQ = integer(),
                          PV_CODE = character())
   
@@ -34,32 +34,32 @@ fvs_pvcodes_var <- function(var_code = NULL,
   
   #Get dataframe for all_var
   if(all_var)
-    pvcode_df = pv_codes
+    pvcode_df <- pv_codes
   
   #Get information for values in var_code
   else
   {
     #Initialize list for storing variant species codes
-    var_df_list = vector(mode = "list", length(var_code))
+    var_df_list <- vector(mode = "list", length(var_code))
     
     #Start loop over var_code
     for(i in 1:length(var_code))
     {
       #Uppercase var
-      var = toupper(var_code[[i]])
+      var <- toupper(var_code[[i]])
       
       #Get species codes and add to list if var is valid
       if(var %in% unique(pv_codes$VARIANT))
       {
-        pvcode_df_ = pv_codes[pv_codes$VARIANT == var,]
-        var_df_list[[i]] = pvcode_df_
+        pvcode_df_ <- pv_codes[pv_codes$VARIANT == var,]
+        var_df_list[[i]] <- pvcode_df_
       }
     }
     
     #Bind var_df_list if it is not empty
     if(length(var_df_list) > 0)
     {
-      pvcode_df = do.call("rbind", c(list(pvcode_df), var_df_list))
+      pvcode_df <- do.call("rbind", c(list(pvcode_df), var_df_list))
       row.names(pvcode_df) <- NULL
     }
   }
@@ -128,7 +128,7 @@ fvs_pvcodes_reg <- function(var_code = NULL,
     #Bind var_df_list if it is not empty
     if(length(var_df_list) > 0)
     {
-      pvcode_df = do.call("rbind", c(list(pvcode_df), var_df_list))
+      pvcode_df <- do.call("rbind", c(list(pvcode_df), var_df_list))
       row.names(pvcode_df) <- NULL
     }
   }
@@ -160,24 +160,24 @@ fvs_pvlookup <- function(var_code = "IE",
                          pvcode = "")
   
 {
-  pvidx = NA
+  pvidx <- NA
   
   #Return if inputs are invalid
   if(is.na(var_code) || is.na(pvcode))
     return(pvidx)
   
   #Uppercase var_code
-  var_code = toupper(var_code)
+  var_code <- toupper(var_code)
   
   #If var_code is not valid, return 
   if(! var_code %in% variants)
     return(pvidx)
   
   #Cast pvcode to character if needed
-  if(!is.character(pvcode)) pvcode = as.character(pvcode)
+  if(!is.character(pvcode)) pvcode <- as.character(pvcode)
   
   #Do the lookup
-  pvidx = match(pvcode, pvcode_list[[var_code]])
+  pvidx <- match(pvcode, pvcode_list[[var_code]])
   
   return(pvidx)
 }
@@ -222,23 +222,23 @@ fvs_pvlookup_reg <- function(var_code = "IE",
                              from = 0)
   
 {
-  pvidx = NA
+  pvidx <- NA
   
   #Uppercase var_code
-  var_code = toupper(var_code)
+  var_code <- toupper(var_code)
   
   #If var_code or region is not valid, return 
   if(! var_code %in% variants || ! region %in% c(1, 2, 3, 4, 5, 6, 9))
     return(pvidx)
   
   #Catch bad values
-  if(!from %in% c(1, 2, 3)) from = 1
+  if(!from %in% c(1, 2, 3)) from <- 1
   
   #Cast pvcode to character if needed
-  if(!is.character(pvcode)) pvcode = as.character(pvcode)
+  if(!is.character(pvcode)) pvcode <- as.character(pvcode)
   
   #Build variant and region combination
-  var_reg = paste0(var_code, region)
+  var_reg <- paste0(var_code, region)
   
   #Search HABPVR
   if(from == 1)

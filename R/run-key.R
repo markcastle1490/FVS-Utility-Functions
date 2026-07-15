@@ -30,23 +30,23 @@ run_key = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
                    verbose = FALSE)
 {
   #Store the current working directory
-  orig_dir = getwd()
+  orig_dir <- getwd()
   
   #Set working directory on exit
   on.exit(expr = setwd(orig_dir),
           add = TRUE)
   
   #Change \\ to / in dll_path argument
-  dll_path = chartr("\\", "/", dll_path)
+  dll_path <- chartr("\\", "/", dll_path)
   
   #Change \\ to / in keyfile argument
-  keyfile = chartr("\\", "/", keyfile)
+  keyfile <- chartr("\\", "/", keyfile)
   
   #Make var_code lowercase
-  var_code = tolower(var_code)
+  var_code <- tolower(var_code)
   
   #Get file ext on keyfile
-  ext = tools::file_ext(keyfile)
+  ext <- tools::file_ext(keyfile)
   
   #Check for existence of dll_path
   if (!(file.exists(dll_path))){
@@ -71,13 +71,13 @@ run_key = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
   # }
   
   #Create dll name
-  var_code = paste0("FVS", var_code)
+  var_code <- paste0("FVS", var_code)
   
   #Grab the the directory where the keyword file is stored
-  keydir = gsub("/[^/]+$", "", keyfile)
+  keydir <- gsub("/[^/]+$", "", keyfile)
   
   #Get the name of the keyword file
-  keyfile_ = sub(".*/", "", keyfile)
+  keyfile_ <- sub(".*/", "", keyfile)
   
   #Set working directory for the simulation
   if(keydir != keyfile_)
@@ -92,7 +92,7 @@ run_key = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
   }
   
   #Call run_fvs
-  ret_code = run_fvs(dll_path = dll_path,
+  ret_code <- run_fvs(dll_path = dll_path,
                      var_code = var_code,
                      keyfile = keyfile_)
   
@@ -141,26 +141,26 @@ run_key_rscript = function(script_path = NULL,
 {
   
   #Change \\ to / in dll_path argument
-  dll_path = chartr("\\", "/", dll_path)
+  dll_path <- chartr("\\", "/", dll_path)
   
   #Change \\ to / in keyfile argument
-  keyfile = chartr("\\", "/", keyfile)
+  keyfile <- chartr("\\", "/", keyfile)
   
   #Make var_code lowercase
-  var_code = tolower(var_code)
+  var_code <- tolower(var_code)
   
   #Get file ext on keyfile
-  ext = tools::file_ext(keyfile)
+  ext <- tools::file_ext(keyfile)
   
   #Generate script_path if NULL
   if(is.null(script_path))
-    script_path = gsub(".key$", ".R", keyfile)
+    script_path <- gsub(".key$", ".R", keyfile)
     
   #If script_path exists already,  delete it
   if(file.exists(script_path)) unlink(script_path)
   
   #Open file connection
-  con = file(description = script_path, open = "a")
+  con <- file(description = script_path, open = "a")
   on.exit(try(if(isOpen(con)) close(con = con), silent = TRUE))
   
   #Write the code in R script
@@ -224,23 +224,23 @@ run_key_callr = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
                          verbose = FALSE)
 {
   #Store the current working directory
-  orig_dir = getwd()
+  orig_dir <- getwd()
   
   #Set working directory on exit
   on.exit(expr = setwd(orig_dir),
           add = TRUE)
   
   #Change \\ to / in dll_path argument
-  dll_path = chartr("\\", "/", dll_path)
+  dll_path <- chartr("\\", "/", dll_path)
   
   #Change \\ to / in keyfile argument
-  keyfile = chartr("\\", "/", keyfile)
+  keyfile <- chartr("\\", "/", keyfile)
   
   #Get file ext on keyfile
-  ext = tools::file_ext(keyfile)
+  ext <- tools::file_ext(keyfile)
   
   #Make var_code lowercase
-  var_code = tolower(var_code)
+  var_code <- tolower(var_code)
   
   #Check for existence of dll_path
   if (!(file.exists(dll_path))){
@@ -334,7 +334,7 @@ run_fvs = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
     #Code used in fvsLoad rFVS function.
     if (exists(".FVSLOADEDLIBRARY", envir=.GlobalEnv)) 
     {
-      loaded = get(".FVSLOADEDLIBRARY", envir=.GlobalEnv)$ldf
+      loaded <- get(".FVSLOADEDLIBRARY", envir=.GlobalEnv)$ldf
       dyn.unload(loaded)
       remove(".FVSLOADEDLIBRARY",envir=.GlobalEnv)
     }},
@@ -344,7 +344,7 @@ run_fvs = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
   rFVS::fvsSetCmdLine(paste0("--keywordfile=", keyfile))
   
   #Initialize return code
-  retcode = 0
+  retcode <- 0
   
   #Keep running FVS until a return code other than 0, is returned.
   while(retcode == 0) retcode = rFVS::fvsRun()
@@ -421,7 +421,7 @@ delete_caseid = function(fvsout = NULL,
     stop("Output FVS database does not exist.")
   
   #Check file extension of fvsout
-  file_ext = tools::file_ext(fvsout)
+  file_ext <- tools::file_ext(fvsout)
   
   #Test if output file extension is valid database
   if(!file_ext %in% c("db", "sqlite"))
@@ -434,10 +434,10 @@ delete_caseid = function(fvsout = NULL,
     stop("No value(s) specified for delete_id.")
   
   #Set id_type to 1 if bad value is entered
-  if(!id_type %in% c(1:7)) id_type = 1
+  if(!id_type %in% c(1:7)) id_type <- 1
   
   #Set select_var based on id_type
-  select_var = switch(id_type,
+  select_var <- switch(id_type,
                       'KeywordFile',
                       'RunTitle',
                       'MgmtID',
@@ -447,7 +447,7 @@ delete_caseid = function(fvsout = NULL,
                       'CaseID')
   
   #Connect to output database
-  con_out = RSQLite::dbConnect(RSQLite::SQLite(), fvsout)
+  con_out <- RSQLite::dbConnect(RSQLite::SQLite(), fvsout)
   on.exit(expr = {
     try(expr = {if(RSQLite::dbIsValid(con_out)) 
     {
@@ -456,7 +456,7 @@ delete_caseid = function(fvsout = NULL,
     })
   
   #Get output database tables
-  out_tbl = RSQLite::dbListTables(conn = con_out)
+  out_tbl <- RSQLite::dbListTables(conn = con_out)
   
   #Test if FVS_Cases table exists. If it doesn't, disconnect from database and
   #stop with error.
@@ -464,7 +464,7 @@ delete_caseid = function(fvsout = NULL,
     stop("FVS_Cases table was not found in output database.")
   
   #Obtain place holders
-  id_string = placeholder_id(delete_id)
+  id_string <- placeholder_id(delete_id)
   
   if(verbose)
   {
@@ -474,7 +474,7 @@ delete_caseid = function(fvsout = NULL,
   }
     
   #CaseID query
-  query = paste("CREATE TEMP TABLE ToDelete AS",
+  query <- paste("CREATE TEMP TABLE ToDelete AS",
                 "SELECT CaseID",
                 "FROM FVS_Cases",
                 "WHERE",
@@ -491,8 +491,8 @@ delete_caseid = function(fvsout = NULL,
                      params = as.list(delete_id))
   
   #Execute count query
-  query = "SELECT COUNT(*) FROM ToDelete"
-  caseid = RSQLite::dbGetQuery(conn = con_out, query)[[1]]
+  query <- "SELECT COUNT(*) FROM ToDelete"
+  caseid <- RSQLite::dbGetQuery(conn = con_out, query)[[1]]
   
   if(verbose)
   {
@@ -519,7 +519,7 @@ delete_caseid = function(fvsout = NULL,
                                              name = tbl))
       {
         #Create delete query
-        query = paste0("DELETE FROM ",
+        query <- paste0("DELETE FROM ",
                        tbl, 
                        " WHERE ",
                        tbl,
@@ -529,21 +529,21 @@ delete_caseid = function(fvsout = NULL,
           cat("Delete query:", query, "\n")
         
         #Execute query
-        rtn = RSQLite::dbExecute(conn = con_out,
+        rtn <- RSQLite::dbExecute(conn = con_out,
                                  query)
         
         if(verbose) cat("Number of rows deleted:", rtn, "\n")
         
         #Get number of rows.
-        query = paste0("SELECT COUNT(*) FROM ", tbl)
-        rows = RSQLite::dbGetQuery(con_out, query)[[1]]
+        query <- paste0("SELECT COUNT(*) FROM ", tbl)
+        rows <- RSQLite::dbGetQuery(con_out, query)[[1]]
         if(verbose) cat("Number of rows remaining in table:", rows, "\n")
         
         #Drop table if there are no more rows in tbl
         if(rows <= 0)
         {
-          query = paste0("DROP TABLE ", tbl)
-          rtn = RSQLite::dbExecute(con_out, query)
+          query <- paste0("DROP TABLE ", tbl)
+          rtn <- RSQLite::dbExecute(con_out, query)
           if(verbose) cat(tbl, "was dropped.", "\n")
         }
         
@@ -555,7 +555,7 @@ delete_caseid = function(fvsout = NULL,
   #Run vacuum?
   if(vacuum)
   {
-    query = "VACUUM"
+    query <- "VACUUM"
     RSQLite::dbExecute(con_out, query)
   }
   

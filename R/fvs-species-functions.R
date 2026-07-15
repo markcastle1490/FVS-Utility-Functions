@@ -33,7 +33,7 @@ fvs_spdf <- function(var_code = NULL,
                          all_var = FALSE)
 {
   #Initialize empty dataframe
-  spdf = data.frame(VARIANT = character(),
+  spdf <- data.frame(VARIANT = character(),
                    SEQ = integer(),
                    FVS = character(),
                    FIA = character(),
@@ -45,24 +45,24 @@ fvs_spdf <- function(var_code = NULL,
   
   #Get dataframe for all_var
   if(all_var)
-    spdf = fvs_species
+    spdf <- fvs_species
   
   #Get information for values in var_code
   else
   {
     #Initialize list for storing variant species codes
-    var_df_list = vector(mode = "list", length(var_code))
+    var_df_list <- vector(mode = "list", length(var_code))
     
     #Start loop over var_code
     for(i in 1:length(var_code))
     {
       #Uppercase var
-      var = toupper(var_code[[i]])
+      var <- toupper(var_code[[i]])
       
       #Get species codes and add to list if var is valid
       if(var %in% variants)
       {
-        spdf_ = fvs_species[fvs_species$VARIANT == var,]
+        spdf_ <- fvs_species[fvs_species$VARIANT == var,]
         var_df_list[[i]] = spdf_
       }
     }
@@ -70,7 +70,7 @@ fvs_spdf <- function(var_code = NULL,
     #Bind var_df_list if it is not empty
     if(length(var_df_list) > 0)
     {
-      spdf = do.call("rbind", var_df_list)
+      spdf <- do.call("rbind", var_df_list)
       row.names(spdf) <- NULL
     }
       
@@ -122,30 +122,30 @@ fvs_spdf <- function(var_code = NULL,
 
 #'@export
 fvs_sp <- function(var_code = NULL,
-                       all_var = FALSE,
-                       type = 2)
+                   all_var = FALSE,
+                   type = 2)
 {
   #Initialize empty vector
-  sp = c()
+  sp <- c()
   
   #If var_code is empty and all_var is FALSE return
   if(length(var_code) <= 0 && !all_var)
     return(sp)
   
   #Catch bad type values
-  if(!type %in% 1:4) type = 2
+  if(!type %in% 1:4) type <- 2
   
   #If all_var is TRUE, reset var_code
-  if(all_var) var_code = variants
+  if(all_var) var_code <- variants
   
   #Initialize list to store species codes
-  sp_list = vector(mode = "list", length = length(var_code))
+  sp_list <- vector(mode = "list", length = length(var_code))
   
   #Start loop over var_code
   for(i in 1:length(var_code))
   {
     #Uppercase variant
-    var = toupper(var_code[[i]])
+    var <- toupper(var_code[[i]])
     
     #Add species to list if variant is valid
     if(var %in% variants)
@@ -157,8 +157,8 @@ fvs_sp <- function(var_code = NULL,
       else sp_ = fvs_plant_list[[var]]
       
       #Add to list
-      sp_list[[i]] = sp_
-      names(sp_list)[[i]] = var
+      sp_list[[i]] <- sp_
+      names(sp_list)[[i]] <- var
     }
   }
   
@@ -222,7 +222,7 @@ fvs_sp_lookup <- function(var_code = "",
                           to = 1)
 {
   #Initialize sp_to
-  sp_to = NA
+  sp_to <- NA
   
   #Return if inputs are invalid
   if(!to %in% 1:4 || is.na(var_code) || is.na(sp))
@@ -238,19 +238,19 @@ fvs_sp_lookup <- function(var_code = "",
   {
     #FVS character code
     if(to == 1)
-      sp_to = fvs_char_list[[var_code]][sp_index]
+      sp_to <- fvs_char_list[[var_code]][sp_index]
     
     #FIA species code
     else if(to == 2)
-      sp_to = fvs_fia_list[[var_code]][sp_index]
+      sp_to <- fvs_fia_list[[var_code]][sp_index]
     
     #USDA plant symbol
     else if(to == 3)
-      sp_to = fvs_plant_list[[var_code]][sp_index]
+      sp_to <- fvs_plant_list[[var_code]][sp_index]
     
     #FVS Sequence number
     else if(to == 4)
-      sp_to = fvs_seq_list[[var_code]][sp_index]
+      sp_to <- fvs_seq_list[[var_code]][sp_index]
   }
   
   return(sp_to)
@@ -302,7 +302,7 @@ fvs_sp_index <- function(var_code = "",
   sp_index <- NA
   
   #Uppercase var_code
-  var_code = toupper(var_code)
+  var_code <- toupper(var_code)
   sp <- toupper(sp)
   
   #If variant is invalid, return
@@ -310,7 +310,7 @@ fvs_sp_index <- function(var_code = "",
     return(sp_index)
   
   #Catch bad values
-  if(!from %in% c(1, 2, 3)) from = 0
+  if(!from %in% c(1, 2, 3)) from <- 0
   
   #Search FVS species codes
   if(from <= 1)

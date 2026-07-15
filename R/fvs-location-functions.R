@@ -27,13 +27,13 @@ fvs_get_locs <- function(var_code = NULL)
                          length = length(var_code))
   
   #Upper case var_code
-  var_code = toupper(var_code)
+  var_code <- toupper(var_code)
   
   #Loop across fvs_loc_list and construct dataframe containing list of valid
   #location codes for given variant
   for(i in 1:length(var_code))
   {
-    var = var_code[i]
+    var <- var_code[i]
     
     #Get locations, if variant is valid
     if(var %in% names(fvs_loc_list))

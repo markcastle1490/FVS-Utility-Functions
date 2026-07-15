@@ -43,10 +43,10 @@ fvs_gaak<-function(dbin ="FVS_Data.db",
                    gaak_type = 3)
 {
   #Catch bad stand_type values
-  if(!stand_type %in% c(0, 1)) stand_type = 1
+  if(!stand_type %in% c(0, 1)) stand_type <- 1
   
   #Capture bad gaak_type values
-  if(!gaak_type %in% c(1, 2, 3)) gaak_type = 3
+  if(!gaak_type %in% c(1, 2, 3)) gaak_type <- 3
   
   #Set the stand column to read data from
   if(stand_type == 1) 
@@ -62,7 +62,7 @@ fvs_gaak<-function(dbin ="FVS_Data.db",
   }
   
   #Create dataframe containing FVS_GroupAddfilesAndKeywords table
-  gaak = data.frame(GROUPS = c("All_Stands","All_Plots","All_FIA_Conditions",
+  gaak <- data.frame(GROUPS = c("All_Stands","All_Plots","All_FIA_Conditions",
                                "All_FIA_Plots", "All_FIA_Subplots"),
                     ADDFILES = c("","","","",""),
                     FVSKEYWORDS = c(paste("DATABASE", 
@@ -721,8 +721,8 @@ db_compile <- function(dbin = NULL,
     cat(paste("Argument delete_input is TRUE.",
               "Deleting input databases.", "\n"))
     
-    ret = unlink(x = dbin,
-                 recursive = FALSE)
+    ret <- unlink(x = dbin,
+                  recursive = FALSE)
     
     if(ret == 1) 
       cat("Failed to delete one or more databases from dbin.")

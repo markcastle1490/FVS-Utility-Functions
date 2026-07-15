@@ -25,7 +25,7 @@ install_pkgs <- function(override = FALSE)
                          "dplyr")
   
   #Get vector of installed packages
-  installed_pkg = installed.packages()[, "Package"]
+  installed_pkg <- installed.packages()[, "Package"]
   
   #Loop across packages, install if not available
   for(package in required_packages)

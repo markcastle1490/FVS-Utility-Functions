@@ -40,12 +40,12 @@ linint <- function(value = 0,
 
   #If value is less than first value in x, return the first value in y
   if(value < x[1])
-    algslp = y[1]
+    algslp <- y[1]
   
   #If value is greater than or equal to last value in x, return the last value
   #in y
   else if(value >= x[length(x)])
-    algslp = y[length(y)]
+    algslp <- y[length(y)]
   
   #Begin interpolation logic
   else
@@ -66,7 +66,7 @@ linint <- function(value = 0,
       if(value >= x[i + 1]) next
       
       #Else, retrieve the interpolated value and break from loop
-      algslp = y[i] + ((y[i + 1] - y[i])/(x[i + 1] - x[i])) * (value - x[i])
+      algslp <- y[i] + ((y[i + 1] - y[i])/(x[i + 1] - x[i])) * (value - x[i])
       if(verbose)
         cat("y[i] + ((y[i + 1] - y[i])/(x[i + 1] - x[i])) * (value - x[i]) = ", 
             algslp, "\n")

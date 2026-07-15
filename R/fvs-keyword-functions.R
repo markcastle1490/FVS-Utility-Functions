@@ -140,16 +140,16 @@ fvs_keyfile <- function(keyfile,
 {
 
   #Switch \\\\ to / in keyfile
-  keyfile = chartr("\\", "/", keyfile)
+  keyfile <- chartr("\\", "/", keyfile)
   
   #Extract path to output by extract all characters before the last / in output.
-  keydir = gsub("/[^/]+$", "", keyfile)
+  keydir <- gsub("/[^/]+$", "", keyfile)
   
   #Extract name of keyword file
-  key_name = gsub(".*/", "", keyfile)
+  key_name <- gsub(".*/", "", keyfile)
   
   #Extract file extension for output argument.
-  key_ext = tools::file_ext(keyfile)
+  key_ext <- tools::file_ext(keyfile)
   
   #Test existence of output path and assign working directory to keydir if 
   #needed
@@ -159,7 +159,7 @@ fvs_keyfile <- function(keyfile,
       stop(paste("Path to output:", keydir, "was not found.",
                  "Make sure directory path to output is spelled correctly."))
   }
-  else keydir = getwd()
+  else keydir <- getwd()
 
   #Test if output file extension is valid (.key).
   if(key_ext != "key")
@@ -202,49 +202,49 @@ fvs_keyfile <- function(keyfile,
   }
   
   #Capture bad nstands values
-  if(is.na(nstands) || nstands <= 0) nstands = 10000
+  if(is.na(nstands) || nstands <= 0) nstands <- 10000
 
   #Process nbatches if not null.
   if(!is.null(nbatches))
   {
     #Set nbatches = 1 if value is less than or equal to 0 or NA.
-    if(is.na(nbatches) || nbatches <= 0) nbatches = 1
-    nstands = ceiling(max(length(standid) / nbatches, 1))
+    if(is.na(nbatches) || nbatches <= 0) nbatches <- 1
+    nstands <- ceiling(max(length(standid) / nbatches, 1))
   }
 
   #Create list of vectors containing number of stands to process in each batch.
   #If create_batch is FALSE, only one batch and keyword file is made.
-  if(!create_batch) nstands = length(standid)
-  batch_list =  split(1:length(standid), 
+  if(!create_batch) nstands <- length(standid)
+  batch_list <-  split(1:length(standid), 
                       ceiling(seq_along(1:length(standid)) / nstands))
   
   #Initialize stand_count
-  stand_count = 1
+  stand_count <- 1
   
   #Start loop across batch list
   for(i in 1:length(batch_list))
   {
     #Get stands in batch
-    stands = batch_list[[i]]
+    stands <- batch_list[[i]]
     
     #Create keyword file path and create unique output database if needed
     if(!create_batch)
-      key_path = paste0(keydir, "/", key_name)
+      key_path <- paste0(keydir, "/", key_name)
   
     else
     {
-      key_name_ = gsub(pattern = ".key", 
+      key_name_ <- gsub(pattern = ".key", 
                       replacement = paste0("_BATCH", i, ".key"),
                       x = key_name)
       
-      key_path = paste0(keydir, "/", key_name_)
+      key_path <- paste0(keydir, "/", key_name_)
     }
     
     #If key_path exists already,  delete it
     if(file.exists(key_path)) unlink(key_path)
     
     #Open file connection
-    con = file(description = key_path, open = "a")
+    con <- file(description = key_path, open = "a")
     on.exit(try(if(isOpen(con)) close(con = con), silent = TRUE))
     
     #Start loop across stands
@@ -280,13 +280,13 @@ fvs_keyfile <- function(keyfile,
       if(!is.null(dbout))
       {
         #Make a copy of dbout
-        dbout_ = dbout
+        dbout_ <- dbout
         
         #Adjusted dbout if needed
         if(create_batch && unique_dbout) 
         {
-          db_ext = tools::file_ext(dbout_)
-          dbout_ = gsub(pattern = paste0(".", db_ext), 
+          db_ext <- tools::file_ext(dbout_)
+          dbout_ <- gsub(pattern = paste0(".", db_ext), 
                        replacement = paste0("_BATCH", i, paste0(".", db_ext)),
                        x = dbout_)
         }
@@ -355,7 +355,7 @@ fvs_keyfile <- function(keyfile,
       writeLines(text = "PROCESS", con = con, sep = "\n\n")
       
       #Increment stand_count
-      stand_count = stand_count + 1
+      stand_count <- stand_count + 1
     }
     
     #End of stand loop
@@ -423,7 +423,7 @@ fvs_kcpfile <- function(kcpfile,
   }
   
   #Open file connection
-  con = file(description = kcpfile, open = "a")
+  con <- file(description = kcpfile, open = "a")
   on.exit(try(if(isOpen(con)) close(con = con), silent = TRUE))
     
   #===========================================================================
@@ -675,7 +675,7 @@ time_keys <- function(invyear = NULL,
   if(is.na(max_cycles) || max_cycles <= 0) max_cycles <- 40
   
   #Obtain vector of sorted years
-  years = sort(c(seq(from = invyear, to = start_year, by = cycle_length),
+  years <- sort(c(seq(from = invyear, to = start_year, by = cycle_length),
                seq(from = start_year, to = end_year, by = cycle_length),
                end_year,
                cycle_at))
@@ -946,19 +946,19 @@ open_keys <- function(file = "FVS_Addfile.kcp",
   
 {
   #Capture bad ref_num
-  if(ref_num < 50) ref_num = 50
+  if(ref_num < 50) ref_num <- 50
   
   #Capture bad blanks value
-  if(blanks < 0) blanks = 0
+  if(blanks < 0) blanks <- 0
   
   #Capture bad status value
-  if(!status %in% c(0, 1, 2)) status = 0
+  if(!status %in% c(0, 1, 2)) status <- 0
   
   #Capture bad record_length value
-  if(record_length < 80 || record_length > 150) record_length = 80
+  if(record_length < 80 || record_length > 150) record_length <- 80
   
   #Build the keyword sequence
-  open_key = paste(fvs_keyword(params = list("OPEN", 
+  open_key <- paste(fvs_keyword(params = list("OPEN", 
                                              ref_num, 
                                              blanks,
                                              status,

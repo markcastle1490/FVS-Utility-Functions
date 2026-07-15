@@ -116,14 +116,14 @@ state_index <- function(state = NULL,
   
 {
   #Initialize state_index
-  state_index = NA
+  state_index <- NA
   
   #Catch bad values
-  if(! from %in% c(1, 2, 3)) from = 0
+  if(! from %in% c(1, 2, 3)) from <- 0
   
   #Search FIPS codes
   if(from <= 1) 
-    state_index = state_fips_index(state)
+    state_index <- state_fips_index(state)
   
   #Search state abbreviations
   if(from == 2 || is.na(state_index)) 
@@ -167,12 +167,7 @@ state_fips_index <- function(fips)
   if(!is.numeric(fips)) fips <- suppressWarnings(as.numeric(fips))
   
   #If fips is not NA search for index
-  if(!is.na(fips))
-  {
-    #Do binary search on SPCD column 
-    fips_index_ <- bin_search(state_codes$FIPS_CODE, fips)
-    if(fips_index_ <= 0) fips_index_ = NA
-  }
+  if(!is.na(fips)) fips_index_ <- match(fips, state_codes$FIPS_CODE)
   
   return(fips_index_)
 }

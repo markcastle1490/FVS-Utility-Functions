@@ -55,7 +55,7 @@ build_fitdb <- function(dbin = NULL,
   #=============================================================================
 
   #Change \\ to / in dbout argument
-  dbin = chartr("\\", "/", dbin)
+  dbin <- chartr("\\", "/", dbin)
 
   #Check if files do not exist
   if(any(!file.exists(dbin), na.rm = TRUE))
@@ -70,7 +70,7 @@ build_fitdb <- function(dbin = NULL,
   #=============================================================================
 
   #Change \\ to / in dbout argument
-  dbout = chartr("\\", "/", dbout)[1]
+  dbout <- chartr("\\", "/", dbout)[1]
 
   #Extract path to dbout by extracting all characters before the last / in
   #dbout.
@@ -90,14 +90,14 @@ build_fitdb <- function(dbin = NULL,
   #=============================================================================
 
   #Catch bad overwrite values
-  if(! overwrite %in% c(TRUE, FALSE)) overwrite = FALSE
+  if(! overwrite %in% c(TRUE, FALSE)) overwrite <- FALSE
   
   #Catch bad fitdb values
   if(is.na(fitdb_name) || is.null(fitdb_name) || !is.character(fitdb_name)) 
-    fitdb_name = "FITDB"
+    fitdb_name <- "FITDB"
   
   #Catch bad fitdb type values
-  if(! fitdb_type %in% 1) fitdb_type = 1
+  if(! fitdb_type %in% 1) fitdb_type <- 1
 
   #=============================================================================
   #Process values in dbin

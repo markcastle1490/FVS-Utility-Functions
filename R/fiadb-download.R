@@ -111,7 +111,7 @@ get_fiadb <- function(output = NULL,
         filename_disk,
         "\n")
 
-    http_response <-httr::RETRY("GET",
+    http_response <- httr::RETRY("GET",
                                 paste0(filename_url),
                                 httr::write_disk(filename_disk),
                                 httr::progress(),

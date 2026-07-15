@@ -221,10 +221,10 @@ fia_fitdb <- function(dbin = NULL,
                         verbose = verbose)
 
   #Isolate tree level variables not needed in merge_inv function
-  tree = tree[, !c("TREEMERGEID", "PLOTMERGEID", merge_vars), with = FALSE]
+  tree <- tree[, !c("TREEMERGEID", "PLOTMERGEID", merge_vars), with = FALSE]
 
   #join merge_df to tree and then remove
-  tree = merge(x = merge_df,
+  tree <- merge(x = merge_df,
                y = tree, 
                by = c("UNIQUETREEID"),
                all.x = TRUE)

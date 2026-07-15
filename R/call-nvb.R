@@ -14,33 +14,25 @@
 ################################################################################
 
 #'@export
-load_nvel <- function(nvel_path = "C:/FVS_Utility/vollib/vollib.dll")
-{
-  #Check for nvel_path existence
-  if(!file.exists(nvel_path))
-    stop(paste("File specified in nvel_path argument not found."))
+load_nvel <- function(nvel_path = "C:/FVS_Utility/vollib/vollib.dll") { 
   
-  #If NVEL dll is already loaded it, remove
-  if (exists(".NVELLOADEDLIBRARY",envir=.GlobalEnv)) 
-  {
-    loaded = get(".NVELLOADEDLIBRARY",envir=.GlobalEnv)$ldf
-    remove(".NVELLOADEDLIBRARY", envir=.GlobalEnv)
-    dyn.unload(loaded)
-  }
-
-  #Now attempt to load the dll
-  status = try(dyn.load(nvel_path))
-    
-  if (class(status) == "try-error") 
-    stop (paste (nvel_path,"was not loaded successfully."))
+  #Check for nvel_path existence 
+  if(!file.exists(nvel_path)) stop(paste("File specified in nvel_path argument not found.")) 
   
-  #Set name of NVEL dll in global environment
-  assign(".NVELLOADEDLIBRARY",
-         list("ldf" = nvel_path,
-              "pgm" = "vollib"),
-         envir=.GlobalEnv)
+  #If NVEL dll is already loaded it, remove 
+  if (exists(".NVELLOADEDLIBRARY",envir=.GlobalEnv)) { 
+    loaded <- get(".NVELLOADEDLIBRARY",envir=.GlobalEnv)$ldf 
+    remove(".NVELLOADEDLIBRARY", envir=.GlobalEnv) 
+    dyn.unload(loaded) 
+  } 
   
-  invisible()
+  #Now attempt to load the dll 
+  status <- try(dyn.load(nvel_path)) 
+  if (class(status) == "try-error") stop (paste (nvel_path,"was not loaded successfully.")) 
+  
+  #Set name of NVEL dll in global environment 
+  assign(".NVELLOADEDLIBRARY", list("ldf" = nvel_path, "pgm" = "vollib"), envir=.GlobalEnv) 
+  invisible() 
 }
 
 ################################################################################
@@ -55,20 +47,18 @@ load_nvel <- function(nvel_path = "C:/FVS_Utility/vollib/vollib.dll")
 ################################################################################
 
 #'@export
-unload_nvel <- function()
-{
-  #If NVEL dll is already loaded it, remove
-  if (exists(".NVELLOADEDLIBRARY",envir=.GlobalEnv)) 
-  {
-    loaded = get(".NVELLOADEDLIBRARY",envir=.GlobalEnv)$ldf
-    remove(".NVELLOADEDLIBRARY", envir=.GlobalEnv)
-    dyn.unload(loaded)
-  }
+unload_nvel <- function() { 
   
-  else
-  {
-    cat("NVEL dll has already been unloaded.")
-  }
+  #If NVEL dll is already loaded it, remove 
+  if (exists(".NVELLOADEDLIBRARY",envir=.GlobalEnv)) { 
+    loaded <- get(".NVELLOADEDLIBRARY",envir=.GlobalEnv)$ldf 
+    remove(".NVELLOADEDLIBRARY", envir=.GlobalEnv) 
+    dyn.unload(loaded) 
+  } else { 
+    cat("NVEL dll has already been unloaded.") 
+  } 
+  
+  invisble()
 }
 
 ################################################################################
@@ -215,226 +205,164 @@ unload_nvel <- function()
 ################################################################################
 
 #'@export
-call_nvb <- function(voleq,
-                    regn = 1,
-                    statecd = 1,
-                    forst = "01",
-                    dist = "01",
-                    spcd,
-                    sftwd_hrdwd = "NA", 
-                    dbh,
-                    ht,
-                    brkht = 0,
-                    stems = 1,
-                    fclass = 0,
-                    cr = 0,
-                    cull = 0,
-                    cullmstop = 0,
-                    decaycd = 0,
-                    stump = 1,
-                    mtopp = 0,
-                    mtops = 0,
-                    ctype = "I",
-                    live = "L",
-                    volbio = 1,
-                    index = 1,
-                    prod = "01")
-{
+call_nvb <- function(voleq, 
+                     regn = 1,
+                     statecd = 1, 
+                     forst = "01",
+                     dist = "01", 
+                     spcd, 
+                     sftwd_hrdwd = "NA",
+                     dbh, 
+                     ht, 
+                     brkht = 0, 
+                     stems = 1, 
+                     fclass = 0, 
+                     cr = 0, 
+                     cull = 0, 
+                     cullmstop = 0, 
+                     decaycd = 0, 
+                     stump = 1, 
+                     mtopp = 0, 
+                     mtops = 0, 
+                     ctype = "I", 
+                     live = "L", 
+                     volbio = 1, 
+                     index = 1, 
+                     prod = "01") { 
   
-  #Set regn if NA based on state code
-  if(is.na(regn) && !is.na(statecd)) 
-  {
-    if(statecd %in% c(30, 31)) regn <- 1
-    else if(statecd %in% 2) regn <- 10
-    else if(statecd %in% c(56, 46, 31, 8, 20)) regn <- 2
-    else if(statecd %in% c(4, 35)) regn <- 3
-    else if(statecd %in% c(16, 49, 32)) regn <- 4
-    else if(statecd %in% c(6)) regn <- 5
-    else if(statecd %in% c(41, 53)) regn <- 6
-    else if(statecd %in% c(48, 40, 5, 22, 28, 1, 47, 
-                           21, 12, 13, 45, 37, 51)) regn <- 8
-    else regn <- 9
-  }
+  #Set regn if NA based on state code 
+  if(is.na(regn) && !is.na(statecd)) { 
+    if(statecd %in% c(30, 31)) regn <- 1 
+    else if(statecd %in% 2) regn <- 10 
+    else if(statecd %in% c(56, 46, 31, 8, 20)) regn <- 2 
+    else if(statecd %in% c(4, 35)) regn <- 3 
+    else if(statecd %in% c(16, 49, 32)) regn <- 4 
+    else if(statecd %in% c(6)) regn <- 5 
+    else if(statecd %in% c(41, 53)) regn <- 6 
+    else if(statecd %in% c(48, 40, 5, 22, 28, 1, 47, 21, 12, 13, 45, 37, 51)) regn <- 8 
+    else regn <- 9 
+  } 
   
   #Handle NA values for essential arguments with no default values. Assume other 
-  #hardwood with dbh of 0.1 in and height of 4.5 ft
-  if(is.na(voleq) || is.na(spcd) || is.na(dbh) || is.na(ht))
-  {
-    voleq <- 'NVB0000999'
-    spcd <- 999
-    dbh <- 0.1
-    ht <- 4.5
-  }
-     
-  #Set cull to 0 if NA, less than 0, or greater than 100
-  if(is.na(cull) || cull < 0 || cull > 100) cull <- 0
+  #hardwood with dbh of 0.1 in and height of 4.5 ft 
+  if(is.na(voleq) || is.na(spcd) || is.na(dbh) || is.na(ht)) { 
+    voleq <- 'NVB0000999' 
+    spcd <- 999 
+    dbh <- 0.1 
+    ht <- 4.5 
+  } 
   
-  #Set cullmstop to 0 if NA, less than 0, or greater than 100
-  if(is.na(cullmstop)|| cullmstop < 0 || cullmstop > 100) cullmstop <- 0
+  #Set cull to 0 if NA, less than 0, or greater than 100 
+  if(is.na(cull) || cull < 0 || cull > 100) cull <- 0 
   
-  #Set decaycd to 3 if NA
-  if(is.na(decaycd)) decaycd <- 3
+  #Set cullmstop to 0 if NA, less than 0, or greater than 100 
+  if(is.na(cullmstop)|| cullmstop < 0 || cullmstop > 100) cullmstop <- 0 
   
-  #if brkht is the same as ht or NA, set to 0
-  if(is.na(brkht) || brkht == ht) brkht <- 0
+  #Set decaycd to 3 if NA 
+  if(is.na(decaycd)) decaycd <- 3 
   
-  #if cr is NA, less than 0, or greater than 100, set to 0
-  if(is.na(cr)|| cr < 0 || cr > 100) cr <- 0
+  #if brkht is the same as ht or NA, set to 0 
+  if(is.na(brkht) || brkht == ht) brkht <- 0 
   
-  #If volbio return is not 0 - 4, set to 1
-  if(! volbio %in% c(0 ,1, 2, 3, 4)) volbio <- 1
+  #if cr is NA, less than 0, or greater than 100, set to 0 
+  if(is.na(cr)|| cr < 0 || cr > 100) cr <- 0 
   
-  #Make sure index is between 0 and 15.
-  if(index < 0 || index > 15) index <- 1
+  #If volbio return is not 0 - 4, set to 1 
+  if(! volbio %in% c(0 ,1, 2, 3, 4)) volbio <- 1 
   
-  #If stems is NA or less than 0 set to 0
-  if(is.na(stems) || stems < 0) stems <- 0
+  #Make sure index is between 0 and 15. 
+  if(index < 0 || index > 15) index <- 1 
   
-  #If set ctype to I if not, I, F, or C.
-  ctype <- toupper(ctype)
-  if(! ctype %in% c("I", "C", "F")) ctype <- "I"
+  #If stems is NA or less than 0 set to 0 
+  if(is.na(stems) || stems < 0) stems <- 0 
   
-  #Set array index based on volbio argument
-  if(volbio == 1) array_idx <- 29
-  else array_idx <- 18
+  #If set ctype to I if not, I, F, or C. 
+  ctype <- toupper(ctype) 
+  if(! ctype %in% c("I", "C", "F")) ctype <- "I" 
   
-  #If stump is na, set to 1
-  if(is.na(stump)) stump <- 1
+  #Set array index based on volbio argument 
+  if(volbio == 1) array_idx <- 29 
+  else array_idx <- 18 
   
-  #Handle sftwd_hrdwd
-  sftwd_hrdwd <- toupper(sftwd_hrdwd)
-  if(!sftwd_hrdwd %in% c("H", "S")) 
-  {
-    sftwd_hrdwd <- "H"
-    if(spcd < 300) sftwd_hrdwd <- "S"
-  }
-
-  #Set mtopp and mtops if 0 (use FIA defaults)
-  if(mtops == 0) mtops <- 4
-  if(mtopp == 0)
-  {
-    if(sftwd_hrdwd == "H") mtopp <- 9
-    if(sftwd_hrdwd == "S") mtopp <- 7
-  }
+  #If stump is na, set to 1 
+  if(is.na(stump)) stump <- 1 
   
-  #Check for valid prod values
-  prod <- toupper(prod)
-  if(! prod %in% c("01", "02", "03"))
-  {
-    prod <- "01"
-  }
+  #Handle sftwd_hrdwd 
+  sftwd_hrdwd <- toupper(sftwd_hrdwd) 
+  if(!sftwd_hrdwd %in% c("H", "S")) { 
+    sftwd_hrdwd <- "H" 
+    if(spcd < 300) sftwd_hrdwd <- "S" 
+  } 
   
-  #Set fclass to stems if dealing with woodland species
-  if(spcd %in% c(62,  63,  65,  66, 69, 106, 133, 134, 143, 321, 322, 475, 803,
-                 810, 814, 843))
-    fclass= stems
+  #Set mtopp and mtops if 0 (use FIA defaults) 
+  if(mtops == 0) mtops <- 4 
+  if(mtopp == 0) { 
+    if(sftwd_hrdwd == "H") mtopp <- 9 
+    if(sftwd_hrdwd == "S") mtopp <- 7 
+  } 
   
-  #Set other required values prior to vollibnvb_r call
-  ht1prd=0
-  ht2prd=0
-  upsht1=0
-  upsd1=0
-  fclass= fclass
-  dbtbh=0
-  btr=0
-  vol=c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
-  logvol=matrix(0,7,20)
-  logdia=matrix(0,21,3)
-  loglen=c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
-  bolht=c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
-  tlogs=0
-  nologp=0
-  nologs=0
-  errflag=0
-  brkhtd=0
-  drybio=c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
-  grnbio=c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
+  #Check for valid prod values 
+  prod <- toupper(prod) 
+  if(! prod %in% c("01", "02", "03")) { 
+    prod <- "01" 
+  } 
   
-  #Call vollibnvb_r
-  returns = suppressWarnings(.Fortran("vollibnvb_r",
-                     as.character(voleq),
-                     as.integer(regn),
-                     as.character(forst),
-                     as.character(dist),
-                     as.integer(spcd),
-                     as.double(dbh),
-                     as.double(ht),
-                     as.double(mtopp),
-                     as.double(mtops),
-                     as.double(ht1prd),
-                     as.double(ht2prd),
-                     as.double(upsht1),
-                     as.double(upsd1),
-                     as.double(stump),
-                     as.integer(fclass),
-                     as.double(dbtbh),
-                     as.double(btr),
-                     as.double(vol),
-                     as.double(logvol),
-                     as.double(logdia),
-                     as.double(loglen),
-                     as.double(bolht),
-                     as.integer(tlogs),
-                     as.double(nologp),
-                     as.double(nologs),
-                     as.integer(errflag),
-                     as.double(brkht),
-                     as.double(brkhtd),
-                     as.double(drybio),
-                     as.double(grnbio),
-                     as.double(cr),
-                     as.double(cull),
-                     as.integer(decaycd),
-                     as.double(cullmstop),
-                     as.character(ctype),
-                     as.character(live),
-                     as.character(prod),
-                     PACKAGE = get(".NVELLOADEDLIBRARY",envir=.GlobalEnv)$pgm))
+  #Set fclass to stems if dealing with woodland species 
+  if(spcd %in% c(62, 63, 65, 66, 69, 106, 133, 134, 143, 321, 322, 475, 803, 810, 814, 843)) fclass <- stems 
   
-  #Return log diameters
-  if(volbio == 4)
-  {
-    value <- list(returns[[20]])
-    value <- matrix(value[[1]],
-                    nrow = 21,
-                    ncol = 3)
-    
-    return(value)
-  }
+  #Set other required values prior to vollibnvb_r call 
+  ht1prd <- 0 
+  ht2prd <- 0 
+  upsht1 <- 0 
+  upsd1 <- 0 
+  fclass <- fclass 
+  dbtbh <- 0 
+  btr <- 0 
+  vol <- c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0) 
+  logvol <- matrix(0,7,20) 
+  logdia <- matrix(0,21,3) 
+  loglen <- c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0) 
+  bolht <- c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0) 
+  tlogs <- 0 
+  nologp <- 0 
+  nologs <- 0 
+  errflag <- 0 
+  brkhtd <- 0 
+  drybio <- c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0) 
+  grnbio <- c(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0) 
   
-  #Return log volumes
-  if(volbio == 3)
-  {
-    value <- list(returns[[19]])
-    value <- matrix(value[[1]],
-                    nrow = 7,
-                    ncol = 20)
-    
-    return(value)
-  }
+  #Call vollibnvb_r 
+  returns <- suppressWarnings(.Fortran("vollibnvb_r", as.character(voleq), as.integer(regn), as.character(forst), as.character(dist), as.integer(spcd), as.double(dbh), as.double(ht), as.double(mtopp), as.double(mtops), as.double(ht1prd), as.double(ht2prd), as.double(upsht1), as.double(upsd1), as.double(stump), as.integer(fclass), as.double(dbtbh), as.double(btr), as.double(vol), as.double(logvol), as.double(logdia), as.double(loglen), as.double(bolht), as.integer(tlogs), as.double(nologp), as.double(nologs), as.integer(errflag), as.double(brkht), as.double(brkhtd), as.double(drybio), as.double(grnbio), as.double(cr), as.double(cull), as.integer(decaycd), as.double(cullmstop), as.character(ctype), as.character(live), as.character(prod), PACKAGE = get(".NVELLOADEDLIBRARY",envir=.GlobalEnv)$pgm)) 
   
-  #Return all volumes and biomass values if volbio is 2
-  if(volbio == 2)
-  {
-    value <- list(returns[[18]],
-                  returns[[29]])
-    
-    return(value)
-  }
+  #Return log diameters 
+  if(volbio == 4) { 
+    value <- list(returns[[20]]) 
+    value <- matrix(value[[1]], nrow = 21, ncol = 3) 
+    return(value) 
+  } 
   
-  #If index is 0, return the entire vector of volume or biomass values
-  if(index == 0)
-  {
-    value <- returns[[array_idx]]
-  }
+  #Return log volumes 
+  if(volbio == 3) { 
+    value <- list(returns[[19]]) 
+    value <- matrix(value[[1]], nrow = 7, ncol = 20) 
+    return(value) 
+  } 
   
-  #Otherwise just return single value
-  else
-  {
-    value <- returns[[array_idx]][index]
-  }
+  #Return all volumes and biomass values if volbio is 2 
+  if(volbio == 2) { 
+    value <- list(returns[[18]], returns[[29]]) 
+    return(value) 
+  } 
   
-  return(value)
+  #If index is 0, return the entire vector of volume or biomass values 
+  if(index == 0) { 
+    value <- returns[[array_idx]] 
+  } 
+  #Otherwise just return single value 
+  else { 
+    value <- returns[[array_idx]][index] 
+  } 
+  return(value) 
 }
 
 ################################################################################
@@ -503,10 +431,10 @@ call_calcdib <- function(voleq,
                          upsd1 = 0)
 {
   #Set variables
-  stemdib = 0
-  errflg=0
+  stemdib <- 0
+  errflg <- 0
   
-  dib_ = .Fortran("calcdib_r",
+  dib_ <- .Fortran("calcdib_r",
                   as.character(voleq),
                   as.integer(regn),
                   as.character(forst),
@@ -605,12 +533,12 @@ fia_merch <- function(dbh,
   if(is.na(dbh) || is.na(sftwd_hrdwd)) return(NA)
   
   #Set return material to 0
-  material = 0
+  material <- 0
   
   #Merchantable material
   if(type == 0)
   {
-    if(dbh >= 5) material = saw + top
+    if(dbh >= 5) material <- saw + top
   }
   
   #Sawlog material

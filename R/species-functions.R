@@ -73,7 +73,7 @@ sp_lookup <- function(sp = "",
                       to = 2)
 {
   #Initialize sp_to
-  sp_to = NA
+  sp_to <- NA
   
   #Check valid to and from values
   if(!to %in% c(1:9))
@@ -88,39 +88,39 @@ sp_lookup <- function(sp = "",
   {
     #FIA code
     if(to == 1)
-      sp_to = support_sp$SPCD[sp_index]
+      sp_to <- support_sp$SPCD[sp_index]
 
     #USDA plant symbol
     else if(to == 2)
-      sp_to = support_sp$SPECIES_SYMBOL[sp_index]
+      sp_to <- support_sp$SPECIES_SYMBOL[sp_index]
     
     #Genus
     else if(to == 3)
-      sp_to = support_sp$GENUS[sp_index]
+      sp_to <- support_sp$GENUS[sp_index]
 
     #Scientific name
     else if(to == 4)
-      sp_to = support_sp$SCIENTIFIC_NAME[sp_index]
+      sp_to <- support_sp$SCIENTIFIC_NAME[sp_index]
     
     #Common name
     else if(to == 5)
-      sp_to = support_sp$COMMON_NAME[sp_index]
+      sp_to <- support_sp$COMMON_NAME[sp_index]
     
     #SFTWD_HRDWD
     else if(to == 6)
-      sp_to = support_sp$SFTWD_HRDWD[sp_index]
+      sp_to <- support_sp$SFTWD_HRDWD[sp_index]
     
     #WOODLAND
     else if(to == 7)
-      sp_to = support_sp$WOODLAND[sp_index]
+      sp_to <- support_sp$WOODLAND[sp_index]
 
     #JENKINS SPECIES GROUP
     else if(to == 8)
-      sp_to = support_sp$JENKINS_SPGRPCD[sp_index]
+      sp_to <- support_sp$JENKINS_SPGRPCD[sp_index]
     
     #Sequence number
     else
-      sp_to = sp_index
+      sp_to <- sp_index
   }
 
   return(sp_to)
@@ -151,31 +151,31 @@ sp_lookup <- function(sp = "",
 ################################################################################
 
 sp_index <- function(sp = NULL,
-                         from = 0)
+                    from = 0)
 {
   #Initialize sp_index
   sp_index <- NA
   
   #Catch bad values
-  if(!from %in% c(1, 2, 3)) from = 0
+  if(!from %in% c(1, 2, 3)) from <- 0
   
   #Upper case sp
-  sp = toupper(sp)
+  sp <- toupper(sp)
   
   #Search FIA
   if(from <= 1)
   {
-    sp_ = suppressWarnings(as.integer(sp))
-    sp_index = sp_fia_index(sp_)
+    sp_ <- suppressWarnings(as.integer(sp))
+    sp_index <- sp_fia_index(sp_)
   }
 
   #Search USDA plant symbols
   if(from == 2 || is.na(sp_index)) 
-    sp_index = match(sp, support_sp$SPECIES_SYMBOL)
+    sp_index <- match(sp, support_sp$SPECIES_SYMBOL)
 
   #Search scientific name
   if(from == 3 || is.na(sp_index)) 
-    sp_index = match(sp, support_sp$SCIENTIFIC_NAME)
+    sp_index <- match(sp, support_sp$SCIENTIFIC_NAME)
 
   return(sp_index)
 }
@@ -205,12 +205,7 @@ sp_fia_index <- function(spcd)
   if(!is.numeric(spcd)) spcd <- suppressWarnings(as.numeric(spcd))
   
   #If species is not NA search for index
-  if(!is.na(spcd))
-  {
-    #Do binary search on SPCD column 
-    sp_index <- bin_search(support_sp$SPCD, spcd)
-    if(sp_index <= 0) sp_index = NA
-  }
+  if(!is.na(spcd)) sp_index <- match(spcd, support_sp$SPCD)
   
   return(sp_index)
 }
