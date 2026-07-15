@@ -76,9 +76,3 @@ linint <- function(value = 0,
   
   return(algslp)
 }
-
-# linint(value = 5,
-#        x = c(0,  5, 5, 99),
-#        y = c(.5,.5, 2, 2))
-# 
-# algslp = 0.5+((0.5-0.5)/(5-0))*(3-0);algslp
