@@ -18,42 +18,35 @@ lorey_dia_f(
 )
 }
 \arguments{
+\item{dbh}{Numeric vector containing diameter values.}
+
+\item{expf}{Numeric vector containing expansion factors.}
+
+\item{ht}{Numeric vector containing total tree height values.}
+
+\item{species}{Vector containing species codes.}
+
+\item{dbhmin}{Numeric value corresponding to lower DBH bound to calculate attribute in.
+This value is inclusive (>=).}
+
+\item{dbhmax}{Numeric value corresponding to upper DBH bound to calculate attribute in.
+This value is exclusive (<).}
+
+\item{htmin}{Numeric value corresponding to lower tree height bound to calculate attribute
+in. This value is inclusive (>=).}
+
+\item{htmax}{Numeric value corresponding to upper tree height bound to calculate attribute
+in. This value is exclusive (<).}
+
+\item{select_species}{Optional vector containing species codes. This variable will be used to
+select which species get included in calculation of attribute. If left as
+NULL, attribute will be calculated using observations from across all
+species.}
+
 \item{naok}{Logical variable where if FALSE, an error will be thrown if input vectors
 contain NA values. If TRUE, checks for NA values will not be done. Setting
 this value to TRUE will speed up processing but can be risky if input vectors
 are not vetted for NA values prior.}
-
-\item{dbh:}{Numeric vector containing diameter values.}
-
-\item{expf:}{Numeric vector containing expansion factors.}
-
-\item{ht:}{Optional numeric vector containing total tree height values. If heights are
-provided, then attribute will be calculated between the values specified in
-htmin and htmax.}
-
-\item{species:}{Optional vector containing species codes. If species are provided then
-attribute will be calculated for species entered in select_species argument.
-Attribute will be calculated for all species if select_species is left as
-NULL.}
-
-\item{dbhmin:}{Numeric value corresponding to lower DBH bound to calculate attribute in.
-This value is inclusive (>=).}
-
-\item{dbhmax:}{Numeric value corresponding to upper DBH bound to calculate attribute in.
-This value is exclusive (<).}
-
-\item{htmin:}{Numeric value corresponding to lower tree height bound to calculate attribute
-in. This value is inclusive (>=). This argument is only used if ht argument
-is specified.}
-
-\item{htmax:}{Numeric value corresponding to upper tree height bound to calculate attribute
-in. This value is exclusive (<). This argument is only used if ht argument
-is specified.}
-
-\item{select_species:}{Optional vector containing species codes. This variable will be used to
-select which species get included in calculation of attribute. If left as
-NULL, attribute will be calculated using observations from across all
-species.}
 }
 \value{
 Numeric basal area weighted (lorey) diameter value

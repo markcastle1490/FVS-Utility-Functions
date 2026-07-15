@@ -9,6 +9,8 @@ bal_f(dbh = NULL, expf = NULL, handle_ties = 0, naok = FALSE)
 \arguments{
 \item{dbh}{Numeric vector containing diameter values.}
 
+\item{expf}{Numeric vector containing expansion factors.}
+
 \item{handle_ties}{Integer variable used to determine if dbh values with equivalent values get
 the same BAL return. If this value is 1, then trees with equivalent DBH
 values will have the same BAL value (e.g. 3 trees with 10 inch DBH will all
@@ -20,8 +22,6 @@ different BAL).}
 contain NA values. If TRUE, checks for NA values will not be done. Setting
 this value to TRUE will speed up processing but can be risky if input vectors
 are not vetted for NA values prior.}
-
-\item{expf:}{Numeric vector containing expansion factors.}
 }
 \value{
 Numeric vector containing BAL values

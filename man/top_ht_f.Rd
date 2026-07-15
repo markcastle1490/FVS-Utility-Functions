@@ -14,23 +14,24 @@ top_ht_f(
 )
 }
 \arguments{
+\item{dbh}{Numeric vector containing diameter values.}
+
+\item{expf}{Numeric vector containing expansion factors values.}
+
+\item{ht}{Numeric vector of tree heights.}
+
+\item{top_tpa}{Numeric value corresponding to TPA to include in top height calculation.
+Largest 20 TPA, largest 40 TPA etc.}
+
+\item{top_per}{Numeric value corresponding to percentage of trees to include in the top
+height calculation. Largest 20\% of 'trees, largest 40\% of trees etc. If this
+value is not null then it will take precedence over the value in top_tpa
+argument.}
+
 \item{naok}{Logical variable where if FALSE, an error will be thrown if input vectors
 contain NA values. If TRUE, checks for NA values will not be done. Setting
 this value to TRUE will speed up processing but can be risky if input vectors
 are not vetted for NA values prior.}
-
-\item{dbh:}{Numeric vector containing diameter values.}
-
-\item{expf:}{Numeric vector containing expansion factors values.}
-
-\item{ht:}{Numeric vector of tree heights.}
-
-\item{top_tpa:}{Amount of TPA to include in top height calculation. Top 40, trees, top 100,
-etc.}
-
-\item{top_per:}{Percentage of trees to include in the top height calculation. Largest 20\% of
-trees, largest 40\% of trees etc. If this value is not null then it will
-take precedence over the value in top_tpa argument.}
 }
 \value{
 Top height value.

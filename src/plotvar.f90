@@ -31,7 +31,7 @@ do i = 1, ntree, 1
     !Determine if tree should be skipped in calculation
     if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
     if(ht_ < htmin .or. ht_ >= htmax) cycle
-    if(species_ < 0) cycle
+    if(species_ < 1) cycle
 
     ba_ = ba_ + (dbh_**2 * expf_ * f_con)
 
@@ -71,7 +71,7 @@ do i = 1, ntree, 1
     !Determine if tree should be skipped in calculation
     if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
     if(ht_ < htmin .or. ht_ >= htmax) cycle
-    if(species_ < 0) cycle
+    if(species_ < 1) cycle
 
     tpa_ = tpa_ + expf_
 
@@ -114,7 +114,7 @@ do i = 1, ntree, 1
     !Determine if tree should be skipped in calculation
     if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
     if(ht_ < htmin .or. ht_ >= htmax) cycle
-    if(species_ < 0) cycle
+    if(species_ < 1) cycle
 
     dbhsq = dbhsq + dbh_**2 * expf_
     tpa_ = tpa_ + expf_
@@ -162,7 +162,7 @@ do i = 1, ntree, 1
     !Determine if tree should be skipped in calculation
     if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
     if(ht_ < htmin .or. ht_ >= htmax) cycle
-    if(species_ < 0) cycle
+    if(species_ < 1) cycle
 
     gmd_sum = gmd_sum + dbh_**r_slope * expf_
     tpa_ = tpa_ + expf_
@@ -212,7 +212,7 @@ do i = 1, ntree, 1
     !Determine if tree should be skipped in calculation
     if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
     if(ht_ < htmin .or. ht_ >= htmax) cycle
-    if(species_ < 0) cycle
+    if(species_ < 1) cycle
 
     dbh_sum = dbh_sum + dbh_* ba_tree
     ba_ = ba_ + ba_tree
@@ -369,7 +369,7 @@ if(tpa_ > 0 ) then
         !Determine if tree should be skipped in calculation
         if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
         if(ht_ < htmin .or. ht_ >= htmax) cycle
-        if(species_ < 0) cycle
+        if(species_ < 1) cycle
 
         rsdi_ = rsdi_ + (a * expf_ + b * dbh_**2.0_REAL64 * expf_)
     end do
@@ -411,7 +411,7 @@ do i = 1, ntree, 1
     !Determine if tree should be skipped in calculation
     if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
     if(ht_ < htmin .or. ht_ >= htmax) cycle
-    if(species_ < 0) cycle
+    if(species_ < 1) cycle
 
     zsdi_ = zsdi_ + ((dbh_ / 10.0_REAL64)**r_slope * expf_)
 
@@ -453,7 +453,7 @@ do i = 1, ntree, 1
     !Determine if tree should be skipped in calculation
     if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
     if(ht_ < htmin .or. ht_ >= htmax) cycle
-    if(species_ < 0) cycle
+    if(species_ < 1) cycle
 
     cc_ = cc_ + ((crwidth_/2.0_REAL64)**2.0_REAL64 * &
      (expf_/43560.0_REAL64) * pi * 100.0_REAL64)
@@ -522,7 +522,7 @@ do i = 1, ntree, 1
     !Determine if tree should be skipped in calculation
     if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
     if(ht_ < htmin .or. ht_ >= htmax) cycle
-    if(species_ < 0) cycle
+    if(species_ < 1) cycle
 
     ba_sum = ba_sum + ba_tree * ht_
     ba_ = ba_ + ba_tree
@@ -701,7 +701,7 @@ do i = 1, ntree, 1
     !Determine if tree should be skipped in calculation
     if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
     if(ht_ < htmin .or. ht_ >= htmax) cycle
-    if(species_ < 0) cycle
+    if(species_ < 1) cycle
 
     expand_attr_ = expand_attr_ + (attr_ * expf_)
 
@@ -746,7 +746,7 @@ do i = 1, ntree, 1
     !Determine if tree should be skipped in calculation
     if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
     if(ht_ < htmin .or. ht_ >= htmax) cycle
-    if(species_ < 0) cycle
+    if(species_ < 1) cycle
 
     attr_sum = attr_sum + (attr_ * weight_)
     weight_sum = weight_sum + weight_
@@ -763,8 +763,8 @@ end subroutine mean_attr
 !ranges and for select species.
 !###############################################################################
 
-subroutine count_attr(dbh, ht, species, dbhmin, dbhmax, htmin, &
-htmax, ntree, count_attr_)
+subroutine count_rec(dbh, ht, species, dbhmin, dbhmax, htmin, &
+htmax, ntree, count_)
 use constants
 implicit none
 
@@ -772,12 +772,12 @@ implicit none
 integer, intent(in) :: ntree, species(ntree)
 real(real64), intent(in) :: dbh(ntree), ht(ntree)
 real(real64), intent(in) :: dbhmin, dbhmax, htmin, htmax
-real(real64), intent(out) :: count_attr_
+real(real64), intent(out) :: count_
 real(real64) :: dbh_, ht_
 integer :: i, species_
 
 !Initialize variables
-count_attr_ = 0.0_REAL64
+count_ = 0.0_REAL64
 
 !Determine trees to include in count
 do i = 1, ntree, 1
@@ -789,13 +789,13 @@ do i = 1, ntree, 1
     !Determine if tree should be skipped in calculation
     if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
     if(ht_ < htmin .or. ht_ >= htmax) cycle
-    if(species_ < 0) cycle
+    if(species_ < 1) cycle
 
-    count_attr_ = count_attr_ + 1.0_REAL64
+    count_ = count_ + 1.0_REAL64
 
 end do
 
-end subroutine count_attr
+end subroutine count_rec
 
 !###############################################################################
 !This function determines the minimum value for an input attribute. This can 
@@ -828,7 +828,7 @@ do i =1, ntree, 1
 
     if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
     if(ht_ < htmin .or. ht_ >= htmax) cycle
-    if(species_ < 0) cycle
+    if(species_ < 1) cycle
 
     idx = i
     exit
@@ -849,7 +849,7 @@ if(idx > 0) then
         !Determine if tree should be skipped in calculation
         if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
         if(ht_ < htmin .or. ht_ >= htmax) cycle
-        if(species_ < 0) cycle
+        if(species_ < 1) cycle
 
         if(attr_ < min_attr_) min_attr_ = attr_
 
@@ -890,7 +890,7 @@ do i =1, ntree, 1
 
     if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
     if(ht_ < htmin .or. ht_ >= htmax) cycle
-    if(species_ < 0) cycle
+    if(species_ < 1) cycle
 
     idx = i
     exit
@@ -911,7 +911,7 @@ if(idx > 0) then
         !Determine if tree should be skipped in calculation
         if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
         if(ht_ < htmin .or. ht_ >= htmax) cycle
-        if(species_ < 0) cycle
+        if(species_ < 1) cycle
 
         if(attr_ > max_attr_) max_attr_ = attr_
 

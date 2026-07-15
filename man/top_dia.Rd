@@ -7,17 +7,18 @@
 top_dia(dbh = NULL, expf = NULL, top_tpa = 40, top_per = NULL, dia_type = 1)
 }
 \arguments{
-\item{dbh:}{Numeric vector containing diameter values.}
+\item{dbh}{Numeric vector containing diameter values.}
 
-\item{expf:}{Numeric vector containing expansion factors values.}
+\item{expf}{Numeric vector containing expansion factors values.}
 
-\item{top_tpa:}{Amount of TPA to include in top QMD calculation. Largest 40 trees, Largest
-100, etc.}
+\item{top_tpa}{Numeric value corresponding to amount of TPA to include in top diameter
+calculation. Largest 20 TPA, Largest 40 TPA, etc.}
 
-\item{top_per:}{Percentage of trees to include in the top QMD calculation. If this value is
-not null then it will supersede the value in top_tpa argument.}
+\item{top_per}{Numeric value corresponding to percentage of trees to include in the top
+diameter calculation. If this value is not null then it will supersede the
+value in top_tpa argument.}
 
-\item{dia_type:}{Integer value used to specify what type of diameter should be calculated.
+\item{dia_type}{Integer value used to specify what type of diameter should be calculated.
 1 = QMD
 2 = average diameter weighted by trees per acre
 3 = GMD (Reineke diameter)}

@@ -7,18 +7,19 @@
 top_ht(dbh = NULL, expf = NULL, ht = NULL, top_tpa = 40, top_per = NULL)
 }
 \arguments{
-\item{dbh:}{Numeric vector containing diameter values.}
+\item{dbh}{Numeric vector containing diameter values.}
 
-\item{expf:}{Numeric vector containing expansion factors values.}
+\item{expf}{Numeric vector containing expansion factors values.}
 
-\item{ht:}{Numeric vector of tree heights.}
+\item{ht}{Numeric vector of tree heights.}
 
-\item{top_tpa:}{Amount of TPA to include in top height calculation. Top 40, trees, top 100,
-etc.}
+\item{top_tpa}{Numeric value corresponding to amount of TPA to include in top height
+calculation. Top 20 TPA, top 40 TPA, etc.}
 
-\item{top_per:}{Percentage of trees to include in the top height calculation. Largest 20\% of
-trees, largest 40\% of trees etc. If this value is not null then it will
-take precedence over the value in top_tpa argument.}
+\item{top_per}{Numeric value corresponding to percentage of trees to include in the top
+height calculation. Largest 20\% of trees, largest 40\% of trees etc. If this
+value is not null then it will take precedence over the value in top_tpa
+argument.}
 }
 \value{
 Top height value.
