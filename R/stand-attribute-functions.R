@@ -86,15 +86,8 @@ valid_vectors = function(...)
 
 null_vector = function(...)
 {
-  #Initialize value that will be returned if any vectors is NULL. This starts
-  #off as FALSE until proven otherwise.
-  null_vector_ = FALSE
-  
-  #Check for nulls in vectors
-  vectors = lapply(list(...), is.null)
-  
   #Reset null_vector if there is a null value in vectors
-  if(TRUE %in% vectors) null_vector_ = TRUE
+  null_vector_ <- any(sapply(list(...), is.null, USE.NAMES = FALSE))
   
   return(null_vector_)
 }
@@ -231,7 +224,7 @@ ba = function(dbh = NULL,
   
   #Convert species to integer if needed
   if(!is.integer(species))
-    species = match(species, unique(species))
+    species = match(species, sort(unique(species)))
   
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
@@ -336,7 +329,7 @@ tpa = function(expf = NULL,
   
   #Convert species to integer if needed
   if(!is.integer(species))
-    species = match(species, unique(species))
+    species = match(species, sort(unique(species)))
   
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
@@ -436,7 +429,7 @@ qmd = function(dbh = NULL,
   
   #Convert species to integer if needed
   if(!is.integer(species))
-    species = match(species, unique(species))
+    species = match(species, sort(unique(species)))
   
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
@@ -538,7 +531,7 @@ gmd = function(dbh = NULL,
   
   #Convert species to integer if needed
   if(!is.integer(species))
-    species = match(species, unique(species))
+    species = match(species, sort(unique(species)))
   
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
@@ -640,33 +633,30 @@ top_dia = function(dbh = NULL,
     tpa_dif = tpa_sum - top
     tpa_sum = tpa_sum - tpa_dif
     
-    #QMD
+    # Isolate the exact scaled remainder weight for the boundary tree
+    remainder_expf = expf[dbh_order][top_exceed] - tpa_dif
+    
+    #Quadratic Mean Diameter (QMD)
     if(dia_type == 1) {
-      dbh_sum = sum((dbh^2*expf)[dbh_order][1:top_exceed-1], na.rm = TRUE) + 
-        (dbh^2)[dbh_order][top_exceed] * (expf[dbh_order][top_exceed] - 
-                                            tpa_dif)
-      
+      dbh_sum = if(top_exceed > 1) 
+        sum((dbh^2 * expf)[dbh_order][1:(top_exceed - 1)], na.rm = TRUE) else 0
+      dbh_sum = dbh_sum + (dbh[dbh_order][top_exceed]^2 * remainder_expf)
       if(tpa_sum > 0) top_dia_ = sqrt(dbh_sum / tpa_sum)
-    }
+    } 
     
-    #Average diameter weighted by TPA
-    else if (dia_type == 2)
-    {
-      dbh_sum = sum((dbh*expf)[dbh_order][1:top_exceed-1], na.rm = TRUE) + 
-        (dbh)[dbh_order][top_exceed] * (expf[dbh_order][top_exceed] - 
-                                          tpa_dif)
-      
+    #Arithmetic Mean Diameter (Weighted by TPA)
+    else if (dia_type == 2) {
+      dbh_sum = if(top_exceed > 1) 
+        sum((dbh * expf)[dbh_order][1:(top_exceed - 1)], na.rm = TRUE) else 0
+      dbh_sum = dbh_sum + (dbh[dbh_order][top_exceed] * remainder_expf)
       if(tpa_sum > 0) top_dia_ = dbh_sum / tpa_sum
-    }
+    } 
     
-    #GMD
-    else 
-    {
-      dbh_sum = sum((dbh^r_slope * expf)[dbh_order][1:top_exceed-1], 
-                    na.rm = TRUE) + 
-        (dbh^r_slope)[dbh_order][top_exceed] * (expf[dbh_order][top_exceed] - 
-                                                  tpa_dif)
-      
+    #Reineke's Diameter (GMD)
+    else {
+      dbh_sum = if(top_exceed > 1) 
+        sum((dbh^r_slope * expf)[dbh_order][1:(top_exceed - 1)], na.rm = TRUE) else 0
+      dbh_sum = dbh_sum + (dbh[dbh_order][top_exceed]^r_slope * remainder_expf)
       if(tpa_sum > 0) top_dia_ = (dbh_sum / tpa_sum)^(1 / r_slope)
     }
   }
@@ -758,7 +748,7 @@ lorey_dia = function(dbh = NULL,
   
   #Convert species to integer if needed
   if(!is.integer(species))
-    species = match(species, unique(species))
+    species = match(species, sort(unique(species)))
   
   #Calculate treeba
   treeba = dbh^2 * expf * f_con 
@@ -901,7 +891,7 @@ rsdi_stage = function(dbh = NULL,
   
   #Convert species to integer if needed
   if(!is.integer(species))
-    species = match(species, unique(species))
+    species = match(species, sort(unique(species)))
 
   #Calculate stand level tpa and dbhsq. Also initialize qmd
   stand_tpa = sum(expf)
@@ -1011,7 +1001,7 @@ zsdi = function(dbh = NULL,
   
   #Convert species to integer if needed
   if(!is.integer(species))
-    species = match(species, unique(species))
+    species = match(species, sort(unique(species)))
   
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
@@ -1106,7 +1096,7 @@ cc = function(crwidth = NULL,
     species = vector(mode = "integer", length(expf))
 
   #Check validity of vectors
-  if(!valid_vectors(dbh, expf, ht, species)) return(cc_)
+  if(!valid_vectors(crwidth, dbh, expf, ht, species)) return(cc_)
   
   #See what species match with select_species
   if(!is.null(select_species))
@@ -1114,7 +1104,7 @@ cc = function(crwidth = NULL,
   
   #Convert species to integer if needed
   if(!is.integer(species))
-    species = match(species, unique(species))
+    species = match(species, sort(unique(species)))
   
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
@@ -1153,7 +1143,14 @@ cc = function(crwidth = NULL,
 #'@export
 correct_cc = function(cc = 0)
 {
-  cor_cc = 100 * (1 - exp ( - 0.01* cc))
+  cor_cc = 0
+  
+  if(!null_vector(cc))
+    cor_cc = 100 * (1 - exp ( - 0.01* cc))
+  
+  #Capture bad values
+  if(is.na(cor_cc)) cor_cc = 0
+  
   return(cor_cc)
 }
 
@@ -1189,39 +1186,43 @@ bal = function(dbh = NULL,
                handle_ties = FALSE)
 {
   #Return if dbh or expf is NULL or not of equal length
-  if(!valid_vectors(dbh, expf)) return(0)
-  
-  #Create sequence of integers. This will be used to reorder bal at the end of 
-  #the function.
-  orig_order = 1:length(dbh)
+  if(!valid_vectors(dbh, expf)) return(numeric(0))
   
   #Get indices of sorted DBH in descending order
   dbh_order = order(-dbh)
+  
+  #Create sequence of integers. This will be used to reorder bal
+  orig_order = 1:length(dbh)
+  
+  #Get tree basal area
+  tree_ba = (dbh^2) * expf * f_con
   
   #Don't handle ties.
   if(!handle_ties)
   {
     #Do a cumulative sum of basal area and then subtract ba of tree from each 
     #record.
-    bal = cumsum((dbh^2)[dbh_order] * expf[dbh_order] * f_con) -
-      (dbh^2)[dbh_order] * expf[dbh_order] * f_con
+    bal = cumsum(tree_ba[dbh_order]) - tree_ba[dbh_order]
   }
   
   #Handle ties.
   else
   {
-    #Setup temp_dbh vector and then replace duplicate values with 0
-    temp_dbh = dbh
-    temp_dbh[dbh_order][duplicated(temp_dbh[dbh_order])] = 0
-
-    #Do a cumulative sum of basal area and then subtract ba of tree from each 
-    #record. Note use of temp_dbh in cumulative sum and dbh in subtraction.
-    bal = cumsum((temp_dbh^2)[dbh_order] * expf[dbh_order] * f_con) -
-      (dbh^2)[dbh_order] * expf[dbh_order] * f_con
+    #Run the baseline unique subtraction layout
+    raw_bal = cumsum(tree_ba[dbh_order]) - tree_ba[dbh_order]
+    
+    # Find the index of the first tree (the largest tree) in each tied block.
+    first_occurr_idx = match(dbh[dbh_order], dbh[dbh_order])
+      
+    #Overwrite the duplicated tree entries with the BAL value of the 
+    #first tree in their respective tied block.
+    bal = raw_bal[first_occurr_idx]
   }
   
-  #Reorder bal by original order
-  return(bal[match(orig_order, dbh_order)])
+  #Reset order to match input
+  bal = bal[match(orig_order, dbh_order)]
+  
+  return(bal)
 }
 
 ################################################################################
@@ -1299,6 +1300,14 @@ lorey_ht = function(dbh = NULL,
   
   #Check validity of vectors
   if(!valid_vectors(dbh, expf, ht, species)) return(lorey_ht_)
+  
+  #See what species match with select_species
+  if(!is.null(select_species))
+    species = match(species, select_species, nomatch = -1)
+  
+  #Convert species to integer if needed
+  if(!is.integer(species))
+    species = match(species, sort(unique(species)))
   
   #Calculate treeba
   treeba = dbh^2 * expf * f_con 
@@ -1394,9 +1403,17 @@ top_ht = function(dbh = NULL,
     tpa_dif = tpa_sum - top
     tpa_sum = tpa_sum - tpa_dif
     
+    #Handle situations where ht_sum may only include 1 tree
+    if (top_exceed > 1) {
+      ht_sum = sum((ht * expf)[dbh_order][1:(top_exceed - 1)], na.rm = TRUE)
+    } else {
+      ht_sum = 0
+    }
+    
     #Top height
-    ht_sum = sum((ht * expf)[dbh_order][1:top_exceed-1], na.rm = TRUE) + 
-      (ht)[dbh_order][top_exceed] * ((expf)[dbh_order][top_exceed] - tpa_dif)
+    remainder_expf = expf[dbh_order][top_exceed] - tpa_dif
+    ht_sum = ht_sum + (ht[dbh_order][top_exceed] * remainder_expf)
+    
     if(tpa_sum > 0) top_ht_ = ht_sum / tpa_sum
   }
   
@@ -1500,7 +1517,7 @@ mean_attr = function(attr = NULL,
   
   #Convert species to integer if needed
   if(!is.integer(species))
-    species = match(species, unique(species))
+    species = match(species, sort(unique(species)))
   
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
@@ -1610,7 +1627,7 @@ expand_attr = function(attr = NULL,
   
   #Convert species to integer if needed
   if(!is.integer(species))
-    species = match(species, unique(species))
+    species = match(species, sort(unique(species)))
   
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
@@ -1711,7 +1728,7 @@ median_attr = function(attr = NULL,
   
   #Convert species to integer if needed
   if(!is.integer(species))
-    species = match(species, unique(species))
+    species = match(species, sort(unique(species)))
   
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
@@ -1812,7 +1829,7 @@ min_attr = function(attr = NULL,
   
   #Convert species to integer if needed
   if(!is.integer(species))
-    species = match(species, unique(species))
+    species = match(species, sort(unique(species)))
   
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
@@ -1914,7 +1931,7 @@ max_attr = function(attr = NULL,
   
   #Convert species to integer if needed
   if(!is.integer(species))
-    species = match(species, unique(species))
+    species = match(species, sort(unique(species)))
   
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
@@ -2016,7 +2033,7 @@ count_attr = function(attr = NULL,
   
   #Convert species to integer if needed
   if(!is.integer(species))
-    species = match(species, unique(species))
+    species = match(species, sort(unique(species)))
   
   #Identify records to include in calculation
   include = (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
@@ -2123,7 +2140,7 @@ ba_f = function(dbh = NULL,
   
   #Convert species to integer if needed
   if(!is.integer(species))
-    species = match(species, unique(species))
+    species = match(species, sort(unique(species)))
 
   #Get number of trees
   ntree = length(expf)
@@ -2244,7 +2261,7 @@ tpa_f = function(expf = NULL,
   
   #Convert species to integer if needed
   if(!is.integer(species))
-    species = match(species, unique(species))
+    species = match(species, sort(unique(species)))
 
   #Get number of trees
   ntree = length(expf)
@@ -2362,7 +2379,7 @@ qmd_f = function(dbh = NULL,
   
   #Convert species to integer if needed
   if(!is.integer(species))
-    species = match(species, unique(species))
+    species = match(species, sort(unique(species)))
 
   #Get number of trees
   ntree = length(expf)
@@ -2481,7 +2498,7 @@ gmd_f = function(dbh = NULL,
   
   #Convert species to integer if needed
   if(!is.integer(species))
-    species = match(species, unique(species))
+    species = match(species, sort(unique(species)))
 
   #Get number of trees
   ntree = length(expf)
@@ -2600,7 +2617,7 @@ lorey_dia_f = function(dbh = NULL,
   
   #Convert species to integer if needed
   if(!is.integer(species))
-    species = match(species, unique(species))
+    species = match(species, sort(unique(species)))
   
   #Get number of trees
   ntree = length(expf)
@@ -2806,7 +2823,7 @@ rsdi_stage_f = function(dbh = NULL,
   
   #Convert species to integer if needed
   if(!is.integer(species))
-    species = match(species, unique(species))
+    species = match(species, sort(unique(species)))
   
   #Get number of trees
   ntree = length(expf)
@@ -2923,7 +2940,7 @@ zsdi_f = function(dbh = NULL,
   
   #Convert species to integer if needed
   if(!is.integer(species))
-    species = match(species, unique(species))
+    species = match(species, sort(unique(species)))
 
   #Get number of trees
   ntree = length(expf)
@@ -3045,7 +3062,7 @@ cc_f = function(crwidth = NULL,
   
   #Convert species to integer if needed
   if(!is.integer(species))
-    species = match(species, unique(species))
+    species = match(species, sort(unique(species)))
   
   #Get number of trees
   ntree = length(expf)
@@ -3438,7 +3455,7 @@ mean_attr_f = function(attr = NULL,
   
   #Convert species to integer if needed
   if(!is.integer(species))
-    species = match(species, unique(species))
+    species = match(species, sort(unique(species)))
   
   #Get number of trees
   ntree = length(attr)
@@ -3567,7 +3584,7 @@ expand_attr_f = function(attr = NULL,
   
   #Convert species to integer if needed
   if(!is.integer(species))
-    species = match(species, unique(species))
+    species = match(species, sort(unique(species)))
 
   #Get number of trees
   ntree = length(attr)
@@ -3689,7 +3706,7 @@ count_attr_f = function(attr = NULL,
 
   #Convert species to integer if needed
   if(!is.integer(species))
-    species = match(species, unique(species))
+    species = match(species, sort(unique(species)))
 
   #Get number of trees
   ntree = length(attr)
@@ -3810,7 +3827,7 @@ min_attr_f = function(attr = NULL,
   
   #Convert species to integer if needed
   if(!is.integer(species))
-    species = match(species, unique(species))
+    species = match(species, sort(unique(species)))
   
   #Get number of trees
   ntree = length(attr)
@@ -3931,7 +3948,7 @@ max_attr_f = function(attr = NULL,
   
   #Convert species to integer if needed
   if(!is.integer(species))
-    species = match(species, unique(species))
+    species = match(species, sort(unique(species)))
   
   #Get number of trees
   ntree = length(attr)
