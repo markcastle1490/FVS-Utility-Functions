@@ -6,7 +6,7 @@
 \usage{
 create_idx_query(
   db_table = "FVS_STANDINIT",
-  db_field = "STAND_ID",
+  db_fields = c("STAND_ID"),
   idx_name = NULL
 )
 }

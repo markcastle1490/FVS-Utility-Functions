@@ -23,15 +23,25 @@
 
 #'@export
 create_idx_query <- function(db_table = "FVS_STANDINIT",
-                             db_field = "STAND_ID",
+                             db_fields = c("STAND_ID"),
                              idx_name = NULL)
 {
   #Set index name if not entered
-  if(is.null(idx_name)) idx_name <- paste("idx", db_table, db_field, sep = "_")
-  
-  query <- paste("CREATE INDEX IF NOT EXISTS",
+  if(is.null(idx_name)) 
+  {
+    fields_comb <- paste(db_fields, collapse = "_")
+    idx_name <- paste("idx", db_table, fields_comb, sep = "_")
+  }
+
+  #Format fields into a comma-separated string: "field1, field2"
+  fields_csv <- paste(db_fields, collapse = ", ")
+
+  #Build query
+  query <- paste0("CREATE INDEX IF NOT EXISTS ",
                  idx_name,
-                 "ON", paste0(db_table, "(", db_field, ");"))
+                 " ON ", 
+                 db_table,
+                 " (", fields_csv, ");")
 
   return(query)
 }
@@ -64,11 +74,13 @@ add_col_query <- function(db_table = "TREE",
                           db_field = "PLOTQUERYID",
                           data_type = "TEXT")
 {
-  query <- paste("ALTER TABLE",
+  query <- paste0("ALTER TABLE ",
                  db_table,
-                 "ADD COLUMN",
+                 " ADD COLUMN ",
                  db_field,
-                 dataType)
+                 " ",
+                 data_type,
+                 ";")
 
   return(query)
 }
@@ -92,7 +104,7 @@ add_col_query <- function(db_table = "TREE",
 #'@export
 drop_idx_query <- function(idx_name = "TREE_PLOTQUERYID")
 {
-  query <- paste0("DROP INDEX IF EXISTS ", idx_name)
+  query <- paste0("DROP INDEX IF EXISTS ", idx_name, ";")
   return(query)
 }
 
@@ -118,39 +130,12 @@ drop_idx_query <- function(idx_name = "TREE_PLOTQUERYID")
 drop_col_query <- function(db_table = "TREE",
                            db_field = "PLOTQUERYID")
 {
-  query <- paste("ALTER TABLE",
+  query <- paste0("ALTER TABLE ",
                  db_table,
-                 "DROP COLUMN",
-                 paste0(db_field))
+                 " DROP COLUMN ",
+                 db_field,
+                 ";")
   return(query)
-}
-
-################################################################################
-#'collect_id
-#'@name collect_id
-#'@description
-#'
-#'This function takes in a vector of elements typically used for querying a 
-#'database and  collapses them into a single string where elements are 
-#'surrounded by parentheses and separated by commas.
-#
-#'@param ids:    
-#'Character vector of elements
-#
-#'@return
-#'Character string of elements surrounded by parentheses and separated by 
-#'commas.
-################################################################################
-
-collect_id <- function(ids)
-{
-  #Add quotes arounds ids and separate with commas
-  idString<-paste0("'",ids,"'", collapse = ",")
-  
-  #Add parentheses around idString
-  idString<-paste0("(",idString, ")")
-  
-  return(idString)
 }
 
 ################################################################################
@@ -174,46 +159,22 @@ collect_id <- function(ids)
 placeholder_id <- function(ids = NULL)
 {
   #Determine n (number of reps)
-  if(is.null(ids)) n <- 0
-  else n <- length(ids)
+  n <- length(ids)
   
   #Build placeholder string
-  idString <- paste0("(", 
-                     paste(rep("?", times = n), 
-                           collapse = ", "),
-                     ")")
-  return(idString)
-}
-
-################################################################################
-#'db_indices
-#'@name db_indices
-#'@description
-#'This function returns the names of indices that exist in input database
-#'argument.
-#
-#'@param input
-#'Connection to a SQLite database (.db, .sqlite)
-#
-#'@return
-#'Character vector of index names that exist in input argument.
-################################################################################
-
-#'@export
-db_indices <- function(con)
-{
-  #Initialize character vector of length zero
-  index_names <- vector(mode = "character")
+  if(n > 0)
+  {
+    id_string <- paste0("(", 
+                       paste(rep("?", times = n), 
+                             collapse = ", "),
+                       ")")
+  }
   
-  #Get type and name column
-  tables <- RSQLite::dbGetQuery(con, "select * from sqlite_master")[,1:2]
+  #Blank string
+  else
+  {
+    id_string <- ""
+  }
   
-  #Extract index values from type column
-  tables <- tables[tables$type == 'index',]
-  
-  #If there are indexes in tables, retrieve them
-  if(nrow(tables) > 0)
-    index_names <- tables$name
-  
-  return(index_names)
+  return(id_string)
 }
