@@ -2,18 +2,19 @@
 % Please edit documentation in R/sql-query-functions.R
 \name{drop_idx_query}
 \alias{drop_idx_query}
-\title{drop_idx_query}
+\title{Generate Drop Index Query}
 \usage{
 drop_idx_query(idx_name = "TREE_PLOTQUERYID")
 }
 \arguments{
-\item{idx_name:}{Character string of index name in database table to drop.}
+\item{idx_name}{Character string of index name in database table to drop.
+Defaults to "TREE_PLOTQUERYID".}
 }
 \value{
 Character string of query that will be used to remove database table index if
 it exists.
 }
 \description{
-This function takes in a SQLite index name and returns a query that will drop
-the index if it exists.
+This function takes in a SQLite index name and returns a query
+that will drop the index if it exists.
 }

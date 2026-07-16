@@ -2,19 +2,21 @@
 % Please edit documentation in R/sql-query-functions.R
 \name{drop_col_query}
 \alias{drop_col_query}
-\title{drop_col_query}
+\title{Generate Drop Column Query}
 \usage{
 drop_col_query(db_table = "TREE", db_field = "PLOTQUERYID")
 }
 \arguments{
-\item{db_table:}{Character string corresponding to name of database table.}
+\item{db_table}{Character string corresponding to name of database table.
+Defaults to "TREE".}
 
-\item{db_field:}{string corresponding to name of database field name.}
+\item{db_field}{Character string corresponding to name of database field name.
+Defaults to "PLOTQUERYID".}
 }
 \value{
 Character string of query used to drop column from database table.
 }
 \description{
-This function takes in a database table name and column/field and returns a
-query that will have the column dropped from database table.
+This function takes in a database table name and column/field
+and returns a query that will have the column dropped from database table.
 }

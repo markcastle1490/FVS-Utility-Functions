@@ -2,20 +2,20 @@
 % Please edit documentation in R/fvs-pvcode-functions.R
 \name{fvs_pvlookup}
 \alias{fvs_pvlookup}
-\title{fvs_pvlookup}
+\title{Look Up FVS Potential Vegetation Index}
 \usage{
 fvs_pvlookup(var_code = "IE", pvcode = "")
 }
 \arguments{
-\item{var_code:}{Character vector of two-character codes corresponding to FVS variant
-(e.g. "CA").}
+\item{var_code}{Character vector of two-character codes corresponding to FVS variant
+(e.g. "CA"). Defaults to "IE".}
 
-\item{pvcode:}{Character string corresponding to PV Code.}
+\item{pvcode}{Character string corresponding to PV Code. Defaults to "".}
 }
 \value{
 Positive non-zero integer value if index is found, otherwise a NA value.
 }
 \description{
-This function is used to lookup the index number of a PV code for a specified
-FVS variant.
+This function is used to lookup the index number of a PV code
+for a specified FVS variant.
 }

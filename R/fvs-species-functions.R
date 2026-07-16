@@ -1,34 +1,32 @@
 ################################################################################
-#'fvs_spdf
-#'@name fvs_spdf
-#'@description
-#'
-#'This function returns all species codes for a given FVS variant, set of FVS 
-#'variants, or all FVS variants. The species codes included in the returned
-#'dataframe are:
-#'
-#'FVS sequence number
-#'
-#'FVS species code 
-#'
-#'FIA species code
-#'
-#'USDA plant symbol
-#'
-#'@param var_code:
-#'Character vector of two-character codes corresponding to FVS variant 
-#'(e.g. "CA").
-#'
-#'@param all_var:
-#'Logical variable where if TRUE, species codes for all FVS variants will be 
-#'returned. This argument will take precedence over values specified in 
-#'var_code argument.
-#'
-#'@return
-#'Dataframe with species codes.
+#' @name fvs_spdf
+#' @title Retrieve FVS Variant Species Codes
+#' @description This function returns all species codes for a given FVS variant,
+#' set of FVS variants, or all FVS variants. The species codes included in the 
+#' returned dataframe are:
+#' 
+#' FVS sequence number
+#' 
+#' FVS species code
+#' 
+#' FIA species code
+#' 
+#' USDA plant symbol
+#' 
+#' @param var_code
+#' Character vector of two-character codes corresponding to FVS variant 
+#' (e.g. "CA"). Defaults to NULL.
+#' 
+#' @param all_var
+#' Logical variable where if TRUE, species codes for all FVS variants will be 
+#' returned. This argument will take precedence over values specified in 
+#' var_code argument. Defaults to FALSE.
+#' 
+#' @return
+#' Dataframe with species codes.
+#' @export
 ################################################################################
 
-#'@export
 fvs_spdf <- function(var_code = NULL,
                          all_var = FALSE)
 {
@@ -80,47 +78,47 @@ fvs_spdf <- function(var_code = NULL,
 }
 
 ################################################################################
-#'fvs_sp
-#'@name fvs_sp
-#'@description
-#'
-#'This function returns a vector of species codes for a given variant, set of 
-#'variants, or all variants. The following species codes can be returned in a 
-#'vector:
-#'
-#'FVS sequence number
-#'
-#'FVS species code 
-#'
-#'FIA species code
-#'
-#'USDA plant symbol
-#'
-#'@param var_code:
-#'Character vector of two-character codes corresponding to FVS variant 
-#'(e.g. "CA").
-#'
-#'@param all_var:
-#'Logical variable where if TRUE, species codes for all FVS variants will be 
-#'returned. This argument will take precedence over values specified in 
-#'var_code argument.
-#'
-#'@param type:
-#'Integer value corresponding to type of species to return.
-#'
-#'1 = FVS sequence number
-#'
-#'2 = FVS character code
-#'
-#'3 = FIA species code
-#'
-#'4 = USDA plant symbols
-#'
-#'@return
-#'Vector of species codes.
+#' @name fvs_sp
+#' @title Retrieve FVS Variant Species Code Vectors
+#' @description This function returns a vector of species codes for a given 
+#' variant, set of variants, or all variants. The following species codes can be
+#' returned in a vector:
+#' 
+#' FVS sequence number
+#' 
+#' FVS species code
+#' 
+#' FIA species code
+#' 
+#' USDA plant symbol
+#' 
+#' @param var_code
+#' Character vector of two-character codes corresponding to FVS variant 
+#' (e.g. "CA"). Defaults to NULL.
+#' 
+#' @param all_var
+#' Logical variable where if TRUE, species codes for all FVS variants will be 
+#' returned. This argument will take precedence over values specified in 
+#' var_code argument. Defaults to FALSE.
+#' 
+#' @param type
+#' Integer value corresponding to type of species to return.
+#' 
+#' 1 = FVS sequence number
+#' 
+#' 2 = FVS character code
+#' 
+#' 3 = FIA species code
+#' 
+#' 4 = USDA plant symbols
+#' 
+#' Defaults to 2.
+#' 
+#' @return
+#' Vector of species codes.
+#' @export
 ################################################################################
 
-#'@export
 fvs_sp <- function(var_code = NULL,
                    all_var = FALSE,
                    type = 2)
@@ -173,49 +171,52 @@ fvs_sp <- function(var_code = NULL,
 }
 
 ################################################################################
-#'fvs_sp_lookup
-#'@name fvs_sp_lookup
-#'@description 
-#'This function is used to look up a FVS sequence number, FVS species character
-#'code, FIA code, or USDA plant code for a given variant based on an input
-#'species code.
-#
-#'@param var_code:
-#'Two character FVS variant code (e.g. CA).
-#
-#'@param sp:   
-#'Incoming species code as a character string. This can be a FVS character code,
-#'FIA species code, or USDA plant symbol. Value will be cast to character value
-#'if needed.
-#
-#'@param from:
-#'Option integer value that tells what kind of value is held in sp argument.
-#'Specifying a value from 1 - 3 will generally speed up look up times.
-#'
-#'0: FVS species character code, FIA species code or USDA plant symbol
-#'
-#'1: FVS species character code
-#'
-#'2: FIA species code
-#'
-#'3: USDA plant symbol
-#
-#'@param to:   
-#'Integer value indicating the type of species information to look up.
-#'
-#'1 = FVS species character code
-#'
-#'2 = FIA species code
-#'
-#'3 = USDA plant symbol
-#'
-#'4 = FVS sequence number
-#
-#'@return 
-#'Value corresponding to output provided in to argument.
+#' @name fvs_sp_lookup
+#' @title Look Up FVS and FIA Species Crosswalk Metadata
+#' @description This function is used to look up a FVS sequence number, FVS 
+#' species character code, FIA code, or USDA plant code for a given variant 
+#' based on an input species code.
+#' 
+#' @param var_code
+#' Two character FVS variant code (e.g. CA). Defaults to "".
+#' 
+#' @param sp
+#' Incoming species code as a character string. This can be a FVS character code, 
+#' FIA species code, or USDA plant symbol. Value will be cast to character value 
+#' if needed. Defaults to "".
+#' 
+#' @param from
+#' Option integer value that tells what kind of value is held in sp argument. 
+#' Specifying a value from 1 - 3 will generally speed up look up times.
+#' 
+#' 0: FVS species character code, FIA species code or USDA plant symbol
+#' 
+#' 1: FVS species character code
+#' 
+#' 2: FIA species code
+#' 
+#' 3: USDA plant symbol
+#' 
+#' Defaults to 0.
+#' 
+#' @param to
+#' Integer value indicating the type of species information to look up.
+#' 
+#' 1 = FVS species character code
+#' 
+#' 2 = FIA species code
+#' 
+#' 3 = USDA plant symbol
+#' 
+#' 4 = FVS sequence number
+#' 
+#' Defaults to 1.
+#' 
+#' @return
+#' Value corresponding to output provided in to argument.
+#' @export
 ################################################################################
 
-#'@export
 fvs_sp_lookup <- function(var_code = "",
                           sp = "",
                           from = 0,
@@ -257,41 +258,43 @@ fvs_sp_lookup <- function(var_code = "",
 }  
 
 ################################################################################
-#'fvs_sp_index
-#'@name fvs_sp_index
-#'@description
-#'This a function that is used to obtain a row index value from one of the four
-#'following lists from commons.R:
-#'
-#'fvs_char_list
-#'
-#'fvs_fia_list
-#'
-#'fvs_plants_list
-#'
-#'fvs_seq_list
-#
-#'@param var_code:
-#'Two character FVS variant code (e.g. CA).
-#
-#'@param sp:
-#'Species code. This can be a FVS character code, FIA species code, or USDA
-#'plant symbol.
-#
-#'@param from:
-#'Option integer value that tells what kind of value is held in sp argument.
-#'Specifying a value from 1 - 3 will generally speed up look up times.
-#'
-#'0: FVS species character code, FIA species code or USDA plant symbol
-#'
-#'1: FVS species character code
-#'
-#'2: FIA species code
-#'
-#'3: USDA plant symbol
-#
-#'@return
-#'Numeric row index value from species code list.
+#' @name fvs_sp_index
+#' @title Retrieve Row Index for FVS Species Lists
+#' @description This a function that is used to obtain a row index value from 
+#' one of the four following lists from commons.R:
+#' 
+#' fvs_char_list
+#' 
+#' fvs_fia_list
+#' 
+#' fvs_plants_list
+#' 
+#' fvs_seq_list
+#' 
+#' @param var_code
+#' Two character FVS variant code (e.g. CA). Defaults to "".
+#' 
+#' @param sp
+#' Species code. This can be a FVS character code, FIA species code, or USDA 
+#' plant symbol. Defaults to "".
+#' 
+#' @param from
+#' Option integer value that tells what kind of value is held in sp argument. 
+#' Specifying a value from 1 - 3 will generally speed up look up times.
+#' 
+#' 0: FVS species character code, FIA species code or USDA plant symbol
+#' 
+#' 1: FVS species character code
+#' 
+#' 2: FIA species code
+#' 
+#' 3: USDA plant symbol
+#' 
+#' Defaults to 0.
+#' 
+#' @return
+#' Numeric row index value from species code list.
+#' @export
 ################################################################################
 
 fvs_sp_index <- function(var_code = "",

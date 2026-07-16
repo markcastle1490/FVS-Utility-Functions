@@ -2,32 +2,34 @@
 % Please edit documentation in R/fvs-pvcode-functions.R
 \name{fvs_pvlookup_reg}
 \alias{fvs_pvlookup_reg}
-\title{fvs_pvlookup_reg}
+\title{Look Up Regional FVS Potential Vegetation Index}
 \usage{
 fvs_pvlookup_reg(var_code = "IE", region = 1, pvcode = "", from = 0)
 }
 \arguments{
-\item{var_code:}{Character vector of two-character codes corresponding to FVS variant
-(e.g. "CA").}
+\item{var_code}{Character vector of two-character codes corresponding to FVS variant
+(e.g. "CA"). Defaults to "IE".}
 
-\item{region:}{Integer value corresponding to USFS region. Valid values are 1, 2, 3, 4, 5, 6,
-and 9.}
+\item{region}{Integer value corresponding to USFS region. Valid values are 1, 2, 3, 4, 5, 6,
+and 9. Defaults to 1.}
 
-\item{pvcode:}{Character string corresponding to HABPVR (pv code and reference combination),
-PVCODE (PV code), PVREF (PV reference code).}
+\item{pvcode}{Character string corresponding to HABPVR (pv code and reference combination),
+PVCODE (PV code), PVREF (PV reference code). Defaults to "".}
 
-\item{from:}{Integer value that tells what kind of value should be searched for:
+\item{from}{Integer value that tells what kind of value should be searched for:
 
 1: HABPVR
 
 2: PVCODE
 
-3: PVREF}
+3: PVREF
+
+Defaults to 0.}
 }
 \value{
 Positive non-zero integer value if index is found, otherwise a NA value.
 }
 \description{
-This function is used to lookup the index number of a PV code for a specified
-FVS variant and region number.
+This function is used to lookup the index number of a PV code
+for a specified FVS variant and region number.
 }

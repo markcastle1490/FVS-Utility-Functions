@@ -2,19 +2,19 @@
 % Please edit documentation in R/fvs-species-functions.R
 \name{fvs_sp}
 \alias{fvs_sp}
-\title{fvs_sp}
+\title{Retrieve FVS Variant Species Code Vectors}
 \usage{
 fvs_sp(var_code = NULL, all_var = FALSE, type = 2)
 }
 \arguments{
-\item{var_code:}{Character vector of two-character codes corresponding to FVS variant
-(e.g. "CA").}
+\item{var_code}{Character vector of two-character codes corresponding to FVS variant
+(e.g. "CA"). Defaults to NULL.}
 
-\item{all_var:}{Logical variable where if TRUE, species codes for all FVS variants will be
+\item{all_var}{Logical variable where if TRUE, species codes for all FVS variants will be
 returned. This argument will take precedence over values specified in
-var_code argument.}
+var_code argument. Defaults to FALSE.}
 
-\item{type:}{Integer value corresponding to type of species to return.
+\item{type}{Integer value corresponding to type of species to return.
 
 1 = FVS sequence number
 
@@ -22,15 +22,17 @@ var_code argument.}
 
 3 = FIA species code
 
-4 = USDA plant symbols}
+4 = USDA plant symbols
+
+Defaults to 2.}
 }
 \value{
 Vector of species codes.
 }
 \description{
-This function returns a vector of species codes for a given variant, set of
-variants, or all variants. The following species codes can be returned in a
-vector:
+This function returns a vector of species codes for a given
+variant, set of variants, or all variants. The following species codes can be
+returned in a vector:
 
 FVS sequence number
 

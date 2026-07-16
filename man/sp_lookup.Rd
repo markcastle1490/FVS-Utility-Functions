@@ -2,16 +2,16 @@
 % Please edit documentation in R/species-functions.R
 \name{sp_lookup}
 \alias{sp_lookup}
-\title{sp_lookup}
+\title{Look Up FIA Species Taxonomy and Attribute Metadata}
 \usage{
 sp_lookup(sp = "", from = 0, to = 2)
 }
 \arguments{
-\item{sp:}{Species code as a character. This can be either an FIA species code, USDA
+\item{sp}{Species code as a character. This can be either an FIA species code, USDA
 plant symbol, or species scientific name. Value will get cast to character if
-needed.}
+needed. Defaults to "".}
 
-\item{from:}{Option integer value that tells what kind of value is held in sp argument.
+\item{from}{Option integer value that tells what kind of value is held in sp argument.
 Specifying a value from 1 - 3 will generally speed up look up times.
 
 0: FIA species code, USDA plant symbol, or scientific name.
@@ -20,9 +20,11 @@ Specifying a value from 1 - 3 will generally speed up look up times.
 
 2: USDA plant symbol
 
-3: Species scientific name}
+3: Species scientific name
 
-\item{to:}{Integer value indicating the type of species information to look up.
+Defaults to 0.}
+
+\item{to}{Integer value indicating the type of species information to look up.
 
 1 = FIA code
 
@@ -42,13 +44,14 @@ Specifying a value from 1 - 3 will generally speed up look up times.
 
 9 = Sequence number
 
-If the value of to argument  is anything other than 1 - 9, then a NA value
-will be returned from the function.}
+If the value of to argument is anything other than 1 - 9, then a NA value
+will be returned from the function. Defaults to 2.}
 }
 \value{
 Value corresponding to output provided in to argument.
 }
 \description{
-This function is used to look up species specific information given an input
-FIA species code, USDA plant symbol, or species scientific name.
+This function is used to look up species specific information
+given an input FIA species code, USDA plant symbol, or species scientific
+name.
 }

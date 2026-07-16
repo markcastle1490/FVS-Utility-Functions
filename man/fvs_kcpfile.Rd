@@ -2,21 +2,22 @@
 % Please edit documentation in R/fvs-keyword-functions.R
 \name{fvs_kcpfile}
 \alias{fvs_kcpfile}
-\title{fvs_kcpfile}
+\title{Generate FVS Keyword Component File}
 \usage{
 fvs_kcpfile(kcpfile, keywords = NULL)
 }
 \arguments{
-\item{kcpfile:}{Character string corresponding to file path of keyword component file (.kcp)
+\item{kcpfile}{Character string corresponding to file path of keyword component file (.kcp)
 being created.}
 
-\item{keywords:}{Optional character vector containing properly formatted FVS keywords or
+\item{keywords}{Optional character vector containing properly formatted FVS keywords or
 variables to define with event monitor function call that will be included in
-kcp file for each stand.}
+kcp file for each stand. Defaults to NULL.}
 }
 \value{
 None
 }
 \description{
-This function creates a kcp file based on user defined set of keywords.
+This function creates a kcp file based on user defined set of
+#keywords.
 }

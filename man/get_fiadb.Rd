@@ -2,40 +2,43 @@
 % Please edit documentation in R/fiadb-download.R
 \name{get_fiadb}
 \alias{get_fiadb}
-\title{get_fiadb}
+\title{Retrieve and Extract FIA SQLite Databases}
 \usage{
 get_fiadb(
   output = NULL,
-  url = "https://apps.fs.usda.gov/fia/datamart/Databases/",
+  url = "https://research.fs.usda.gov/products/dataandtools/fia-datamart",
   states = NULL,
-  master_db = FALSE
+  master_db = FALSE,
+  verbose = FALSE
 )
 }
 \arguments{
-\item{output:}{Character string pertaining to file path to output directory where FIA
-databases will be stored.}
+\item{output}{Character string pertaining to file path to output directory where FIA
+databases will be stored. Defaults to NULL.}
 
-\item{url:}{Character string corresponding to URL of FIA datamart. This argument should be
+\item{url}{Character string corresponding to URL of FIA datamart. This argument should be
 changed if FIA changes url to datamart.}
 
-\item{states:}{Vector of two-character state abbreviations. Valid state codes are listed
-below.
+\item{states}{Vector of two-character state abbreviations. Valid state codes are listed
+below:
 
 "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
 "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
 "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
 "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
-"SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"}
+"SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
 
-\item{master_db:}{Logical variable used to signify if master FIA database should be downloaded.
-If TRUE, this will lead to long processing time.}
+Defaults to NULL.}
+
+\item{master_db}{Logical variable used to signify if master FIA database should be downloaded.
+If TRUE, this will lead to long processing time. Defaults to FALSE.}
 }
 \value{
 None
 }
 \description{
-This function is used to retrieve a state specific FIA database, set of state
-specific databases, or the master FIA SQLite database from the FIA datamart.
-The downloaded database(s) are extracted and stored on a specified local
-directory.
+This function is used to retrieve a state specific FIA database,
+set of state specific databases, or the master FIA SQLite database from the
+FIA datamart. The downloaded database(s) are extracted and stored on a
+specified local directory.
 }

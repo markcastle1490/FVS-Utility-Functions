@@ -2,7 +2,7 @@
 % Please edit documentation in R/fvs-variants.R
 \name{fvs_variants}
 \alias{fvs_variants}
-\title{fvs_variants}
+\title{Retrieve All Valid FVS Variant Codes}
 \usage{
 fvs_variants()
 }
@@ -10,5 +10,6 @@ fvs_variants()
 Character vector containing FVS variant codes.
 }
 \description{
-This function returns a character vector of all FVS variant codes (e.g. "CA").
+This function returns a character vector of all FVS variant
+codes (e.g. "CA").
 }

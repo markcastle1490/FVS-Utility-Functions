@@ -2,23 +2,26 @@
 % Please edit documentation in R/sql-query-functions.R
 \name{add_col_query}
 \alias{add_col_query}
-\title{add_col_query}
+\title{Generate Add Column Query}
 \usage{
 add_col_query(db_table = "TREE", db_field = "PLOTQUERYID", data_type = "TEXT")
 }
 \arguments{
-\item{db_table:}{Character string corresponding to name of database table.}
+\item{db_table}{Character string corresponding to name of database table.
+Defaults to "TREE".}
 
-\item{db_field:}{Character string corresponding to name of database field name.}
+\item{db_field}{Character string corresponding to name of database field name.
+Defaults to "PLOTQUERYID".}
 
-\item{dataType:}{Character string corresponding to data type of db_field.}
+\item{data_type}{Character string corresponding to data type of db_field.
+Defaults to "TEXT".}
 }
 \value{
 Character string of query used to create new column in specified database
 table.
 }
 \description{
-This function takes in a database table name, database field name, and data
-type associated with database field name and returns a query which creates a
-column in the specified database table.
+This function takes in a database table name, database field
+name, and data type associated with database field name and returns a query
+which creates a column in the specified database table.
 }

@@ -1,29 +1,30 @@
 ################################################################################
-#'run_key
-#'@name run_key
-#'@description
-#'This function is used to run a single FVS keyword file (.key) with a specified
-#'FVS variant dll (.dll) using the rFVS API.
-#
-#'@param dll_path: 
-#'Character string corresponding to directory where FVS dlls are stored
-#
-#'@param var_code: 
-#'Two character string corresponding to FVS variant ("IE", "CS", etc.).
-#
-#'@param keyfile: 
-#'Character string corresponding to directory and file name for a single FVS
-#'keyword file.
-#
-#'@param verbose: 
-#'Logical variable used to determine if debug output should be echoed to 
-#'console.
-#
-#'@return 
-#'FVS return code returned invisibly
+#' @name run_key
+#' @title Run a Single FVS Keyword File via rFVS
+#' @description This function is used to run a single FVS keyword file (.key) 
+#' with a specified FVS variant dll (.dll) using the rFVS API.
+#' 
+#' @param dll_path
+#' Character string corresponding to directory where FVS dlls are stored. 
+#' Defaults to "C:/FVS/FVSSoftware/FVSbin".
+#' 
+#' @param var_code
+#' Two character string corresponding to FVS variant ("IE", "CS", etc.). 
+#' Defaults to "ie".
+#' 
+#' @param keyfile
+#' Character string corresponding to directory and file name for a single FVS 
+#' keyword file. Defaults to "C:/FVS.key".
+#' 
+#' @param verbose
+#' Logical variable used to determine if debug output should be echoed to 
+#' console. Defaults to FALSE.
+#' 
+#' @return
+#' FVS return code returned invisibly.
+#' @export
 ################################################################################
 
-#'@export
 run_key = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
                    var_code = "ie",
                    keyfile = "C:/FVS.key",
@@ -103,36 +104,38 @@ run_key = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
 }
 
 ################################################################################
-#'run_key_rscript
-#'@name run_key_rscript
-#'@description
-#'This function is used to write a .R script that contains the code to run a 
-#'single keyword file using the run_key function.
-#
-#'@param script_path: 
-#'Optional character string corresponding to file path where R script will be 
-#'written. If this value is left as NULL, the script will be stored in the 
-#'same directory as the value in keyfile argument and will have the same name 
-#'as the keyword file.
-#
-#'@param dll_path: 
-#'Character string corresponding to directory where FVS dlls are stored
-#
-#'@param var_code: 
-#'Two character string corresponding to FVS variant ("IE", "CS", etc.).
-#
-#'@param keyfile: 
-#'Character string corresponding to directory and file name for a single FVS
-#'keyword file.
-#
-#'@param verbose: 
-#'Logical variable used to determine if debug output should be echoed to 
-#'console.
-#
-#'@return None
+#' @name run_key_rscript
+#' @title Generate R Script to Run an FVS Keyword File
+#' @description This function is used to write a .R script that contains the code to run a 
+#' single keyword file using the run_key function.
+#' 
+#' @param script_path
+#' Optional character string corresponding to file path where R script will be 
+#' written. If this value is left as NULL, the script will be stored in the 
+#' same directory as the value in keyfile argument and will have the same name 
+#' as the keyword file. Defaults to NULL.
+#' 
+#' @param dll_path
+#' Character string corresponding to directory where FVS dlls are stored. 
+#' Defaults to "C:/FVS/FVSSoftware/FVSbin".
+#' 
+#' @param var_code
+#' Two character string corresponding to FVS variant ("IE", "CS", etc.). 
+#' Defaults to "ie".
+#' 
+#' @param keyfile
+#' Character string corresponding to directory and file name for a single FVS 
+#' keyword file. Defaults to "C:/FVS/FVS.key".
+#' 
+#' @param verbose
+#' Logical variable used to determine if debug output should be echoed to 
+#' console. Defaults to FALSE.
+#' 
+#' @return
+#' None
+#' @export
 ################################################################################
 
-#'@export
 run_key_rscript = function(script_path = NULL,
                            dll_path = "C:/FVS/FVSSoftware/FVSbin",
                            var_code = "ie",
@@ -190,34 +193,36 @@ run_key_rscript = function(script_path = NULL,
 }
 
 ################################################################################
-#'run_key_callr
-#'@name run_key_callr
-#'@description
-#'This function is used to run a single FVS keyword file (.key) with a specified
-#'FVS variant dll (.dll) using the rFVS API in a separate R session with the 
-#'callr R package. This function will produce the same results as run_key but
-#'can be helpful in reducing memory usage and preventing potential out of memory
-#'errors when running many large FVS simulations in sequence.
-#
-#'@param dll_path: 
-#'Character string corresponding to directory where FVS dlls are stored
-#
-#'@param var_code: 
-#'Two character string corresponding to FVS variant ("IE", "CS", etc.).
-#
-#'@param keyfile: 
-#'Character string corresponding to directory and file name for a single FVS
-#'keyword file.
-#
-#'@param verbose: 
-#'Logical variable used to determine if debug output should be echoed to 
-#'console.
-#
-#'@return
-#'FVS return code returned invisibly.
+#' @name run_key_callr
+#' @title Run a Single FVS Keyword File via callr
+#' @description This function is used to run a single FVS keyword file (.key) 
+#' with a specified FVS variant dll (.dll) using the rFVS API in a separate R 
+#' session with the callr R package. This function will produce the same results
+#' as run_key but can be helpful in reducing memory usage and preventing 
+#' potential out of memory errors when running many large FVS simulations in 
+#' sequence.
+#' 
+#' @param dll_path
+#' Character string corresponding to directory where FVS dlls are stored. 
+#' Defaults to "C:/FVS/FVSSoftware/FVSbin".
+#' 
+#' @param var_code
+#' Two character string corresponding to FVS variant ("IE", "CS", etc.). 
+#' Defaults to "ie".
+#' 
+#' @param keyfile
+#' Character string corresponding to directory and file name for a single FVS 
+#' keyword file. Defaults to "C:/FVS.key".
+#' 
+#' @param verbose
+#' Logical variable used to determine if debug output should be echoed to 
+#' console. Defaults to FALSE.
+#' 
+#' @return
+#' FVS return code returned invisibly.
+#' @export
 ################################################################################
 
-#'@export
 run_key_callr = function(dll_path = "C:/FVS/FVSSoftware/FVSbin", 
                          var_code = "ie",
                          keyfile = "C:/FVS.key",
@@ -301,23 +306,26 @@ run_key_callr = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
 }
 
 ################################################################################
-#'run_fvs
-#'@name run_fvs
-#'@description
-#'This function is called from run_key and run_key_callr and is used to fulfill
-#'a simulation using input arguments corresponding to path where FVS variant 
-#'dlls are stored, a variant code, and keyword file name.
-#
-#'@param dll_path: 
-#'Character string corresponding to directory where FVS dlls are stored
-#
-#'@param var_code: 
-#'Character string 'FVS' appended to a lowercase variant code (e.g. 'FVSca').
-#
-#'@param keyfile: 
-#'Character string corresponding to keyword file name.
-#
-#'@return FVS return code invisibly returned
+#' @name run_fvs
+#' @title Low-Level FVS Variant DLL Execution Engine
+#' @description This function is called from run_key and run_key_callr and is 
+#' used to fulfill a simulation using input arguments corresponding to path 
+#' where FVS variant dlls are stored, a variant code, and keyword file name.
+#' 
+#' @param dll_path
+#' Character string corresponding to directory where FVS dlls are stored. 
+#' Defaults to "C:/FVS/FVSSoftware/FVSbin".
+#' 
+#' @param var_code
+#' Character string 'FVS' appended to a lowercase variant code (e.g. 'FVSca'). 
+#' Defaults to "FVSie".
+#' 
+#' @param keyfile
+#' Character string corresponding to keyword file name. Defaults to "C:/FVS.key".
+#' 
+#' @return
+#' FVS return code invisibly returned.
+#' @export
 ################################################################################
 
 run_fvs = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
@@ -353,59 +361,60 @@ run_fvs = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
 }
 
 ################################################################################
-#'delete_caseid
-#'@name delete_caseid
-#'@description
-#'
-#'This function deletes desired rows in all database tables containing a CaseID 
-#'field from a specified output FVS database. The rows that are deleted are 
-#'determined from a set of CaseID values associated with any of the following
-#'attributes: FVS run title, management ID, FVS variant code, keyword file name
-#'set of stand ID(s), set of stand CN(s), or a set of CaseID values. The case 
-#'IDs identified for deletion are extracted from the FVS_Cases table from the 
-#'output FVS database. Some of the logic in this function was borrowed from Nick
-#'Crookston's deleteRelatedDBRows function from fvsRunUtilities.R file (fvsOL R
-#' package).
-#
-#'@param fvsout: 
-#'Character string corresponding to file path to output FVS SQLite database
-#'(.db, .sqlite).
-#
-#'@param delete_id: 
-#'Vector of character strings pertaining to FVS run title(s), management ID(s), 
-#'FVS variant code(s), keyword file name(s), stand ID values, stand CN values,
-#'or Case ID values.
-#'
-#'@param id_type:
-#'Integer value pertaining to type of value specified in delete_id argument.
-#'
-#'1 = keyword file path or file name (e.g. from KeywordFile in FVS_Cases table)
-#'
-#'2 = fvs run title (e.g. from RunTitle in FVS_Cases table)
-#'
-#'3 = management id (e.g. from MgmtID in FVS_Cases table)
-#'
-#'4 = FVS variant code (e.g. from Variant in FVS_Cases table)
-#'
-#'5 = Stand ID values (e.g. StandID in FVS_Cases table)
-#'
-#'6 = Stand CN values (e.g. Stand_CN in FVS_Cases table)
-#'
-#'7 = Case ID values (e.g. CaseID in FVS_Cases table)
-#
-#'@param vacuum: 
-#'Logical variable used to determine if output database should be vacuumed after
-#'deleting rows from output tables. This will release unused hard drive space 
-#'left behind from row deletions.
-#'
-#'@param verbose: 
-#'Logical variable used to determine if cat statements should be echoed to 
-#'console.
-#
-#'@return None
+#' @name delete_caseid
+#' @title Delete Simulation Records by Case ID Attributes
+#' @description This function deletes desired rows in all database tables 
+#' containing a CaseID field from a specified output FVS database. The rows that
+#' are deleted are determined from a set of CaseID values associated with any of
+#' the following attributes: FVS run title, management ID, FVS variant code, 
+#' keyword file name set of stand ID(s), set of stand CN(s), or a set of CaseID
+#' values. The case IDs identified for deletion are extracted from the FVS_Cases
+#' table from the output FVS database. Some of the logic in this function was 
+#' borrowed from Nick Crookston's deleteRelatedDBRows function from 
+#' fvsRunUtilities.R file (fvsOL R package).
+#' 
+#' @param fvsout
+#' Character string corresponding to file path to output FVS SQLite database 
+#' (.db, .sqlite). Defaults to NULL.
+#' 
+#' @param delete_id
+#' Vector of character strings pertaining to FVS run title(s), management ID(s), 
+#' FVS variant code(s), keyword file name(s), stand ID values, stand CN values, 
+#' or Case ID values. Defaults to NULL.
+#' 
+#' @param id_type
+#' Integer value pertaining to type of value specified in delete_id argument.
+#' 
+#' 1 = keyword file path or file name (e.g. from KeywordFile in FVS_Cases table)
+#' 
+#' 2 = fvs run title (e.g. from RunTitle in FVS_Cases table)
+#' 
+#' 3 = management id (e.g. from MgmtID in FVS_Cases table)
+#' 
+#' 4 = FVS variant code (e.g. from Variant in FVS_Cases table)
+#' 
+#' 5 = Stand ID values (e.g. StandID in FVS_Cases table)
+#' 
+#' 6 = Stand CN values (e.g. Stand_CN in FVS_Cases table)
+#' 
+#' 7 = Case ID values (e.g. CaseID in FVS_Cases table)
+#' 
+#' Defaults to 1.
+#' 
+#' @param vacuum
+#' Logical variable used to determine if output database should be vacuumed after 
+#' deleting rows from output tables. This will release unused hard drive space 
+#' left behind from row deletions. Defaults to FALSE.
+#' 
+#' @param verbose
+#' Logical variable used to determine if cat statements should be echoed to 
+#' console. Defaults to TRUE.
+#' 
+#' @return
+#' None
+#' @export
 ################################################################################
 
-#'@export
 delete_caseid = function(fvsout = NULL,
                          delete_id = NULL,
                          id_type = 1,

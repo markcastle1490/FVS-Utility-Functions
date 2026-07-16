@@ -2,7 +2,7 @@
 % Please edit documentation in R/fvs-keyword-functions.R
 \name{time_keys}
 \alias{time_keys}
-\title{time_keys}
+\title{Generate FVS Simulation Time Control Keywords}
 \usage{
 time_keys(
   invyear = NULL,
@@ -15,22 +15,23 @@ time_keys(
 )
 }
 \arguments{
-\item{max_cycles}{Numeric value corresponding to the maximum number of cycles that can be
-accommodated in FVS simulation.}
+\item{invyear}{Inventory year of stand. Defaults to NULL.}
 
-\item{invyear:}{Inventory year of stand.}
+\item{start_year}{Common start year for simulation. Defaults to NULL.}
 
-\item{cycle_length:}{Default cycle length assumed for simulation.}
+\item{end_year}{End year for simulation. Defaults to NULL.}
 
-\item{start_year:}{Common start year for simulation.}
+\item{cycle_length}{Default cycle length assumed for simulation. Defaults to NULL.}
 
-\item{end_year:}{End year for simulation.}
-
-\item{cycle_at:}{Vector of years corresponding to additional reporting years that don't
+\item{cycle_at}{Vector of years corresponding to additional reporting years that don't
 coincide with default reporting years determined by start_year, end_year, and
-cycle_length.}
+cycle_length. Defaults to NULL.}
 
-\item{verbose:}{Logical variable where if TRUE, debug output will be printed in console.}
+\item{max_cycles}{Numeric value corresponding to the maximum number of cycles that can be
+accommodated in FVS simulation. Defaults to 40.}
+
+\item{verbose}{Logical variable where if TRUE, debug output will be printed in console.
+Defaults to FALSE.}
 }
 \value{
 Character string of keywords for controlling the length of a FVS simulation

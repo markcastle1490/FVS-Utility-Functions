@@ -2,18 +2,18 @@
 % Please edit documentation in R/fvs-species-functions.R
 \name{fvs_sp_lookup}
 \alias{fvs_sp_lookup}
-\title{fvs_sp_lookup}
+\title{Look Up FVS and FIA Species Crosswalk Metadata}
 \usage{
 fvs_sp_lookup(var_code = "", sp = "", from = 0, to = 1)
 }
 \arguments{
-\item{var_code:}{Two character FVS variant code (e.g. CA).}
+\item{var_code}{Two character FVS variant code (e.g. CA). Defaults to "".}
 
-\item{sp:}{Incoming species code as a character string. This can be a FVS character code,
+\item{sp}{Incoming species code as a character string. This can be a FVS character code,
 FIA species code, or USDA plant symbol. Value will be cast to character value
-if needed.}
+if needed. Defaults to "".}
 
-\item{from:}{Option integer value that tells what kind of value is held in sp argument.
+\item{from}{Option integer value that tells what kind of value is held in sp argument.
 Specifying a value from 1 - 3 will generally speed up look up times.
 
 0: FVS species character code, FIA species code or USDA plant symbol
@@ -22,9 +22,11 @@ Specifying a value from 1 - 3 will generally speed up look up times.
 
 2: FIA species code
 
-3: USDA plant symbol}
+3: USDA plant symbol
 
-\item{to:}{Integer value indicating the type of species information to look up.
+Defaults to 0.}
+
+\item{to}{Integer value indicating the type of species information to look up.
 
 1 = FVS species character code
 
@@ -32,13 +34,15 @@ Specifying a value from 1 - 3 will generally speed up look up times.
 
 3 = USDA plant symbol
 
-4 = FVS sequence number}
+4 = FVS sequence number
+
+Defaults to 1.}
 }
 \value{
 Value corresponding to output provided in to argument.
 }
 \description{
-This function is used to look up a FVS sequence number, FVS species character
-code, FIA code, or USDA plant code for a given variant based on an input
-species code.
+This function is used to look up a FVS sequence number, FVS
+species character code, FIA code, or USDA plant code for a given variant
+based on an input species code.
 }

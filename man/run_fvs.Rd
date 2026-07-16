@@ -2,7 +2,7 @@
 % Please edit documentation in R/run-key.R
 \name{run_fvs}
 \alias{run_fvs}
-\title{run_fvs}
+\title{Low-Level FVS Variant DLL Execution Engine}
 \usage{
 run_fvs(
   dll_path = "C:/FVS/FVSSoftware/FVSbin",
@@ -11,17 +11,19 @@ run_fvs(
 )
 }
 \arguments{
-\item{dll_path:}{Character string corresponding to directory where FVS dlls are stored}
+\item{dll_path}{Character string corresponding to directory where FVS dlls are stored.
+Defaults to "C:/FVS/FVSSoftware/FVSbin".}
 
-\item{var_code:}{Character string 'FVS' appended to a lowercase variant code (e.g. 'FVSca').}
+\item{var_code}{Character string 'FVS' appended to a lowercase variant code (e.g. 'FVSca').
+Defaults to "FVSie".}
 
-\item{keyfile:}{Character string corresponding to keyword file name.}
+\item{keyfile}{Character string corresponding to keyword file name. Defaults to "C:/FVS.key".}
 }
 \value{
-FVS return code invisibly returned
+FVS return code invisibly returned.
 }
 \description{
-This function is called from run_key and run_key_callr and is used to fulfill
-a simulation using input arguments corresponding to path where FVS variant
-dlls are stored, a variant code, and keyword file name.
+This function is called from run_key and run_key_callr and is
+used to fulfill a simulation using input arguments corresponding to path
+where FVS variant dlls are stored, a variant code, and keyword file name.
 }

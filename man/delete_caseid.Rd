@@ -2,7 +2,7 @@
 % Please edit documentation in R/run-key.R
 \name{delete_caseid}
 \alias{delete_caseid}
-\title{delete_caseid}
+\title{Delete Simulation Records by Case ID Attributes}
 \usage{
 delete_caseid(
   fvsout = NULL,
@@ -13,14 +13,14 @@ delete_caseid(
 )
 }
 \arguments{
-\item{fvsout:}{Character string corresponding to file path to output FVS SQLite database
-(.db, .sqlite).}
+\item{fvsout}{Character string corresponding to file path to output FVS SQLite database
+(.db, .sqlite). Defaults to NULL.}
 
-\item{delete_id:}{Vector of character strings pertaining to FVS run title(s), management ID(s),
+\item{delete_id}{Vector of character strings pertaining to FVS run title(s), management ID(s),
 FVS variant code(s), keyword file name(s), stand ID values, stand CN values,
-or Case ID values.}
+or Case ID values. Defaults to NULL.}
 
-\item{id_type:}{Integer value pertaining to type of value specified in delete_id argument.
+\item{id_type}{Integer value pertaining to type of value specified in delete_id argument.
 
 1 = keyword file path or file name (e.g. from KeywordFile in FVS_Cases table)
 
@@ -34,26 +34,28 @@ or Case ID values.}
 
 6 = Stand CN values (e.g. Stand_CN in FVS_Cases table)
 
-7 = Case ID values (e.g. CaseID in FVS_Cases table)}
+7 = Case ID values (e.g. CaseID in FVS_Cases table)
 
-\item{vacuum:}{Logical variable used to determine if output database should be vacuumed after
+Defaults to 1.}
+
+\item{vacuum}{Logical variable used to determine if output database should be vacuumed after
 deleting rows from output tables. This will release unused hard drive space
-left behind from row deletions.}
+left behind from row deletions. Defaults to FALSE.}
 
-\item{verbose:}{Logical variable used to determine if cat statements should be echoed to
-console.}
+\item{verbose}{Logical variable used to determine if cat statements should be echoed to
+console. Defaults to TRUE.}
 }
 \value{
 None
 }
 \description{
-This function deletes desired rows in all database tables containing a CaseID
-field from a specified output FVS database. The rows that are deleted are
-determined from a set of CaseID values associated with any of the following
-attributes: FVS run title, management ID, FVS variant code, keyword file name
-set of stand ID(s), set of stand CN(s), or a set of CaseID values. The case
-IDs identified for deletion are extracted from the FVS_Cases table from the
-output FVS database. Some of the logic in this function was borrowed from Nick
-Crookston's deleteRelatedDBRows function from fvsRunUtilities.R file (fvsOL R
-package).
+This function deletes desired rows in all database tables
+containing a CaseID field from a specified output FVS database. The rows that
+are deleted are determined from a set of CaseID values associated with any of
+the following attributes: FVS run title, management ID, FVS variant code,
+keyword file name set of stand ID(s), set of stand CN(s), or a set of CaseID
+values. The case IDs identified for deletion are extracted from the FVS_Cases
+table from the output FVS database. Some of the logic in this function was
+borrowed from Nick Crookston's deleteRelatedDBRows function from
+fvsRunUtilities.R file (fvsOL R package).
 }

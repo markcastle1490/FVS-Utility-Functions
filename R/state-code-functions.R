@@ -1,53 +1,57 @@
 ################################################################################
-#'state_df
-#'@name state_df
-#'@description
-#'This function returns the state names, FIPS state codes, and two character
-#'state abbreviations in a dataframe (see state_codes dataframe in commons.R).
-#
-#'@return
-#'Dataframe containing state names, FIA state codes, and state abbreviations.
+#' @name state_df
+#' @title Retrieve State Name and FIPS Code Dataframe
+#' @description This function returns the state names, FIPS state codes, and two
+#' character state abbreviations in a dataframe (see state_codes dataframe in 
+#' commons.R).
+#' 
+#' @return
+#' Dataframe containing state names, FIA state codes, and state abbreviations.
+#' @export
 ################################################################################
 
-#'@export
 state_df <- function()
   return(state_codes)
 
 ################################################################################
-#'state_lookup
-#'@name state_lookup
-#'@description
-#'This function takes in a US state name, FIA State code, or State abbreviation
-#'and returns a US state name, FIA state code or state abbreviation.
-#
-#'@param state:    
-#'Character string of a US state name (e.g. "New York") or state abbreviation
-#'(e.g "NY") or a FIPS state code (e.g. 36 for New York). Look up times will be
-#'fastest if state is input as FIPS code.
-#
-#'@param from:
-#'Option integer value that tells what kind of value is held in state argument.
-#'Specifying a value from 1 - 3, will generally speed up lookup times.
-#'
-#'0: State FIPS code, abbreviation, or name.
-#'
-#'1: State FIPS code
-#'
-#'2: State abbreviation
-#'
-#'3: State name
-#
-#'@param to:       
-#'Integer value signifying the state identifier to convert to.
-#'
-#'1 = State FIPS code
-#'
-#'2 = State abbreviation
-#'
-#'3 = State name
-#
-#'@return
-#'State FIPS code, state abbreviation, or state name.
+#' @name state_lookup
+#' @title Look Up State Names, FIPS Codes, and Abbreviations
+#' @description This function takes in a US state name, FIA State code, or 
+#' State abbreviation and returns a US state name, FIA state code or state 
+#' abbreviation.
+#' 
+#' @param state
+#' Character string of a US state name (e.g. "New York") or state abbreviation 
+#' (e.g "NY") or a FIPS state code (e.g. 36 for New York).
+#' 
+#' @param from
+#' Option integer value that tells what kind of value is held in state argument. 
+#' Specifying a value from 1 - 3, will generally speed up lookup times.
+#' 
+#' 0: State FIPS code, abbreviation, or name.
+#' 
+#' 1: State FIPS code
+#' 
+#' 2: State abbreviation
+#' 
+#' 3: State name
+#' 
+#' Defaults to 0.
+#' 
+#' @param to
+#' Integer value signifying the state identifier to convert to.
+#' 
+#' 1 = State FIPS code
+#' 
+#' 2 = State abbreviation
+#' 
+#' 3 = State name
+#' 
+#' Defaults to 3.
+#' 
+#' @return
+#' State FIPS code, state abbreviation, or state name.
+#' @export
 ################################################################################
 
 #'@export
@@ -88,27 +92,30 @@ state_lookup <-function(state = NULL,
 }
 
 ################################################################################
-#'state_index
-#'@name sp_index
-#'@description
-#'This a function that is used to obtain a row index value from the state_codes
-#'dataframe (see commons. R) based on an incoming state value. The state value
-#'can be a state FIPS code, state abbreviation, or state name.
-#
-#'@param state:
-#'Species code. This can be either an FIA species code or UDSA plant symbol.
-#
-#'@param from:
-#'Option integer value that tells what kind of value is held in state argument.
-#'
-#'1: State FIPS code
-#'
-#'2: State abbreviation
-#'
-#'3: State name
-#
-#'@return
-#'Numeric row index value from state_codes dataframe.
+#' @name state_index
+#' @title Retrieve Row Index for State Codes List
+#' @description This a function that is used to obtain a row index value from 
+#' the state_codes dataframe (see commons.R) based on an incoming state value. 
+#' The state value can be a state FIPS code, state abbreviation, or state name.
+#' 
+#' @param state
+#' State value to evaluate. This can be either a state FIPS code, state 
+#' abbreviation, or full state name. Defaults to NULL.
+#' 
+#' @param from
+#' Option integer value that tells what kind of value is held in state argument.
+#' 
+#' 1: State FIPS code
+#' 
+#' 2: State abbreviation
+#' 
+#' 3: State name
+#' 
+#' Defaults to 0.
+#' 
+#' @return
+#' Numeric row index value from state_codes dataframe.
+#' @export
 ################################################################################
 
 state_index <- function(state = NULL,
@@ -143,21 +150,19 @@ state_index <- function(state = NULL,
 }
 
 ################################################################################
-#'state_fips_index
-#'@name state_fips_index
-#'@description 
-#'
-#'This function is used to obtain an index value (row number) from the
-#'states_code data frame that is returned from the get_states function.
-#
-#'@param fips: 
-#'Numeric fips code.
-#
-#'@return 
-#'Numeric index value.
+#' @name state_fips_index
+#' @title Retrieve Row Index by Numeric State FIPS Code
+#' @description This function is used to obtain an index value (row number) from
+#' the states_code data frame that is returned from the get_states function.
+#' 
+#' @param fips
+#' Numeric fips code.
+#' 
+#' @return
+#' Numeric index value.
+#' @export
 ################################################################################
 
-#'@export
 state_fips_index <- function(fips)
 {
   #Initialize fips_index_ 

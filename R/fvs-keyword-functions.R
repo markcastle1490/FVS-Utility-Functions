@@ -1,122 +1,126 @@
 ################################################################################
-#'fvs_keyfile
-#'@name fvs_keyfile
-#'@description 
-#'This function creates a keyword file based on user defined set of keywords for
-#'a set of stands IDs and inventory years. 
-#'
-#'@param keyfile:     
-#'Character string corresponding to directory path and file name of keyword file
-#'being created.
-#'
-#'@param standid:     
-#'Character vector of stand identification numbers.
-#'
-#'@param invyear:     
-#'Numeric vector of inventory years for each stand in standid and or standcn 
-#'arguments.
-#'
-#'@param standcn:
-#'Optional character vector of stand control numbers. If values are not defined
-#'for this argument, then the value from standid will be used as the stand 
-#'control number in the output keyword file.
-#'
-#'@param keywords:
-#'Optional character vector containing properly formatted FVS keywords or 
-#'variables to define with event monitor function call that will be included in
-#'keyword file for each stand. 
-#'
-#'@param stand_keys:
-#'Optional character vector containing a set of properly formatted keywords or
-#'variables to define with event monitor function call for specific stands in 
-#'the standid argument. These keywords will be added for the given stand in the
-#'output keyword file. If this argument is used, it should match the length of 
-#'the standid argument.
-#'
-#'@param start_year:   
-#'Common start year for simulation. If start_year and end_year are not NULL, then
-#'function will attempt to add time keyword sequence (see time_keys function).
-#'
-#'@param end_year:     
-#'Common end year for simulation. If start_year and end_year are not NULL, then
-#'function will attempt to add TIMEIMT and NUMCYCLE keyword sequence (see 
-#'time_keys function).
-#'
-#'@param cycle_length: 
-#'Default cycle length assumed for simulation. Only used when start_year and 
-#'end_year are not NULL.
-#'
-#'@param cycle_at: 
-#'Numeric vector containing additional reporting years (those that do not occur
-#'on default cycle boundaries based on start_year, end_year and 'cycle_length 
-#'arguments). Only used when start_year and end_year are not NULL.
-#'
-#'@param dbin: 
-#'Character string for name of FVS input database that includes file extension
-#'(.db, .sqlite). If this value is not NULL, the function will attempt to add a 
-#'DSNIN keyword sequence.
-#'
-#'@param standinit:   
-#'Character string corresponding to name table where stand information will be 
-#'read from. Typically this would be "FVS_standinit" of "FVS_PlotInit" but could
-#'be "FVS_standinit_Plot", "FVS_standinit_Cond", etc. when FIA data is in use.
-#'This is an optional argument and will only be used if dbin is not NULL.
-#'
-#'@param treeinit:    
-#'Character string corresponding to name table where tree information will be 
-#'read from. Typically this would be "FVS_treeinit" but could be 
-#'"FVS_treeinit_Plot", "FVS_treeinit_Cond", etc. when FIA data is in use. This
-#'is an optional argument and will only be used if dbin is not NULL.
-#'
-#'@param stand_type:   
-#'Integer value that determines what stand ID will be used to read data from 
-#'dbin when dbin is not NULL.
-#'
-#'0 = Stand_CN
-#'
-#'1 = Stand_ID
-#
-#'@param dbout:        
-#'Name of FVS output database that includes file extension (.db or .sqlite). 
-#'If this value is not NULL, the function will attempt to add a DSNOUT keyword
-#'sequence.
-#'
-#'@param delotab:     
-#'Optional vector of integer values that contain any values from 1-4. If values
-#'are provided in this argument, then DELOTAB keywords will be included in 
-#'keyword file to suppress creation of text outputs. By default this argument is
-#'set to c(1, 2) so the stand composition table and sample tree data tables will
-#'be suppressed in the output keyword file.
-#'
-#'@param create_batch:
-#'Logical value where if TRUE, a batch of keywords is created instead of a
-#'single keyword file. The number of stands included in a keyword file within a
-#'batch is determined by the nstands argument. The name of the keyword 
-#'file in a batch will be keyword file name appended to _BATCHX.key where X is
-#'the number corresponding to the keyword batch (e.g. _BATCH2 would correspond 
-#'to keyword file containing the second batch of stands).
-#'
-#'@param unique_dbout:
-#'Logical value where if TRUE, a unique output database will be specified for
-#'the keyword file within the batch. This argument will only have an effect when
-#'value in dbout argument is not NULL and create_batch is TRUE.
-#'
-#'@param nstands:
-#'Numeric value corresponding to number of stands to include in a keyword file
-#'when create_batch argument is TRUE. This value will be ignored if create_batch
-#'is FALSE.
+#' @name fvs_keyfile
+#' @title Generate FVS Keyword Files and Batches
+#' @description This function creates a keyword file based on user defined set of keywords for 
+#' a set of stands IDs and inventory years.
 #' 
-#'@param nbatches 
-#'Numeric value corresponding to number of batches to create when create_batch
-#'argument is TRUE. The value in this argument will override the value in 
-#'nstands when it is not NULL. This value will be ignored if create_batch is 
-#'FALSE.
-#
-#'@return
-#'None
+#' @param keyfile
+#' Character string corresponding to directory path and file name of keyword file 
+#' being created.
+#' 
+#' @param standid
+#' Character vector of stand identification numbers.
+#' 
+#' @param invyear
+#' Numeric vector of inventory years for each stand in standid and or standcn 
+#' arguments.
+#' 
+#' @param standcn
+#' Optional character vector of stand control numbers. If values are not defined 
+#' for this argument, then the value from standid will be used as the stand 
+#' control number in the output keyword file. Defaults to NULL.
+#' 
+#' @param keywords
+#' Optional character vector containing properly formatted FVS keywords or 
+#' variables to define with event monitor function call that will be included in 
+#' keyword file for each stand. Defaults to NULL.
+#' 
+#' @param stand_keys
+#' Optional character vector containing a set of properly formatted keywords or 
+#' variables to define with event monitor function call for specific stands in 
+#' the standid argument. These keywords will be added for the given stand in the 
+#' output keyword file. If this argument is used, it should match the length of 
+#' the standid argument. Defaults to NULL.
+#' 
+#' @param start_year
+#' Common start year for simulation. If start_year and end_year are not NULL, then 
+#' function will attempt to add time keyword sequence (see time_keys function). 
+#' Defaults to NULL.
+#' 
+#' @param end_year
+#' Common end year for simulation. If start_year and end_year are not NULL, then 
+#' function will attempt to add TIMEIMT and NUMCYCLE keyword sequence (see 
+#' time_keys function). Defaults to NULL.
+#' 
+#' @param cycle_length
+#' Default cycle length assumed for simulation. Only used when start_year and 
+#' end_year are not NULL. Defaults to 10.
+#' 
+#' @param cycle_at
+#' Numeric vector containing additional reporting years (those that do not occur 
+#' on default cycle boundaries based on start_year, end_year and cycle_length 
+#' arguments). Only used when start_year and end_year are not NULL. Defaults to NULL.
+#' 
+#' @param dbin
+#' Character string for name of FVS input database that includes file extension 
+#' (.db, .sqlite). If this value is not NULL, the function will attempt to add a 
+#' DSNIN keyword sequence. Defaults to NULL.
+#' 
+#' @param standinit
+#' Character string corresponding to name table where stand information will be 
+#' read from. Typically this would be "FVS_standinit" of "FVS_PlotInit" but could 
+#' be "FVS_standinit_Plot", "FVS_standinit_Cond", etc. when FIA data is in use. 
+#' This is an optional argument and will only be used if dbin is not NULL. 
+#' Defaults to "FVS_StandInit".
+#' 
+#' @param treeinit
+#' Character string corresponding to name table where tree information will be 
+#' read from. Typically this would be "FVS_treeinit" but could be 
+#' "FVS_treeinit_Plot", "FVS_treeinit_Cond", etc. when FIA data is in use. This 
+#' is an optional argument and will only be used if dbin is not NULL. 
+#' Defaults to "FVS_TreeInit".
+#' 
+#' @param stand_type
+#' Integer value that determines what stand ID will be used to read data from 
+#' dbin when dbin is not NULL.
+#' 
+#' 0 = Stand_CN
+#' 
+#' 1 = Stand_ID
+#' 
+#' Defaults to 1.
+#' 
+#' @param dbout
+#' Name of FVS output database that includes file extension (.db or .sqlite). 
+#' If this value is not NULL, the function will attempt to add a DSNOUT keyword 
+#' sequence. Defaults to NULL.
+#' 
+#' @param delotab
+#' Optional vector of integer values that contain any values from 1-4. If values 
+#' are provided in this argument, then DELOTAB keywords will be included in 
+#' keyword file to suppress creation of text outputs. By default this argument is 
+#' set to c(1, 2) so the stand composition table and sample tree data tables will 
+#' be suppressed in the output keyword file. Defaults to c(1, 2).
+#' 
+#' @param create_batch
+#' Logical value where if TRUE, a batch of keywords is created instead of a 
+#' single keyword file. The number of stands included in a keyword file within a 
+#' batch is determined by the nstands argument. The name of the keyword 
+#' file in a batch will be keyword file name appended to _BATCHX.key where X is 
+#' the number corresponding to the keyword batch (e.g. _BATCH2 would correspond 
+#' to keyword file containing the second batch of stands). Defaults to FALSE.
+#' 
+#' @param unique_dbout
+#' Logical value where if TRUE, a unique output database will be specified for 
+#' the keyword file within the batch. This argument will only have an effect when 
+#' value in dbout argument is not NULL and create_batch is TRUE. Defaults to FALSE.
+#' 
+#' @param nstands
+#' Numeric value corresponding to number of stands to include in a keyword file 
+#' when create_batch argument is TRUE. This value will be ignored if create_batch 
+#' is FALSE. Defaults to 10000.
+#' 
+#' @param nbatches
+#' Numeric value corresponding to number of batches to create when create_batch 
+#' argument is TRUE. The value in this argument will override the value in 
+#' nstands when it is not NULL. This value will be ignored if create_batch is 
+#' FALSE. Defaults to NULL.
+#' 
+#' @return
+#' None
+#' @export
 ################################################################################
 
-#'@export
 fvs_keyfile <- function(keyfile,
                         standid,
                         invyear,
@@ -368,26 +372,25 @@ fvs_keyfile <- function(keyfile,
 }
 
 ################################################################################
-#'fvs_kcpfile
-#'@name fvs_kcpfile
-#'@description
-#'
-#'This function creates a kcp file based on user defined set of keywords.
-#
-#'@param kcpfile:     
-#'Character string corresponding to file path of keyword component file (.kcp)
-#'being created.
-#
-#'@param keywords:   
-#'Optional character vector containing properly formatted FVS keywords or 
-#'variables to define with event monitor function call that will be included in
-#'kcp file for each stand.
-#
-#'@return
-#'None
+#' @name fvs_kcpfile
+#' @title Generate FVS Keyword Component File
+#' @description This function creates a kcp file based on user defined set of 
+#' #keywords.
+#' 
+#' @param kcpfile
+#' Character string corresponding to file path of keyword component file (.kcp) 
+#' being created.
+#' 
+#' @param keywords
+#' Optional character vector containing properly formatted FVS keywords or 
+#' variables to define with event monitor function call that will be included in 
+#' kcp file for each stand. Defaults to NULL.
+#' 
+#' @return
+#' None
+#' @export
 ################################################################################
 
-#'@export
 fvs_kcpfile <- function(kcpfile,
                         keywords = NULL)
 {
@@ -437,55 +440,52 @@ fvs_kcpfile <- function(kcpfile,
 }
 
 ################################################################################
-#'fvs_keyword
-#'@name fvs_keyword
-#'@description fvs_keyword
-#'
-#'This function takes in a list of keyword parameters and returns a properly 
-#'formatted keyword string. This function can accommodate standard keyword
-#'formatting and the Parms format.
-#
-#'@param params:    
-#'
-#'List containing FVS keyword or event monitor function parameters. The list
-#'should be structured in one of the following manners and align with the
-#'options for the type argument.
-#'
-#'1: List corresponds to standard FVS keyword (not in parms format). Value in 
-#'index 1 should be name of FVS keyword. All following indices should contain
-#'keyword parameters.
-#'
-#'2: List corresponds to FVS keyword in parms format. Value in index 1 should be
-#'name of FVS keyword. All following indices should contain keyword parameters.
-#'
-#'3: List corresponds to variable defined by event monitor function. Value in
-#'index 1, should be name of event monitor variable to define. Index 2 should be
-#'name of event monitor function being used. All following indices should 
-#'contain event monitor function arguments.
-#'
-#'4: List corresponds to a collection of values that will be returned as single 
-#'string. All indices in list contain values that will be concatenated into a 
-#'string where each value is separated by a space and returned without any 
-#'additional formatting.
-#
-#'@param type:      
-#'Type of keyword to be returned. By default this argument is set to 1.
-#'
-#'1 = Standard
-#'
-#'2 = Parms format
-#'
-#'3 = event monitor function call
-#'
-#'4 = freeform, could be standard keyword, parms formatted keyword, or event 
-#'monitor function call.
-#'
-#'@return 
-#'Character string corresponding to properly formatted keyword or event monitor 
-#'function.
+#' @name fvs_keyword
+#' @title Format FVS Keyword and Event Monitor Strings
+#' @description This function takes in a list of keyword parameters and returns a properly 
+#' formatted keyword string. This function can accommodate standard keyword 
+#' formatting and the Parms format.
+#' 
+#' @param params
+#' List containing FVS keyword or event monitor function parameters. The list 
+#' should be structured in one of the following manners and align with the 
+#' options for the type argument.
+#' 
+#' 1: List corresponds to standard FVS keyword (not in parms format). Value in 
+#' index 1 should be name of FVS keyword. All following indices should contain 
+#' keyword parameters.
+#' 
+#' 2: List corresponds to FVS keyword in parms format. Value in index 1 should be 
+#' name of FVS keyword. All following indices should contain keyword parameters.
+#' 
+#' 3: List corresponds to variable defined by event monitor function. Value in 
+#' index 1, should be name of event monitor variable to define. Index 2 should be 
+#' name of event monitor function being used. All following indices should 
+#' contain event monitor function arguments.
+#' 
+#' 4: List corresponds to a collection of values that will be returned as single 
+#' string. All indices in list contain values that will be concatenated into a 
+#' string where each value is separated by a space and returned without any 
+#' additional formatting.
+#' 
+#' @param type
+#' Type of keyword to be returned. By default this argument is set to 1.
+#' 
+#' 1 = Standard
+#' 
+#' 2 = Parms format
+#' 
+#' 3 = event monitor function call
+#' 
+#' 4 = freeform, could be standard keyword, parms formatted keyword, or event 
+#' monitor function call.
+#' 
+#' @return
+#' Character string corresponding to properly formatted keyword or event monitor 
+#' function.
+#' @export
 ################################################################################
 
-#'@export
 fvs_keyword <- function(params = list(),
                         type = 1)
 {
@@ -606,45 +606,44 @@ fvs_keyword <- function(params = list(),
 }
 
 ################################################################################
-#'time_keys
-#'@name time_keys
-#'@description
-#'
-#'This function creates a set of keywords for controlling the length of a FVS
-#'simulation for a given inventory year, common start year, common end year,
-#'default cycle length, and optional cycle_at keywords.
-#
-#'@param invyear:    
-#'Inventory year of stand.
-#
-#'@param cycle_length: 
-#'Default cycle length assumed for simulation.
-#
-#'@param start_year:  
-#'Common start year for simulation.
-#
-#'@param end_year:
-#'End year for simulation.
-#
-#'@param cycle_at:    
-#'Vector of years corresponding to additional reporting years that don't 
-#'coincide with default reporting years determined by start_year, end_year, and 
-#'cycle_length.
+#' @name time_keys
+#' @title Generate FVS Simulation Time Control Keywords
+#' @description This function creates a set of keywords for controlling the length of a FVS 
+#' simulation for a given inventory year, common start year, common end year, 
+#' default cycle length, and optional cycle_at keywords.
 #' 
-#'@param max_cycles
-#'Numeric value corresponding to the maximum number of cycles that can be
-#'accommodated in FVS simulation. 
-#
-#'@param verbose:      
-#'Logical variable where if TRUE, debug output will be printed in console.
-#
-#'@return
-#'Character string of keywords for controlling the length of a FVS simulation 
-#'for a given inventory year, common start year, common end year, default cycle 
-#'length, and additional reporting years.
+#' @param invyear
+#' Inventory year of stand. Defaults to NULL.
+#' 
+#' @param start_year
+#' Common start year for simulation. Defaults to NULL.
+#' 
+#' @param end_year
+#' End year for simulation. Defaults to NULL.
+#' 
+#' @param cycle_length
+#' Default cycle length assumed for simulation. Defaults to NULL.
+#' 
+#' @param cycle_at
+#' Vector of years corresponding to additional reporting years that don't 
+#' coincide with default reporting years determined by start_year, end_year, and 
+#' cycle_length. Defaults to NULL.
+#' 
+#' @param max_cycles
+#' Numeric value corresponding to the maximum number of cycles that can be 
+#' accommodated in FVS simulation. Defaults to 40.
+#' 
+#' @param verbose
+#' Logical variable where if TRUE, debug output will be printed in console. 
+#' Defaults to FALSE.
+#' 
+#' @return
+#' Character string of keywords for controlling the length of a FVS simulation 
+#' for a given inventory year, common start year, common end year, default cycle 
+#' length, and additional reporting years.
+#' @export
 ################################################################################
 
-#'@export
 time_keys <- function(invyear = NULL,
                       start_year = NULL,
                       end_year = NULL,
@@ -748,39 +747,42 @@ time_keys <- function(invyear = NULL,
 }
 
 ################################################################################
-#'dsnin_keys
-#'@name dsnin_keys
-#'@description
-#'
-#'This function creates a set of keywords for reading in data from an input FVS
-#'database
-#
-#'@param dbin:       
-#'Name of FVS input database that includes file extension (.db or .sqlite).
-#
-#'@param standinit:   
-#'Character string corresponding to name table where stand information will be 
-#'read from. Typically this would be "FVS_standinit" or "FVS_PlotInit" but could
-#'"FVS_standinit_Plot", "FVS_standinit_Cond", etc.
-#
-#'@param treeinit:    
-#'Character string corresponding to name table where tree information will be 
-#'read from. Typically this would be "FVS_treeinit" but could 
-#'"FVS_treeinit_Plot", "FVS_treeinit_Cond", etc.
-#
-#'@param stand_type:  
-#'Integer value that determine what stand ID will be used to read data from.
-#'
-#'0 = Stand_CN
-#'
-#'1 = Stand_ID
-#
-#'@return
-#'Character string of keywords with SQL instructions to read data in from
-#'FVS_standinit and FVS_treeinit tables.
+#' @name dsnin_keys
+#' @title Generate FVS Input Database Keywords
+#' @description This function creates a set of keywords for reading in data from
+#' an input FVS database.
+#' 
+#' @param dbin
+#' Name of FVS input database that includes file extension (.db or .sqlite). 
+#' Defaults to "FVS_Data.db".
+#' 
+#' @param stand_type
+#' Integer value that determine what stand ID will be used to read data from.
+#' 
+#' 0 = Stand_CN
+#' 
+#' 1 = Stand_ID
+#' 
+#' Defaults to 1.
+#' 
+#' @param standinit
+#' Character string corresponding to name table where stand information will be 
+#' read from. Typically this would be "FVS_standinit" or "FVS_PlotInit" but could 
+#' be "FVS_standinit_Plot", "FVS_standinit_Cond", etc. 
+#' Defaults to "FVS_StandInit".
+#' 
+#' @param treeinit
+#' Character string corresponding to name table where tree information will be 
+#' read from. Typically this would be "FVS_treeinit" but could be 
+#' "FVS_treeinit_Plot", "FVS_treeinit_Cond", etc. 
+#' Defaults to "FVS_TreeInit".
+#' 
+#' @return
+#' Character string of keywords with SQL instructions to read data in from 
+#' FVS_standinit and FVS_treeinit tables.
+#' @export
 ################################################################################
 
-#'@export
 dsnin_keys <- function(dbin = 'FVS_Data.db',
                        stand_type = 1,
                        standinit = "FVS_StandInit",
@@ -825,20 +827,20 @@ dsnin_keys <- function(dbin = 'FVS_Data.db',
 }
 
 ################################################################################
-#'dsnout_keys
-#'@name dsnout_keys
-#'@description
-#'This function creates a set of keywords for setting an FVS output database.
-#
-#'@param dbout: 
-#'Name of FVS output database that includes file extension (.db or .sqlite). By
-#'default this argument is set to "FVS_Data.db".
-#
-#'@return
-#'Character string containing keywords for setting an FVS output database.
+#' @name dsnout_keys
+#' @title Generate FVS Output Database Keywords
+#' @description This function creates a set of keywords for setting an FVS 
+#' output database.
+#' 
+#' @param dbout
+#' Name of FVS output database that includes file extension (.db or .sqlite). 
+#' Defaults to "FVSOut.db".
+#' 
+#' @return
+#' Character string containing keywords for setting an FVS output database.
+#' @export
 ################################################################################
 
-#'@export
 dsnout_keys <- function(dbout = 'FVSOut.db')
   
 {
@@ -853,16 +855,17 @@ dsnout_keys <- function(dbout = 'FVSOut.db')
 }
 
 ################################################################################
-#'delotab_keys
-#'@name delotab_keys
-#'@description
-#'This function creates a set of delotab keywords based on input numeric vector.
-#
-#'@param delotab: 
-#'Vector of integer values that contain any values from 1-4.
-#
-#'@return
-#'Character string containing set of DELOTAB keywords or empty string.
+#' @name delotab_keys
+#' @title Generate FVS DELOTAB Output Suppression Keywords
+#' @description This function creates a set of delotab keywords based on input 
+#' numeric vector.
+#' 
+#' @param delotab
+#' Vector of integer values that contain any values from 1-4. Defaults to NULL.
+#' 
+#' @return
+#' Character string containing set of DELOTAB keywords or empty string.
+#' @export
 ################################################################################
 
 #'@export
@@ -898,46 +901,45 @@ delotab_keys <- function(delotab = NULL)
 }
 
 ################################################################################
-#'open_keys
-#'@name open_keys
-#'@description
-#'This function creates a set of keywords for opening and closing an FVS addfile
-#'or kcp file.
-#
-#'@param file: 
-#'Character string corresponding to a file path to a addfile (.kcp) file.
-#
-#'@param ref_num: 
-#'Integer file for reference number to input file. This value should be greater
-#'than 50 (this is based on default value from FVS-GUI).
-#'
-#'@param blanks: 
-#'Integer value pertaining to how blank values are treated in numeric fields 
-#'from contents of file that is opened (OPEN keyword).
-#'
-#'0 = treat blanks as zeros (default)
-#'
-#'gt 0 = treat blanks as null characters
-#'
-#'@param status: 
-#'Integer value corresponding to file status code (OPEN keyword).
-#'
-#'0 = Unknown (default, file may or may not currently exist) 
-#'
-#'1 = New (file does not currently exist) 
-#'
-#'2 = Old (file currently exists) 
-#'
-#'@param record_length:
-#'Integer value corresponding to maximum record length in the file (number of 
-#'characters per line; OPEN keyword). Default value is 80 characters.
-#'
-#'@return
-#'Character string containing keywords for opening and closing an addfile (.kcp)
-#'file.
+#' @name open_keys
+#' @title Generate FVS File Open and Close Keywords
+#' @description This function creates a set of keywords for opening and closing
+#' an FVS addfile or kcp file.
+#' 
+#' @param file
+#' Character string corresponding to a file path to a addfile (.kcp) file.
+#' 
+#' @param ref_num
+#' Integer file for reference number to input file. This value should be greater 
+#' than 50 (this is based on default value from FVS-GUI).
+#' 
+#' @param blanks
+#' Integer value pertaining to how blank values are treated in numeric fields 
+#' from contents of file that is opened (OPEN keyword).
+#' 
+#' 0 = treat blanks as zeros (default)
+#' 
+#' gt 0 = treat blanks as null characters
+#' 
+#' @param status
+#' Integer value corresponding to file status code (OPEN keyword).
+#' 
+#' 0 = Unknown (default, file may or may not currently exist)
+#' 
+#' 1 = New (file does not currently exist)
+#' 
+#' 2 = Old (file currently exists)
+#' 
+#' @param record_length
+#' Integer value corresponding to maximum record length in the file (number of 
+#' characters per line; OPEN keyword). Default value is 80 characters.
+#' 
+#' @return
+#' Character string containing keywords for opening and closing an addfile (.kcp) 
+#' file.
+#' @export
 ################################################################################
 
-#'@export
 open_keys <- function(file = "FVS_Addfile.kcp",
                       ref_num = 50,
                       blanks = 0,
@@ -972,74 +974,3 @@ open_keys <- function(file = "FVS_Addfile.kcp",
   
   return(open_key)
 }
-
-#===============================================================================
-#Archived dfKeys logic
-#===============================================================================
-
-#===========================================================================
-#Write any keywords provided in dfKeys argument
-#===========================================================================
-
-# if(length(dfKeys) > 0)
-# {
-#   for(i in 1:length(dfKeys))
-#   {
-#     #Loop across list of dataframes
-#     df_key <- dfKeys[[i]]
-#     
-#     #If item in list in not dataframe, skip
-#     if(class(df_key) != 'data.frame') next
-#     
-#     #If df_keys has less than 2 columns or now rows, skip
-#     if(ncol(df_key) < 2 || nrow(df_key) <= 0) next
-#     
-#     #Now process each row of dataframe
-#     for(j in 1:nrow(df_key))
-#     {
-#       #Obtain the row as a list
-#       df_row <- as.list(df_key[j ,])
-#       
-#       #Obtain type variable to determine if keyword or function will be
-#       #written
-#       type <- df_row[1]
-#       
-#       #If type is not valid, then skip to next item in df_row
-#       if(!type %in% c(1, 2, 3, 4)) next
-#       
-#       #Get keyword or event monitor function string
-#       keys <- fvs_keyword(params = df_row[2:length(df_row)],
-#                          type = type)
-#       
-#       cat(keys, "\n")
-#     }
-#     
-#     cat("\n")
-#   }
-# }
-
-
-#'param dfKeys:      
-#'Optional list of dataframes containing sets of keywords or variables to define
-#'with event monitor function call. Each row of a data frame in the list should
-#'be encoded in one of the four options described below. 
-#'
-#'1: Row corresponds to standard FVS keyword (not in parms format). Value in 
-#'Column 1, row x should be a value of 1. Column 2, row x should be name of FVS
-#'keyword. All following columns in row x correspond to keyword parameters.
-#'
-#'2: Row corresponds to FVS keyword in parms format. Value in column 1, row x 
-#'should be a value of 2. Column 2, row x should be name of FVS keyword. All 
-#'following columns in row x 
-#'correspond to keyword parameters.
-#'
-#'3: Row corresponds to variable defined by event monitor function. Value in
-#'column 1, row x should be a value of 3. Column 2, row x should be name of 
-#'event monitor variable to define. Column 3, row x should be name of event 
-#'monitor function. All following columns in row x correspond to event monitor
-#'function arguments.
-#'
-#'4: Row corresponds to a collection of values that will be returned as single 
-#'string. Value in column 1, row x should be a value of 4. All following columns
-#'in row x will be concatenated into a string where each value is separated by a
-#'space and returned without any additional formatting.

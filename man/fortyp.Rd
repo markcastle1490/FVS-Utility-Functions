@@ -3,7 +3,7 @@
 \name{fortyp}
 \alias{fortyp}
 \alias{fortyp_get_df}
-\title{fortyp_get_df}
+\title{Retrieve FIA Forest Type Dataframe}
 \usage{
 fortyp_get_df()
 }
@@ -11,7 +11,7 @@ fortyp_get_df()
 Dataframe with FIA forest type information.
 }
 \description{
-This function returns the fortyp_codes dataframe that countains FIA forest
+This function returns the fortyp_codes dataframe that contains FIA forest
 type codes, descriptions, forest type groups and other information. See
 fortyp_codes dataframe in commons.R for more information.
 }

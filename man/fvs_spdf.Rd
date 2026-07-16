@@ -2,25 +2,25 @@
 % Please edit documentation in R/fvs-species-functions.R
 \name{fvs_spdf}
 \alias{fvs_spdf}
-\title{fvs_spdf}
+\title{Retrieve FVS Variant Species Codes}
 \usage{
 fvs_spdf(var_code = NULL, all_var = FALSE)
 }
 \arguments{
-\item{var_code:}{Character vector of two-character codes corresponding to FVS variant
-(e.g. "CA").}
+\item{var_code}{Character vector of two-character codes corresponding to FVS variant
+(e.g. "CA"). Defaults to NULL.}
 
-\item{all_var:}{Logical variable where if TRUE, species codes for all FVS variants will be
+\item{all_var}{Logical variable where if TRUE, species codes for all FVS variants will be
 returned. This argument will take precedence over values specified in
-var_code argument.}
+var_code argument. Defaults to FALSE.}
 }
 \value{
 Dataframe with species codes.
 }
 \description{
-This function returns all species codes for a given FVS variant, set of FVS
-variants, or all FVS variants. The species codes included in the returned
-dataframe are:
+This function returns all species codes for a given FVS variant,
+set of FVS variants, or all FVS variants. The species codes included in the
+returned dataframe are:
 
 FVS sequence number
 

@@ -2,28 +2,28 @@
 % Please edit documentation in R/fitdb-fia.R
 \name{fia_fitdb}
 \alias{fia_fitdb}
-\title{fia_fitdb}
+\title{Process FIA Database into an FVS Equation Fitting Format}
 \usage{
 fia_fitdb(dbin = NULL, dbout = NULL, fitdb_name = NULL, verbose = FALSE)
 }
 \arguments{
-\item{dbin:}{Character string of file path FIA SQLite database.}
+\item{dbin}{Character string of file path FIA SQLite database. Defaults to NULL.}
 
-\item{dbout:}{Character string of file path to SQLite database where equation fitting
-information will be written to.}
+\item{dbout}{Character string of file path to SQLite database where equation fitting
+information will be written to. Defaults to NULL.}
 
-\item{fitdb_name:}{Character string corresponding to name of database table written to dbout
-argument.}
+\item{fitdb_name}{Character string corresponding to name of database table written to dbout
+argument. Defaults to NULL.}
 
-\item{verbose:}{Logical variable where if TRUE, progress messages will be output to the
-console.}
+\item{verbose}{Logical variable where if TRUE, progress messages will be output to the
+console. Defaults to FALSE.}
 }
 \value{
 None
 }
 \description{
-This function takes in a FIA SQLite database and writes information to a
-database that is used for fitting equations for the Forest Vegetation
-Simulator (FVS) fitdb-variables.R file. This function is called from function
-build_fitdb defined in fitdb-functions.R file.
+This function takes in a FIA SQLite database and writes
+information to a database that is used for fitting equations for the Forest
+Vegetation Simulator (FVS) fitdb-variables.R file. This function is called
+from function build_fitdb defined in fitdb-functions.R file.
 }

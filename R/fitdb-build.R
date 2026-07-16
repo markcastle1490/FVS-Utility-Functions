@@ -1,36 +1,44 @@
 ################################################################################
-#'build_fitdb
-#'@name build_fitdb
-#'@description
+#' @name build_fitdb
+#' @title Build standardized equation fitting database (FITDB)
+#' @description This function processes a set of sqlite databases and creates a
+#' standardized output database than be used for fitting equation development 
+#' (FITDB). Currently this function is only equipped to build FITDB databases 
+#' from FIA data.
 #' 
-#'This function processes a set of sqlite databases and creates a standardized
-#'output database than be used for fitting equation development (FITDB). 
-#'Currently this function is only equipped to build FITDB databases from FIA data.
-#
-#'@param dbin:	    
-#'Character vector of file paths to sqlite database (.db or .sqlite).
-#
-#'@param dbout:	    
-#'Character string corresponding to output sqlite FITDB database (.db or .sqlite).
+#' @param dbin
+#' Character vector of file paths to sqlite database (.db or .sqlite). 
+#' Defaults to NULL.
 #' 
-#'@param fitdb_name: 
-#'Character string corresponding to name of database table written to dbout 
-#'argument.
+#' @param dbout
+#' Character string corresponding to output sqlite FITDB database (.db or .sqlite). 
+#' Defaults to NULL.
 #' 
-#'@param fitdb_type: 
-#'Numeric value corresponding to type of GST database to create. 
-#'1 = FITDB built from FIA data
-#
-#'@param overwrite:	
-#' Logical variable used to determine if currently existing dbout file should be
-#' deleted. If this argument is left as FALSE, data will be appended to existing
-#' file specified in dbout.
-#
-#'@return
+#' @param fitdb_name
+#' Character string corresponding to name of database table written to dbout 
+#' argument. Defaults to "FITDB".
+#' 
+#' @param fitdb_type
+#' Numeric value corresponding to type of GST database to create.
+#' 
+#' 1 = FITDB built from FIA data
+#' 
+#' Defaults to 1.
+#' 
+#' @param overwrite
+#' Logical variable used to determine if currently existing dbout file should be 
+#' deleted. If this argument is left as FALSE, data will be appended to existing 
+#' file specified in dbout. Defaults to FALSE.
+#' 
+#' @param verbose
+#' Logical variable used to determine if progress milestones and logging messages 
+#' are printed to the console. Defaults to FALSE.
+#' 
+#' @return
 #' None
+#' @export
 ################################################################################
 
-#'@export
 build_fitdb <- function(dbin = NULL,
                         dbout = NULL,
                         fitdb_name = "FITDB",
@@ -136,35 +144,41 @@ build_fitdb <- function(dbin = NULL,
 }
 
 ################################################################################
-#'merge_inv
-#'@name merge_inv
-#'@description
+#' @name merge_inv
+#' @title Pair Tree Re-measurement Observations by Interval
+#' @description This function accepts a list of dataframes containing information 
+#' that will be paired by a measurement interval (typically a cycle or year). 
+#' This function is called from the code that prepares a fitting database 
+#' specific to a data source (e.g. fia_fitdb).
 #' 
-#'This function accepts a list of dataframes containing containing information
-#'that will be paired by a measurement interval (typically a cycle or year). 
-#'This function is called from the code that prepares a fitting database
-#'specific to a data source (e.g.fia_fitdb).
-#
-#'@param data:
-#'Data table (from data.table package) containing variables that should be 
-#'paired based on a measurement interval.
-#
-#'@param unique_id;
-#'Character string of column name used to represent a unique tree ID.
-#
-#'@param plot_id:   
-#'Character string of column name used to represent a unique plot ID.
+#' @param data
+#' Data table (from data.table package) containing variables that should be 
+#' paired based on a measurement interval.
 #' 
-#'@param merge_id:
-#'Character string of column name used to merge re-measurement periods together
-#'at the tree level.
-#
-#'@param interval:  
-#'Character string of column name used to specify a measurement year or cycle. 
-#'This variable is used to pair re-measurement observations.
-#
-#'@return
-#'Data table with paired remeasurement data.
+#' @param unique_id
+#' Character string of column name used to represent a unique tree ID. 
+#' Defaults to "UNIQUETREEID".
+#' 
+#' @param plot_id
+#' Character string of column name used to represent a unique plot ID. 
+#' Defaults to "PLOTMERGEID".
+#' 
+#' @param merge_id
+#' Character string of column name used to merge re-measurement periods together 
+#' at the tree level. Defaults to "TREEMERGEID".
+#' 
+#' @param interval_id
+#' Character string of column name used to specify a measurement year or cycle. 
+#' This variable is used to pair re-measurement observations. 
+#' Defaults to "CYCLE".
+#' 
+#' @param verbose
+#' Logical variable used to determine if tracking milestones and processing logs 
+#' are printed to the console. Defaults to TRUE.
+#' 
+#' @return
+#' Data table with paired remeasurement data.
+#' @export
 ################################################################################
 
 merge_inv <- function(data, 
@@ -223,24 +237,24 @@ merge_inv <- function(data,
 }
 
 ################################################################################
-#'write_fitdb
-#'@name write_fitdb
-#'@description
-#' This function is used to write a data table or data.frame containing a 
-#' fitting dataset to a specified output SQLite database.
-#
-#'@param fitdb:
-#'Dataframe that will be written to fitdb database specified in dbout argument.
-#
-#'@param dbout:       
-#'Character string corresponding to file path of output SQLite database.
-#
-#'@param fitdb_name
-#'Name of database table that will contain the fitting dataset information in
-#'dbout argument.
-#
-#'@return
+#' @name write_fitdb
+#' @title Write Fitting Dataset to SQLite Database
+#' @description This function is used to write a data table or data.frame 
+#' containing a fitting dataset to a specified output SQLite database.
+#' 
+#' @param fitdb
+#' Dataframe that will be written to fitdb database specified in dbout argument.
+#' 
+#' @param dbout
+#' Character string corresponding to file path of output SQLite database.
+#' 
+#' @param fitdb_name
+#' Name of database table that will contain the fitting dataset information in 
+#' dbout argument. Defaults to "FITDB".
+#' 
+#' @return
 #' None
+#' @export
 ################################################################################
 
 write_fitdb <- function(fitdb,

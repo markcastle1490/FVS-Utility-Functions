@@ -1,7 +1,22 @@
 ################################################################################
 #This file contains the logic that is used to query a FIA SQLite database to
 #build a fitting database (fitdb). The queries in this file are used in
-#fia-fitdb.R.
+#fitdb-fia.R.
+################################################################################
+
+################################################################################
+#' @name fia_tree_query
+#' @title Generate FIA Tree Level Extract Query
+#' @description This function constructs a SQL SELECT query used to extract 
+#' tree-level data and associated plot, condition, subplot, and taxonomic 
+#' metadata from an FIA SQLite database. It pairs core columns together via 
+#' explicit surrogate keys and applies quality-control filters to isolate 
+#' measurable, live or recently dead forest inventory records.
+#' 
+#' @return
+#' A character string containing the complete multi-table SQL join query, 
+#' matching variables from the TREE, COND, PLOT, SUBPLOT, and REF_SPECIES tables.
+#' @export
 ################################################################################
 
 fia_tree_query <- function() {
@@ -60,6 +75,21 @@ fia_tree_query <- function() {
   
   return(query)
 }
+
+################################################################################
+#' @name fia_si_query
+#' @title Generate FIA Site Index Extract Query
+#' @description This function constructs a standardized SQL SELECT query used to
+#' extract site tree data and associated tree parameters from the SITETREE table
+#' of an FIA SQLite database. It pulls core variables including aging metrics, 
+#' top heights, and native FVS site tree calibrations to support site index and 
+#' tree growth model matching scripts.
+#' 
+#' @return
+#' A character string containing the complete flat SQL query used to pull all 
+#' relevant field columns from the SITETREE database table.
+#' @export
+################################################################################
 
 fia_si_query = function()
 {

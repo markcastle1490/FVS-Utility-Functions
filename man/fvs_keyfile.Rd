@@ -2,7 +2,7 @@
 % Please edit documentation in R/fvs-keyword-functions.R
 \name{fvs_keyfile}
 \alias{fvs_keyfile}
-\title{fvs_keyfile}
+\title{Generate FVS Keyword Files and Batches}
 \usage{
 fvs_keyfile(
   keyfile,
@@ -28,92 +28,97 @@ fvs_keyfile(
 )
 }
 \arguments{
-\item{nbatches}{Numeric value corresponding to number of batches to create when create_batch
-argument is TRUE. The value in this argument will override the value in
-nstands when it is not NULL. This value will be ignored if create_batch is
-FALSE.}
-
-\item{keyfile:}{Character string corresponding to directory path and file name of keyword file
+\item{keyfile}{Character string corresponding to directory path and file name of keyword file
 being created.}
 
-\item{standid:}{Character vector of stand identification numbers.}
+\item{standid}{Character vector of stand identification numbers.}
 
-\item{invyear:}{Numeric vector of inventory years for each stand in standid and or standcn
+\item{invyear}{Numeric vector of inventory years for each stand in standid and or standcn
 arguments.}
 
-\item{standcn:}{Optional character vector of stand control numbers. If values are not defined
+\item{standcn}{Optional character vector of stand control numbers. If values are not defined
 for this argument, then the value from standid will be used as the stand
-control number in the output keyword file.}
+control number in the output keyword file. Defaults to NULL.}
 
-\item{keywords:}{Optional character vector containing properly formatted FVS keywords or
+\item{keywords}{Optional character vector containing properly formatted FVS keywords or
 variables to define with event monitor function call that will be included in
-keyword file for each stand.}
+keyword file for each stand. Defaults to NULL.}
 
-\item{stand_keys:}{Optional character vector containing a set of properly formatted keywords or
+\item{stand_keys}{Optional character vector containing a set of properly formatted keywords or
 variables to define with event monitor function call for specific stands in
 the standid argument. These keywords will be added for the given stand in the
 output keyword file. If this argument is used, it should match the length of
-the standid argument.}
+the standid argument. Defaults to NULL.}
 
-\item{start_year:}{Common start year for simulation. If start_year and end_year are not NULL, then
-function will attempt to add time keyword sequence (see time_keys function).}
+\item{start_year}{Common start year for simulation. If start_year and end_year are not NULL, then
+function will attempt to add time keyword sequence (see time_keys function).
+Defaults to NULL.}
 
-\item{end_year:}{Common end year for simulation. If start_year and end_year are not NULL, then
+\item{end_year}{Common end year for simulation. If start_year and end_year are not NULL, then
 function will attempt to add TIMEIMT and NUMCYCLE keyword sequence (see
-time_keys function).}
+time_keys function). Defaults to NULL.}
 
-\item{cycle_length:}{Default cycle length assumed for simulation. Only used when start_year and
-end_year are not NULL.}
+\item{cycle_length}{Default cycle length assumed for simulation. Only used when start_year and
+end_year are not NULL. Defaults to 10.}
 
-\item{cycle_at:}{Numeric vector containing additional reporting years (those that do not occur
-on default cycle boundaries based on start_year, end_year and 'cycle_length
-arguments). Only used when start_year and end_year are not NULL.}
+\item{cycle_at}{Numeric vector containing additional reporting years (those that do not occur
+on default cycle boundaries based on start_year, end_year and cycle_length
+arguments). Only used when start_year and end_year are not NULL. Defaults to NULL.}
 
-\item{dbin:}{Character string for name of FVS input database that includes file extension
+\item{dbin}{Character string for name of FVS input database that includes file extension
 (.db, .sqlite). If this value is not NULL, the function will attempt to add a
-DSNIN keyword sequence.}
+DSNIN keyword sequence. Defaults to NULL.}
 
-\item{standinit:}{Character string corresponding to name table where stand information will be
+\item{standinit}{Character string corresponding to name table where stand information will be
 read from. Typically this would be "FVS_standinit" of "FVS_PlotInit" but could
 be "FVS_standinit_Plot", "FVS_standinit_Cond", etc. when FIA data is in use.
-This is an optional argument and will only be used if dbin is not NULL.}
+This is an optional argument and will only be used if dbin is not NULL.
+Defaults to "FVS_StandInit".}
 
-\item{treeinit:}{Character string corresponding to name table where tree information will be
+\item{treeinit}{Character string corresponding to name table where tree information will be
 read from. Typically this would be "FVS_treeinit" but could be
 "FVS_treeinit_Plot", "FVS_treeinit_Cond", etc. when FIA data is in use. This
-is an optional argument and will only be used if dbin is not NULL.}
+is an optional argument and will only be used if dbin is not NULL.
+Defaults to "FVS_TreeInit".}
 
-\item{stand_type:}{Integer value that determines what stand ID will be used to read data from
+\item{stand_type}{Integer value that determines what stand ID will be used to read data from
 dbin when dbin is not NULL.
 
 0 = Stand_CN
 
-1 = Stand_ID}
+1 = Stand_ID
 
-\item{dbout:}{Name of FVS output database that includes file extension (.db or .sqlite).
+Defaults to 1.}
+
+\item{dbout}{Name of FVS output database that includes file extension (.db or .sqlite).
 If this value is not NULL, the function will attempt to add a DSNOUT keyword
-sequence.}
+sequence. Defaults to NULL.}
 
-\item{delotab:}{Optional vector of integer values that contain any values from 1-4. If values
+\item{delotab}{Optional vector of integer values that contain any values from 1-4. If values
 are provided in this argument, then DELOTAB keywords will be included in
 keyword file to suppress creation of text outputs. By default this argument is
 set to c(1, 2) so the stand composition table and sample tree data tables will
-be suppressed in the output keyword file.}
+be suppressed in the output keyword file. Defaults to c(1, 2).}
 
-\item{create_batch:}{Logical value where if TRUE, a batch of keywords is created instead of a
+\item{create_batch}{Logical value where if TRUE, a batch of keywords is created instead of a
 single keyword file. The number of stands included in a keyword file within a
 batch is determined by the nstands argument. The name of the keyword
 file in a batch will be keyword file name appended to _BATCHX.key where X is
 the number corresponding to the keyword batch (e.g. _BATCH2 would correspond
-to keyword file containing the second batch of stands).}
+to keyword file containing the second batch of stands). Defaults to FALSE.}
 
-\item{unique_dbout:}{Logical value where if TRUE, a unique output database will be specified for
+\item{unique_dbout}{Logical value where if TRUE, a unique output database will be specified for
 the keyword file within the batch. This argument will only have an effect when
-value in dbout argument is not NULL and create_batch is TRUE.}
+value in dbout argument is not NULL and create_batch is TRUE. Defaults to FALSE.}
 
-\item{nstands:}{Numeric value corresponding to number of stands to include in a keyword file
+\item{nstands}{Numeric value corresponding to number of stands to include in a keyword file
 when create_batch argument is TRUE. This value will be ignored if create_batch
-is FALSE.}
+is FALSE. Defaults to 10000.}
+
+\item{nbatches}{Numeric value corresponding to number of batches to create when create_batch
+argument is TRUE. The value in this argument will override the value in
+nstands when it is not NULL. This value will be ignored if create_batch is
+FALSE. Defaults to NULL.}
 }
 \value{
 None

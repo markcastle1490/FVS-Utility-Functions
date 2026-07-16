@@ -2,24 +2,27 @@
 % Please edit documentation in R/linint.R
 \name{linint}
 \alias{linint}
-\title{linint}
+\title{FVS Event Monitor Linear Interpolation (LININT)}
 \usage{
 linint(value = 0, x = NULL, y = NULL, verbose = FALSE)
 }
 \arguments{
-\item{value:}{Input value (numeric) that is being evaluated by the linint interpolation
-ogic.}
+\item{value}{Numeric input value that is being evaluated by the linint interpolation
+logic. Defaults to 0.}
 
-\item{x:}{Numeric vector containing the x variables evaluated in the linint function.}
+\item{x}{Numeric vector containing the x variables evaluated in the linint function.
+Defaults to NULL.}
 
-\item{y:}{Numeric vector containing the x variables evaluated in the linint function.}
+\item{y}{Numeric vector containing the y variables evaluated in the linint function.
+Defaults to NULL.}
 
-\item{verbose:}{Logical variable used to determine if debug output should be echoed to
-console.}
+\item{verbose}{Logical variable used to determine if debug output should be echoed to
+console. Defaults to FALSE.}
 }
 \value{
 Numeric value determined by the linear interpolation.
 }
 \description{
-This function is used to mimic the linint function from the FVS event monitor.
+This function is used to mimic the linint function from the FVS
+event monitor.
 }

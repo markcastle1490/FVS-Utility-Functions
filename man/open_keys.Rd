@@ -2,7 +2,7 @@
 % Please edit documentation in R/fvs-keyword-functions.R
 \name{open_keys}
 \alias{open_keys}
-\title{open_keys}
+\title{Generate FVS File Open and Close Keywords}
 \usage{
 open_keys(
   file = "FVS_Addfile.kcp",
@@ -13,19 +13,19 @@ open_keys(
 )
 }
 \arguments{
-\item{file:}{Character string corresponding to a file path to a addfile (.kcp) file.}
+\item{file}{Character string corresponding to a file path to a addfile (.kcp) file.}
 
-\item{ref_num:}{Integer file for reference number to input file. This value should be greater
+\item{ref_num}{Integer file for reference number to input file. This value should be greater
 than 50 (this is based on default value from FVS-GUI).}
 
-\item{blanks:}{Integer value pertaining to how blank values are treated in numeric fields
+\item{blanks}{Integer value pertaining to how blank values are treated in numeric fields
 from contents of file that is opened (OPEN keyword).
 
 0 = treat blanks as zeros (default)
 
 gt 0 = treat blanks as null characters}
 
-\item{status:}{Integer value corresponding to file status code (OPEN keyword).
+\item{status}{Integer value corresponding to file status code (OPEN keyword).
 
 0 = Unknown (default, file may or may not currently exist)
 
@@ -33,7 +33,7 @@ gt 0 = treat blanks as null characters}
 
 2 = Old (file currently exists)}
 
-\item{record_length:}{Integer value corresponding to maximum record length in the file (number of
+\item{record_length}{Integer value corresponding to maximum record length in the file (number of
 characters per line; OPEN keyword). Default value is 80 characters.}
 }
 \value{
@@ -41,6 +41,6 @@ Character string containing keywords for opening and closing an addfile (.kcp)
 file.
 }
 \description{
-This function creates a set of keywords for opening and closing an FVS addfile
-or kcp file.
+This function creates a set of keywords for opening and closing
+an FVS addfile or kcp file.
 }

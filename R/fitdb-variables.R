@@ -1,10 +1,14 @@
 ################################################################################
-#fitdb_vars:
-#
-#This is a named vector containg variables that are included in an equation
-#fitting database (fitdb). The names of the vector are fields (columns) that are 
-#included in the output fitdb database and the values are the associated data
-#types.
+#' @name fitdb_vars
+#' @title Define Fitting Database Schema Variables
+#' @description This function initializes and returns a comprehensive schema 
+#' dictionary for a standardized equation fitting database (FITDB).
+#' 
+#' @return
+#' A named character vector where the names represent structural column headers 
+#' and the values correspond to their required SQL database formats (TEXT, 
+#' INTEGER, or REAL).
+#' @export
 ################################################################################
 
 fitdb_vars <- function()

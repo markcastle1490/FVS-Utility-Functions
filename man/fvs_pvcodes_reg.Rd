@@ -2,15 +2,15 @@
 % Please edit documentation in R/fvs-pvcode-functions.R
 \name{fvs_pvcodes_reg}
 \alias{fvs_pvcodes_reg}
-\title{fvs_pvcodes_reg}
+\title{Retrieve FVS Regional Potential Vegetation and Reference Codes}
 \usage{
 fvs_pvcodes_reg(var_code = NULL, all_var = FALSE)
 }
 \arguments{
-\item{var_code:}{Character vector of two-character codes corresponding to FVS variant
+\item{var_code}{Character vector of two-character codes corresponding to FVS variant
 (e.g. "CA").}
 
-\item{all_var:}{Logical variable where if TRUE, species codes for all FVS variants will be
+\item{all_var}{Logical variable where if TRUE, species codes for all FVS variants will be
 returned. This argument will take precedence over values specified in
 var_code argument.}
 }
@@ -18,7 +18,8 @@ var_code argument.}
 Dataframe with species codes.
 }
 \description{
-This function is used to obtain a dataframe that contains FS REGION, SEQ,
-HABPVR, PVCODE, and PVREF code. The values in this data frame correspond to
-those found in the pvref FORTRAN routines for a given FVS variant.
+This function is used to obtain a dataframe that contains FS
+REGION, SEQ, HABPVR, PVCODE, and PVREF code. The values in this data frame
+correspond to those found in the pvref FORTRAN routines for a given FVS
+variant.
 }

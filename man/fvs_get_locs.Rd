@@ -2,17 +2,17 @@
 % Please edit documentation in R/fvs-location-functions.R
 \name{fvs_get_locs}
 \alias{fvs_get_locs}
-\title{fvs_get_locs}
+\title{Retrieve Valid FVS Variant Location Codes}
 \usage{
 fvs_get_locs(var_code = NULL)
 }
 \arguments{
-\item{var_code:}{Character vector of FVS variant codes (e.g. "CA").}
+\item{var_code}{Character vector of FVS variant codes (e.g. "CA"). Defaults to NULL.}
 }
 \value{
 Dataframe containing valid location codes for specified FVS variants.
 }
 \description{
-This function returns of a dataframe containing valid location codes for
-specified FVS variants.
+This function returns a dataframe containing valid location
+codes for specified FVS variants.
 }

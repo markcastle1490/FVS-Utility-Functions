@@ -2,14 +2,14 @@
 % Please edit documentation in R/forest-type-functions.R
 \name{fortyp_lookup}
 \alias{fortyp_lookup}
-\title{fortyp_lookup}
+\title{Look Up FIA Forest Type Information}
 \usage{
 fortyp_lookup(fortyp = 999, to = 1)
 }
 \arguments{
-\item{fortyp:}{Numeric FIA forest type code.}
+\item{fortyp}{Numeric FIA forest type code.}
 
-\item{to:}{Integer value indicating the forest type information to look up.
+\item{to}{Integer value indicating the forest type information to look up.
 
 1 = FIA forest type description
 
@@ -19,6 +19,6 @@ fortyp_lookup(fortyp = 999, to = 1)
 Value corresponding to output provided in to argument.
 }
 \description{
-This function is used to look up a forest type code description or forest type
-group code based on an input FIA forest type code.
+This function is used to look up a forest type code description
+or forest type group code based on an input FIA forest type code.
 }

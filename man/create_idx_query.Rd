@@ -2,7 +2,7 @@
 % Please edit documentation in R/sql-query-functions.R
 \name{create_idx_query}
 \alias{create_idx_query}
-\title{create_idx_query}
+\title{Generate Create Index Query}
 \usage{
 create_idx_query(
   db_table = "FVS_STANDINIT",
@@ -11,18 +11,20 @@ create_idx_query(
 )
 }
 \arguments{
-\item{db_table:}{Character string corresponding to name of database table.}
+\item{db_table}{Character string corresponding to name of database table.
+Defaults to "FVS_STANDINIT".}
 
-\item{db_field:}{Character String corresponding to name of database field name.}
+\item{db_fields}{Character vector corresponding to the name or names of the database fields
+to include in the index. Defaults to c("STAND_ID").}
 
-\item{idx_name:}{Character string corresponding to name of index that will be created in
+\item{idx_name}{Character string corresponding to name of index that will be created in
 db_table. If argument is left as NULL, the index name will be a concatenation
-of 'idx', db_table, and idx_name.}
+of 'idx_', db_table, and the target field name. Defaults to NULL.}
 }
 \value{
 Character string used to set index for specified database table and field name.
 }
 \description{
-This function takes in a database table name and field name and returns a
-query for setting an index with the specified table and field name.
+This function takes in a database table name and field name and
+returns a query for setting an index with the specified table and field name.
 }

@@ -2,22 +2,22 @@
 % Please edit documentation in R/fitdb-build.R
 \name{write_fitdb}
 \alias{write_fitdb}
-\title{write_fitdb}
+\title{Write Fitting Dataset to SQLite Database}
 \usage{
 write_fitdb(fitdb, dbout, fitdb_name = "FITDB")
 }
 \arguments{
+\item{fitdb}{Dataframe that will be written to fitdb database specified in dbout argument.}
+
+\item{dbout}{Character string corresponding to file path of output SQLite database.}
+
 \item{fitdb_name}{Name of database table that will contain the fitting dataset information in
-dbout argument.}
-
-\item{fitdb:}{Dataframe that will be written to fitdb database specified in dbout argument.}
-
-\item{dbout:}{Character string corresponding to file path of output SQLite database.}
+dbout argument. Defaults to "FITDB".}
 }
 \value{
 None
 }
 \description{
-This function is used to write a data table or data.frame containing a
-fitting dataset to a specified output SQLite database.
+This function is used to write a data table or data.frame
+containing a fitting dataset to a specified output SQLite database.
 }

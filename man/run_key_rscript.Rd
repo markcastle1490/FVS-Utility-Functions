@@ -2,7 +2,7 @@
 % Please edit documentation in R/run-key.R
 \name{run_key_rscript}
 \alias{run_key_rscript}
-\title{run_key_rscript}
+\title{Generate R Script to Run an FVS Keyword File}
 \usage{
 run_key_rscript(
   script_path = NULL,
@@ -13,20 +13,22 @@ run_key_rscript(
 )
 }
 \arguments{
-\item{script_path:}{Optional character string corresponding to file path where R script will be
+\item{script_path}{Optional character string corresponding to file path where R script will be
 written. If this value is left as NULL, the script will be stored in the
 same directory as the value in keyfile argument and will have the same name
-as the keyword file.}
+as the keyword file. Defaults to NULL.}
 
-\item{dll_path:}{Character string corresponding to directory where FVS dlls are stored}
+\item{dll_path}{Character string corresponding to directory where FVS dlls are stored.
+Defaults to "C:/FVS/FVSSoftware/FVSbin".}
 
-\item{var_code:}{Two character string corresponding to FVS variant ("IE", "CS", etc.).}
+\item{var_code}{Two character string corresponding to FVS variant ("IE", "CS", etc.).
+Defaults to "ie".}
 
-\item{keyfile:}{Character string corresponding to directory and file name for a single FVS
-keyword file.}
+\item{keyfile}{Character string corresponding to directory and file name for a single FVS
+keyword file. Defaults to "C:/FVS/FVS.key".}
 
-\item{verbose:}{Logical variable used to determine if debug output should be echoed to
-console.}
+\item{verbose}{Logical variable used to determine if debug output should be echoed to
+console. Defaults to FALSE.}
 }
 \value{
 None

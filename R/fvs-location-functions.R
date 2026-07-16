@@ -1,18 +1,17 @@
 ################################################################################
-#'fvs_get_locs
-#'@name fvs_get_locs
-#'@description
-#'This function returns of a dataframe containing valid location codes for 
-#'specified FVS variants.
-#
-#'@param var_code: 
-#'Character vector of FVS variant codes (e.g. "CA").
-#
-#'@return
-#'Dataframe containing valid location codes for specified FVS variants.
+#' @name fvs_get_locs
+#' @title Retrieve Valid FVS Variant Location Codes
+#' @description This function returns a dataframe containing valid location 
+#' codes for specified FVS variants.
+#' 
+#' @param var_code
+#' Character vector of FVS variant codes (e.g. "CA"). Defaults to NULL.
+#' 
+#' @return
+#' Dataframe containing valid location codes for specified FVS variants.
+#' @export
 ################################################################################
 
-#'@export
 fvs_get_locs <- function(var_code = NULL)
 {
   #Initialize empty data.frame

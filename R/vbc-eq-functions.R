@@ -1,37 +1,41 @@
 ################################################################################
-#'get_vbceq
-#'@name get_vbceq
-#'@description
-#'This function takes in an FIA species code, ecological division code, stand 
-#'origin code, and state code and returns a NVEL equation number string.
-#
-#'@param spcd:     
-#'Integer corresponding to FIA species code.
-#
-#'@param division: 
-#'Character string corresponding to ecological division. Valid divisions are 
-#'shown below:
-#'
-#'"120", "130", "210", "220", "230","240", "250", "260", "310", "320",
-#'"330", "340", "M120", "M130", "M210", "M220", "M230", "M240", "M260", "M310",
-#'"M330", "M340"
-#'
-#'Value will get set to '0000' if the division is not one of the codes shown
-#'below.
-#
-#'@param stdorgcd:     
-#'Integer value corresponding to stand origin code.
-#'0: non-plantation
-#'1: plantation
-#
-#'@param statecd:  
-#'Integer state code. Refer to Appendix J of FIADB guide.
-#
-#'@return
-#'NVEL equation number as character string
+#' @name get_vbceq
+#' @title Retrieve NSVB Volume and Biomass Equation Number
+#' @description This function takes in an FIA species code, ecological division 
+#' code, stand origin code, and state code and returns a NVEL equation number 
+#' string.
+#' 
+#' @param spcd
+#' Integer corresponding to FIA species code. Defaults to 999.
+#' 
+#' @param division
+#' Character string corresponding to ecological division. Valid divisions are 
+#' shown below:
+#' 
+#' "120", "130", "210", "220", "230","240", "250", "260", "310", "320", 
+#' "330", "340", "M120", "M130", "M210", "M220", "M230", "M240", "M260", "M310", 
+#' "M330", "M340"
+#' 
+#' Value will get set to '0000' if the division is not one of the codes shown 
+#' above. Defaults to "130".
+#' 
+#' @param stdorgcd
+#' Integer value corresponding to stand origin code.
+#' 
+#' 0: non-plantation
+#' 
+#' 1: plantation
+#' 
+#' Defaults to 0.
+#' 
+#' @param statecd
+#' Integer state code. Refer to Appendix J of FIADB guide. Defaults to 0.
+#' 
+#' @return
+#' NVEL equation number as character string.
+#' @export
 ################################################################################
 
-#'@export
 get_vbceq <- function(spcd = 999,
                      division = "130",
                      stdorgcd = 0,
@@ -133,6 +137,67 @@ get_vbceq <- function(spcd = 999,
   
   return(nvelEq)
 }
+
+################################################################################
+#' @name get_ecoregion
+#' @title Retrieve Ecological Province or Division by Subsection Code
+#' @description This function takes in an ecological subsection and returns an 
+#' ecological province or division.
+#' 
+#' @param ecosubcd
+#' Character string corresponding to ecological subsection. Defaults to "".
+#' 
+#' @param type
+#' Integer variable corresponding to whether a ecoprovince or ecodivision should 
+#' be returned.
+#' 
+#' 0 = ecoprovince
+#' 
+#' 1 = ecodivision
+#' 
+#' Defaults to 1.
+#' 
+#' @return
+#' Ecological division or province as character string.
+#' @export
+################################################################################
+
+get_ecoregion <- function(ecosubcd = "",
+                          type = 1)
+{
+  #If ecosubcd is NA return
+  if(is.na(ecosubcd)) return(NA)
+  
+  #Catch bad type values
+  if(type < 0 || type > 1) type <- 1
+  
+  #Make sure ecosubcd is uppercase
+  ecosubcd <- toupper(ecosubcd)
+  
+  #Remove blank spaces in ecosubcd
+  ecosubcd <- trimws(ecosubcd)
+  
+  #Get first 4 characters if ecosubcd starts with 'M' otherwise get the first 3
+  if(substring(ecosubcd, 1, 1) == 'M') 
+  {
+    eco <- substring(ecosubcd, 1, 4)
+  }
+  
+  else 
+  {
+    eco <- substring(ecosubcd, 1, 3)
+  }
+  
+  #Set last character to 0, if type is 1 (ecodivision)
+  if(type == 1)
+  {
+    eco <- paste0(substring(eco, 1, nchar(eco) - 1),
+                  "0")
+  }
+  
+  return(eco)
+}
+
 
 ################################################################################
 #OLD version
@@ -752,60 +817,3 @@ get_vbceq <- function(spcd = 999,
 #   
 #   return(nvelEq)
 # }
-
-################################################################################
-#'get_ecoregion
-#'@name get_ecoregion
-#'@description
-#'This function takes in an ecological subsection and returns an ecological 
-#'province or division
-#'
-#'@param type:     
-#'Integer variable corresponding to whether a ecoprovince or ecodivision should
-#'be returned
-#'0 = ecoprovince
-#'1 = ecodivision
-#
-#'@param ecosubcd: 
-#'Character string corresponding to ecological subsection.
-#'
-#'@return
-#'Ecological division or province as character string.
-################################################################################
-
-#'@export
-get_ecoregion <- function(ecosubcd = "",
-                         type = 1)
-{
-  #If ecosubcd is NA return
-  if(is.na(ecosubcd)) return(NA)
-  
-  #Catch bad type values
-  if(type < 0 || type > 1) type <- 1
-  
-  #Make sure ecosubcd is uppercase
-  ecosubcd <- toupper(ecosubcd)
-  
-  #Remove blank spaces in ecosubcd
-  ecosubcd <- trimws(ecosubcd)
-  
-  #Get first 4 characters if ecosubcd starts with 'M' otherwise get the first 3
-  if(substring(ecosubcd, 1, 1) == 'M') 
-  {
-    eco <- substring(ecosubcd, 1, 4)
-  }
-  
-  else 
-  {
-    eco <- substring(ecosubcd, 1, 3)
-  }
-  
-  #Set last character to 0, if type is 1 (ecodivision)
-  if(type == 1)
-  {
-    eco <- paste0(substring(eco, 1, nchar(eco) - 1),
-                  "0")
-  }
-  
-  return(eco)
-}

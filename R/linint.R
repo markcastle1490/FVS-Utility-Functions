@@ -1,28 +1,30 @@
 ################################################################################   
-#'linint
-#'@name linint
-#'@description
-#'This function is used to mimic the linint function from the FVS event monitor.
-#
-#'@param value:
-#'Input value (numeric) that is being evaluated by the linint interpolation
-#' ogic.
-#
-#'@param x:     
-#'Numeric vector containing the x variables evaluated in the linint function.
-#
-#'@param y:     
-#'Numeric vector containing the x variables evaluated in the linint function.
-#
-#'@param verbose: 
-#'Logical variable used to determine if debug output should be echoed to 
-#'console.
-#
-#'@return
-#'Numeric value determined by the linear interpolation.
+#' @name linint
+#' @title FVS Event Monitor Linear Interpolation (LININT)
+#' @description This function is used to mimic the linint function from the FVS
+#' event monitor.
+#' 
+#' @param value
+#' Numeric input value that is being evaluated by the linint interpolation 
+#' logic. Defaults to 0.
+#' 
+#' @param x
+#' Numeric vector containing the x variables evaluated in the linint function. 
+#' Defaults to NULL.
+#' 
+#' @param y
+#' Numeric vector containing the y variables evaluated in the linint function. 
+#' Defaults to NULL.
+#' 
+#' @param verbose
+#' Logical variable used to determine if debug output should be echoed to 
+#' console. Defaults to FALSE.
+#' 
+#' @return
+#' Numeric value determined by the linear interpolation.
+#' @export
 ################################################################################
 
-#'@export
 linint <- function(value = 0, 
                    x = NULL, 
                    y = NULL,

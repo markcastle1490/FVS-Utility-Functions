@@ -1,28 +1,28 @@
 ################################################################################
-#'install_pkgs
-#'@name install_pkgs
-#'
-#'@description
-#'This function is used to install the necessary and suggested packages from 
-#'CRAN for use with the fvstools package. Packages will only be installed if they
-#'are not found in the version of R being used or if the override argument is 
-#'set to TRUE.
-#'
-#'@param override:
-#'Logical variable where if TRUE, a given package will be installed even if it 
-#'already exists on users system.
-#
-#'@return None
+#' @name install_pkgs
+#' @title Install Dependencies for fvstools Package
+#' @description This function is used to install the necessary and suggested 
+#' packages from CRAN for use with the fvstools package. Packages will only be 
+#' installed if they are not found in the version of R being used or if the 
+#' override argument is set to TRUE.
+#' 
+#' @param override
+#' Logical variable where if TRUE, a given package will be installed even if it 
+#' already exists on users system. Defaults to FALSE.
+#' 
+#' @return
+#' None
+#' @export
 ################################################################################
 
-#'@export
 install_pkgs <- function(override = FALSE)
 {
   #Vector of required packages
   required_packages <- c("RSQLite",
-                         "httr",
+                         "httr2",
                          "callr",
-                         "dplyr")
+                         "dplyr",
+                         "data.table")
   
   #Get vector of installed packages
   installed_pkg <- installed.packages()[, "Package"]

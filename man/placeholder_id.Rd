@@ -2,19 +2,20 @@
 % Please edit documentation in R/sql-query-functions.R
 \name{placeholder_id}
 \alias{placeholder_id}
-\title{placeholder_id}
+\title{Generate SQL Parameter Placeholders}
 \usage{
 placeholder_id(ids = NULL)
 }
 \arguments{
-\item{ids:}{Vector of elements}
+\item{ids}{Vector of elements. Defaults to NULL.}
 }
 \value{
 Character string of placeholder values surrounded by parentheses and
 separated by commas.
 }
 \description{
-This function takes in a vector of elements and creates a character string
-with place holder values (?) surrounded by parentheses.The number of place
-holder values in the string corresponds to the length of the input vector.
+This function takes in a vector of elements and creates a
+character string with place holder values (?) surrounded by parentheses. The
+number of place holder values in the string corresponds to the length of the
+input vector.
 }

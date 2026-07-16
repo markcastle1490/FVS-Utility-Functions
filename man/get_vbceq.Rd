@@ -2,14 +2,14 @@
 % Please edit documentation in R/vbc-eq-functions.R
 \name{get_vbceq}
 \alias{get_vbceq}
-\title{get_vbceq}
+\title{Retrieve NSVB Volume and Biomass Equation Number}
 \usage{
 get_vbceq(spcd = 999, division = "130", stdorgcd = 0, statecd = 0)
 }
 \arguments{
-\item{spcd:}{Integer corresponding to FIA species code.}
+\item{spcd}{Integer corresponding to FIA species code. Defaults to 999.}
 
-\item{division:}{Character string corresponding to ecological division. Valid divisions are
+\item{division}{Character string corresponding to ecological division. Valid divisions are
 shown below:
 
 "120", "130", "210", "220", "230","240", "250", "260", "310", "320",
@@ -17,18 +17,23 @@ shown below:
 "M330", "M340"
 
 Value will get set to '0000' if the division is not one of the codes shown
-below.}
+above. Defaults to "130".}
 
-\item{stdorgcd:}{Integer value corresponding to stand origin code.
+\item{stdorgcd}{Integer value corresponding to stand origin code.
+
 0: non-plantation
-1: plantation}
 
-\item{statecd:}{Integer state code. Refer to Appendix J of FIADB guide.}
+1: plantation
+
+Defaults to 0.}
+
+\item{statecd}{Integer state code. Refer to Appendix J of FIADB guide. Defaults to 0.}
 }
 \value{
-NVEL equation number as character string
+NVEL equation number as character string.
 }
 \description{
-This function takes in an FIA species code, ecological division code, stand
-origin code, and state code and returns a NVEL equation number string.
+This function takes in an FIA species code, ecological division
+code, stand origin code, and state code and returns a NVEL equation number
+string.
 }

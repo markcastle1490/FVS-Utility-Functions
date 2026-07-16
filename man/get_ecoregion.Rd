@@ -2,22 +2,26 @@
 % Please edit documentation in R/vbc-eq-functions.R
 \name{get_ecoregion}
 \alias{get_ecoregion}
-\title{get_ecoregion}
+\title{Retrieve Ecological Province or Division by Subsection Code}
 \usage{
 get_ecoregion(ecosubcd = "", type = 1)
 }
 \arguments{
-\item{type:}{Integer variable corresponding to whether a ecoprovince or ecodivision should
-be returned
-0 = ecoprovince
-1 = ecodivision}
+\item{ecosubcd}{Character string corresponding to ecological subsection. Defaults to "".}
 
-\item{ecosubcd:}{Character string corresponding to ecological subsection.}
+\item{type}{Integer variable corresponding to whether a ecoprovince or ecodivision should
+be returned.
+
+0 = ecoprovince
+
+1 = ecodivision
+
+Defaults to 1.}
 }
 \value{
 Ecological division or province as character string.
 }
 \description{
-This function takes in an ecological subsection and returns an ecological
-province or division
+This function takes in an ecological subsection and returns an
+ecological province or division.
 }

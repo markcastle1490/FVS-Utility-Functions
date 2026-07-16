@@ -1,42 +1,39 @@
 ################################################################################
-#'fortyp_get_df
-#'@name fortyp
-#'@description
-#'
-#'This function returns the fortyp_codes dataframe that countains FIA forest
-#'type codes, descriptions, forest type groups and other information. See 
-#'fortyp_codes dataframe in commons.R for more information.
-#'
-#'@return
-#'Dataframe with FIA forest type information.
+#' @name fortyp
+#' @title Retrieve FIA Forest Type Dataframe
+#' @description This function returns the fortyp_codes dataframe that contains FIA forest 
+#' type codes, descriptions, forest type groups and other information. See 
+#' fortyp_codes dataframe in commons.R for more information.
+#' 
+#' @return
+#' Dataframe with FIA forest type information.
+#' @export
 ################################################################################
 
-#'@export
 fortyp_get_df <- function()
   return(fortyp_codes)
 
 ################################################################################
-#'fortyp_lookup
-#'@name fortyp_lookup
-#'@description 
-#'This function is used to look up a forest type code description or forest type
-#'group code based on an input FIA forest type code.
-#
-#'@param fortyp:   
-#'Numeric FIA forest type code.
-#
-#'@param to:   
-#'Integer value indicating the forest type information to look up.
-#'
-#'1 = FIA forest type description
-#'
-#'2 = FIA forest type group code
-#
-#'@return 
-#'Value corresponding to output provided in to argument.
+#' @name fortyp_lookup
+#' @title Look Up FIA Forest Type Information
+#' @description This function is used to look up a forest type code description 
+#' or forest type group code based on an input FIA forest type code.
+#' 
+#' @param fortyp
+#' Numeric FIA forest type code.
+#' 
+#' @param to
+#' Integer value indicating the forest type information to look up.
+#' 
+#' 1 = FIA forest type description
+#' 
+#' 2 = FIA forest type group code
+#' 
+#' @return
+#' Value corresponding to output provided in to argument.
+#' @export
 ################################################################################
 
-#'@export
 fortyp_lookup <- function(fortyp = 999,
                           to = 1)
 

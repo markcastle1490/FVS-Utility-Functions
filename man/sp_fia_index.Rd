@@ -2,17 +2,17 @@
 % Please edit documentation in R/species-functions.R
 \name{sp_fia_index}
 \alias{sp_fia_index}
-\title{sp_fia_index}
+\title{Retrieve Row Index by Numeric FIA Species Code}
 \usage{
 sp_fia_index(spcd)
 }
 \arguments{
-\item{spcd:}{Numeric FIA species code.}
+\item{spcd}{Numeric FIA species code.}
 }
 \value{
 Numeric index value.
 }
 \description{
-This function is used to obtain an index value (row number) from the data
-frame that is returned from sp_df function.
+This function is used to obtain an index value (row number) from
+the data frame that is returned from sp_df function.
 }

@@ -2,16 +2,17 @@
 % Please edit documentation in R/fvs-keyword-functions.R
 \name{delotab_keys}
 \alias{delotab_keys}
-\title{delotab_keys}
+\title{Generate FVS DELOTAB Output Suppression Keywords}
 \usage{
 delotab_keys(delotab = NULL)
 }
 \arguments{
-\item{delotab:}{Vector of integer values that contain any values from 1-4.}
+\item{delotab}{Vector of integer values that contain any values from 1-4. Defaults to NULL.}
 }
 \value{
 Character string containing set of DELOTAB keywords or empty string.
 }
 \description{
-This function creates a set of delotab keywords based on input numeric vector.
+This function creates a set of delotab keywords based on input
+numeric vector.
 }

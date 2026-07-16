@@ -2,17 +2,17 @@
 % Please edit documentation in R/fvs-species-functions.R
 \name{fvs_sp_index}
 \alias{fvs_sp_index}
-\title{fvs_sp_index}
+\title{Retrieve Row Index for FVS Species Lists}
 \usage{
 fvs_sp_index(var_code = "", sp = "", from = 0)
 }
 \arguments{
-\item{var_code:}{Two character FVS variant code (e.g. CA).}
+\item{var_code}{Two character FVS variant code (e.g. CA). Defaults to "".}
 
-\item{sp:}{Species code. This can be a FVS character code, FIA species code, or USDA
-plant symbol.}
+\item{sp}{Species code. This can be a FVS character code, FIA species code, or USDA
+plant symbol. Defaults to "".}
 
-\item{from:}{Option integer value that tells what kind of value is held in sp argument.
+\item{from}{Option integer value that tells what kind of value is held in sp argument.
 Specifying a value from 1 - 3 will generally speed up look up times.
 
 0: FVS species character code, FIA species code or USDA plant symbol
@@ -21,14 +21,16 @@ Specifying a value from 1 - 3 will generally speed up look up times.
 
 2: FIA species code
 
-3: USDA plant symbol}
+3: USDA plant symbol
+
+Defaults to 0.}
 }
 \value{
 Numeric row index value from species code list.
 }
 \description{
-This a function that is used to obtain a row index value from one of the four
-following lists from commons.R:
+This a function that is used to obtain a row index value from
+one of the four following lists from commons.R:
 
 fvs_char_list
 

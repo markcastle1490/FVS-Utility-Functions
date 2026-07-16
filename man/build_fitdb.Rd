@@ -2,7 +2,7 @@
 % Please edit documentation in R/fitdb-build.R
 \name{build_fitdb}
 \alias{build_fitdb}
-\title{build_fitdb}
+\title{Build standardized equation fitting database (FITDB)}
 \usage{
 build_fitdb(
   dbin = NULL,
@@ -14,25 +14,34 @@ build_fitdb(
 )
 }
 \arguments{
-\item{dbin:}{Character vector of file paths to sqlite database (.db or .sqlite).}
+\item{dbin}{Character vector of file paths to sqlite database (.db or .sqlite).
+Defaults to NULL.}
 
-\item{dbout:}{Character string corresponding to output sqlite FITDB database (.db or .sqlite).}
+\item{dbout}{Character string corresponding to output sqlite FITDB database (.db or .sqlite).
+Defaults to NULL.}
 
-\item{fitdb_name:}{Character string corresponding to name of database table written to dbout
-argument.}
+\item{fitdb_name}{Character string corresponding to name of database table written to dbout
+argument. Defaults to "FITDB".}
 
-\item{fitdb_type:}{Numeric value corresponding to type of GST database to create.
-1 = FITDB built from FIA data}
+\item{fitdb_type}{Numeric value corresponding to type of GST database to create.
 
-\item{overwrite:}{Logical variable used to determine if currently existing dbout file should be
+1 = FITDB built from FIA data
+
+Defaults to 1.}
+
+\item{overwrite}{Logical variable used to determine if currently existing dbout file should be
 deleted. If this argument is left as FALSE, data will be appended to existing
-file specified in dbout.}
+file specified in dbout. Defaults to FALSE.}
+
+\item{verbose}{Logical variable used to determine if progress milestones and logging messages
+are printed to the console. Defaults to FALSE.}
 }
 \value{
 None
 }
 \description{
-This function processes a set of sqlite databases and creates a standardized
-output database than be used for fitting equation development (FITDB).
-Currently this function is only equipped to build FITDB databases from FIA data.
+This function processes a set of sqlite databases and creates a
+standardized output database than be used for fitting equation development
+(FITDB). Currently this function is only equipped to build FITDB databases
+from FIA data.
 }

@@ -2,16 +2,15 @@
 % Please edit documentation in R/state-code-functions.R
 \name{state_lookup}
 \alias{state_lookup}
-\title{state_lookup}
+\title{Look Up State Names, FIPS Codes, and Abbreviations}
 \usage{
 state_lookup(state = NULL, from = 0, to = 3)
 }
 \arguments{
-\item{state:}{Character string of a US state name (e.g. "New York") or state abbreviation
-(e.g "NY") or a FIPS state code (e.g. 36 for New York). Look up times will be
-fastest if state is input as FIPS code.}
+\item{state}{Character string of a US state name (e.g. "New York") or state abbreviation
+(e.g "NY") or a FIPS state code (e.g. 36 for New York).}
 
-\item{from:}{Option integer value that tells what kind of value is held in state argument.
+\item{from}{Option integer value that tells what kind of value is held in state argument.
 Specifying a value from 1 - 3, will generally speed up lookup times.
 
 0: State FIPS code, abbreviation, or name.
@@ -20,20 +19,25 @@ Specifying a value from 1 - 3, will generally speed up lookup times.
 
 2: State abbreviation
 
-3: State name}
+3: State name
 
-\item{to:}{Integer value signifying the state identifier to convert to.
+Defaults to 0.}
+
+\item{to}{Integer value signifying the state identifier to convert to.
 
 1 = State FIPS code
 
 2 = State abbreviation
 
-3 = State name}
+3 = State name
+
+Defaults to 3.}
 }
 \value{
 State FIPS code, state abbreviation, or state name.
 }
 \description{
-This function takes in a US state name, FIA State code, or State abbreviation
-and returns a US state name, FIA state code or state abbreviation.
+This function takes in a US state name, FIA State code, or
+State abbreviation and returns a US state name, FIA state code or state
+abbreviation.
 }

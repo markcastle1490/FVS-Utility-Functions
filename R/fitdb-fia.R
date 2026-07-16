@@ -1,33 +1,31 @@
 ################################################################################
-#'fia_fitdb
-#'@name fia_fitdb
-#'@description
-#'
-#' This function takes in a FIA SQLite database and writes information to a
-#' database that is used for fitting equations for the Forest Vegetation
-#' Simulator (FVS) fitdb-variables.R file. This function is called from function
-#' build_fitdb defined in fitdb-functions.R file.
-#
-#'@param dbin:
-#' Character string of file path FIA SQLite database.
-#
-#'@param dbout:		
-#' Character string of file path to SQLite database where equation fitting
-#' information will be written to.
-#
-#'@param fitdb_name: 
-#' Character string corresponding to name of database table written to dbout 
-#' argument.
+#' @name fia_fitdb
+#' @title Process FIA Database into an FVS Equation Fitting Format
+#' @description This function takes in a FIA SQLite database and writes 
+#' information to a database that is used for fitting equations for the Forest 
+#' Vegetation Simulator (FVS) fitdb-variables.R file. This function is called 
+#' from function build_fitdb defined in fitdb-functions.R file.
 #' 
-#'@param verbose:
-#' Logical variable where if TRUE, progress messages will be output to the
-#' console.
-#'
-#'@return
+#' @param dbin
+#' Character string of file path FIA SQLite database. Defaults to NULL.
+#' 
+#' @param dbout
+#' Character string of file path to SQLite database where equation fitting 
+#' information will be written to. Defaults to NULL.
+#' 
+#' @param fitdb_name
+#' Character string corresponding to name of database table written to dbout 
+#' argument. Defaults to NULL.
+#' 
+#' @param verbose
+#' Logical variable where if TRUE, progress messages will be output to the 
+#' console. Defaults to FALSE.
+#' 
+#' @return
 #' None
+#' @export
 ################################################################################
 
-#'@export
 fia_fitdb <- function(dbin = NULL,
                      dbout = NULL,
                      fitdb_name = NULL,

@@ -2,20 +2,20 @@
 % Please edit documentation in R/install-pkgs.R
 \name{install_pkgs}
 \alias{install_pkgs}
-\title{install_pkgs}
+\title{Install Dependencies for fvstools Package}
 \usage{
 install_pkgs(override = FALSE)
 }
 \arguments{
-\item{override:}{Logical variable where if TRUE, a given package will be installed even if it
-already exists on users system.}
+\item{override}{Logical variable where if TRUE, a given package will be installed even if it
+already exists on users system. Defaults to FALSE.}
 }
 \value{
 None
 }
 \description{
-This function is used to install the necessary and suggested packages from
-CRAN for use with the fvstools package. Packages will only be installed if they
-are not found in the version of R being used or if the override argument is
-set to TRUE.
+This function is used to install the necessary and suggested
+packages from CRAN for use with the fvstools package. Packages will only be
+installed if they are not found in the version of R being used or if the
+override argument is set to TRUE.
 }

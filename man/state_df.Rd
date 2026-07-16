@@ -2,7 +2,7 @@
 % Please edit documentation in R/state-code-functions.R
 \name{state_df}
 \alias{state_df}
-\title{state_df}
+\title{Retrieve State Name and FIPS Code Dataframe}
 \usage{
 state_df()
 }
@@ -10,6 +10,7 @@ state_df()
 Dataframe containing state names, FIA state codes, and state abbreviations.
 }
 \description{
-This function returns the state names, FIPS state codes, and two character
-state abbreviations in a dataframe (see state_codes dataframe in commons.R).
+This function returns the state names, FIPS state codes, and two
+character state abbreviations in a dataframe (see state_codes dataframe in
+commons.R).
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/fitdb-build.R
 \name{merge_inv}
 \alias{merge_inv}
-\title{merge_inv}
+\title{Pair Tree Re-measurement Observations by Interval}
 \usage{
 merge_inv(
   data,
@@ -14,25 +14,31 @@ merge_inv(
 )
 }
 \arguments{
-\item{data:}{Data table (from data.table package) containing variables that should be
+\item{data}{Data table (from data.table package) containing variables that should be
 paired based on a measurement interval.}
 
-\item{unique_id;}{Character string of column name used to represent a unique tree ID.}
+\item{unique_id}{Character string of column name used to represent a unique tree ID.
+Defaults to "UNIQUETREEID".}
 
-\item{plot_id:}{Character string of column name used to represent a unique plot ID.}
+\item{plot_id}{Character string of column name used to represent a unique plot ID.
+Defaults to "PLOTMERGEID".}
 
-\item{merge_id:}{Character string of column name used to merge re-measurement periods together
-at the tree level.}
+\item{merge_id}{Character string of column name used to merge re-measurement periods together
+at the tree level. Defaults to "TREEMERGEID".}
 
-\item{interval:}{Character string of column name used to specify a measurement year or cycle.
-This variable is used to pair re-measurement observations.}
+\item{interval_id}{Character string of column name used to specify a measurement year or cycle.
+This variable is used to pair re-measurement observations.
+Defaults to "CYCLE".}
+
+\item{verbose}{Logical variable used to determine if tracking milestones and processing logs
+are printed to the console. Defaults to TRUE.}
 }
 \value{
 Data table with paired remeasurement data.
 }
 \description{
-This function accepts a list of dataframes containing containing information
+This function accepts a list of dataframes containing information
 that will be paired by a measurement interval (typically a cycle or year).
 This function is called from the code that prepares a fitting database
-specific to a data source (e.g.fia_fitdb).
+specific to a data source (e.g. fia_fitdb).
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/run-key.R
 \name{run_key}
 \alias{run_key}
-\title{run_key}
+\title{Run a Single FVS Keyword File via rFVS}
 \usage{
 run_key(
   dll_path = "C:/FVS/FVSSoftware/FVSbin",
@@ -12,20 +12,22 @@ run_key(
 )
 }
 \arguments{
-\item{dll_path:}{Character string corresponding to directory where FVS dlls are stored}
+\item{dll_path}{Character string corresponding to directory where FVS dlls are stored.
+Defaults to "C:/FVS/FVSSoftware/FVSbin".}
 
-\item{var_code:}{Two character string corresponding to FVS variant ("IE", "CS", etc.).}
+\item{var_code}{Two character string corresponding to FVS variant ("IE", "CS", etc.).
+Defaults to "ie".}
 
-\item{keyfile:}{Character string corresponding to directory and file name for a single FVS
-keyword file.}
+\item{keyfile}{Character string corresponding to directory and file name for a single FVS
+keyword file. Defaults to "C:/FVS.key".}
 
-\item{verbose:}{Logical variable used to determine if debug output should be echoed to
-console.}
+\item{verbose}{Logical variable used to determine if debug output should be echoed to
+console. Defaults to FALSE.}
 }
 \value{
-FVS return code returned invisibly
+FVS return code returned invisibly.
 }
 \description{
-This function is used to run a single FVS keyword file (.key) with a specified
-FVS variant dll (.dll) using the rFVS API.
+This function is used to run a single FVS keyword file (.key)
+with a specified FVS variant dll (.dll) using the rFVS API.
 }

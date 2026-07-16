@@ -2,12 +2,12 @@
 % Please edit documentation in R/fvs-keyword-functions.R
 \name{fvs_keyword}
 \alias{fvs_keyword}
-\title{fvs_keyword}
+\title{Format FVS Keyword and Event Monitor Strings}
 \usage{
 fvs_keyword(params = list(), type = 1)
 }
 \arguments{
-\item{params:}{List containing FVS keyword or event monitor function parameters. The list
+\item{params}{List containing FVS keyword or event monitor function parameters. The list
 should be structured in one of the following manners and align with the
 options for the type argument.
 
@@ -28,7 +28,7 @@ string. All indices in list contain values that will be concatenated into a
 string where each value is separated by a space and returned without any
 additional formatting.}
 
-\item{type:}{Type of keyword to be returned. By default this argument is set to 1.
+\item{type}{Type of keyword to be returned. By default this argument is set to 1.
 
 1 = Standard
 
@@ -44,8 +44,6 @@ Character string corresponding to properly formatted keyword or event monitor
 function.
 }
 \description{
-fvs_keyword
-
 This function takes in a list of keyword parameters and returns a properly
 formatted keyword string. This function can accommodate standard keyword
 formatting and the Parms format.

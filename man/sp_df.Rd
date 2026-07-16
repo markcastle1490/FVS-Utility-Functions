@@ -2,7 +2,7 @@
 % Please edit documentation in R/species-functions.R
 \name{sp_df}
 \alias{sp_df}
-\title{sp_df}
+\title{Retrieve FIA Species Reference Dataframe}
 \usage{
 sp_df()
 }
@@ -10,7 +10,7 @@ sp_df()
 Dataframe with SPECIES_REF fields.
 }
 \description{
-This function returns the support_sp dataframe that contains information from
-FIADB.SPECIES_REF for FIA species codes (SPCD) less than 1000. See commons.R
-file for more information about support_sp.
+This function returns the support_sp dataframe that contains
+information from FIADB.SPECIES_REF for FIA species codes (SPCD) less than
+1000. See commons.R sfile for more information about support_sp.
 }

@@ -2,15 +2,15 @@
 % Please edit documentation in R/fvs-pvcode-functions.R
 \name{fvs_pvcodes_var}
 \alias{fvs_pvcodes_var}
-\title{fvs_pvcodes_var}
+\title{Retrieve FVS Plant Association and Habitat Type Codes}
 \usage{
 fvs_pvcodes_var(var_code = NULL, all_var = FALSE)
 }
 \arguments{
-\item{var_code:}{Character vector of two-character codes corresponding to FVS variant
+\item{var_code}{Character vector of two-character codes corresponding to FVS variant
 (e.g. "CA").}
 
-\item{all_var:}{Logical variable where if TRUE, species codes for all FVS variants will be
+\item{all_var}{Logical variable where if TRUE, species codes for all FVS variants will be
 returned. This argument will take precedence over values specified in
 var_code argument.}
 }
@@ -18,6 +18,6 @@ var_code argument.}
 Dataframe with species codes.
 }
 \description{
-This function is used to obtain dataframe that contains valid PV or habitat
-type codes for a given variant or set of variants.
+This function is used to obtain dataframe that contains valid PV
+or habitat type codes for a given variant or set of variants.
 }

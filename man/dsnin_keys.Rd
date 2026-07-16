@@ -2,7 +2,7 @@
 % Please edit documentation in R/fvs-keyword-functions.R
 \name{dsnin_keys}
 \alias{dsnin_keys}
-\title{dsnin_keys}
+\title{Generate FVS Input Database Keywords}
 \usage{
 dsnin_keys(
   dbin = "FVS_Data.db",
@@ -12,27 +12,32 @@ dsnin_keys(
 )
 }
 \arguments{
-\item{dbin:}{Name of FVS input database that includes file extension (.db or .sqlite).}
+\item{dbin}{Name of FVS input database that includes file extension (.db or .sqlite).
+Defaults to "FVS_Data.db".}
 
-\item{standinit:}{Character string corresponding to name table where stand information will be
-read from. Typically this would be "FVS_standinit" or "FVS_PlotInit" but could
-"FVS_standinit_Plot", "FVS_standinit_Cond", etc.}
-
-\item{treeinit:}{Character string corresponding to name table where tree information will be
-read from. Typically this would be "FVS_treeinit" but could
-"FVS_treeinit_Plot", "FVS_treeinit_Cond", etc.}
-
-\item{stand_type:}{Integer value that determine what stand ID will be used to read data from.
+\item{stand_type}{Integer value that determine what stand ID will be used to read data from.
 
 0 = Stand_CN
 
-1 = Stand_ID}
+1 = Stand_ID
+
+Defaults to 1.}
+
+\item{standinit}{Character string corresponding to name table where stand information will be
+read from. Typically this would be "FVS_standinit" or "FVS_PlotInit" but could
+be "FVS_standinit_Plot", "FVS_standinit_Cond", etc.
+Defaults to "FVS_StandInit".}
+
+\item{treeinit}{Character string corresponding to name table where tree information will be
+read from. Typically this would be "FVS_treeinit" but could be
+"FVS_treeinit_Plot", "FVS_treeinit_Cond", etc.
+Defaults to "FVS_TreeInit".}
 }
 \value{
 Character string of keywords with SQL instructions to read data in from
 FVS_standinit and FVS_treeinit tables.
 }
 \description{
-This function creates a set of keywords for reading in data from an input FVS
-database
+This function creates a set of keywords for reading in data from
+an input FVS database.
 }

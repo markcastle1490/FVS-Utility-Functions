@@ -15,9 +15,10 @@ Depends:
 Imports: 
     RSQLite,
     utils,
-    httr,
+    httr2,
     callr,
-    dplyr
+    dplyr,
+    data.table
 Encoding: UTF-8
 Config/roxygen2/version: 8.0.0
 RoxygenNote: 7.3.3

@@ -2,17 +2,18 @@
 % Please edit documentation in R/fvs-keyword-functions.R
 \name{dsnout_keys}
 \alias{dsnout_keys}
-\title{dsnout_keys}
+\title{Generate FVS Output Database Keywords}
 \usage{
 dsnout_keys(dbout = "FVSOut.db")
 }
 \arguments{
-\item{dbout:}{Name of FVS output database that includes file extension (.db or .sqlite). By
-default this argument is set to "FVS_Data.db".}
+\item{dbout}{Name of FVS output database that includes file extension (.db or .sqlite).
+Defaults to "FVSOut.db".}
 }
 \value{
 Character string containing keywords for setting an FVS output database.
 }
 \description{
-This function creates a set of keywords for setting an FVS output database.
+This function creates a set of keywords for setting an FVS
+output database.
 }
