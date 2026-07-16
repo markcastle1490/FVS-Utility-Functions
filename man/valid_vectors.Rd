@@ -7,13 +7,13 @@
 valid_vectors(...)
 }
 \arguments{
-\item{...}{The ... should be a set of vectors that will be checked.}
+\item{...}{A set of vectors to be evaluated.}
 }
 \value{
-Logical TRUE or FALSE value.
+A logical value: \code{TRUE} if any vector is NULL or lengths are unequal;
+\code{FALSE} otherwise.
 }
 \description{
-This function takes in a set of vectors and checks if any are NULL or of
-unequal length. A value of TRUE will be returned if either of these
-conditions are met. Additional checks could be added to this function.
+This function takes a set of vectors and checks if any are NULL or if they
+have unequal lengths.
 }

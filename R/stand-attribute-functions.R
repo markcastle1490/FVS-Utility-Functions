@@ -47,42 +47,40 @@ r_slope <- 1.605
 
 ################################################################################
 #' valid_vectors
+#' 
 #' @name valid_vectors
+#' 
 #' @description
+#' This function takes a set of vectors and checks if any are NULL or if they 
+#' have unequal lengths. 
 #' 
-#' This function takes in a set of vectors and checks if any are NULL or of 
-#' unequal length. A value of TRUE will be returned if either of these
-#' conditions are met. Additional checks could be added to this function.
-#
-#' @param ...
-#' The ... should be a set of vectors that will be checked.
+#' @param ... 
+#' A set of vectors to be evaluated.
 #' 
-#' @return
-#' Logical TRUE or FALSE value.
+#' @return 
+#' A logical value: `TRUE` if any vector is NULL or lengths are unequal; 
+#' `FALSE` otherwise.
 ################################################################################
 
 valid_vectors = function(...)
 {
-  valid <- TRUE
-  if(null_vector(...)) valid <- FALSE
-  if(unequal_vector(...)) valid <- FALSE
-  return(valid)
+  if(null_vector(...)) return(FALSE)
+  if(unequal_vector(...)) return(FALSE)
+  return(TRUE)
 }
 
-###########################################################################
-#'null_vector
-#'@name null_vector
-#'@description
-#
-#'This function takes in a set of vectors and checks if any are NULL. If any of
-#'the vectors are NULL then a TRUE value is returned. This a helper function
-#'that is used inside many of functions in this file.
-#
-#'@param ...
-#'The ... should be a set of vectors that will be checked if any are NULL.
-#
-#'@return
-#'Logical TRUE or FALSE value.
+################################################################################
+#' null_vector
+#' @name null_vector
+#' 
+#' @description
+#' This function takes a set of vectors and checks if any are NULL.
+#' 
+#' @param ... 
+#' A set of vectors to be evaluated.
+#' 
+#' @return 
+#' A logical value: `TRUE` if any vector is NULL, `FALSE` otherwise.
 ################################################################################
 
 null_vector = function(...)
@@ -144,48 +142,47 @@ unequal_vector = function(...)
 #' ba
 #' @name ba
 #' @description
-#' 
 #' This function calculates a basal area per acre given input vectors 
-#' containing diameter and expansion factor values. This 
-#' attribute can be calculated for user defined size ranges and for select 
-#' species.
+#' containing diameter and expansion factor values. This attribute can be 
+#' calculated for user defined size ranges and for select species.
 #' 
 #' @param dbh
 #' Numeric vector containing diameter values.
-#'
-#' @param expf 
+#' 
+#' @param expf
 #' Numeric vector containing expansion factors.
 #' 
 #' @param ht
 #' Numeric vector containing total tree height values.
-#'
+#' 
 #' @param species
 #' Vector containing species codes.
 #' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
 #' This value is inclusive (>=).
-#'
-#' @param dbhmax 
+#' 
+#' @param dbhmax
 #' Numeric value corresponding to upper DBH bound to calculate attribute in. 
 #' This value is exclusive (<).
 #' 
 #' @param htmin
-#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' Numeric value corresponding to lower tree height bound to calculate attribute 
 #' in. This value is inclusive (>=).
-#
-#' @param htmax 
-#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' 
+#' @param htmax
+#' Numeric value corresponding to upper tree height bound to calculate attribute 
 #' in. This value is exclusive (<).
 #' 
 #' @param select_species
-#' Optional vector containing species codes. This variable will be used to
-#' select which species get included in calculation of attribute. If left as
+#' Optional vector containing species codes. This variable will be used to 
+#' select which species get included in calculation of attribute. If left as 
 #' NULL, attribute will be calculated using observations from across all 
 #' species.
 #' 
 #' @return
 #' Numeric basal area per acre value
+#' @export
 ################################################################################
 
 #'@export
@@ -229,50 +226,49 @@ ba = function(dbh = NULL,
 #' tpa
 #' @name tpa
 #' @description
-#' 
 #' This function calculates a trees/stems per acre given an input vector 
-#' containing expansion factors. This attribute can be calculated for user
+#' containing expansion factors. This attribute can be calculated for user 
 #' defined size ranges and for select species.
-#
-#' @param expf 
+#' 
+#' @param expf
 #' Numeric vector containing expansion factors.
 #' 
 #' @param dbh
 #' Numeric vector containing diameter values.
-#
+#' 
 #' @param ht
 #' Numeric vector containing total tree height values.
-#
+#' 
 #' @param species
 #' Vector containing species codes.
-#
+#' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
 #' This value is inclusive (>=).
-#
-#' @param dbhmax 
+#' 
+#' @param dbhmax
 #' Numeric value corresponding to upper DBH bound to calculate attribute in. 
 #' This value is exclusive (<).
 #' 
 #' @param htmin
-#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' Numeric value corresponding to lower tree height bound to calculate attribute 
 #' in. This value is inclusive (>=).
-#
-#' @param htmax 
-#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' 
+#' @param htmax
+#' Numeric value corresponding to upper tree height bound to calculate attribute 
 #' in. This value is exclusive (<).
 #' 
-#' @param select_spcies
-#' Optional vector containing species codes. This variable will be used to
-#' select which species get included in calculation of attribute. If left as
+#' @param select_species
+#' Optional vector containing species codes. This variable will be used to 
+#' select which species get included in calculation of attribute. If left as 
 #' NULL, attribute will be calculated using observations from across all 
 #' species.
 #' 
-#'@return
+#' @return
 #' Numeric trees per acre value
+#' @export
 ################################################################################
 
-#'@export
 tpa = function(expf = NULL,
                dbh = NULL,
                ht = NULL,
@@ -313,15 +309,14 @@ tpa = function(expf = NULL,
 #' qmd
 #' @name qmd
 #' @description
-#' 
 #' This function calculates quadratic mean diameter given vectors containing 
-#' DBH and expansion factors. This attribute can be calculated for user
+#' DBH and expansion factors. This attribute can be calculated for user 
 #' defined size ranges and for select species.
-#
+#' 
 #' @param dbh
 #' Numeric vector containing diameter values.
-#
-#' @param expf 
+#' 
+#' @param expf
 #' Numeric vector containing expansion factors.
 #' 
 #' @param ht
@@ -333,30 +328,30 @@ tpa = function(expf = NULL,
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
 #' This value is inclusive (>=).
-#
-#' @param dbhmax 
+#' 
+#' @param dbhmax
 #' Numeric value corresponding to upper DBH bound to calculate attribute in. 
 #' This value is exclusive (<).
 #' 
 #' @param htmin
-#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' Numeric value corresponding to lower tree height bound to calculate attribute 
 #' in. This value is inclusive (>=).
-#
-#' @param htmax 
-#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' 
+#' @param htmax
+#' Numeric value corresponding to upper tree height bound to calculate attribute 
 #' in. This value is exclusive (<).
 #' 
 #' @param select_species
-#' Optional vector containing species codes. This variable will be used to
-#' select which species get included in calculation of attribute. If left as
+#' Optional vector containing species codes. This variable will be used to 
+#' select which species get included in calculation of attribute. If left as 
 #' NULL, attribute will be calculated using observations from across all 
 #' species.
-#'
-#'@return
+#' 
+#' @return
 #' Numeric quadratic mean diameter value
+#' @export
 ################################################################################
 
-#'@export
 qmd = function(dbh = NULL,
                expf = NULL,
                ht = NULL,
@@ -399,15 +394,14 @@ qmd = function(dbh = NULL,
 #' gmd
 #' @name gmd
 #' @description
-#' 
 #' This function calculates generalized mean diameter (Reineke diameter) given 
 #' vectors containing diameter and expansion factors. This attribute can be 
 #' calculated for user defined size ranges and for select species.
-#
+#' 
 #' @param dbh
 #' Numeric vector containing diameter values.
-#
-#' @param expf 
+#' 
+#' @param expf
 #' Numeric vector containing expansion factors.
 #' 
 #' @param ht
@@ -419,27 +413,28 @@ qmd = function(dbh = NULL,
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
 #' This value is inclusive (>=).
-#
-#' @param dbhmax 
+#' 
+#' @param dbhmax
 #' Numeric value corresponding to upper DBH bound to calculate attribute in. 
 #' This value is exclusive (<).
 #' 
 #' @param htmin
-#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' Numeric value corresponding to lower tree height bound to calculate attribute 
 #' in. This value is inclusive (>=).
-#
-#' @param htmax 
-#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' 
+#' @param htmax
+#' Numeric value corresponding to upper tree height bound to calculate attribute 
 #' in. This value is exclusive (<).
 #' 
 #' @param select_species
-#' Optional vector containing species codes. This variable will be used to
-#' select which species get included in calculation of attribute. If left as
+#' Optional vector containing species codes. This variable will be used to 
+#' select which species get included in calculation of attribute. If left as 
 #' NULL, attribute will be calculated using observations from across all 
 #' species.
-#'
-#'@return
+#' 
+#' @return
 #' Numeric GMD value
+#' @export
 ################################################################################
 
 #'@export
@@ -485,38 +480,37 @@ gmd = function(dbh = NULL,
 #' top_dia
 #' @name top_dia
 #' @description
-#'
-#' This function is used to calculate QMD or average diameter weighted by TPA
+#' This function is used to calculate QMD or average diameter weighted by TPA 
 #' for the largest trees by DBH within a specified percentage of TPA or an 
-#' explicit TPA value. This value is calculated from a set of input vectors
+#' explicit TPA value. This value is calculated from a set of input vectors 
 #' containing diameter values and expansion factors.
-#
-#' @param dbh     
+#' 
+#' @param dbh
 #' Numeric vector containing diameter values.
-#
-#' @param expf     
+#' 
+#' @param expf
 #' Numeric vector containing expansion factors values.
-#'
+#' 
 #' @param top_tpa
 #' Numeric value corresponding to amount of TPA to include in top diameter 
 #' calculation. Largest 20 TPA, Largest 40 TPA, etc.
-#
+#' 
 #' @param top_per
-#' Numeric value corresponding to percentage of trees to include in the top
+#' Numeric value corresponding to percentage of trees to include in the top 
 #' diameter calculation. If this value is not null then it will supersede the 
-#' value in top_tpa argument. 
-#'
+#' value in top_tpa argument.
+#' 
 #' @param dia_type
-#' Integer value used to specify what type of diameter should be calculated.
-#' 1 = QMD
-#' 2 = average diameter weighted by trees per acre
+#' Integer value used to specify what type of diameter should be calculated. 
+#' 1 = QMD 
+#' 2 = average diameter weighted by trees per acre 
 #' 3 = GMD (Reineke diameter)
-#
-#' @return 
+#' 
+#' @return
 #' Numeric top diameter value.
+#' @export
 ################################################################################
 
-#'@export
 top_dia = function(dbh = NULL,
                    expf = NULL,
                    top_tpa = 40,
@@ -610,15 +604,14 @@ top_dia = function(dbh = NULL,
 #' lorey_dia
 #' @name lorey_dia
 #' @description
-#' 
 #' This function calculates Lorey diameter (basal area weighted average 
 #' diameter). This attribute can be calculated for user defined size ranges and 
 #' for select species.
-#
+#' 
 #' @param dbh
 #' Numeric vector containing diameter values.
-#
-#' @param expf 
+#' 
+#' @param expf
 #' Numeric vector containing expansion factors.
 #' 
 #' @param ht
@@ -630,30 +623,30 @@ top_dia = function(dbh = NULL,
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
 #' This value is inclusive (>=).
-#
-#' @param dbhmax 
+#' 
+#' @param dbhmax
 #' Numeric value corresponding to upper DBH bound to calculate attribute in. 
 #' This value is exclusive (<).
 #' 
 #' @param htmin
-#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' Numeric value corresponding to lower tree height bound to calculate attribute 
 #' in. This value is inclusive (>=).
-#
-#' @param htmax 
-#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' 
+#' @param htmax
+#' Numeric value corresponding to upper tree height bound to calculate attribute 
 #' in. This value is exclusive (<).
 #' 
 #' @param select_species
-#' Optional vector containing species codes. This variable will be used to
-#' select which species get included in calculation of attribute. If left as
+#' Optional vector containing species codes. This variable will be used to 
+#' select which species get included in calculation of attribute. If left as 
 #' NULL, attribute will be calculated using observations from across all 
 #' species.
-#'
-#'@return
+#' 
+#' @return
 #' Numeric basal area weighted (lorey) diameter value
+#' @export
 ################################################################################
 
-#'@export
 lorey_dia = function(dbh = NULL,
                      expf = NULL,
                      ht = NULL,
@@ -699,21 +692,20 @@ lorey_dia = function(dbh = NULL,
 #' rsdi
 #' @name rsdi
 #' @description
+#' This function calculates Reineke SDI using input vectors containing diameter 
+#' and expansion factor values.
 #' 
-#' This function calculates Reineke SDI using input vectors containing diameter and
-#' expansion factor values.
-#
 #' @param dbh
 #' Numeric vector containing diameter values.
-#
-#' @param expf 
+#' 
+#' @param expf
 #' Numeric vector containing expansion factors.
 #' 
 #' @return
 #' Numeric Reineke SDI value
+#' @export
 ################################################################################
 
-#'@export
 rsdi = function(dbh = NULL,
                 expf = NULL)
 {
@@ -731,58 +723,57 @@ rsdi = function(dbh = NULL,
 }
 
 ################################################################################
-#'rsdi_stage
-#'@name rsdi_stage
-#'@description
-#'
-#' This function is used to calculate Reineke SDI used the methodology proposed
+#' rsdi_stage
+#' @name rsdi_stage
+#' @description
+#' This function is used to calculate Reineke SDI used the methodology proposed 
 #' by Stage 1968. From Section 7.3.2.1 of EFVS using input vectors containing 
 #' DBH and expansion factors. This attribute can be calculated for user defined 
 #' size ranges and for select species.
-#
-# SDI = sum(a * TPAi + b * DBHi^2 * TPA)
-# a = 10^(-1.605) * (1-(1.605/2)) * qmd^1.605
-# b = 10^(−1.605) * (1.605/2) * QMD^(1.605-2)
-#
-#' @param dbh     
+#' 
+#' SDI = sum(a * TPAi + b * DBHi^2 * TPA) 
+#' a = 10^(-1.605) * (1-(1.605/2)) * qmd^1.605 
+#' b = 10^(−1.605) * (1.605/2) * QMD^(1.605-2)
+#' 
+#' @param dbh
 #' Numeric vector containing diameter values.
-#
-#' @param expf     
+#' 
+#' @param expf
 #' Numeric vector containing expansion factors.
-#'
+#' 
 #' @param ht
 #' Numeric vector containing total tree height values.
 #' 
 #' @param species
 #' Vector containing species codes.
-#
+#' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
 #' This value is inclusive (>=).
-#
-#' @param dbhmax 
+#' 
+#' @param dbhmax
 #' Numeric value corresponding to upper DBH bound to calculate attribute in. 
 #' This value is exclusive (<).
 #' 
 #' @param htmin
-#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' Numeric value corresponding to lower tree height bound to calculate attribute 
 #' in. This value is inclusive (>=).
-#
-#' @param htmax 
-#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' 
+#' @param htmax
+#' Numeric value corresponding to upper tree height bound to calculate attribute 
 #' in. This value is exclusive (<).
 #' 
 #' @param select_species
-#' Optional vector containing species codes. This variable will be used to
-#' select which species get included in calculation of attribute. If left as
+#' Optional vector containing species codes. This variable will be used to 
+#' select which species get included in calculation of attribute. If left as 
 #' NULL, attribute will be calculated using observations from across all 
 #' species.
-#
-#' @return 
+#' 
+#' @return
 #' Numeric Reineke SDI calculated using stage formulation.
+#' @export
 ################################################################################
 
-#'@export
 rsdi_stage = function(dbh = NULL,
                      expf = NULL,
                      ht = NULL,
@@ -834,15 +825,14 @@ rsdi_stage = function(dbh = NULL,
 #' zsdi
 #' @name zsdi
 #' @description
-#' 
-#' This function calculates Zeide SDI using input vectors containing diameter and
+#' This function calculates Zeide SDI using input vectors containing diameter and 
 #' expansion factor values. This attribute can be calculated for user defined 
 #' size ranges and for select species.
-#
+#' 
 #' @param dbh
 #' Numeric vector containing diameter values.
-#
-#' @param expf 
+#' 
+#' @param expf
 #' Numeric vector containing expansion factors.
 #' 
 #' @param ht
@@ -852,32 +842,32 @@ rsdi_stage = function(dbh = NULL,
 #' Vector containing species codes.
 #' 
 #' @param dbhmin
-#' Numeric value corresponding to lower DBH bound to calculate attribute in. This
+#' Numeric value corresponding to lower DBH bound to calculate attribute in. This 
 #' value is inclusive (>=).
-#
-#' @param dbhmax 
-#' Numeric value corresponding to upper DBH bound to calculate attribute in. This
+#' 
+#' @param dbhmax
+#' Numeric value corresponding to upper DBH bound to calculate attribute in. This 
 #' value is exclusive (<).
 #' 
 #' @param htmin
-#' Numeric value corresponding to lower tree height bound to calculate attribute
-#' in. This value is inclusive (>=). 
-#
-#' @param htmax 
-#' Numeric value corresponding to upper tree height bound to calculate attribute
-#' in. This value is exclusive (<). 
+#' Numeric value corresponding to lower tree height bound to calculate attribute 
+#' in. This value is inclusive (>=).
+#' 
+#' @param htmax
+#' Numeric value corresponding to upper tree height bound to calculate attribute 
+#' in. This value is exclusive (<).
 #' 
 #' @param select_species
-#' Optional vector containing species codes. This variable will be used to
-#' select which species get included in calculation of attribute. If left as
+#' Optional vector containing species codes. This variable will be used to 
+#' select which species get included in calculation of attribute. If left as 
 #' NULL, attribute will be calculated using observations from across all 
 #' species.
 #' 
-#'@return
+#' @return
 #' Numeric Zeide SDI value
+#' @export
 ################################################################################
 
-#'@export
 zsdi = function(dbh = NULL,
                 expf = NULL,
                 ht = NULL,
@@ -918,21 +908,20 @@ zsdi = function(dbh = NULL,
 #' cc
 #' @name cc
 #' @description
-#' 
-#' This function calculates a percent canopy cover value corrected for overlap
-#' using input vectors containing crown width values and expansion factors. This
+#' This function calculates a percent canopy cover value corrected for overlap 
+#' using input vectors containing crown width values and expansion factors. This 
 #' attribute can be calculated for user defined size ranges and for select 
 #' species.
 #' 
 #' @param crwidth
 #' Numeric vector containing crown width values.
-#
-#' @param expf 
+#' 
+#' @param expf
 #' Numeric vector containing expansion factors.
 #' 
 #' @param dbh
 #' Numeric vector containing diameter values.
-#' 
+#'
 #' @param ht
 #' Numeric vector containing total tree height values.
 #' 
@@ -940,28 +929,32 @@ zsdi = function(dbh = NULL,
 #' Vector containing species codes.
 #' 
 #' @param dbhmin
-#' Numeric value corresponding to lower DBH bound to calculate attribute in. This
+#' Numeric value corresponding to lower DBH bound to calculate attribute in. This 
 #' value is inclusive (>=).
 #' 
+#' @param dbhmax
+#' Numeric value corresponding to upper DBH bound to calculate attribute in. This 
+#' value is exclusive (<).
+#' 
 #' @param htmin
-#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' Numeric value corresponding to lower tree height bound to calculate attribute 
 #' in. This value is inclusive (>=).
-#
-#' @param htmax 
-#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' 
+#' @param htmax
+#' Numeric value corresponding to upper tree height bound to calculate attribute 
 #' in. This value is exclusive (<).
 #' 
 #' @param select_species
-#' Optional vector containing species codes. This variable will be used to
-#' select which species get included in calculation of attribute. If left as
-#' NULL, attribute will be calculated using observations from across all 
+#' Optional vector containing species codes. This variable will be used to 
+#' select which species get included in calculation of attribute. If left as 
+#' NULL, attribute will be calculated using observations from across all
 #' species.
 #' 
-#'@return
+#' @return
 #' Numeric percent canopy cover value
+#' @export
 ################################################################################
 
-#'@export
 cc = function(crwidth = NULL,
               expf = NULL,
               dbh = NULL,
@@ -975,7 +968,7 @@ cc = function(crwidth = NULL,
 {
   cc_ <- 0
   
-#Exit if vectors are invalid
+  #Exit if vectors are invalid
   if(!valid_vectors(crwidth, expf, dbh, ht, species)) return(cc_)
   
   #Get species to include in calculations
@@ -1004,21 +997,21 @@ cc = function(crwidth = NULL,
 #' correct_cc
 #' @name correct_cc
 #' @description
-#' This function takes in an uncorrected percent canopy cover value and returns
-#' a corrected value using the relationship described on page 2 of Crookston,
-#' Nicholas L.; Stage, Albert R. 1999. Percent canopy cover and stand structure
-#' statistics from the Forest Vegetation Simulator. Gen. Tech. Rep. RMRS-GTR-24.
-#' Ogden, UT: U. S. Department of Agriculture, Forest Service, Rocky Mountain
+#' This function takes in an uncorrected percent canopy cover value and returns 
+#' a corrected value using the relationship described on page 2 of Crookston, 
+#' Nicholas L.; Stage, Albert R. 1999. Percent canopy cover and stand structure 
+#' statistics from the Forest Vegetation Simulator. Gen. Tech. Rep. RMRS-GTR-24. 
+#' Ogden, UT: U. S. Department of Agriculture, Forest Service, Rocky Mountain 
 #' Research Station. 11 p.
-#
+# 
 #' @param cc
 #' cc: Numeric uncorrected CC value
-#
+#' 
 #' @return
 #' Numeric corrected canopy cover value
+#' @export
 ################################################################################
 
-#'@export
 correct_cc = function(cc = 0)
 {
   cor_cc <- 0
@@ -1036,29 +1029,28 @@ correct_cc = function(cc = 0)
 #' bal
 #' @name bal
 #' @description
-#' 
-#' This function calculates basal area in trees larger than subject tree (BAL)
+#' This function calculates basal area in trees larger than subject tree (BAL) 
 #' from input vectors containing diameter and expansion factor values.
-#
+#' 
 #' @param dbh
 #' Numeric vector containing diameter values.
-#
+#' 
 #' @param expf
 #' Numeric vector containing expansion factors.
 #' 
 #' @param handle_ties
 #' Logical variable used to determine if dbh values with equivalent values get 
 #' the same BAL return. If this value is TRUE, then trees with equivalent DBH 
-#' values will have the same BAL value (e.g. 3 trees with 10 inch DBH will all
+#' values will have the same BAL value (e.g. 3 trees with 10 inch DBH will all 
 #' have the same BAL). If this value is FALSE, then trees with equivalent DBH 
-#' values will have a different BAL (3 trees with 10 inch DBH will each have a
+#' values will have a different BAL (3 trees with 10 inch DBH will each have a 
 #' different BAL).
 #' 
 #' @return
 #' Numeric vector containing BAL values
+#' @export
 ################################################################################
 
-#'@export
 bal = function(dbh = NULL,
                expf = NULL,
                handle_ties = FALSE)
@@ -1107,47 +1099,47 @@ bal = function(dbh = NULL,
 #' lorey_ht
 #' @name lorey_ht
 #' @description
-#' 
 #' This function calculates Lorey height (basal area weighted average height). 
-#' This attribute can be calculated for user defined size ranges and for select
+#' This attribute can be calculated for user defined size ranges and for select 
 #' species.
-#
+#' 
 #' @param dbh
 #' Numeric vector containing diameter values.
-#' 
+#
 #' @param ht
 #' Numeric vector containing total tree height values.
-#
-#' @param expf 
+#' 
+#' @param expf
 #' Numeric vector containing expansion factors.
-#'
+#' 
 #' @param species
 #' Vector containing species codes.
 #' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
 #' This value is inclusive (>=).
-#
-#' @param dbhmax 
+#' 
+#' @param dbhmax
 #' Numeric value corresponding to upper DBH bound to calculate attribute in. 
 #' This value is exclusive (<).
 #' 
 #' @param htmin
-#' Numeric value corresponding to lower tree height bound to calculate attribute
-#' in. This value is inclusive (>=). 
-#
-#' @param htmax 
-#' Numeric value corresponding to upper tree height bound to calculate attribute
-#' in. This value is exclusive (<). 
+#' Numeric value corresponding to lower tree height bound to calculate attribute 
+#' in. This value is inclusive (>=).
+#' 
+#' @param htmax
+#' Numeric value corresponding to upper tree height bound to calculate attribute 
+#' in. This value is exclusive (<).
 #' 
 #' @param select_species
-#' Optional vector containing species codes. This variable will be used to
-#' select which species get included in calculation of attribute. If left as
+#' Optional vector containing species codes. This variable will be used to 
+#' select which species get included in calculation of attribute. If left as 
 #' NULL, attribute will be calculated using observations from across all 
 #' species.
-#'
-#'@return
+#' 
+#' @return
 #' Numeric Lorey height value
+#' @export
 ################################################################################
 
 #'@export
@@ -1193,37 +1185,36 @@ lorey_ht = function(dbh = NULL,
 }
 
 ################################################################################
-#'top_ht
-#'@name top_ht
-#'@description
+#' top_ht
+#' @name top_ht
+#' @description
+#' This function is used to calculate top height for a specified percentage of 
+#' trees in the stand or and explicit number of trees (trees per acre) value.
+#' 
+#' @param dbh
+#' Numeric vector containing diameter values.
 #'
-#'This function is used to calculate top height for a specified percentage of
-#'trees in the stand or and explicit number of trees (trees per acre) value. 
-#'
-#'@param dbh     
-#'Numeric vector containing diameter values.
-#
-#'@param expf     
-#'Numeric vector containing expansion factors values.
-#'
-#'@param ht     
-#'Numeric vector of tree heights.
-#
-#'@param top_tpa
-#'Numeric value corresponding to amount of TPA to include in top height 
-#'calculation. Top 20 TPA, top 40 TPA, etc.
-#
-#'@param top_per
-#'Numeric value corresponding to percentage of trees to include in the top 
-#'height calculation. Largest 20% of trees, largest 40% of trees etc. If this
-#'value is not null then it will take precedence over the value in top_tpa
-#'argument. 
-#
-#'@return 
-#'Top height value.
+#' @param expf
+#' Numeric vector containing expansion factors values.
+#' 
+#' @param ht
+#' Numeric vector of tree heights.
+#' 
+#' @param top_tpa
+#' Numeric value corresponding to amount of TPA to include in top height 
+#' calculation. Top 20 TPA, top 40 TPA, etc.
+#' 
+#' @param top_per
+#' Numeric value corresponding to percentage of trees to include in the top 
+#' height calculation. Largest 20% of trees, largest 40% of trees etc. If this 
+#' value is not null then it will take precedence over the value in top_tpa 
+#' argument.
+#' 
+#' @return
+#' Top height value.
+#' @export
 ################################################################################
 
-#'@export
 top_ht = function(dbh = NULL,
                   expf = NULL,
                   ht = NULL,
@@ -1298,56 +1289,55 @@ top_ht = function(dbh = NULL,
 #' mean_attr
 #' @name mean_attr
 #' @description
-#'
 #' This function is used to calculate the arithmetic or weighted mean (average) 
 #' of an attribute. The weighted mean will only be calculated if weights are 
 #' provided as an input argument. These mean values can be calculated within 
 #' custom size ranges and for select species.
-#'
+#' 
 #' @param attr
 #' Numeric vector containing numeric attribute
-#'
-#' @param weight     
+#
+#' @param weight
 #' Optional numeric vector containing a weighting value. This could be an 
 #' expansion factor, tree basal area, or other user defined weight. If this 
-#' argument is left as NULL, then the arithmetic average will be returned.. 
-#'
-#' @param dbh     
+#' argument is left as NULL, then the arithmetic average will be returned..
+#' 
+#' @param dbh
 #' Numeric vector containing diameter values.
-#'
+#' 
 #' @param ht
 #' Numeric vector containing total tree height values.
 #' 
 #' @param species
 #' Vector containing species codes.
-#
+#' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
 #' This value is inclusive (>=).
-#
-#' @param dbhmax 
+#' 
+#' @param dbhmax
 #' Numeric value corresponding to upper DBH bound to calculate attribute in. 
 #' This value is exclusive (<).
 #' 
 #' @param htmin
-#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' Numeric value corresponding to lower tree height bound to calculate attribute 
 #' in. This value is inclusive (>=).
-#
-#' @param htmax 
-#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' 
+#' @param htmax
+#' Numeric value corresponding to upper tree height bound to calculate attribute 
 #' in. This value is exclusive (<).
 #' 
 #' @param select_species
-#' Optional vector containing species codes. This variable will be used to
-#' select which species get included in calculation of attribute. If left as
+#' Optional vector containing species codes. This variable will be used to 
+#' select which species get included in calculation of attribute. If left as 
 #' NULL, attribute will be calculated using observations from across all 
-#' species. 
-#
-#' @return 
+#' species.
+#' 
+#' @return
 #' Average or weighted average of attribute.
+#' @export
 ################################################################################
 
-#'@export
 mean_attr = function(attr = NULL,
                      weight = NULL,
                      dbh = NULL,
@@ -1393,8 +1383,7 @@ mean_attr = function(attr = NULL,
 #' expand_attr
 #' @name expand_attr
 #' @description
-#' 
-#' This function sums and expands an input numeric attribute to a per unit area
+#' This function sums and expands an input numeric attribute to a per unit area 
 #' basis using numeric vectors containing diameter, attribute of interest, and 
 #' expansion factors. The numeric attribute could be a tree-level volume, 
 #' biomass, carbon, etc.This attribute can be calculated for user defined size 
@@ -1402,8 +1391,8 @@ mean_attr = function(attr = NULL,
 #' 
 #' @param attr
 #' Numeric vector containing numeric attribute
-#
-#' @param expf 
+#' 
+#' @param expf
 #' Numeric vector containing expansion factors.
 #' 
 #' @param dbh
@@ -1411,34 +1400,35 @@ mean_attr = function(attr = NULL,
 #' 
 #' @param ht
 #' Numeric vector containing total tree height values.
-#' 
+#'
 #' @param species
 #' Vector containing species codes.
-#
+#' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
 #' This value is inclusive (>=).
-#
-#' @param dbhmax 
-#' Numeric value corresponding to upper DBH bound to calculate attribute in. This
+#' 
+#' @param dbhmax
+#' Numeric value corresponding to upper DBH bound to calculate attribute in. This 
 #' value is exclusive (<).
 #' 
 #' @param htmin
-#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' Numeric value corresponding to lower tree height bound to calculate attribute 
 #' in. This value is inclusive (>=).
-#
-#' @param htmax 
-#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' 
+#' @param htmax
+#' Numeric value corresponding to upper tree height bound to calculate attribute 
 #' in. This value is exclusive (<).
 #' 
 #' @param select_species
-#' Optional vector containing species codes. This variable will be used to
-#' select which species get included in calculation of attribute. If left as
+#' Optional vector containing species codes. This variable will be used to 
+#' select which species get included in calculation of attribute. If left as 
 #' NULL, attribute will be calculated using observations from across all 
 #' species.
-#'
-#'@return
+#' 
+#' @return
 #' Sum of attribute expanded to a per unit area
+#' @export
 ################################################################################
 
 #'@export
@@ -1482,7 +1472,6 @@ expand_attr = function(attr = NULL,
 #' min_attr
 #' @name min_attr
 #' @description
-#' 
 #' This function determines the minimum value for an input attribute. This can 
 #' be calculated for custom size ranges and for select species.
 #' 
@@ -1493,38 +1482,38 @@ expand_attr = function(attr = NULL,
 #' Numeric vector containing diameter values.
 #' 
 #' @param ht
-#' Numeric vector containing total tree height values. 
+#' Numeric vector containing total tree height values.
 #' 
 #' @param species
 #' Vector containing species codes.
-#
+#' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
 #' This value is inclusive (>=).
-#
-#' @param dbhmax 
-#' Numeric value corresponding to upper DBH bound to calculate attribute in. This
+#' 
+#' @param dbhmax
+#' Numeric value corresponding to upper DBH bound to calculate attribute in. This 
 #' value is exclusive (<).
 #' 
 #' @param htmin
-#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' Numeric value corresponding to lower tree height bound to calculate attribute 
 #' in. This value is inclusive (>=).
-#
-#' @param htmax 
-#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' 
+#' @param htmax
+#' Numeric value corresponding to upper tree height bound to calculate attribute 
 #' in. This value is exclusive (<).
 #' 
 #' @param select_species
-#' Optional vector containing species codes. This variable will be used to
-#' select which species get included in calculation of attribute. If left as
+#' Optional vector containing species codes. This variable will be used to 
+#' select which species get included in calculation of attribute. If left as 
 #' NULL, attribute will be calculated using observations from across all 
 #' species.
-#'
-#'@return
+#' 
+#' @return
 #' Minimum value of attribute.
+#' @export
 ################################################################################
 
-#'@export
 min_attr = function(attr = NULL,
                     dbh = NULL,
                     ht = NULL,
@@ -1565,7 +1554,6 @@ min_attr = function(attr = NULL,
 #' max_attr
 #' @name max_attr
 #' @description
-#' 
 #' This function determines the maximum value for an input attribute. This can 
 #' be calculated for custom size ranges and for select species.
 #' 
@@ -1579,35 +1567,35 @@ min_attr = function(attr = NULL,
 #' Numeric vector containing total tree height values.
 #' 
 #' @param species
-#' Vector containing species codes. 
-#
+#' Vector containing species codes.
+#' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
 #' This value is inclusive (>=).
-#
-#' @param dbhmax 
-#' Numeric value corresponding to upper DBH bound to calculate attribute in. This
+#' 
+#' @param dbhmax
+#' Numeric value corresponding to upper DBH bound to calculate attribute in. This 
 #' value is exclusive (<).
 #' 
 #' @param htmin
-#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' Numeric value corresponding to lower tree height bound to calculate attribute 
 #' in. This value is inclusive (>=).
-#
-#' @param htmax 
-#' Numeric value corresponding to upper tree height bound to calculate attribute
+#'
+#' @param htmax
+#' Numeric value corresponding to upper tree height bound to calculate attribute 
 #' in. This value is exclusive (<).
 #' 
 #' @param select_species
-#' Optional vector containing species codes. This variable will be used to
-#' select which species get included in calculation of attribute. If left as
+#' Optional vector containing species codes. This variable will be used to 
+#' select which species get included in calculation of attribute. If left as 
 #' NULL, attribute will be calculated using observations from across all 
 #' species.
-#'
-#'@return
+#' 
+#' @return
 #' Maximum value of attribute.
+#' @export
 ################################################################################
 
-#'@export
 max_attr = function(attr = NULL,
                     dbh = NULL,
                     ht = NULL,
@@ -1648,9 +1636,8 @@ max_attr = function(attr = NULL,
 #' count_rec
 #' @name count_rec
 #' @description
-#' 
-#' This function counts the number of tree records between specified DBH and HT
-#' ranges and for select species. 
+#' This function counts the number of tree records between specified DBH and HT 
+#' ranges and for select species.
 #' 
 #' @param dbh
 #' Numeric vector containing diameter values.
@@ -1660,34 +1647,34 @@ max_attr = function(attr = NULL,
 #' 
 #' @param species
 #' Vector containing species codes.
-#
+#'
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
 #' This value is inclusive (>=).
-#
-#' @param dbhmax 
-#' Numeric value corresponding to upper DBH bound to calculate attribute in. This
+#' 
+#' @param dbhmax
+#' Numeric value corresponding to upper DBH bound to calculate attribute in. This 
 #' value is exclusive (<).
 #' 
 #' @param htmin
-#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' Numeric value corresponding to lower tree height bound to calculate attribute 
 #' in. This value is inclusive (>=).
-#
-#' @param htmax 
-#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' 
+#' @param htmax
+#' Numeric value corresponding to upper tree height bound to calculate attribute 
 #' in. This value is exclusive (<).
 #' 
 #' @param select_species
-#' Optional vector containing species codes. This variable will be used to
-#' select which species get included in calculation of attribute. If left as
+#' Optional vector containing species codes. This variable will be used to 
+#' select which species get included in calculation of attribute. If left as 
 #' NULL, attribute will be calculated using observations from across all 
 #' species.
-#'
-#'@return
+#' 
+#' @return
 #' Numeric count of records.
+#' @export
 ################################################################################
 
-#'@export
 count_rec = function(dbh = NULL,
                       ht = NULL,
                       species = NULL,
@@ -1726,56 +1713,55 @@ count_rec = function(dbh = NULL,
 #' ba_f
 #' @name ba_f
 #' @description
-#' 
 #' This function calculates a basal area per acre given input vectors 
 #' containing diameter and expansion factor values. This attribute can be 
 #' calculated for user defined size ranges and for select species.
 #' 
 #' @param dbh
 #' Numeric vector containing diameter values.
-#'
-#' @param expf 
-#' Numeric vector containing expansion factors.
 #' 
+#' @param expf
+#' Numeric vector containing expansion factors.
+#'
 #' @param ht
 #' Numeric vector containing total tree height values.
-#'
+#' 
 #' @param species
 #' Vector containing species codes
 #' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
 #' This value is inclusive (>=).
-#'
-#' @param dbhmax 
+#' 
+#' @param dbhmax
 #' Numeric value corresponding to upper DBH bound to calculate attribute in. 
 #' This value is exclusive (<).
 #' 
 #' @param htmin
-#' Numeric value corresponding to lower tree height bound to calculate attribute
-#' in. This value is inclusive (>=). 
-#
-#' @param htmax 
-#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' Numeric value corresponding to lower tree height bound to calculate attribute 
+#' in. This value is inclusive (>=).
+#' 
+#' @param htmax
+#' Numeric value corresponding to upper tree height bound to calculate attribute 
 #' in. This value is exclusive (<).
 #' 
 #' @param select_species
-#' Optional vector containing species codes. This variable will be used to
-#' select which species get included in calculation of attribute. If left as
+#' Optional vector containing species codes. This variable will be used to 
+#' select which species get included in calculation of attribute. If left as 
 #' NULL, attribute will be calculated using observations from across all 
 #' species.
 #' 
 #' @param naok
 #' Logical variable where if FALSE, an error will be thrown if input vectors 
 #' contain NA values. If TRUE, checks for NA values will not be done. Setting 
-#' this value to TRUE will speed up processing but can be risky if input vectors
+#' this value to TRUE will speed up processing but can be risky if input vectors 
 #' are not vetted for NA values prior.
 #' 
 #' @return
 #' Numeric basal area per acre value
+#' @export
 ################################################################################
 
-#'@export
 ba_f = function(dbh = NULL,
                 expf = NULL,
                 ht = NULL,
@@ -1830,56 +1816,55 @@ ba_f = function(dbh = NULL,
 #' tpa_f
 #' @name tpa_f
 #' @description
-#' 
 #' This function calculates a trees/stems per acre given an input vector 
-#' containing expansion factors. This attribute can be calculated for user
+#' containing expansion factors. This attribute can be calculated for user 
 #' defined size ranges and for select species.
-#
-#' @param expf 
+#' 
+#' @param expf
 #' Vector of numeric vector containing expansion factors.
 #' 
 #' @param dbh
-#' Numeric vector containing diameter values. 
-#
+#' Numeric vector containing diameter values.
+#' 
 #' @param ht
-#' Numeric vector containing total tree height values. 
-#
+#' Numeric vector containing total tree height values.
+#' 
 #' @param species
 #' Vector containing species codes.
-#
+#' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
 #' This value is inclusive (>=).
-#
-#' @param dbhmax 
-#'Numeric value corresponding to upper DBH bound to calculate attribute in. This
-#'value is exclusive (<).
+#' 
+#' @param dbhmax
+#' Numeric value corresponding to upper DBH bound to calculate attribute in. This 
+#' value is exclusive (<).
 #' 
 #' @param htmin
-#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' Numeric value corresponding to lower tree height bound to calculate attribute 
 #' in. This value is inclusive (>=).
-#
-#' @param htmax 
-#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' 
+#' @param htmax
+#' Numeric value corresponding to upper tree height bound to calculate attribute 
 #' in. This value is exclusive (<).
 #' 
-#' @param select_spcies
-#' Optional vector containing species codes. This variable will be used to
-#' select which species get included in calculation of attribute. If left as
+#' @param select_species
+#' Optional vector containing species codes. This variable will be used to 
+#' select which species get included in calculation of attribute. If left as 
 #' NULL, attribute will be calculated using observations from across all 
 #' species.
 #' 
 #' @param naok
 #' Logical variable where if FALSE, an error will be thrown if input vectors 
 #' contain NA values. If TRUE, checks for NA values will not be done. Setting 
-#' this value to TRUE will speed up processing but can be risky if input vectors
+#' this value to TRUE will speed up processing but can be risky if input vectors 
 #' are not vetted for NA values prior.
 #' 
-#'@return
+#' @return
 #' Numeric trees per acre value
+#' @export
 ################################################################################
 
-#'@export
 tpa_f = function(expf = NULL,
                dbh = NULL,
                ht = NULL,
@@ -1933,15 +1918,14 @@ tpa_f = function(expf = NULL,
 #' qmd_f
 #' @name qmd_f
 #' @description
-#' 
 #' This function calculates quadratic mean diameter given vectors containing 
 #' diameter and expansion factor values. This attribute can be calculated for 
 #' user defined size ranges and for select species.
-#
+#' 
 #' @param dbh
 #' Numeric vector containing diameter values.
-#
-#' @param expf 
+#' 
+#' @param expf
 #' Numeric vector containing expansion factors.
 #' 
 #' @param ht
@@ -1953,36 +1937,36 @@ tpa_f = function(expf = NULL,
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
 #' This value is inclusive (>=).
-#
-#' @param dbhmax 
+#' 
+#' @param dbhmax
 #' Numeric value corresponding to upper DBH bound to calculate attribute in. 
 #' This value is exclusive (<).
 #' 
 #' @param htmin
-#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' Numeric value corresponding to lower tree height bound to calculate attribute 
 #' in. This value is inclusive (>=).
-#
-#' @param htmax 
-#' Numeric value corresponding to upper tree height bound to calculate attribute
+#'
+#' @param htmax
+#' Numeric value corresponding to upper tree height bound to calculate attribute 
 #' in. This value is exclusive (<).
 #' 
 #' @param select_species
-#' Optional vector containing species codes. This variable will be used to
-#' select which species get included in calculation of attribute. If left as
+#' Optional vector containing species codes. This variable will be used to 
+#' select which species get included in calculation of attribute. If left as 
 #' NULL, attribute will be calculated using observations from across all 
 #' species.
 #' 
 #' @param naok
 #' Logical variable where if FALSE, an error will be thrown if input vectors 
 #' contain NA values. If TRUE, checks for NA values will not be done. Setting 
-#' this value to TRUE will speed up processing but can be risky if input vectors
+#' this value to TRUE will speed up processing but can be risky if input vectors 
 #' are not vetted for NA values prior.
-#'
-#'@return
+#' 
+#' @return
 #' Numeric quadratic mean diameter value
+#' @export
 ################################################################################
 
-#'@export
 qmd_f = function(dbh = NULL,
                expf = NULL,
                ht = NULL,
@@ -2035,56 +2019,55 @@ qmd_f = function(dbh = NULL,
 #' gmd_f
 #' @name gmd_f
 #' @description
-#' 
 #' This function calculates generalized mean diameter (Reineke diameter) given 
 #' vectors containing diameter and expansion factor values. This attribute can 
 #' be calculated for user defined size ranges and for select species.
-#
+#' 
 #' @param dbh
 #' Numeric vector containing diameter values.
-#
-#' @param expf 
+#' 
+#' @param expf
 #' Numeric vector containing expansion factors.
 #' 
 #' @param ht
 #' Numeric vector containing total tree height values.
-#' 
+#'
 #' @param species
 #' Vector containing species codes.
 #' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
 #' This value is inclusive (>=).
-#
-#' @param dbhmax 
+#' 
+#' @param dbhmax
 #' Numeric value corresponding to upper DBH bound to calculate attribute in. 
 #' This value is exclusive (<).
 #' 
 #' @param htmin
-#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' Numeric value corresponding to lower tree height bound to calculate attribute 
 #' in. This value is inclusive (>=).
-#
-#' @param htmax 
-#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' 
+#' @param htmax
+#' Numeric value corresponding to upper tree height bound to calculate attribute 
 #' in. This value is exclusive (<).
 #' 
 #' @param select_species
-#' Optional vector containing species codes. This variable will be used to
-#' select which species get included in calculation of attribute. If left as
+#' Optional vector containing species codes. This variable will be used to 
+#' select which species get included in calculation of attribute. If left as 
 #' NULL, attribute will be calculated using observations from across all 
 #' species.
 #' 
 #' @param naok
 #' Logical variable where if FALSE, an error will be thrown if input vectors 
 #' contain NA values. If TRUE, checks for NA values will not be done. Setting 
-#' this value to TRUE will speed up processing but can be risky if input vectors
+#' this value to TRUE will speed up processing but can be risky if input vectors 
 #' are not vetted for NA values prior.
 #'
-#'@return
+#' @return
 #' Numeric GMD value
+#' @export
 ################################################################################
 
-#'@export
 gmd_f = function(dbh = NULL,
                expf = NULL,
                ht = NULL,
@@ -2138,15 +2121,14 @@ gmd_f = function(dbh = NULL,
 #' lorey_dia_f
 #' @name lorey_dia_f
 #' @description
-#' 
 #' This function calculates Lorey diameter (basal area weighted average 
 #' diameter). This attribute can be calculated for user defined size ranges and 
 #' for select species.
-#
+#' 
 #' @param dbh
 #' Numeric vector containing diameter values.
-#
-#' @param expf 
+#' 
+#' @param expf
 #' Numeric vector containing expansion factors.
 #' 
 #' @param ht
@@ -2158,36 +2140,36 @@ gmd_f = function(dbh = NULL,
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
 #' This value is inclusive (>=).
-#
-#' @param dbhmax 
+#' 
+#' @param dbhmax
 #' Numeric value corresponding to upper DBH bound to calculate attribute in. 
 #' This value is exclusive (<).
 #' 
 #' @param htmin
-#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' Numeric value corresponding to lower tree height bound to calculate attribute 
 #' in. This value is inclusive (>=).
-#
-#' @param htmax 
-#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' 
+#' @param htmax
+#' Numeric value corresponding to upper tree height bound to calculate attribute 
 #' in. This value is exclusive (<).
 #' 
 #' @param select_species
-#' Optional vector containing species codes. This variable will be used to
-#' select which species get included in calculation of attribute. If left as
+#' Optional vector containing species codes. This variable will be used to 
+#' select which species get included in calculation of attribute. If left as 
 #' NULL, attribute will be calculated using observations from across all 
 #' species.
 #' 
 #' @param naok
 #' Logical variable where if FALSE, an error will be thrown if input vectors 
 #' contain NA values. If TRUE, checks for NA values will not be done. Setting 
-#' this value to TRUE will speed up processing but can be risky if input vectors
+#' this value to TRUE will speed up processing but can be risky if input vectors 
 #' are not vetted for NA values prior.
-#'
-#'@return
+#' 
+#' @return
 #' Numeric basal area weighted (lorey) diameter value
+#' @export
 ################################################################################
 
-#'@export
 lorey_dia_f = function(dbh = NULL,
                      expf = NULL,
                      ht = NULL,
@@ -2323,63 +2305,62 @@ top_dia_f = function(dbh = NULL,
 }
 
 ################################################################################
-#'rsdi_stage_f
-#'@name rsdi_stage_f
-#'@description
-#'
-#' This function is used to calculate Reineke SDI used the methodology proposed
+#' rsdi_stage_f
+#' @name rsdi_stage_f
+#' @description
+#' This function is used to calculate Reineke SDI used the methodology proposed 
 #' by Stage 1968. From Section 7.3.2.1 of EFVS using input vectors containing 
 #' diameter and expansion factor values. This attribute can be calculated for 
 #' user defined size ranges and for select species.
-#
-# SDI = sum(a * TPAi + b * DBHi^2 * TPA)
-# a = 10^(-1.605) * (1-(1.605/2)) * qmd^1.605
-# b = 10^(−1.605) * (1.605/2) * QMD^(1.605-2)
-#
-#' @param dbh     
-#' Numeric vector containing diameter values.
-#
-#' @param expf     
-#' Numeric vector containing expansion factors.
 #'
+#' SDI = sum(a * TPAi + b * DBHi^2 * TPA) 
+#' a = 10^(-1.605) * (1-(1.605/2)) * qmd^1.605 
+#' b = 10^(−1.605) * (1.605/2) * QMD^(1.605-2)
+#' 
+#' @param dbh
+#' Numeric vector containing diameter values.
+#' 
+#' @param expf
+#' Numeric vector containing expansion factors.
+#' 
 #' @param ht
 #' Numeric vector containing total tree height values.
 #' 
 #' @param species
 #' Vector containing species codes.
-#
+#' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
 #' This value is inclusive (>=).
-#
-#' @param dbhmax 
+#' 
+#' @param dbhmax
 #' Numeric value corresponding to upper DBH bound to calculate attribute in. 
 #' This value is exclusive (<).
 #' 
 #' @param htmin
-#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' Numeric value corresponding to lower tree height bound to calculate attribute 
 #' in. This value is inclusive (>=).
-#
-#' @param htmax 
-#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' 
+#' @param htmax
+#' Numeric value corresponding to upper tree height bound to calculate attribute 
 #' in. This value is exclusive (<).
 #' 
 #' @param select_species
-#' Optional vector containing species codes. This variable will be used to
-#' select which species get included in calculation of attribute. This argument
+#' Optional vector containing species codes. This variable will be used to 
+#' select which species get included in calculation of attribute. This argument 
 #' will only be used if values are provided for species.
 #' 
 #' @param naok
 #' Logical variable where if FALSE, an error will be thrown if input vectors 
 #' contain NA values. If TRUE, checks for NA values will not be done. Setting 
-#' this value to TRUE will speed up processing but can be risky if input vectors
+#' this value to TRUE will speed up processing but can be risky if input vectors 
 #' are not vetted for NA values prior.
-#
-#' @return 
+#' 
+#' @return
 #' Numeric Reineke SDI calculated using stage formulation.
+#' @export
 ################################################################################
 
-#'@export
 rsdi_stage_f = function(dbh = NULL,
                      expf = NULL,
                      ht = NULL,
@@ -2432,56 +2413,55 @@ rsdi_stage_f = function(dbh = NULL,
 #' zsdi_f
 #' @name zsdi_f
 #' @description
-#' 
-#' This function calculates Zeide SDI using input vectors containing diameter and
+#' This function calculates Zeide SDI using input vectors containing diameter and 
 #' expansion factor values. This attribute can be calculated for user defined 
 #' size ranges and for select species.
-#
+#' 
 #' @param dbh
 #' Numeric vector containing diameter values.
-#
-#' @param expf 
+#' 
+#' @param expf
 #' Numeric vector containing expansion factors.
 #' 
 #' @param ht
 #' Numeric vector containing total tree height values.
-#' 
+#'
 #' @param species
 #' Vector containing species codes.
 #' 
 #' @param dbhmin
-#' Numeric value corresponding to lower DBH bound to calculate attribute in. This
+#' Numeric value corresponding to lower DBH bound to calculate attribute in. This 
 #' value is inclusive (>=).
-#
-#' @param dbhmax 
-#' Numeric value corresponding to upper DBH bound to calculate attribute in. This
+#' 
+#' @param dbhmax
+#' Numeric value corresponding to upper DBH bound to calculate attribute in. This 
 #' value is exclusive (<).
 #' 
 #' @param htmin
-#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' Numeric value corresponding to lower tree height bound to calculate attribute 
 #' in. This value is inclusive (>=).
-#
-#' @param htmax 
-#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' 
+#' @param htmax
+#' Numeric value corresponding to upper tree height bound to calculate attribute 
 #' in. This value is exclusive (<).
 #' 
 #' @param select_species
-#' Optional vector containing species codes. This variable will be used to
-#' select which species get included in calculation of attribute. If left as
+#' Optional vector containing species codes. This variable will be used to 
+#' select which species get included in calculation of attribute. If left as 
 #' NULL, attribute will be calculated using observations from across all 
 #' species.
 #' 
 #' @param naok
 #' Logical variable where if FALSE, an error will be thrown if input vectors 
 #' contain NA values. If TRUE, checks for NA values will not be done. Setting 
-#' this value to TRUE will speed up processing but can be risky if input vectors
+#' this value to TRUE will speed up processing but can be risky if input vectors 
 #' are not vetted for NA values prior.
 #' 
-#'@return
+#' @return
 #' Numeric Zeide SDI value
+#' @export
 ################################################################################
 
-#'@export
 zsdi_f = function(dbh = NULL,
                 expf = NULL,
                 ht = NULL,
@@ -2557,31 +2537,36 @@ zsdi_f = function(dbh = NULL,
 #' Vector containing species codes.
 #' 
 #' @param dbhmin
-#' Numeric value corresponding to lower DBH bound to calculate attribute in. This
+#' Numeric value corresponding to lower DBH bound to calculate attribute in. This 
 #' value is inclusive (>=).
 #' 
+#' @param dbhmax
+#' Numeric value corresponding to upper DBH bound to calculate attribute in. This 
+#' value is exclusive (<).
+#' 
 #' @param htmin
-#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' Numeric value corresponding to lower tree height bound to calculate attribute 
 #' in. This value is inclusive (>=).
-#
-#' @param htmax 
-#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' 
+#' @param htmax
+#' Numeric value corresponding to upper tree height bound to calculate attribute 
 #' in. This value is exclusive (<).
 #' 
 #' @param select_species
-#' Optional vector containing species codes. This variable will be used to
-#' select which species get included in calculation of attribute. If left as
+#' Optional vector containing species codes. This variable will be used to 
+#' select which species get included in calculation of attribute. If left as 
 #' NULL, attribute will be calculated using observations from across all 
 #' species.
 #' 
 #' @param naok
 #' Logical variable where if FALSE, an error will be thrown if input vectors 
 #' contain NA values. If TRUE, checks for NA values will not be done. Setting 
-#' this value to TRUE will speed up processing but can be risky if input vectors
+#' this value to TRUE will speed up processing but can be risky if input vectors 
 #' are not vetted for NA values prior.
 #' 
-#'@return
+#' @return
 #' Numeric percent canopy cover value
+#' @export
 ################################################################################
 
 #'@export
@@ -2639,56 +2624,55 @@ cc_f = function(crwidth = NULL,
 #' lorey_ht_f
 #' @name lorey_ht_f
 #' @description
-#' 
 #' This function calculates Lorey height (basal area weighted average height). 
-#' This attribute can be calculated for user defined size ranges and for select
+#' This attribute can be calculated for user defined size ranges and for select 
 #' species.
-#
+#' 
 #' @param dbh
 #' Numeric vector containing diameter values.
 #' 
 #' @param ht
 #' Numeric vector containing total tree height values.
-#
-#' @param expf 
+#' 
+#' @param expf
 #' Numeric vector containing expansion factors.
-#'
+#' 
 #' @param species
 #' Vector containing species codes.
 #' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
 #' This value is inclusive (>=).
-#
-#' @param dbhmax 
+#' 
+#' @param dbhmax
 #' Numeric value corresponding to upper DBH bound to calculate attribute in. 
 #' This value is exclusive (<).
 #' 
 #' @param htmin
-#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' Numeric value corresponding to lower tree height bound to calculate attribute 
 #' in. This value is inclusive (>=).
-#
-#' @param htmax 
-#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' 
+#' @param htmax
+#' Numeric value corresponding to upper tree height bound to calculate attribute 
 #' in. This value is exclusive (<).
 #' 
 #' @param select_species
-#' Optional vector containing species codes. This variable will be used to
-#' select which species get included in calculation of attribute. If left as
+#' Optional vector containing species codes. This variable will be used to 
+#' select which species get included in calculation of attribute. If left as 
 #' NULL, attribute will be calculated using observations from across all 
 #' species.
 #' 
 #' @param naok
 #' Logical variable where if FALSE, an error will be thrown if input vectors 
 #' contain NA values. If TRUE, checks for NA values will not be done. Setting 
-#' this value to TRUE will speed up processing but can be risky if input vectors
+#' this value to TRUE will speed up processing but can be risky if input vectors 
 #' are not vetted for NA values prior.
-#'
-#'@return
+#' 
+#' @return
 #' Numeric Lorey height value
+#' @export
 ################################################################################
 
-#'@export
 lorey_ht_f = function(dbh = NULL,
                     ht = NULL,
                     expf = NULL,
@@ -2739,43 +2723,42 @@ lorey_ht_f = function(dbh = NULL,
 }
 
 ################################################################################
-#'top_ht_f
-#'@name top_ht_f
-#'@description
-#'
-#'This function is used to calculate top height for a specified percentage of
-#'trees in the stand or and explicit number of trees (trees per acre) value. 
-#'
-#'@param dbh     
+#' top_ht_f
+#' @name top_ht_f
+#' @description
+#' This function is used to calculate top height for a specified percentage of 
+#' trees in the stand or and explicit number of trees (trees per acre) value.
+#' 
+#' @param dbh
 #' Numeric vector containing diameter values.
-#
-#'@param expf     
+#' 
+#' @param expf
 #' Numeric vector containing expansion factors values.
-#'
-#'@param ht     
+#' 
+#' @param ht
 #' Numeric vector of tree heights.
-#
-#'@param top_tpa
+#' 
+#' @param top_tpa
 #' Numeric value corresponding to TPA to include in top height calculation. 
 #' Largest 20 TPA, largest 40 TPA etc.
-#
-#'@param top_per
+#' 
+#' @param top_per
 #' Numeric value corresponding to percentage of trees to include in the top 
 #' height calculation. Largest 20% of 'trees, largest 40% of trees etc. If this 
 #' value is not null then it will take precedence over the value in top_tpa 
-#' argument. 
+#' argument.
 #' 
 #' @param naok
 #' Logical variable where if FALSE, an error will be thrown if input vectors 
 #' contain NA values. If TRUE, checks for NA values will not be done. Setting 
-#' this value to TRUE will speed up processing but can be risky if input vectors
+#' this value to TRUE will speed up processing but can be risky if input vectors 
 #' are not vetted for NA values prior.
-#
-#'@return 
-#'Top height value.
+#' 
+#' @return
+#' Top height value.
+#' @export
 ################################################################################
 
-#'@export
 top_ht_f = function(dbh = NULL,
                   expf = NULL,
                   ht = NULL,
@@ -2820,35 +2803,34 @@ top_ht_f = function(dbh = NULL,
 #' bal_f
 #' @name bal_f
 #' @description
-#' 
-#' This function calculates basal area in trees larger than subject tree (BAL)
+#' This function calculates basal area in trees larger than subject tree (BAL) 
 #' from input vectors containing diameter and expansion factor values.
-#
+#' 
 #' @param dbh
 #' Numeric vector containing diameter values.
-#
-#' @param expf 
+#' 
+#' @param expf
 #' Numeric vector containing expansion factors.
 #' 
 #' @param handle_ties
 #' Integer variable used to determine if dbh values with equivalent values get 
 #' the same BAL return. If this value is 1, then trees with equivalent DBH 
-#' values will have the same BAL value (e.g. 3 trees with 10 inch DBH will all
+#' values will have the same BAL value (e.g. 3 trees with 10 inch DBH will all 
 #' have the same BAL). If this value is 0, then trees with equivalent DBH 
-#' values will have a different BAL (3 trees with 10 inch DBH will each have a
+#' values will have a different BAL (3 trees with 10 inch DBH will each have a 
 #' different BAL).
 #' 
 #' @param naok
 #' Logical variable where if FALSE, an error will be thrown if input vectors 
 #' contain NA values. If TRUE, checks for NA values will not be done. Setting 
-#' this value to TRUE will speed up processing but can be risky if input vectors
+#' this value to TRUE will speed up processing but can be risky if input vectors 
 #' are not vetted for NA values prior.
 #' 
 #' @return
 #' Numeric vector containing BAL values
+#' @export
 ################################################################################
 
-#'@export
 bal_f = function(dbh = NULL,
                  expf = NULL,
                  handle_ties = 0,
@@ -2887,62 +2869,61 @@ bal_f = function(dbh = NULL,
 #' mean_attr_f
 #' @name mean_attr_f
 #' @description
-#'
 #' This function is used to calculate the arithmetic or weighted mean (average) 
 #' of an attribute. The weighted mean will only be calculated if weights are 
 #' provided as an input argument. These mean values can be calculated within 
 #' custom size ranges and for select species.
-#'
+#' 
 #' @param attr
 #' Numeric vector containing numeric attribute
-#'
-#' @param weight     
+#' 
+#' @param weight
 #' Optional numeric vector containing a weighting value. This could be an 
 #' expansion factor, tree basal area, or other user defined weight. If this 
-#' argument is left as NULL, then the arithmetic average will be returned.. 
-#'
-#' @param dbh     
+#' argument is left as NULL, then the arithmetic average will be returned..
+#' 
+#' @param dbh
 #' Numeric vector containing diameter values.
-#'
+#' 
 #' @param ht
 #' Numeric vector containing total tree height values.
 #' 
 #' @param species
 #' Vector containing species codes.
-#
+#' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
 #' This value is inclusive (>=).
-#
-#' @param dbhmax 
+#' 
+#' @param dbhmax
 #' Numeric value corresponding to upper DBH bound to calculate attribute in. 
 #' This value is exclusive (<).
 #' 
 #' @param htmin
-#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' Numeric value corresponding to lower tree height bound to calculate attribute 
 #' in. This value is inclusive (>=).
-#
-#' @param htmax 
-#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' 
+#' @param htmax
+#' Numeric value corresponding to upper tree height bound to calculate attribute 
 #' in. This value is exclusive (<).
 #' 
 #' @param select_species
-#' Optional vector containing species codes. This variable will be used to
-#' select which species get included in calculation of attribute. If left as
+#' Optional vector containing species codes. This variable will be used to 
+#' select which species get included in calculation of attribute. If left as 
 #' NULL, attribute will be calculated using observations from across all 
 #' species.
 #' 
 #' @param naok
 #' Logical variable where if FALSE, an error will be thrown if input vectors 
 #' contain NA values. If TRUE, checks for NA values will not be done. Setting 
-#' this value to TRUE will speed up processing but can be risky if input vectors
+#' this value to TRUE will speed up processing but can be risky if input vectors 
 #' are not vetted for NA values prior.
-#
-#' @return 
-#' Average or weighted average of attribute.
+#' 
+#' @return
+#' Numeric average or weighted average of attribute.
+#' @export
 ################################################################################
 
-#'@export
 mean_attr_f = function(attr = NULL,
                       weight = NULL,
                       dbh = NULL,
@@ -3000,8 +2981,7 @@ mean_attr_f = function(attr = NULL,
 #' expand_attr_f
 #' @name expand_attr_f
 #' @description
-#' 
-#' This function sums and expands an input numeric attribute to a per unit area
+#' This function sums and expands an input numeric attribute to a per unit area 
 #' basis using numeric vectors containing diameter, attribute of interest, and 
 #' expansion factors. The numeric attribute could be a tree-level volume, 
 #' biomass, carbon, etc.This attribute can be calculated for user defined size 
@@ -3009,8 +2989,8 @@ mean_attr_f = function(attr = NULL,
 #' 
 #' @param attr
 #' Numeric vector containing numeric attribute
-#
-#' @param expf 
+#' 
+#' @param expf
 #' Numeric vector containing expansion factors.
 #' 
 #' @param dbh
@@ -3021,37 +3001,38 @@ mean_attr_f = function(attr = NULL,
 #' 
 #' @param species
 #' Vector containing species codes.
-#
+#' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
 #' This value is inclusive (>=).
-#
-#' @param dbhmax 
-#' Numeric value corresponding to upper DBH bound to calculate attribute in. This
+#' 
+#' @param dbhmax
+#' Numeric value corresponding to upper DBH bound to calculate attribute in. This 
 #' value is exclusive (<).
 #' 
 #' @param htmin
-#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' Numeric value corresponding to lower tree height bound to calculate attribute 
 #' in. This value is inclusive (>=).
-#
-#' @param htmax 
-#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' 
+#' @param htmax
+#' Numeric value corresponding to upper tree height bound to calculate attribute 
 #' in. This value is exclusive (<).
 #' 
 #' @param select_species
-#' Optional vector containing species codes. This variable will be used to
-#' select which species get included in calculation of attribute. If left as
+#' Optional vector containing species codes. This variable will be used to 
+#' select which species get included in calculation of attribute. If left as 
 #' NULL, attribute will be calculated using observations from across all 
 #' species.
 #' 
 #' @param naok
 #' Logical variable where if FALSE, an error will be thrown if input vectors 
 #' contain NA values. If TRUE, checks for NA values will not be done. Setting 
-#' this value to TRUE will speed up processing but can be risky if input vectors
+#' this value to TRUE will speed up processing but can be risky if input vectors 
 #' are not vetted for NA values prior.
-#'
-#'@return
-#' Sum of attribute expanded to a per unit area
+#' 
+#' @return
+#' Numeric sum of attribute expanded to a per unit area
+#' @export
 ################################################################################
 
 #'@export
@@ -3110,9 +3091,8 @@ expand_attr_f = function(attr = NULL,
 #' count_rec_f
 #' @name count_rec_f
 #' @description
-#' 
-#' This function counts the number of tree records between specified DBH and HT
-#' ranges and for select species. 
+#' This function counts the number of tree records between specified DBH and HT 
+#' ranges and for select species.
 #' 
 #' @param dbh
 #' Numeric vector containing diameter values.
@@ -3122,40 +3102,40 @@ expand_attr_f = function(attr = NULL,
 #' 
 #' @param species
 #' Vector containing species codes.
-#
+#' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
 #' This value is inclusive (>=).
-#
-#' @param dbhmax 
-#' Numeric value corresponding to upper DBH bound to calculate attribute in. This
+#' 
+#' @param dbhmax
+#' Numeric value corresponding to upper DBH bound to calculate attribute in. This 
 #' value is exclusive (<).
 #' 
 #' @param htmin
-#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' Numeric value corresponding to lower tree height bound to calculate attribute 
 #' in. This value is inclusive (>=).
-#
-#' @param htmax 
-#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' 
+#' @param htmax
+#' Numeric value corresponding to upper tree height bound to calculate attribute 
 #' in. This value is exclusive (<).
 #' 
 #' @param select_species
-#' Optional vector containing species codes. This variable will be used to
-#' select which species get included in calculation of attribute. If left as
+#' Optional vector containing species codes. This variable will be used to 
+#' select which species get included in calculation of attribute. If left as 
 #' NULL, attribute will be calculated using observations from across all 
 #' species.
 #' 
 #' @param naok
 #' Logical variable where if FALSE, an error will be thrown if input vectors 
 #' contain NA values. If TRUE, checks for NA values will not be done. Setting 
-#' this value to TRUE will speed up processing but can be risky if input vectors
+#' this value to TRUE will speed up processing but can be risky if input vectors 
 #' are not vetted for NA values prior.
-#'
-#'@return
+#' 
+#' @return
 #' Numeric count of records.
+#' @export
 ################################################################################
 
-#'@export
 count_rec_f = function(dbh = NULL,
                       ht = NULL,
                       species = NULL,
@@ -3207,10 +3187,9 @@ count_rec_f = function(dbh = NULL,
 #' min_attr_f
 #' @name min_attr_f
 #' @description
-#' 
 #' This function determines the minimum value for an input attribute. This can 
 #' be calculated for custom size ranges and for select species.
-#' 
+#'
 #' @param attr
 #' Numeric vector containing numeric attribute
 #' 
@@ -3222,40 +3201,40 @@ count_rec_f = function(dbh = NULL,
 #' 
 #' @param species
 #' Vector containing species codes.
-#
+#' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
 #' This value is inclusive (>=).
-#
-#' @param dbhmax 
-#' Numeric value corresponding to upper DBH bound to calculate attribute in. This
+#' 
+#' @param dbhmax
+#' Numeric value corresponding to upper DBH bound to calculate attribute in. This 
 #' value is exclusive (<).
 #' 
 #' @param htmin
-#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' Numeric value corresponding to lower tree height bound to calculate attribute 
 #' in. This value is inclusive (>=).
-#
-#' @param htmax 
-#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' 
+#' @param htmax
+#' Numeric value corresponding to upper tree height bound to calculate attribute 
 #' in. This value is exclusive (<).
 #' 
 #' @param select_species
-#' Optional vector containing species codes. This variable will be used to
-#' select which species get included in calculation of attribute. If left as
+#' Optional vector containing species codes. This variable will be used to 
+#' select which species get included in calculation of attribute. If left as 
 #' NULL, attribute will be calculated using observations from across all 
 #' species.
 #' 
 #' @param naok
 #' Logical variable where if FALSE, an error will be thrown if input vectors 
 #' contain NA values. If TRUE, checks for NA values will not be done. Setting 
-#' this value to TRUE will speed up processing but can be risky if input vectors
+#' this value to TRUE will speed up processing but can be risky if input vectors 
 #' are not vetted for NA values prior.
-#'
-#'@return
+#' 
+#' @return
 #' Minimum value of attribute.
+#' @export
 ################################################################################
 
-#'@export
 min_attr_f = function(attr = NULL,
                     dbh = NULL,
                     ht = NULL,
@@ -3309,7 +3288,6 @@ min_attr_f = function(attr = NULL,
 #' max_attr_f
 #' @name max_attr_f
 #' @description
-#' 
 #' This function determines the maximum value for an input attribute. This can 
 #' be calculated for custom size ranges and for select species.
 #' 
@@ -3324,40 +3302,40 @@ min_attr_f = function(attr = NULL,
 #' 
 #' @param species
 #' Vector containing species codes.
-#
+#' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
 #' This value is inclusive (>=).
-#
-#' @param dbhmax 
-#' Numeric value corresponding to upper DBH bound to calculate attribute in. This
+#' 
+#' @param dbhmax
+#' Numeric value corresponding to upper DBH bound to calculate attribute in. This 
 #' value is exclusive (<).
 #' 
 #' @param htmin
-#' Numeric value corresponding to lower tree height bound to calculate attribute
+#' Numeric value corresponding to lower tree height bound to calculate attribute 
 #' in. This value is inclusive (>=).
-#
-#' @param htmax 
-#' Numeric value corresponding to upper tree height bound to calculate attribute
+#' 
+#' @param htmax
+#' Numeric value corresponding to upper tree height bound to calculate attribute 
 #' in. This value is exclusive (<).
 #' 
 #' @param select_species
-#' Optional vector containing species codes. This variable will be used to
-#' select which species get included in calculation of attribute. If left as
+#' Optional vector containing species codes. This variable will be used to 
+#' select which species get included in calculation of attribute. If left as 
 #' NULL, attribute will be calculated using observations from across all 
 #' species.
 #' 
 #' @param naok
 #' Logical variable where if FALSE, an error will be thrown if input vectors 
 #' contain NA values. If TRUE, checks for NA values will not be done. Setting 
-#' this value to TRUE will speed up processing but can be risky if input vectors
+#' this value to TRUE will speed up processing but can be risky if input vectors 
 #' are not vetted for NA values prior.
-#'
-#'@return
+#' 
+#' @return
 #' Maximum value of attribute.
+#' @export
 ################################################################################
 
-#'@export
 max_attr_f = function(attr = NULL,
                     dbh = NULL,
                     ht = NULL,

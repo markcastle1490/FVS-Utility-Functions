@@ -52,7 +52,7 @@ this value to TRUE will speed up processing but can be risky if input vectors
 are not vetted for NA values prior.}
 }
 \value{
-Sum of attribute expanded to a per unit area
+Numeric sum of attribute expanded to a per unit area
 }
 \description{
 This function sums and expands an input numeric attribute to a per unit area

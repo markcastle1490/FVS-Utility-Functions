@@ -15,6 +15,6 @@ rsdi(dbh = NULL, expf = NULL)
 Numeric Reineke SDI value
 }
 \description{
-This function calculates Reineke SDI using input vectors containing diameter and
-expansion factor values.
+This function calculates Reineke SDI using input vectors containing diameter
+and expansion factor values.
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/db-tools.R
 \name{db_indices}
 \alias{db_indices}
-\title{Extract Active Database Indices}
+\title{db_indices}
 \usage{
 db_indices(con)
 }
@@ -14,7 +14,7 @@ Character vector of index names that exist in the connected database, or NULL
 if no indices are found.
 }
 \description{
-This function queries the SQLite master schema table to retrieve the
-names of all indices that currently exist within the connected database.
+This function queries the SQLite master schema table to retrieve
+the names of all indices that currently exist within the connected database.
 If no indices are present in the database, it safely returns NULL.
 }

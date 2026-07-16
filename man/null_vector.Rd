@@ -7,13 +7,11 @@
 null_vector(...)
 }
 \arguments{
-\item{...}{The ... should be a set of vectors that will be checked if any are NULL.}
+\item{...}{A set of vectors to be evaluated.}
 }
 \value{
-Logical TRUE or FALSE value.
+A logical value: \code{TRUE} if any vector is NULL, \code{FALSE} otherwise.
 }
 \description{
-This function takes in a set of vectors and checks if any are NULL. If any of
-the vectors are NULL then a TRUE value is returned. This a helper function
-that is used inside many of functions in this file.
+This function takes a set of vectors and checks if any are NULL.
 }

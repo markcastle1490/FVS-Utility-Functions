@@ -6,7 +6,7 @@
 \usage{
 get_fiadb(
   output = NULL,
-  url = "https://research.fs.usda.gov/products/dataandtools/fia-datamart",
+  url = "https://apps.fs.usda.gov/fia/datamart/Databases/",
   states = NULL,
   master_db = FALSE,
   verbose = FALSE

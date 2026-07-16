@@ -1,6 +1,6 @@
 ################################################################################
+#' fvs_gaak
 #' @name fvs_gaak
-#' @title Generate FVS GAAK Table
 #' @description This function returns a FVS_GroupAddFilesAndKeyword (GAAK) table 
 #' in a dataframe format with the appropriate FVS keywords and SQL statements for 
 #' reading stand and tree level data from a specified input FVS database. This 
@@ -146,21 +146,26 @@ fvs_gaak<-function(dbin ="FVS_Data.db",
 }
 
 ################################################################################
-#db_tbl_schema
-#
-#This function queries an open SQLite database connection using system PRAGMA
-#metadata to extract the column layout of a specified table. It returns a 
-#named character vector where the names represent column headers and the 
-#values represent their corresponding SQL data types (e.g., TEXT, INTEGER, REAL).
-#If the specified table does not exist, it safely returns an empty vector.
-#
-#con:      An active RSQLite connection object to a SQLite database.
-#
-#db_table: db_table: A character string specifying the target database table 
-#          name. Defaults to "TREE".
-#
-#Returns:  A named character vector containing field names and data types for 
-#          all fields in db_table, or character(0) if the table is missing.
+#' db_tbl_schema
+#' @name db_tbl_schema
+#' @description
+#' This function queries an open SQLite database connection using system PRAGMA 
+#' metadata to extract the column layout of a specified table. It returns a 
+#' named character vector where the names represent column headers and the 
+#' values represent their corresponding SQL data types (e.g., TEXT, INTEGER, REAL). 
+#' If the specified table does not exist, it safely returns an empty vector.
+#' 
+#' @param con
+#' An active RSQLite connection object to a SQLite database.
+#' 
+#' @param db_table
+#' A character string specifying the target database table name. Defaults to 
+#' "TREE".
+#' 
+#' @return
+#' A named character vector containing field names and data types for all fields 
+#' in db_table, or character(0) if the table is missing.
+#' @export
 ################################################################################
 
 db_tbl_schema <- function(con,
@@ -188,26 +193,29 @@ db_tbl_schema <- function(con,
 }
 
 ################################################################################
-# db_collect_paths
-#
-# This function inspects an input character vector of file paths, flags any
-# compressed .zip archives, and extracts them into isolated subfolders inside
-# a dedicated system temporary directory. It then crawls both the original 
-# standalone file paths and the newly unzipped directories to return all valid 
-# SQLite database targets (.db, .sqlite, .sqlite3) mapped to their normalized 
-# system locations.
-#
-# dbin:    A character vector containing directory paths and file names to 
-#          standalone SQLite databases or compressed .zip folders.
-#
-# verbose: Logical. If TRUE, logs extraction steps and path maps to the console.
-#          Defaults to FALSE.
-#
-# Returns: A list containing two elements:
-#          [[1]] (paths):     A character vector of fully normalized file paths
-#                             to all discovered and extracted SQLite databases.
-#          [[2]] (unzip_dir): A character string specifying the root temporary 
-#                             directory where zipped archives were expanded.
+#' db_collect_paths
+#' @name db_collect_paths
+#' @description
+#' This function inspects an input character vector of file paths, flags any 
+#' compressed .zip archives, and extracts them into isolated subfolders inside 
+#' a dedicated system temporary directory. It then searches both the original 
+#' standalone file paths and the newly unzipped directories to return all valid 
+#' SQLite database targets (.db, .sqlite, .sqlite3).
+#' 
+#' @param dbin
+#' A character vector containing directory paths and file names to 
+#' standalone SQLite databases or compressed .zip folders.
+#' 
+#' @param verbose
+#' Logical. If TRUE, logs extraction steps and path maps to the console. 
+#' Defaults to FALSE.
+#' 
+#' @return
+#' A list containing two elements:
+#' \item{paths}{A character vector of fully normalized file paths to all 
+#' discovered and extracted SQLite databases.}
+#' \item{unzip_dir}{A character string specifying the root temporary directory
+#'  where zipped archives were expanded.}
 ################################################################################
 
 db_collect_paths <- function(dbin = character(0),
@@ -259,20 +267,28 @@ db_collect_paths <- function(dbin = character(0),
 }
 
 ################################################################################
-#create_tbl_query
-#
-#This function takes in a database connection to an existing SQLite database and
-#database table name and returns a SQL query for creating the input database
-#table.
-#
-#con:       Connection to SQLite database.
-#
-#db_table:  Character string corresponding to name of database table.
-#
-#db_fields: Named character vector where names of vector are field names and the 
-#           value in each index is a data type.
-#
-#Character string of SQL query used to create database table.
+#' create_tbl_query
+#' @name create_tbl_query
+#' @description
+#' This function constructs a formatted SQL "CREATE TABLE IF NOT EXISTS" 
+#' statement using a schema definition from a named vector.
+#' 
+#' @param db_fields
+#' A named character vector where the names represent table column headers and 
+#' the character values represent their respective SQL data types (e.g., TEXT, 
+#' INTEGER, REAL).
+#' 
+#' @param db_table
+#' A character string specifying the name of the database table to be initialized.
+#' 
+#' @param alias
+#' An optional character string specifying an insert alias moniker. Defaults 
+#' to "dbinsert".
+#' 
+#' @return
+#' A character string containing the complete SQL query to initialize the table 
+#' structure, or an empty string "" if arguments are missing.
+#' @export
 ################################################################################
 
 create_tbl_query <- function(db_table = NULL,
@@ -298,23 +314,28 @@ create_tbl_query <- function(db_table = NULL,
 }
 
 ################################################################################
-# create_tbl_query
-#
-# This function constructs a formatted, human-readable SQL "CREATE TABLE IF NOT 
-# EXISTS" statement using a dynamic schema definition. It pairs column names 
-# and SQL data types from a named vector into a clean, comma-separated layout
-# complete with standard indentation and trailing semicolons.
-#
-# db_table:  A character string specifying the name of the database table to 
-#            be initialized.
-#
-# db_fields: A named character vector where the names represent table column 
-#            headers and the character values represent their respective SQL 
-#            data types (e.g., TEXT, INTEGER, REAL).
-#
-# Returns:   A character string containing the complete SQL query to initialize 
-#            the table structure safely, or an empty string "" if arguments 
-#            are missing.
+#' insert_tbl_query
+#' @name insert_tbl_query
+#' @description
+#' This function constructs a formatted SQL "CREATE TABLE IF NOT EXISTS" 
+#' statement using a dynamic schema definition from a named vector.
+#' 
+#' @param db_fields
+#' A named character vector where the names represent table column headers and 
+#' the character values represent their respective SQL data types (e.g., TEXT, 
+#' INTEGER, REAL).
+#' 
+#' @param db_table
+#' A character string specifying the name of the database table to be initialized.
+#' 
+#' @param alias
+#' An optional character string specifying an insert alias moniker. Defaults 
+#' to "dbinsert".
+#' 
+#' @return
+#' A character string containing the complete SQL query to initialize the table 
+#' structure safely, or an empty string "" if arguments are missing.
+#' @export
 ################################################################################
 
 insert_tbl_query <- function(db_fields = NULL,
@@ -341,36 +362,37 @@ insert_tbl_query <- function(db_fields = NULL,
 }
 
 ################################################################################
-# db_insert_tbl
-#
-# This function coordinates a high-performance cross-database data migration.
-# It attaches a source SQLite database to a target destination database via an
-# ATTACH clause, audits schemas, initializes missing tables, synchronizes any 
-# mismatched column fields on the fly, and appends records smoothly using standard 
-# SQL operations. This function is designed to be called internally by the 
-# db_compile orchestrator.
-#
-#dbout    
-#A character string specifying the file path to the destination master SQLite 
-#database file being populated.
-#
-#dbinsert
-#A character string specifying the file path to the source SQLite database file
-#containing records to be imported.
-#
-#db_tables  
-#A character vector of table names to check, synchronize, and migrate from the 
-#source database into the destination database.
-#
-#keep_casing
-#Logical. If FALSE, automatically forces all column headers to uppercase to 
-#prevent case-mismatch schema splitting. Defaults to TRUE.
-#
-#verbose     
-#Logical. If TRUE, logs active table migrations to the console. Defaults to FALSE.
-#
-#Returns   
-#An invisible NULL value.
+#' db_insert_tbl
+#' @name db_insert_tbl
+#' @description
+#' This function coordinates a cross-database data migration. It attaches a 
+#' source SQLite database to a target destination database via an ATTACH clause, 
+#' audits schemas, initializes missing tables, synchronizes any mismatched column 
+#' fields, and appends records smoothly using standard SQL operations. This 
+#' function is designed to be called internally by the db_compile function.
+#' 
+#' @param dbout
+#' A character string specifying the file path to the destination master SQLite 
+#' database file being populated.
+#' 
+#' @param dbinsert
+#' A character string specifying the file path to the source SQLite database file 
+#' containing records to be imported.
+#' 
+#' @param db_tables
+#' A character vector of table names to check, synchronize, and migrate from the 
+#' source database into the destination database.
+#' 
+#' @param keep_casing
+#' Logical. If FALSE, automatically forces all column headers to uppercase to 
+#' prevent case-mismatch schema splitting. Defaults to TRUE.
+#' 
+#' @param verbose
+#' Logical. If TRUE, prings active table migrations to the console. Defaults to 
+#' FALSE.
+#' 
+#' @return
+#' An invisible NULL value.
 ################################################################################
 
 db_insert_tbl <- function(dbout,
@@ -479,8 +501,8 @@ db_insert_tbl <- function(dbout,
 }
 
 ################################################################################
+#' db_add_fields
 #' @name db_add_fields
-#' @title Add Missing Fields to a Database Table
 #' @description This function coordinates dynamic database alterations by 
 #' identifying column discrepancies between source and target datasets. It loops
 #' through a character vector of missing schema parameters, generating and 
@@ -552,14 +574,14 @@ db_add_fields <- function(conn,
 }
 
 ################################################################################
+#' db_compile
 #' @name db_compile
-#' @title Master Database Compilation Pipeline
-#' @description This function is used to combine the contents of multiple sqlite databases 
-#' into a single sqlite database. SQLite databases (.db, .sqlite) are the only 
-#' compatible input database type that can be processed in this function. The 
-#' primary purpose of this function is to combine input FVS databases into a 
-#' single database or extract FVS database tables from a larger database such as 
-#' those on the FIA datamart.
+#' @description This function is used to combine the contents of multiple sqlite
+#' databases into a single sqlite database. SQLite databases (.db, .sqlite, 
+#' .sqlite3) are the only compatible input database type that can be processed
+#' in this function. The primary purpose of this function is to combine input
+#' FVS databases into a single database or extract FVS database tables from a 
+#' larger database such as those on the FIA datamart.
 #' 
 #' @param dbin
 #' Character vector of directory paths and file names for SQLite databases to 
@@ -567,13 +589,13 @@ db_add_fields <- function(conn,
 #' which contains a SQLite database(s). 
 #' 
 #' NOTE: .zip files will be unzipped to an isolated temporary folder called 
-#' xxxfvstoolsdb_compileUnzipxxx inside the system temporary directory. This temporary 
-#' folder will be deleted automatically after db_compile has finished processing, 
-#' even if the script execution encounters a runtime error.
+#' xxxfvstoolsdb_compileUnzipxxx inside the system temporary directory. This 
+#' temporary folder will be deleted automatically after db_compile has finished 
+#' processing, even if the script execution encounters a runtime error.
 #' 
 #' Examples of valid dbin formats: 
 #' "C:/FIA2FVS_Databases/SQLite_FIADB_AZ/FIADB_AZ.db" 
-#' "C:/FIA2FVS_Databases/SQLite_FIADB_AZ/FIADB_AZ.zip"
+#' "C:\\FIA2FVS_Databases\\SQLite_FIADB_AZ\\FIADB_AZ.zip"
 #' 
 #' @param dbout
 #' Character string corresponding to SQLite database to write out to. 
@@ -750,10 +772,10 @@ db_compile <- function(dbin = NULL,
 }
 
 ################################################################################
+#' db_indices
 #' @name db_indices
-#' @title Extract Active Database Indices
-#' @description This function queries the SQLite master schema table to retrieve the 
-#' names of all indices that currently exist within the connected database. 
+#' @description This function queries the SQLite master schema table to retrieve
+#' the names of all indices that currently exist within the connected database. 
 #' If no indices are present in the database, it safely returns NULL.
 #' 
 #' @param con

@@ -31,6 +31,9 @@ cc(
 \item{dbhmin}{Numeric value corresponding to lower DBH bound to calculate attribute in. This
 value is inclusive (>=).}
 
+\item{dbhmax}{Numeric value corresponding to upper DBH bound to calculate attribute in. This
+value is exclusive (<).}
+
 \item{htmin}{Numeric value corresponding to lower tree height bound to calculate attribute
 in. This value is inclusive (>=).}
 

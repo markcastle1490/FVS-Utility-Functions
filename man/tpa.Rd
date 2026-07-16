@@ -37,7 +37,7 @@ in. This value is inclusive (>=).}
 \item{htmax}{Numeric value corresponding to upper tree height bound to calculate attribute
 in. This value is exclusive (<).}
 
-\item{select_spcies}{Optional vector containing species codes. This variable will be used to
+\item{select_species}{Optional vector containing species codes. This variable will be used to
 select which species get included in calculation of attribute. If left as
 NULL, attribute will be calculated using observations from across all
 species.}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/db-tools.R
 \name{db_compile}
 \alias{db_compile}
-\title{Master Database Compilation Pipeline}
+\title{db_compile}
 \usage{
 db_compile(
   dbin = NULL,
@@ -19,13 +19,13 @@ process. Files can either be a SQLite database (.db) or zipped folder (.zip)
 which contains a SQLite database(s).
 
 NOTE: .zip files will be unzipped to an isolated temporary folder called
-xxxfvstoolsdb_compileUnzipxxx inside the system temporary directory. This temporary
-folder will be deleted automatically after db_compile has finished processing,
-even if the script execution encounters a runtime error.
+xxxfvstoolsdb_compileUnzipxxx inside the system temporary directory. This
+temporary folder will be deleted automatically after db_compile has finished
+processing, even if the script execution encounters a runtime error.
 
 Examples of valid dbin formats:
 "C:/FIA2FVS_Databases/SQLite_FIADB_AZ/FIADB_AZ.db"
-"C:/FIA2FVS_Databases/SQLite_FIADB_AZ/FIADB_AZ.zip"}
+"C:\\FIA2FVS_Databases\\SQLite_FIADB_AZ\\FIADB_AZ.zip"}
 
 \item{dbout}{Character string corresponding to SQLite database to write out to.
 Examples of valid dbout formats:
@@ -52,10 +52,10 @@ FALSE.}
 An invisible NULL value.
 }
 \description{
-This function is used to combine the contents of multiple sqlite databases
-into a single sqlite database. SQLite databases (.db, .sqlite) are the only
-compatible input database type that can be processed in this function. The
-primary purpose of this function is to combine input FVS databases into a
-single database or extract FVS database tables from a larger database such as
-those on the FIA datamart.
+This function is used to combine the contents of multiple sqlite
+databases into a single sqlite database. SQLite databases (.db, .sqlite,
+.sqlite3) are the only compatible input database type that can be processed
+in this function. The primary purpose of this function is to combine input
+FVS databases into a single database or extract FVS database tables from a
+larger database such as those on the FIA datamart.
 }

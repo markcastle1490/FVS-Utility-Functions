@@ -38,15 +38,15 @@ in. This value is inclusive (>=).}
 \item{htmax}{Numeric value corresponding to upper tree height bound to calculate attribute
 in. This value is exclusive (<).}
 
+\item{select_species}{Optional vector containing species codes. This variable will be used to
+select which species get included in calculation of attribute. If left as
+NULL, attribute will be calculated using observations from across all
+species.}
+
 \item{naok}{Logical variable where if FALSE, an error will be thrown if input vectors
 contain NA values. If TRUE, checks for NA values will not be done. Setting
 this value to TRUE will speed up processing but can be risky if input vectors
 are not vetted for NA values prior.}
-
-\item{select_spcies}{Optional vector containing species codes. This variable will be used to
-select which species get included in calculation of attribute. If left as
-NULL, attribute will be calculated using observations from across all
-species.}
 }
 \value{
 Numeric trees per acre value

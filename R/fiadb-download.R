@@ -81,7 +81,8 @@ get_fiadb <- function(output = NULL,
     }
     
     # Format target file structures using secure file system operators
-    filename <- if (master_db) "SQLite_FIADB_ENTIRE.zip" else paste0("SQLite_FIADB_", target, ".zip")
+    filename <- if (master_db) "SQLite_FIADB_ENTIRE.zip" 
+    else paste0("SQLite_FIADB_", target, ".zip")
     filename_url  <- paste0(url, filename)
     filename_disk <- file.path(output, filename)
 
@@ -90,7 +91,7 @@ get_fiadb <- function(output = NULL,
       if(verbose) cat("Removing old local file:", filename, "\n")
       unlink(filename_disk, force = TRUE)
       if (file.exists(filename_disk)) {
-        stop(paste("Unable to clear file lock on preexisting file:", filename_disk))
+        stop(paste("Unable to remove preexisting file:", filename_disk))
       }
     }
 
@@ -120,6 +121,7 @@ get_fiadb <- function(output = NULL,
 
     # Check if file exists and then extract and delete zipped folder.
     if (file.exists(filename_disk)) {
+      
       # Extract data
       if(verbose) cat("Extracting files from:", filename_disk, "\n")
       unzip(zipfile = filename_disk, exdir = output)

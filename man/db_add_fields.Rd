@@ -2,7 +2,7 @@
 % Please edit documentation in R/db-tools.R
 \name{db_add_fields}
 \alias{db_add_fields}
-\title{Add Missing Fields to a Database Table}
+\title{db_add_fields}
 \usage{
 db_add_fields(conn, table_name = NULL, db_fields = NULL, verbose = FALSE)
 }

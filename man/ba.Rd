@@ -47,7 +47,6 @@ Numeric basal area per acre value
 }
 \description{
 This function calculates a basal area per acre given input vectors
-containing diameter and expansion factor values. This
-attribute can be calculated for user defined size ranges and for select
-species.
+containing diameter and expansion factor values. This attribute can be
+calculated for user defined size ranges and for select species.
 }

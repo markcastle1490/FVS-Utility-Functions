@@ -54,7 +54,7 @@ this value to TRUE will speed up processing but can be risky if input vectors
 are not vetted for NA values prior.}
 }
 \value{
-Average or weighted average of attribute.
+Numeric average or weighted average of attribute.
 }
 \description{
 This function is used to calculate the arithmetic or weighted mean (average)

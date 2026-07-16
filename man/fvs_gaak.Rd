@@ -2,7 +2,7 @@
 % Please edit documentation in R/db-tools.R
 \name{fvs_gaak}
 \alias{fvs_gaak}
-\title{Generate FVS GAAK Table}
+\title{fvs_gaak}
 \usage{
 fvs_gaak(dbin = "FVS_Data.db", stand_type = 1, gaak_type = 3)
 }

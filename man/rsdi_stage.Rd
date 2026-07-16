@@ -50,4 +50,8 @@ This function is used to calculate Reineke SDI used the methodology proposed
 by Stage 1968. From Section 7.3.2.1 of EFVS using input vectors containing
 DBH and expansion factors. This attribute can be calculated for user defined
 size ranges and for select species.
+
+SDI = sum(a * TPAi + b * DBHi^2 * TPA)
+a = 10^(-1.605) * (1-(1.605/2)) * qmd^1.605
+b = 10^(−1.605) * (1.605/2) * QMD^(1.605-2)
 }
