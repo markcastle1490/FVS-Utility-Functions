@@ -2,17 +2,19 @@
 % Please edit documentation in R/db-tools.R
 \name{db_indices}
 \alias{db_indices}
-\title{db_indices}
+\title{Extract Active Database Indices}
 \usage{
 db_indices(con)
 }
 \arguments{
-\item{input}{Connection to a SQLite database (.db, .sqlite)}
+\item{con}{An active RSQLite connection object to a SQLite database (.db, .sqlite).}
 }
 \value{
-Character vector of index names that exist in input argument.
+Character vector of index names that exist in the connected database, or NULL
+if no indices are found.
 }
 \description{
-This function returns the names of indices that exist in input database
-argument.
+This function queries the SQLite master schema table to retrieve the
+names of all indices that currently exist within the connected database.
+If no indices are present in the database, it safely returns NULL.
 }

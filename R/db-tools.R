@@ -1,43 +1,41 @@
 ################################################################################
-#'fvs_gaak
-#'@name fvs_gaak
-#'@description
-#
-#'This function returns a FVS_GroupAddFilesAndKeyword (GAAK) table in a 
-#'dataframe format with the appropriate FVS keywords and SQL statements for 
-#'reading stand and tree level data from a specified input FVS database. This 
-#'function can accommodate a GAAK table that can read from standard 
-#'FVS_TreeInit, FVS_StandInit, and FVS_PlotInit tables and FIA-centric tables 
-#'that include FVS_TreeInit_Plot, FVS_TreeInit_Cond, FVS_StandInit_Plot, 
-#'FVS_StandInit_Cond, and FVS_PlotInit_Plot.
-#
-#'@param dbin:
-#'Character string corresponding to filepath or name of database to read from.
-#'File extension (.db, .sqlite) should be included for this value (e.g.
-#'FVS_Data.db).
-#'
-#'@param stand_type:
-#'Integer value that determine what stand ID will be used to read data from for
-#'STANDSQL and TREESQL statements included in GAAK table.
-#'
-#'0 = Stand_CN (e.g. "WHERE Stand_CN = '%Stand_CN%'")
-#'
-#'1 = Stand_ID (e.g. "WHERE Stand_ID = '%StandID%'")
-#
-#'@param gaak_type:
-#'Variable to determine what grouping codes are included in GAAK table.
-#'
-#'1 = Standard FVS grouping codes (All_Stands, All_Plots)
-#'
-#'2 = FIA grouping codes (All_FIA_Conditions, All_FIA_Plots, All_FIA_Subplots)
-#'
-#'3 = Both standard FVS grouping codes and FIA grouping codes
-#
-#'@return 
-#'Dataframe containing FVS GAAK table.
+#' @name fvs_gaak
+#' @title Generate FVS GAAK Table
+#' @description This function returns a FVS_GroupAddFilesAndKeyword (GAAK) table 
+#' in a dataframe format with the appropriate FVS keywords and SQL statements for 
+#' reading stand and tree level data from a specified input FVS database. This 
+#' function can accommodate a GAAK table that can read from standard 
+#' FVS_TreeInit, FVS_StandInit, and FVS_PlotInit tables and FIA-centric tables 
+#' that include FVS_TreeInit_Plot, FVS_TreeInit_Cond, FVS_StandInit_Plot, 
+#' FVS_StandInit_Cond, and FVS_PlotInit_Plot.
+#' 
+#' @param dbin
+#' Character string corresponding to filepath or name of database to read from. 
+#' File extension (.db, .sqlite) should be included for this value 
+#' (e.g. "FVS_Data.db").
+#' 
+#' @param stand_type
+#' Integer value that determine what stand ID will be used to read data from for 
+#' STANDSQL and TREESQL statements included in GAAK table.
+#' 
+#' 0 = Stand_CN (e.g. "WHERE Stand_CN = '%Stand_CN%'")
+#' 
+#' 1 = Stand_ID (e.g. "WHERE Stand_ID = '%StandID%'")
+#' 
+#' @param gaak_type
+#' Variable to determine what grouping codes are included in GAAK table.
+#' 
+#' 1 = Standard FVS grouping codes (All_Stands, All_Plots)
+#' 
+#' 2 = FIA grouping codes (All_FIA_Conditions, All_FIA_Plots, All_FIA_Subplots)
+#' 
+#' 3 = Both standard FVS grouping codes and FIA grouping codes
+#' 
+#' @return
+#' Dataframe containing FVS GAAK table.
+#' @export
 ################################################################################
 
-#'@export
 fvs_gaak<-function(dbin ="FVS_Data.db",
                    stand_type = 1,
                    gaak_type = 3)
@@ -150,33 +148,36 @@ fvs_gaak<-function(dbin ="FVS_Data.db",
 ################################################################################
 #db_tbl_schema
 #
-#This function takes in directory path to sqlite database and database table
-#name an returns a named list of fields and associated data types for the
-#specified database table.
+#This function queries an open SQLite database connection using system PRAGMA
+#metadata to extract the column layout of a specified table. It returns a 
+#named character vector where the names represent column headers and the 
+#values represent their corresponding SQL data types (e.g., TEXT, INTEGER, REAL).
+#If the specified table does not exist, it safely returns an empty vector.
 #
-#con:      Connection to SQLite database.
+#con:      An active RSQLite connection object to a SQLite database.
 #
-#db_table:  Character string pertaining to name of database table in db argument.
+#db_table: db_table: A character string specifying the target database table 
+#          name. Defaults to "TREE".
 #
-#Named list containing field names and associated data types for all fields in
-#db_table.
+#Returns:  A named character vector containing field names and data types for 
+#          all fields in db_table, or character(0) if the table is missing.
 ################################################################################
 
 db_tbl_schema <- function(con,
-                          db_table = "")
+                          db_table = "TREE")
 {
   #Initialize empty vector
-  data_types <- c()
+  data_types <- character(0)
   
   #If db_table does not exist in db, return empty vector
   if(RSQLite::dbExistsTable(conn = con,
                              name = db_table))
   {
-    #Get name of fields and data_types
-    table_defs <- RSQLite::dbGetQuery(con,
-                                     paste0("PRAGMA table_info('",
-                                            db_table,
-                                            "')"))[,c(c("name", "type"))]
+    #Build query
+    query <- paste0("PRAGMA table_info(", db_table, ");")
+    
+    #Get table info
+    table_defs <- RSQLite::dbGetQuery(con,query) 
     
     #Make named vector from variables and data types
     data_types <- table_defs$type
@@ -187,103 +188,74 @@ db_tbl_schema <- function(con,
 }
 
 ################################################################################
-#db_collect_paths
+# db_collect_paths
 #
-#This function takes in a character vector of directory paths and file names to
-#SQLite databases or zipped folder and returns an updated character vector of
-#directory paths and file names to SQLite databases. The updated character 
-#vector can contain additional .db paths.
+# This function inspects an input character vector of file paths, flags any
+# compressed .zip archives, and extracts them into isolated subfolders inside
+# a dedicated system temporary directory. It then crawls both the original 
+# standalone file paths and the newly unzipped directories to return all valid 
+# SQLite database targets (.db, .sqlite, .sqlite3) mapped to their normalized 
+# system locations.
 #
-#dbin:     Character vector containing directory paths and file names to SQLite 
-#          database or zipped folders.
+# dbin:    A character vector containing directory paths and file names to 
+#          standalone SQLite databases or compressed .zip folders.
 #
-#unzipdir: Directory path to folder where contents of zipped folders will be 
-#          stored.
+# verbose: Logical. If TRUE, logs extraction steps and path maps to the console.
+#          Defaults to FALSE.
 #
-#Character vector of directory paths and file names to SQLite databases.
+# Returns: A list containing two elements:
+#          [[1]] (paths):     A character vector of fully normalized file paths
+#                             to all discovered and extracted SQLite databases.
+#          [[2]] (unzip_dir): A character string specifying the root temporary 
+#                             directory where zipped archives were expanded.
 ################################################################################
 
-db_collect_paths <- function(dbin = c(),
-                             unzipdir = "")
+db_collect_paths <- function(dbin = character(0),
+                             verbose = FALSE)
 {
-  #If length of dbin is 0, return dbin
-  if(length(dbin) <= 0) return(dbin)
+  #Setup unzip directory
+  unzip_root <- file.path(tempdir(), "xxxfvstoolsdb_compileUnzipxxx")
 
-  #If unzipdir exists, delete it
-  if(file.exists(unzipdir)) unlink(unzipdir)
-  
-  #Create directory to unzip files too
-  unzipdir <- paste(tempdir(),
-                    "xxxfvstoolsdb_compileUnzipxxx",
-                    sep = "/")
-  
-  #Initialize dbin_update. This is a vector that will be used to store input
-  #directory paths.
-  dbin_update <- vector(mode = "character")
-  
-  #Loop through dbin and check if files are not .db or .zip. If a file is a .zip
-  #then unzip it to unzipdir. All db files will be added to dbin_update.
-  for(i in 1:length(dbin))
-  {
-    db <- dbin[i]
-    
-    #Grab file extension for db
-    fileext_in <- tools::file_ext(db)
-    
-    #If the file extension of db is not .db or .zip then stop with error message.
-    if(!fileext_in %in% c("db", "zip", "sqlite"))
-    {
-      cat(db, "is not a zipped folder or sqlite database.", "\n")
-      next
-    }
-    
-    #If the file is a zip file, then it will be unzipped into xxxdb_compilexxx
-    if(fileext_in == "zip")
-    {
-
-      cat("Unzipping:", db, "to", unzipdir, "\n", "\n")
-      
-      unzip(zipfile = db,
-            exdir = unzipdir)
-      
-      #Now list all the files that contain .db or .sqlite in the name.
-      #Recursive argument is set to true so any sub directories are checked for
-      #db files as well.
-      db_list <- c(list.files(unzipdir,
-                           pattern = "\\.db",
-                           full.names = T,
-                           recursive = T),
-                  list.files(unzipdir,
-                             pattern = "\\.sqlite",
-                             full.names = T,
-                             recursive = T))
-      
-      #If db_list is empty move to next iteration of loop
-      if(length(db_list) <= 0)
-      {
-        cat("No .db or .sqlite files found in", db, "\n")
-        next
-      }
-      
-      #If db_list has at least one value then append the values in db_list to
-      #dbin_update.
-      else
-      {
-        dbin_update <- c(dbin_update, db_list)
-      }
-    }
-    
-    #Dealing with .db file. This file will be appended to dbin_update.
-    else
-    {
-      dbin_update <- c(dbin_update, db)
-    }
+  #Ensure the base directory exists cleanly without wiping target data prematurely
+  if (!dir.exists(unzip_root)) {
+    dir.create(unzip_root, recursive = TRUE, showWarnings = FALSE)
   }
   
-  #Delete unzipdir before returning
-  unlink(unzipdir)
+  #Loop through dbin and check if any are zip files
+  for(i in seq_along(dbin))
+  {
+    db <- dbin[i]
+    fileext_in <- tolower(tools::file_ext(db))
+    
+    #If the file extension is not zip, skip
+    if(!fileext_in %in% c("zip")) next
+    
+    #Unzip archives into isolated folder
+    unique_subfolder <- file.path(unzip_root, paste0("zip_extract_", i))
+    dir.create(unique_subfolder, recursive = TRUE, showWarnings = FALSE)
+      
+    if(verbose) cat("Unzipping:", db, "to", unique_subfolder, "\n\n")
+    unzip(zipfile = db, exdir = unique_subfolder)
+  }
   
-  return(dbin_update)
+  #Filter out DBs from the original input vector
+  db_files <- dbin[tolower(tools::file_ext(dbin)) %in%
+                     c("db", "sqlite", "sqlite3")]
+  
+  #Scan the unzip directory for extracted DB files
+  extracted_db_files <- list.files(
+    path = unzip_root, 
+    pattern = "\\.(db|sqlite|sqlite3)$", 
+    full.names = TRUE, 
+    recursive = TRUE, 
+    ignore.case = TRUE
+  )
+  
+  #Combine all paths
+  final_paths <- normalizePath(c(db_files, extracted_db_files), mustWork = FALSE)
+  
+  #Return paths and unzipdir as list
+  return(list(final_paths, unzip_root))
 }
 
 ################################################################################
@@ -311,31 +283,38 @@ create_tbl_query <- function(db_table = NULL,
   
   if(!is.null(db_table) && !is.null(db_fields))
   {
-    query <- paste(paste("CREATE TABLE", db_table),
-                   paste0("(", paste(names(db_fields), 
-                                     db_fields, 
-                                     collapse = ",\n") ,")", ";"),
-                   sep = "\n")
+    column_string <- paste(names(db_fields), 
+                           db_fields, 
+                           collapse = ",\n")
+    
+    query <- paste0("CREATE TABLE IF NOT EXISTS ",
+                    db_table,
+                    " (\n  ", 
+                    column_string,
+                    "\n);")
   }
     
   return(query)
 }
 
 ################################################################################
-#insert_tbl_query
+# create_tbl_query
 #
-#This function generates a SQLite query that is used to insert the specified
-#fields from the database table of an existing SQLite database into the table of
-#another SQLite databse.
+# This function constructs a formatted, human-readable SQL "CREATE TABLE IF NOT 
+# EXISTS" statement using a dynamic schema definition. It pairs column names 
+# and SQL data types from a named vector into a clean, comma-separated layout
+# complete with standard indentation and trailing semicolons.
 #
-#db_fields:  Character vector of field names to include in insert query.
+# db_table:  A character string specifying the name of the database table to 
+#            be initialized.
 #
-#db_table:   Character string corresponding to name of database table.
+# db_fields: A named character vector where the names represent table column 
+#            headers and the character values represent their respective SQL 
+#            data types (e.g., TEXT, INTEGER, REAL).
 #
-#alias:     Character string corresponding to name of database alias.
-#
-#Character string of SQL query used insert data from one database table to
-#another.
+# Returns:   A character string containing the complete SQL query to initialize 
+#            the table structure safely, or an empty string "" if arguments 
+#            are missing.
 ################################################################################
 
 insert_tbl_query <- function(db_fields = NULL,
@@ -344,81 +323,102 @@ insert_tbl_query <- function(db_fields = NULL,
 {
   query <- ""
   
-  if(!is.null(db_fields) && !is.null(db_table))
-  {
-    #Create query
-    query <- paste(paste("INSERT INTO", db_table),
-                   paste0("(", paste(db_fields, collapse = ", "), ")"),
-                   paste("SELECT", paste(db_fields, collapse = ", ")),
-                   "FROM", paste0(alias, ".", db_table),
-                   sep = "\n")
+  if (!is.null(db_fields) && !is.null(db_table)) {
+    
+    #Format columns as a comma-separated list
+    column_string <- paste(db_fields, collapse = ", ")
+    
+    #Assemble standard SQLite syntax
+    query <- paste0("INSERT INTO ",
+                    db_table,
+                    " (", column_string, ")\n",
+                    "SELECT ", column_string, "\n",
+                    "FROM ",
+                    alias, ".", db_table, ";")
   }
   
   return(query)
 }
 
 ################################################################################
-#db_insert_tbl
+# db_insert_tbl
 #
-#This function will insert the contents from specified databases tables of one 
-#SQLite database into another SQLite database. This function is called from 
-#db_compile function.
+# This function coordinates a high-performance cross-database data migration.
+# It attaches a source SQLite database to a target destination database via an
+# ATTACH clause, audits schemas, initializes missing tables, synchronizes any 
+# mismatched column fields on the fly, and appends records smoothly using standard 
+# SQL operations. This function is designed to be called internally by the 
+# db_compile orchestrator.
 #
-#dbout:        
-#Character string of file path to output database who will be populated by 
-#tables included in database of dbinsert argument.
+#dbout    
+#A character string specifying the file path to the destination master SQLite 
+#database file being populated.
 #
-#dbinsert:  
-#File path to database whose contents will be inserted into dbout argument.
+#dbinsert
+#A character string specifying the file path to the source SQLite database file
+#containing records to be imported.
 #
-#db_tables:  
-#Character vector of database table names for those that will be inserted from 
-#dbinsert to dbout.
+#db_tables  
+#A character vector of table names to check, synchronize, and migrate from the 
+#source database into the destination database.
 #
-#Return
-#None
+#keep_casing
+#Logical. If FALSE, automatically forces all column headers to uppercase to 
+#prevent case-mismatch schema splitting. Defaults to TRUE.
+#
+#verbose     
+#Logical. If TRUE, logs active table migrations to the console. Defaults to FALSE.
+#
+#Returns   
+#An invisible NULL value.
 ################################################################################
 
 db_insert_tbl <- function(dbout,
                           dbinsert,
                           db_tables = c(),
-                          keep_casing = TRUE)
+                          keep_casing = TRUE,
+                          verbose = FALSE)
 {
   #Connect to dbout (database information is being sent to)
   con_out <- RSQLite::dbConnect(RSQLite::SQLite(),
                                 dbout)
   
+  #Disconnect and detach on exit
+  on.exit(expr = {
+    if (RSQLite::dbIsValid(con_out)) {
+      try(RSQLite::dbExecute(con_out, "DETACH DATABASE dbinsert;"), silent = TRUE)
+      try(RSQLite::dbDisconnect(con_out), silent = TRUE)
+    }
+  }, add = TRUE)
+  
   #Attach dbinsert to con_out
   RSQLite::dbExecute(con_out,
-                     paste("attach database", 
-                           paste0("'", dbinsert,"'"), 
-                           "as dbinsert"))
+                     paste0("ATTACH DATABASE '", 
+                            dbinsert,
+                           "' as dbinsert;"))
   
   #Begin loop across db_tables
   for(table in db_tables)
   {
-    
-    cat("Processing table:", table, "\n")
+    if(verbose) cat("Processing table:", table, "\n")
     
     #Connect to dbinsert
     con_in <- RSQLite::dbConnect(RSQLite::SQLite(),
                                  dbinsert)
     
-    #Skip to next database table if table does not exist in dbinsert
-    if(!RSQLite::dbExistsTable(con = con_in,
-                               name = table))
-    {
-      cat("Table:", table, "not found in:", dbinsert, "\n", "\n")
-      RSQLite::dbDisconnect(con_in)
-      next
-    }
+    #Check table existence
+    table_found <- RSQLite::dbExistsTable(con = con_in, name = table)
     
-    #Get database fields and types for dbinsert
-    insert_fields <- db_tbl_schema(con = con_in,
-                                   db_table = table)
+    #Get schema if it exists
+    if (table_found) {
+      insert_fields <- db_tbl_schema(con = con_in, db_table = table)
+    }
     
     #Disconnect from dbinsert
     RSQLite::dbDisconnect(con_in)
+    
+    #If insert_fields is empty, skip
+    if(length(insert_fields) <= 0) next
     
     #Capitalize fields if keep_casing is off
     if(!keep_casing) names(insert_fields) <- toupper(names(insert_fields)) 
@@ -432,14 +432,10 @@ db_insert_tbl <- function(dbout,
       
       if(query == "") 
       {
-        cat("Invalid table creation query.", "\n")
+        warning("Invalid table creation query.")
         next
-      }
-      
-      else 
-      {
+      } else{ 
         RSQLite::dbExecute(conn = con_out, query)
-        #cat("Created table:", table, "in:", dbout, "\n", "\n")
       }
     }
     
@@ -450,12 +446,13 @@ db_insert_tbl <- function(dbout,
     missing_fields <- names(insert_fields)[! names(insert_fields) %in% db_fields]
     missing_fields <- insert_fields[missing_fields]
     
-    #Loop through missing_fields and add to database table in 
+    #Loop through missing_fields and add to database table in con_out
     if(length(missing_fields) > 0)
     {
       db_add_fields(conn = con_out,
                     table_name = table,
-                    db_fields = missing_fields)
+                    db_fields = missing_fields,
+                    verbose = verbose)
     }
     
     #Generate insert query
@@ -465,7 +462,7 @@ db_insert_tbl <- function(dbout,
     #If query is invalid move to next iteration
     if(query == "") 
     { 
-      cat("Invalid insertion query created.")
+      warning("Invalid insertion query created.")
       next
     }
     
@@ -478,46 +475,50 @@ db_insert_tbl <- function(dbout,
                      "DETACH DATABASE dbinsert;")
   RSQLite::dbDisconnect(con_out)
   
-  invisible(0)
+  invisible()
 }
 
 ################################################################################
-#'db_add_fields
-#'@name db_add_fields
-#'@description
-#'
-#'This function adds specified fields with corresponding data types to a 
-#'database table in open SQLite database connection.
-#
-#'@param conn:       
-#'Connection to SQLite database.
-#
-#'@param table_name:  
-#'Character string corresponding to name of table where fields will added.
-#
-#'@param db_fields:    
-#'Named character vector or list where names are the names of the fields and 
-#'the items in the vector or list are the data types of the fields.
-#
-#'@return 
-#'None
+#' @name db_add_fields
+#' @title Add Missing Fields to a Database Table
+#' @description This function coordinates dynamic database alterations by 
+#' identifying column discrepancies between source and target datasets. It loops
+#' through a character vector of missing schema parameters, generating and 
+#' running ALTER TABLE ADD COLUMN routines sequentially.
+#' 
+#' @param conn 
+#' An active RSQLite connection object to the destination master SQLite database.
+#' 
+#' @param table_name 
+#' Character string specifying the database table name being modified.
+#' 
+#' @param db_fields 
+#' A named character vector where names are missing column headers and values 
+#' are SQL data types.
+#' 
+#' @param verbose 
+#' Logical. If TRUE, logs missing fields and alter table progress
+#' to the console. Defaults to FALSE.
+#'  
+#' @return 
+#' An invisible NULL value.
 ################################################################################
 
-#'@export
 db_add_fields <- function(conn,
-                          table_name,
-                          db_fields = c())
+                          table_name = NULL,
+                          db_fields = NULL,
+                          verbose = FALSE)
 {
-  #If db_fields or data_types is empty, stop
-  if(length(db_fields) <= 0)
+  #If db_fields or data_types is empty
+  if(is.null(db_fields) || is.null(table_name)) return()
+  
+  if(verbose)
   {
-    stop("No fields and data types provided.")
+    cat("\n",
+        "Fields missing from", table_name, "\n", names(db_fields), "\n", "\n")
   }
-  
-  cat("\n",
-      "Fields missing from", table_name, "\n", names(db_fields), "\n", "\n")
-  
-  for(i in 1:length(db_fields))
+
+  for(i in seq_along(db_fields))
   {
     #Extract field
     field <- names(db_fields)[[i]]
@@ -525,78 +526,92 @@ db_add_fields <- function(conn,
     #Extract data type of field
     data_type <- db_fields[[i]]
     
-    #cat("Field:", field, "data_type:", data_type, "\n")
-    
-    cat("Adding field:", field, paste0("(", data_type, ")"), "to table:",
-        table_name,
-        "\n")
-    
+    if(verbose)
+    {
+      cat("Adding field:", field, paste0("(", data_type, ")"), "to table:",
+          table_name,
+          "\n")
+    }
+
     #Create query to alter table and add field in con_out
-    add_field <- paste("ALTER TABLE", table_name, "ADD COLUMN", field, data_type)
+    query <- add_col_query(db_table = table_name, 
+                           db_field = field,
+                           data_type = data_type)
     
     #Add field to con_out
     RSQLite::dbExecute(conn = conn, 
-                       statement = add_field)
+                       statement = query)
     
-    cat("Field:", field, "added to table:", table_name, "\n", "\n")
+    if(verbose)
+    {
+      cat("Field:", field, "added to table:", table_name, "\n", "\n")
+    }
   }
+  
+  return()
 }
 
 ################################################################################
-#'db_compile
-#'@name db_compile
-#'@description
-#'This function is used to combine the contents of multiple sqlite databases 
-#'into a single sqlite database. SQLite databases (.db, .sqlite) are the only
-#'compatible input database type that can be processed in this function. The 
-#'primary purpose of this function is to combine input FVS databases into a 
-#'single database or extract FVS database tables from a larger database such as
-#'those on the FIA datamart.
-#
-#'@param dbin:         
-#'Character vector of directory paths and file names for SQLite databases to 
-#'process. Files can either be a SQLite database (.db) or zipped folder (.zip) 
-#'which contains a SQLite database(s).
-#'
-#'NOTE: .zip files will be unzipped to a temporary folder called 
-#'xxxfvstoolsdb_compileUnzipxxx in current working directory. Temporary folder will
-#'be deleted after db_compile has finished writing data to output database.
-#'
-#'Examples of valid dbin formats:
-#'"C:/FIA2FVS_Databases/SQLite_FIADB_AZ/FIADB_AZ.db"'
-#'"C:/FIA2FVS_Databases/SQLite_FIADB_AZ/ FIADB_AZ.zip"
-#
-#'@param dbout:
-#'Character string corresponding to SQLite database to write out to.
-#'Examples of valid dbout formats:
-#'"C:/FIA2FVS_Databases/SQLite_FIADB_AZ/FVS_Data.db"
-#
-#'@param db_tables:    
-#'Character vector of database tables to process from argument dbin. If this
-#'argument is left as NULL, then function will use all tables from the first
-#'database specified in the dbin argument.
-#
-#'@param delete_input: 
-#'Logical variable used to determine if values in dbin should be deleted after
-#'db_compile has been called. The primary purpose of this argument is to 
-#'conserve hard disk space for users who do not want to retain the input 
-#'databases specified in dbin.
-#'
-#'@param keep_casing: 
-#'Logical variable used to determine if the database table names and fields in
-#'dbin should retain original casing. When FALSE, the database table names and
-#'fields in each table written to dbout will be capitalized.
-#'
-#'@return 
-#'None
+#' @name db_compile
+#' @title Master Database Compilation Pipeline
+#' @description This function is used to combine the contents of multiple sqlite databases 
+#' into a single sqlite database. SQLite databases (.db, .sqlite) are the only 
+#' compatible input database type that can be processed in this function. The 
+#' primary purpose of this function is to combine input FVS databases into a 
+#' single database or extract FVS database tables from a larger database such as 
+#' those on the FIA datamart.
+#' 
+#' @param dbin
+#' Character vector of directory paths and file names for SQLite databases to 
+#' process. Files can either be a SQLite database (.db) or zipped folder (.zip) 
+#' which contains a SQLite database(s). 
+#' 
+#' NOTE: .zip files will be unzipped to an isolated temporary folder called 
+#' xxxfvstoolsdb_compileUnzipxxx inside the system temporary directory. This temporary 
+#' folder will be deleted automatically after db_compile has finished processing, 
+#' even if the script execution encounters a runtime error.
+#' 
+#' Examples of valid dbin formats: 
+#' "C:/FIA2FVS_Databases/SQLite_FIADB_AZ/FIADB_AZ.db" 
+#' "C:/FIA2FVS_Databases/SQLite_FIADB_AZ/FIADB_AZ.zip"
+#' 
+#' @param dbout
+#' Character string corresponding to SQLite database to write out to. 
+#' Examples of valid dbout formats: 
+#' "C:/FIA2FVS_Databases/SQLite_FIADB_AZ/FVS_Data.db"
+#' 
+#' @param db_tables
+#' Character vector of database tables to process from argument dbin. If this 
+#' argument is left as NULL, then function will use all tables from the first 
+#' database specified in the dbin argument.
+#' 
+#' @param delete_input
+#' Logical variable used to determine if values in dbin should be deleted after 
+#' db_compile has been called successfully. The primary purpose of this argument
+#' is to conserve hard disk space for users who do not want to retain the input 
+#' databases specified in dbin. Defaults to FALSE.
+#' 
+#' @param keep_casing
+#' Logical variable used to determine if the database table names and fields in 
+#' dbin should retain original casing. When FALSE, the database table names and 
+#' fields in each table written to dbout will be capitalized. Defaults to TRUE.
+#' 
+#' @param verbose
+#' Logical variable used to determine if compilation milestones, folder extraction 
+#' paths, and table progress updates are printed to the console. Defaults to 
+#' FALSE.
+#' 
+#' @return
+#' An invisible NULL value.
+#' @export
 ################################################################################
 
-#'@export
 db_compile <- function(dbin = NULL,
                        dbout = NULL,
                        db_tables = NULL,
                        delete_input = FALSE,
-                       keep_casing = TRUE)
+                       keep_casing = TRUE,
+                       verbose = FALSE)
 {
   
   #Test if no values have been specified for dbin
@@ -605,8 +620,8 @@ db_compile <- function(dbin = NULL,
   #Test if no values have been specified for dbout
   if(is.null(dbout)) stop(paste("No file was specified for dbout."))
   
-  #Test if db_tables is null and return with error message.
-  #if(is.null(db_tables)) stop(paste("No table names were provided for db_tables."))
+  #Get first entry in dbout
+  dbout <- dbout[1]
   
   #Replace \\ with / in dbin and dbout
   dbin <- chartr(old = "\\", new = "/", x = dbin)
@@ -614,33 +629,22 @@ db_compile <- function(dbin = NULL,
   
   #Loop through dbin and test if any of the files don't exist. If a file does
   #not exist then error message is reported.
-  for(i in 1:length(dbin))
+  for(i in seq_along(dbin))
   {
     if(!file.exists(dbin[i])) stop(paste("File:", dbin[i], "does not exist."))
-    #else cat("Database", i, dbin[i], "\n")
-  }
-  
-  #If there is more than one value specified in dbout, stop with error message.
-  if(length(dbout) > 1)
-  {
-    stop(paste("Only one output file can be specified for dbout."))
   }
   
   #Test if dbout file path is valid.
-  #Extract path to dbout by extracting all characters before the last / in
-  #output argument.
   outpath <- gsub("/[^/]+$", "", dbout)
-  
-  #Test existence of output path and if it does not exist report error.
-  if (!(file.exists(outpath))){
+  if (outpath != dbout && !(file.exists(outpath))){
     stop(paste("Path to output:", outpath, "was not found.",
                "Make sure directory path to output is spelled correctly."))
   }
   
   #Test if output file is a SQLite database. If the file is not a SQLite
   #database then error message is reported.
-  fileext_out <- tools::file_ext(dbout)
-  if(!fileext_out %in% c("db", "sqlite"))
+  fileext_out <- tolower(tools::file_ext(dbout))
+  if(!fileext_out %in% c("db", "sqlite", "sqlite3"))
   {
     stop(paste("Output database:",
                dbout,
@@ -651,27 +655,37 @@ db_compile <- function(dbin = NULL,
   #If dbout already exists, delete it
   if(file.exists(dbout))
   {
-    cat("Deleting preexisting dbout", "\n")
+    if(verbose) cat("Deleting preexisting dbout", "\n")
     ret <- unlink(dbout)
     if(ret == 1) stop(paste("Failed to delete:", dbout))
   }
   
-  cat("Output database:", dbout, "\n","\n")
+  if(verbose) cat("Output database:", dbout, "\n","\n")
   
-  #Get updated directory paths and file names
-  dbin_update <- db_collect_paths(dbin = dbin)
-  
+  #Get database paths and unzip dir
+  results <- db_collect_paths(dbin = dbin, verbose = verbose)
+  dbin_update <- results[[1]]
+  unzipdir <- results[[2]]
+
+  #Delete unzipdir
+  on.exit(expr = {
+    if (!is.null(unzipdir) && nzchar(unzipdir)) {
+      unlink(x = unzipdir, recursive = TRUE)
+    }
+  }, add = TRUE)
+
   #If dbin_update does not have any databases, then stop with error message and
   #delete unzip directory if it exists.
   if(length(dbin_update) <= 0)
-  {
-    stop("No valid database files (.db, .sqlite) are available for processing.")
-  }
+    stop("No valid SQLite database files are available for processing.")
   
   #Remove duplicate values in dbin_update and print database file paths
   dbin_update <- unique(dbin_update)
-  cat("List of db files to process:", "\n")
-  cat(paste(dbin_update, collapse = "\n"), "\n", "\n")
+  if(verbose) 
+  {
+    cat("List of db files to process:", "\n")
+    cat(paste(dbin_update, collapse = "\n"), "\n", "\n")
+  }
   
   #If db_tables is NULL, then grab database tables from first database in 
   #dbin_update and use those for processing
@@ -687,65 +701,70 @@ db_compile <- function(dbin = NULL,
   
   #If there are no values in db_tables stop with error
   if(length(db_tables) <= 0)
-  {
     stop("No valid database tables available for processing.")
-  }
-  
+
   #Capitalize db_tables if keep_casing is off
   if(!keep_casing) db_tables <- toupper(db_tables)
   
-  cat("Database table names to consider:", "\n")
-  cat(paste(db_tables, collapse = "\n"), "\n", "\n")
-  
+  if(verbose)
+  {
+    cat("Database table names to consider:", "\n")
+    cat(paste(db_tables, collapse = "\n"), "\n", "\n")
+  }
+
   #Begin processing databases in dbin_update
-  for(i in 1:length(dbin_update))
+  for(i in seq_along(dbin_update))
   {
     
     db <- dbin_update[i]
     
-    cat("Processing db:", db, "\n")
+    if(verbose) cat("Processing db:", db, "\n")
     
     db_insert_tbl(dbout = dbout,
-                   dbinsert = db,
-                   db_tables = db_tables,
-                   keep_casing = keep_casing)
+                  dbinsert = db,
+                  db_tables = db_tables,
+                  keep_casing = keep_casing,
+                  verbose = verbose)
     
     #Print message indicating which db has been processed.
-    cat("Finished processing db:", db, "\n", "\n")
+    if(verbose) cat("Finished processing db:", db, "\n", "\n")
   }
   
   #If delete_input is TRUE, delete files in dbin argument.
-  if(delete_input)
-  {
+  if (delete_input) {
+    if(verbose)
+    {
+      cat("Argument delete_input is TRUE. Purging source input paths from disk...\n")
+    }
+
+    unlink(x = dbin, recursive = FALSE)
     
-    cat(paste("Argument delete_input is TRUE.",
-              "Deleting input databases.", "\n"))
-    
-    ret <- unlink(x = dbin,
-                  recursive = FALSE)
-    
-    if(ret == 1) 
-      cat("Failed to delete one or more databases from dbin.")
+    # Cross-verify files were actually dropped safely
+    remaining_files <- dbin[file.exists(dbin)]
+    if (length(remaining_files) > 0) {
+      warning("Failed to delete one or more source databases from dbin when delete_input is TRUE.\n")
+    }
   }
   
   invisible()
 }
 
 ################################################################################
-#'db_indices
-#'@name db_indices
-#'@description
-#'This function returns the names of indices that exist in input database
-#'argument.
-#
-#'@param input
-#'Connection to a SQLite database (.db, .sqlite)
-#
-#'@return
-#'Character vector of index names that exist in input argument.
+#' @name db_indices
+#' @title Extract Active Database Indices
+#' @description This function queries the SQLite master schema table to retrieve the 
+#' names of all indices that currently exist within the connected database. 
+#' If no indices are present in the database, it safely returns NULL.
+#' 
+#' @param con
+#' An active RSQLite connection object to a SQLite database (.db, .sqlite).
+#' 
+#' @return
+#' Character vector of index names that exist in the connected database, or NULL 
+#' if no indices are found.
+#' @export
 ################################################################################
 
-#'@export
 db_indices <- function(con)
 {
   #Build query

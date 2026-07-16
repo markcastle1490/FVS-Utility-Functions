@@ -2,23 +2,23 @@
 % Please edit documentation in R/db-tools.R
 \name{fvs_gaak}
 \alias{fvs_gaak}
-\title{fvs_gaak}
+\title{Generate FVS GAAK Table}
 \usage{
 fvs_gaak(dbin = "FVS_Data.db", stand_type = 1, gaak_type = 3)
 }
 \arguments{
-\item{dbin:}{Character string corresponding to filepath or name of database to read from.
-File extension (.db, .sqlite) should be included for this value (e.g.
-FVS_Data.db).}
+\item{dbin}{Character string corresponding to filepath or name of database to read from.
+File extension (.db, .sqlite) should be included for this value
+(e.g. "FVS_Data.db").}
 
-\item{stand_type:}{Integer value that determine what stand ID will be used to read data from for
+\item{stand_type}{Integer value that determine what stand ID will be used to read data from for
 STANDSQL and TREESQL statements included in GAAK table.
 
 0 = Stand_CN (e.g. "WHERE Stand_CN = '\%Stand_CN\%'")
 
 1 = Stand_ID (e.g. "WHERE Stand_ID = '\%StandID\%'")}
 
-\item{gaak_type:}{Variable to determine what grouping codes are included in GAAK table.
+\item{gaak_type}{Variable to determine what grouping codes are included in GAAK table.
 
 1 = Standard FVS grouping codes (All_Stands, All_Plots)
 
@@ -30,8 +30,8 @@ STANDSQL and TREESQL statements included in GAAK table.
 Dataframe containing FVS GAAK table.
 }
 \description{
-This function returns a FVS_GroupAddFilesAndKeyword (GAAK) table in a
-dataframe format with the appropriate FVS keywords and SQL statements for
+This function returns a FVS_GroupAddFilesAndKeyword (GAAK) table
+in a dataframe format with the appropriate FVS keywords and SQL statements for
 reading stand and tree level data from a specified input FVS database. This
 function can accommodate a GAAK table that can read from standard
 FVS_TreeInit, FVS_StandInit, and FVS_PlotInit tables and FIA-centric tables

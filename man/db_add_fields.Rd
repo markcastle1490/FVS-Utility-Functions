@@ -2,22 +2,27 @@
 % Please edit documentation in R/db-tools.R
 \name{db_add_fields}
 \alias{db_add_fields}
-\title{db_add_fields}
+\title{Add Missing Fields to a Database Table}
 \usage{
-db_add_fields(conn, table_name, db_fields = c())
+db_add_fields(conn, table_name = NULL, db_fields = NULL, verbose = FALSE)
 }
 \arguments{
-\item{conn:}{Connection to SQLite database.}
+\item{conn}{An active RSQLite connection object to the destination master SQLite database.}
 
-\item{table_name:}{Character string corresponding to name of table where fields will added.}
+\item{table_name}{Character string specifying the database table name being modified.}
 
-\item{db_fields:}{Named character vector or list where names are the names of the fields and
-the items in the vector or list are the data types of the fields.}
+\item{db_fields}{A named character vector where names are missing column headers and values
+are SQL data types.}
+
+\item{verbose}{Logical. If TRUE, logs missing fields and alter table progress
+to the console. Defaults to FALSE.}
 }
 \value{
-None
+An invisible NULL value.
 }
 \description{
-This function adds specified fields with corresponding data types to a
-database table in open SQLite database connection.
+This function coordinates dynamic database alterations by
+identifying column discrepancies between source and target datasets. It loops
+through a character vector of missing schema parameters, generating and
+running ALTER TABLE ADD COLUMN routines sequentially.
 }

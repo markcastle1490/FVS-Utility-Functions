@@ -2,48 +2,54 @@
 % Please edit documentation in R/db-tools.R
 \name{db_compile}
 \alias{db_compile}
-\title{db_compile}
+\title{Master Database Compilation Pipeline}
 \usage{
 db_compile(
   dbin = NULL,
   dbout = NULL,
   db_tables = NULL,
   delete_input = FALSE,
-  keep_casing = TRUE
+  keep_casing = TRUE,
+  verbose = FALSE
 )
 }
 \arguments{
-\item{dbin:}{Character vector of directory paths and file names for SQLite databases to
+\item{dbin}{Character vector of directory paths and file names for SQLite databases to
 process. Files can either be a SQLite database (.db) or zipped folder (.zip)
 which contains a SQLite database(s).
 
-NOTE: .zip files will be unzipped to a temporary folder called
-xxxfvstoolsdb_compileUnzipxxx in current working directory. Temporary folder will
-be deleted after db_compile has finished writing data to output database.
+NOTE: .zip files will be unzipped to an isolated temporary folder called
+xxxfvstoolsdb_compileUnzipxxx inside the system temporary directory. This temporary
+folder will be deleted automatically after db_compile has finished processing,
+even if the script execution encounters a runtime error.
 
 Examples of valid dbin formats:
-"C:/FIA2FVS_Databases/SQLite_FIADB_AZ/FIADB_AZ.db"'
-"C:/FIA2FVS_Databases/SQLite_FIADB_AZ/ FIADB_AZ.zip"}
+"C:/FIA2FVS_Databases/SQLite_FIADB_AZ/FIADB_AZ.db"
+"C:/FIA2FVS_Databases/SQLite_FIADB_AZ/FIADB_AZ.zip"}
 
-\item{dbout:}{Character string corresponding to SQLite database to write out to.
+\item{dbout}{Character string corresponding to SQLite database to write out to.
 Examples of valid dbout formats:
 "C:/FIA2FVS_Databases/SQLite_FIADB_AZ/FVS_Data.db"}
 
-\item{db_tables:}{Character vector of database tables to process from argument dbin. If this
+\item{db_tables}{Character vector of database tables to process from argument dbin. If this
 argument is left as NULL, then function will use all tables from the first
 database specified in the dbin argument.}
 
-\item{delete_input:}{Logical variable used to determine if values in dbin should be deleted after
-db_compile has been called. The primary purpose of this argument is to
-conserve hard disk space for users who do not want to retain the input
-databases specified in dbin.}
+\item{delete_input}{Logical variable used to determine if values in dbin should be deleted after
+db_compile has been called successfully. The primary purpose of this argument
+is to conserve hard disk space for users who do not want to retain the input
+databases specified in dbin. Defaults to FALSE.}
 
-\item{keep_casing:}{Logical variable used to determine if the database table names and fields in
+\item{keep_casing}{Logical variable used to determine if the database table names and fields in
 dbin should retain original casing. When FALSE, the database table names and
-fields in each table written to dbout will be capitalized.}
+fields in each table written to dbout will be capitalized. Defaults to TRUE.}
+
+\item{verbose}{Logical variable used to determine if compilation milestones, folder extraction
+paths, and table progress updates are printed to the console. Defaults to
+FALSE.}
 }
 \value{
-None
+An invisible NULL value.
 }
 \description{
 This function is used to combine the contents of multiple sqlite databases
