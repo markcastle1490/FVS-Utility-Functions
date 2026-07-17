@@ -41,12 +41,23 @@ old_dir <- getwd()
 setwd(build_dir)
 
 #Document
-roxygen2::roxygenise(pkg_root, clean = TRUE)
+roxygen_cmd <- sprintf("roxygen2::roxygenise(package.dir = %s, clean = TRUE)", shQuote(pkg_root))
+
+system2(
+  command = r_path,
+  args    = c("--vanilla", "--quiet", "-e", shQuote(roxygen_cmd)),
+  stdout  = TRUE, 
+  stderr  = TRUE,
+  env     = c(paste0("R_LIBS_USER=", r_lib), paste0("R_LIBS_SITE=", r_lib))
+)
 
 #Call system2 to build
 system2(
   command = r_path,
-  args = c("CMD build", "fvstools"))
+  args = c("CMD build", "fvstools", shQuote(pkg_root)),
+  stdout = TRUE,
+  stderr = TRUE,
+  env = c(paste0("R_LIBS_USER=", r_lib), paste0("R_LIBS_SITE=", r_lib)))
 
 # Find actual tarball after installation
 tarball <- list.files(
@@ -71,7 +82,10 @@ install_args <- c("CMD INSTALL",
 #Execute using system2
 system2(
   command = r_path, 
-  args = install_args)
+  args = install_args,
+  stdout  = TRUE, 
+  stderr  = TRUE,
+  env     = c(paste0("R_LIBS_USER=", r_lib), paste0("R_LIBS_SITE=", r_lib)))
 
 # Find the exact path where fvstools is installed
 pkg_path <- find.package("fvstools", lib.loc = r_lib)
