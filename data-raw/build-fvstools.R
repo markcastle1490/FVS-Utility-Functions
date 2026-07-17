@@ -4,16 +4,18 @@
 
 #Windows
 if(.Platform$OS.type == 'windows'){
-  pkg_root <- OS.typepkg_root <- "C:/FVS_Tools/fvstools"
+  pkg_root <- "C:/FVS_Tools/fvstools"
   build_dir <- "C:/FVS_Tools"
-  r_lib <- "C:/FVS/FVSSoftware/R/R-4.5.0"
+  r_lib <- "C:/FVS/FVSSoftware/R/R-4.5.0/library"
+  r_path    <- "C:/FVS/FVSSoftware/R/R-4.5.0/bin/R.exe" 
 } 
 
 #Linux
 if(.Platform$OS.type == 'unix'){
-  pkg_root <- OS.typepkg_root <- "/home/mark/FVS_Tools/fvstools"
+  pkg_root <- "/home/mark/FVS_Tools/fvstools"
   build_dir <- "/home/mark/FVS_Tools"
   r_lib <- "/home/mark/R/x86_64-pc-linux-gnu-library/4.5"
+  r_path    <- "/home/mark/R/x86_64-pc-linux-gnu-library/4.5/bin/R" 
 }
 
 #Package name
@@ -55,12 +57,15 @@ tarball = tarball[which.max(file.info(tarball)$mtime)]
 # Install the package from the tarball
 #===============================================================================
 
-system(paste(
-  "R CMD INSTALL",
-  shQuote(tarball),
-  "--library=", shQuote(r_lib),
+install_cmd <- paste(
+  shQuote(r_path), # Uses your specific R-4.5.0 installer instead of "R"
+  "CMD INSTALL", 
+  shQuote(tarball), 
+  paste0("--library=", shQuote(r_lib)), 
   "--preclean"
-))
+)
+
+system(install_cmd)
 
 #Reset the directory
 setwd(old_dir)
