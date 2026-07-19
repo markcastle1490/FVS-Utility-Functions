@@ -101,5 +101,3 @@ setwd(old_dir)
 
 #Clean up
 rm(list=ls())
-
-help(roxygenize)
