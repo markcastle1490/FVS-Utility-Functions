@@ -7,7 +7,7 @@
 #attributes in this file can be calculated for custom size ranges (DBH and 
 #total tree height) and desired species.
 #
-#Usage notes:
+#Usage notes:s
 #Although these functions can be called within loops for subsets of data, they 
 #are best used in dplyr or data.table calculation sequences. Below are examples
 #of how one could calculate the following variables in a dplyr and data.table
@@ -197,13 +197,13 @@ ba = function(dbh,
   
   #Get species to include in calculations
   if(!is.null(select_species))
-    species_in <- as.integer(species %in% select_species)
+    species_in <- species %in% select_species
   else
-    species_in <- rep(x = 1L, times = length(species))
+    species_in <- TRUE
   
   #Identify records to include in calculation
   include <- (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
-    (species_in >= 1L)
+    species_in
   
   #Calculate BA over DBH, HT, and species
   ba_ <- sum((dbh^2 * expf * f_con)[include], na.rm = TRUE)
@@ -277,13 +277,13 @@ tpa = function(expf,
   
   #Get species to include in calculations
   if(!is.null(select_species))
-    species_in <- as.integer(species %in% select_species)
+    species_in <- (species %in% select_species) * 1L
   else
-    species_in <- rep(x = 1L, times = length(species))
+    species_in <- TRUE
   
   #Identify records to include in calculation
   include <- (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
-    (species_in >= 1L)
+    species_in
 
   #Calculate TPA Over DBH, HT, and species
   tpa_ <- sum(expf[include], na.rm = TRUE)
@@ -357,13 +357,13 @@ qmd = function(dbh,
 
   #Get species to include in calculations
   if(!is.null(select_species))
-    species_in <- as.integer(species %in% select_species)
+    species_in <- species %in% select_species
   else
-    species_in <- rep(x = 1L, times = length(species))
+    species_in <- TRUE
   
   #Identify records to include in calculation
   include <- (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
-    (species_in >= 1L)
+    species_in
   
   #Calculate QMD over DBH, HT, and species
   dbhsq <- sum((dbh^2*expf)[include], na.rm = TRUE)
@@ -440,13 +440,13 @@ gmd = function(dbh,
   
   #Get species to include in calculations
   if(!is.null(select_species))
-    species_in <- as.integer(species %in% select_species)
+    species_in <- species %in% select_species
   else
-    species_in <- rep(x = 1L, times = length(species))
+    species_in <- TRUE
   
   #Identify records to include in calculation
   include <- (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
-    (species_in >= 1L)
+    species_in
   
   #Calculate Reineke diameter over DBH, HT, and species
   gmd_sum <- sum((expf * dbh^r_slope)[include], na.rm = TRUE)
@@ -643,16 +643,16 @@ lorey_dia = function(dbh,
   
   #Get species to include in calculations
   if(!is.null(select_species))
-    species_in <- as.integer(species %in% select_species)
+    species_in <- species %in% select_species
   else
-    species_in <- rep(x = 1L, times = length(species))
+    species_in <- TRUE
   
   #Calculate treeba
   treeba <- dbh^2 * expf * f_con 
   
   #Identify records to include in calculation
   include <- (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
-    (species_in >= 1L)
+    species_in
   
   #Calculate Lorey diameter over DBH, HT, and species
   dbhsum <- sum((dbh * treeba)[include], na.rm = TRUE)
@@ -766,9 +766,9 @@ rsdi_stage = function(dbh,
   
   #Get species to include in calculations
   if(!is.null(select_species))
-    species_in <- as.integer(species %in% select_species)
+    species_in <- species %in% select_species
   else
-    species_in <- rep(x = 1L, times = length(species))
+    species_in <- TRUE
 
   #Calculate stand level tpa and dbhsq.
   stand_tpa <- sum(expf)
@@ -788,7 +788,7 @@ rsdi_stage = function(dbh,
     
     #Identify records to include in calculation
     include <- (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
-      (species_in >= 1L)
+      species_in
     
     #Calculate RSDI over DBH, HT, and species
     rsdi_ <- sum((a * expf + b * dbh^2 * expf)[include], na.rm = TRUE)
@@ -863,13 +863,13 @@ zsdi = function(dbh,
 
   #Get species to include in calculations
   if(!is.null(select_species))
-    species_in <- as.integer(species %in% select_species)
+    species_in <- species %in% select_species
   else
-    species_in <- rep(x = 1L, times = length(species))
+    species_in <- TRUE
   
   #Identify records to include in calculation
   include <- (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
-    (species_in >= 1L)
+    species_in
   
   #Calculate ZSDI over DBH, HT, and species
   zsdi_ <- sum(((dbh/10)^r_slope * expf)[include], na.rm = TRUE)
@@ -947,13 +947,13 @@ cc = function(crwidth,
   
   #Get species to include in calculations
   if(!is.null(select_species))
-    species_in <- as.integer(species %in% select_species)
+    species_in <- species %in% select_species
   else
-    species_in <- rep(x = 1L, times = length(species))
+    species_in <- TRUE
   
   #Identify records to include in calculation
   include <- (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
-    (species_in >= 1L)
+    species_in
   
   #Calculate CC over DBH, HT, and species
   cc_ <- sum((((crwidth/2)^2) * (expf/43560) * pi * 100)[include], na.rm = TRUE)
@@ -1129,16 +1129,16 @@ lorey_ht = function(dbh,
   
   #Get species to include in calculations
   if(!is.null(select_species))
-    species_in <- as.integer(species %in% select_species)
+    species_in <- species %in% select_species
   else
-    species_in <- rep(x = 1L, times = length(species))
+    species_in <- TRUE
   
   #Calculate treeba
   treeba <- dbh^2 * expf * f_con 
   
   #Identify records to include in calculation
   include <- (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
-    (species_in >= 1L)
+    species_in
   
   #Calculate Lorey height over DBH, HT, and species
   htsum <- sum((ht * treeba)[include], na.rm = TRUE)
@@ -1322,13 +1322,13 @@ mean_attr = function(attr,
   
   #Get species to include in calculations
   if(!is.null(select_species))
-    species_in <- as.integer(species %in% select_species)
+    species_in <- species %in% select_species
   else
-    species_in <- rep(x = 1L, times = length(species))
+    species_in <- TRUE
   
   #Identify records to include in calculation
   include <- (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
-    (species_in >= 1L)
+    species_in
 
   #Calculate mean
   mean_attr_ <- weighted.mean(x = attr[include], 
@@ -1410,13 +1410,13 @@ expand_attr = function(attr,
   
   #Get species to include in calculations
   if(!is.null(select_species))
-    species_in <- as.integer(species %in% select_species)
+    species_in <- species %in% select_species
   else
-    species_in <- rep(x = 1L, times = length(species))
+    species_in <- TRUE
   
   #Identify records to include in calculation
   include <- (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
-    (species_in >= 1L)
+    species_in
   
   #Expand attr over DBH, HT, and species
   expand_attr_ <- sum((attr * expf)[include], na.rm = TRUE)
@@ -1488,13 +1488,13 @@ min_attr = function(attr,
   
   #Get species to include in calculations
   if(!is.null(select_species))
-    species_in <- as.integer(species %in% select_species)
+    species_in <- species %in% select_species
   else
-    species_in <- rep(x = 1L, times = length(species))
+    species_in <- TRUE
   
   #Identify records to include in calculation
   include <- (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
-    (species_in >= 1L) & !is.na(attr)
+    species_in & !is.na(attr)
   
   #Find minimum over DBH, HT, and species
   if(any(include))
@@ -1567,13 +1567,13 @@ max_attr = function(attr,
   
   #Get species to include in calculations
   if(!is.null(select_species))
-    species_in <- as.integer(species %in% select_species)
+    species_in <- species %in% select_species
   else
-    species_in <- rep(x = 1L, times = length(species))
+    species_in <- TRUE
   
   #Identify records to include in calculation
   include <- (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
-    (species_in >= 1L) & !is.na(attr)
+    species_in & !is.na(attr)
   
   #Find maximum over DBH, HT, and species
   if(any(include))
@@ -1642,13 +1642,13 @@ count_rec = function(dbh,
   
   #Get species to include in calculations
   if(!is.null(select_species))
-    species_in <- as.integer(species %in% select_species)
+    species_in <- species %in% select_species
   else
-    species_in <- rep(x = 1L, times = length(species))
+    species_in <- TRUE
   
   #Identify records to include in calculation
   include <- (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
-    (species_in >= 1L)
+    species_in
   
   #Count over DBH, ht, and species
   count_ <- sum(include, na.rm = TRUE)
@@ -1732,9 +1732,9 @@ ba_f = function(dbh,
   
   #Get species to include in calculations
   if(!is.null(select_species))
-    species_in <- as.integer(species %in% select_species)
+    species_in <- (species %in% select_species) * 1L
   else
-    species_in <- rep(x = 1L, times = ntree)
+    species_in <- integer(ntree) + 1L
 
   #Call the ba subroutine
   ba_ <- dotCall64::.C64(
@@ -1831,9 +1831,9 @@ tpa_f = function(expf,
   
   #Get species to include in calculations
   if(!is.null(select_species))
-    species_in <- as.integer(species %in% select_species)
+    species_in <- (species %in% select_species) * 1L
   else
-    species_in <- rep(x = 1L, times = ntree)
+    species_in <- integer(ntree) + 1L
 
   #Call the tpa subroutine
   tpa_ <- dotCall64::.C64(
@@ -1929,9 +1929,9 @@ qmd_f = function(dbh,
   
   #Get species to include in calculations
   if(!is.null(select_species))
-    species_in <- as.integer(species %in% select_species)
+    species_in <- (species %in% select_species) * 1L
   else
-    species_in <- rep(x = 1L, times = ntree)
+    species_in <- integer(ntree) + 1L
 
   #Call the qmd subroutine
   qmd_ <- dotCall64::.C64(
@@ -2028,9 +2028,9 @@ gmd_f = function(dbh,
   
   #Get species to include in calculations
   if(!is.null(select_species))
-    species_in <- as.integer(species %in% select_species)
+    species_in <- (species %in% select_species) * 1L
   else
-    species_in <- rep(x = 1L, times = ntree)
+    species_in <- integer(ntree) + 1L
   
   #Call the gmd subroutine
   gmd_ <- dotCall64::.C64(
@@ -2127,9 +2127,9 @@ lorey_dia_f = function(dbh,
   
   #Get species to include in calculations
   if(!is.null(select_species))
-    species_in <- as.integer(species %in% select_species)
+    species_in <- (species %in% select_species) * 1L
   else
-    species_in <- rep(x = 1L, times = ntree)
+    species_in <- integer(ntree) + 1L
   
   #Call the lorey_dia subroutine
   lorey_dia_ <- dotCall64::.C64(
@@ -2311,9 +2311,9 @@ rsdi_stage_f = function(dbh,
   
   #Get species to include in calculations
   if(!is.null(select_species))
-    species_in <- as.integer(species %in% select_species)
+    species_in <- (species %in% select_species) * 1L
   else
-    species_in <- rep(x = 1L, times = ntree)
+    species_in <- integer(ntree) + 1L
   
   #Call the rsdi_stage subroutine
   rsdi_stage_ <- dotCall64::.C64(
@@ -2410,9 +2410,9 @@ zsdi_f = function(dbh,
   
   #Get species to include in calculations
   if(!is.null(select_species))
-    species_in <- as.integer(species %in% select_species)
+    species_in <- (species %in% select_species) * 1L
   else
-    species_in <- rep(x = 1L, times = ntree)
+    species_in <- integer(ntree) + 1L
   
   #Call the zsdi subroutine
   zsdi_ <- dotCall64::.C64(
@@ -2515,9 +2515,9 @@ cc_f = function(crwidth,
   
   #Get species to include in calculations
   if(!is.null(select_species))
-    species_in <- as.integer(species %in% select_species)
+    species_in <- (species %in% select_species) * 1L
   else
-    species_in <- rep(x = 1L, times = ntree)
+    species_in <- integer(ntree) + 1L
   
   #Call the cc subroutine
   cc_ <- dotCall64::.C64(
@@ -2615,9 +2615,9 @@ lorey_ht_f = function(dbh,
   
   #Get species to include in calculations
   if(!is.null(select_species))
-    species_in <- as.integer(species %in% select_species)
+    species_in <- (species %in% select_species) * 1L
   else
-    species_in <- rep(x = 1L, times = ntree)
+    species_in <- integer(ntree) + 1L
   
   #Call the lorey_ht subroutine
   lorey_ht_ <- dotCall64::.C64(
@@ -2860,9 +2860,9 @@ mean_attr_f = function(attr,
   
   #Get species to include in calculations
   if(!is.null(select_species))
-    species_in <- as.integer(species %in% select_species)
+    species_in <- (species %in% select_species) * 1L
   else
-    species_in <- rep(x = 1L, times = ntree)
+    species_in <- integer(ntree) + 1L
 
   #Call the mean_attr subroutine
   mean_attr_ <- dotCall64::.C64(
@@ -2967,9 +2967,9 @@ expand_attr_f = function(attr,
   
   #Get species to include in calculations
   if(!is.null(select_species))
-    species_in <- as.integer(species %in% select_species)
+    species_in <- (species %in% select_species) * 1L
   else
-    species_in <- rep(x = 1L, times = ntree)
+    species_in <- integer(ntree) + 1L
 
   #Call the expand_attr subroutine
   expand_attr_ <- dotCall64::.C64(
@@ -3062,9 +3062,9 @@ count_rec_f = function(dbh,
   
   #Get species to include in calculations
   if(!is.null(select_species))
-    species_in <- as.integer(species %in% select_species)
+    species_in <- (species %in% select_species) * 1L
   else
-    species_in <- rep(x = 1L, times = ntree)
+    species_in <- integer(ntree) + 1L
 
   #Call the count_attr subroutine
   count_ <- dotCall64::.C64(
@@ -3159,9 +3159,9 @@ min_attr_f = function(attr,
   
   #Get species to include in calculations
   if(!is.null(select_species))
-    species_in <- as.integer(species %in% select_species)
+    species_in <- (species %in% select_species) * 1L
   else
-    species_in <- rep(x = 1L, times = ntree)
+    species_in <- integer(ntree) + 1L
 
   #Call the min_attr subroutine
   min_attr_ <- dotCall64::.C64(
@@ -3257,9 +3257,9 @@ max_attr_f = function(attr,
   
   #Get species to include in calculations
   if(!is.null(select_species))
-    species_in <- as.integer(species %in% select_species)
+    species_in <- (species %in% select_species) * 1L
   else
-    species_in <- rep(x = 1L, times = ntree)
+    species_in <- integer(ntree) + 1L
 
   #Call the max_attr subroutine
   max_attr_ <- dotCall64::.C64(
