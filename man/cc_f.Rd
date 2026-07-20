@@ -5,11 +5,11 @@
 \title{cc_f}
 \usage{
 cc_f(
-  crwidth = NULL,
-  expf = NULL,
-  dbh = NULL,
-  ht = NULL,
-  species = NULL,
+  crwidth,
+  expf,
+  dbh,
+  ht,
+  species,
   dbhmin = 0,
   dbhmax = 999,
   htmin = 0,

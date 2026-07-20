@@ -175,11 +175,11 @@ fia_fitdb <- function(dbin = NULL,
                TDIA = data.table::fifelse(STATUSCD == 2, 0.0, DIA))]   
   
   #.by statement can change based on how plot variables should be calculated
-  tree[, ':=' (BA = ba(dbh = TDIA, expf = TEXPF),
-               TPA = tpa(expf = TEXPF),
-               QMD = qmd(dbh = TDIA, expf = TEXPF),
-               RSDI = rsdi_stage(dbh = TDIA, expf = TEXPF),
-               ZSDI = zsdi(dbh = TDIA, expf = TEXPF),
+  tree[, ':=' (BA = ba(dbh = TDIA, expf = TEXPF, species = SPCD, ht = HT),
+               TPA = tpa(expf = TEXPF, dbh = TDIA, species = SPCD, ht = HT),
+               QMD = qmd(dbh = TDIA, expf = TEXPF, species = SPCD, ht = HT),
+               RSDI = rsdi_stage(dbh = TDIA, expf = TEXPF, species = SPCD, ht = HT),
+               ZSDI = zsdi(dbh = TDIA, expf = TEXPF, species = SPCD, ht = HT),
                BAL = bal(dbh = TDIA, expf = TEXPF)),
         by = .(STATECD, INVYR, UNITCD, COUNTYCD, PLOT)]
   

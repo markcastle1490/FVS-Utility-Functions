@@ -5,10 +5,10 @@
 \title{tpa_f}
 \usage{
 tpa_f(
-  expf = NULL,
-  dbh = NULL,
-  ht = NULL,
-  species = NULL,
+  expf,
+  dbh,
+  ht,
+  species,
   dbhmin = 0,
   dbhmax = 999,
   htmin = 0,

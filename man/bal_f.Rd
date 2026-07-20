@@ -4,7 +4,7 @@
 \alias{bal_f}
 \title{bal_f}
 \usage{
-bal_f(dbh = NULL, expf = NULL, handle_ties = 0, naok = FALSE)
+bal_f(dbh, expf, handle_ties = 0, naok = FALSE)
 }
 \arguments{
 \item{dbh}{Numeric vector containing diameter values.}

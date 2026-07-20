@@ -5,10 +5,10 @@
 \title{lorey_ht}
 \usage{
 lorey_ht(
-  dbh = NULL,
-  ht = NULL,
-  expf = NULL,
-  species = NULL,
+  dbh,
+  ht,
+  expf,
+  species,
   dbhmin = 0,
   dbhmax = 999,
   htmin = 0,

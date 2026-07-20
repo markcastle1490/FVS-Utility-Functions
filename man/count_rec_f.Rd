@@ -5,9 +5,9 @@
 \title{count_rec_f}
 \usage{
 count_rec_f(
-  dbh = NULL,
-  ht = NULL,
-  species = NULL,
+  dbh,
+  ht,
+  species,
   dbhmin = 0,
   dbhmax = 999,
   htmin = 0,

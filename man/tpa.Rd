@@ -5,10 +5,10 @@
 \title{tpa}
 \usage{
 tpa(
-  expf = NULL,
-  dbh = NULL,
-  ht = NULL,
-  species = NULL,
+  expf,
+  dbh,
+  ht,
+  species,
   dbhmin = 0,
   dbhmax = 999,
   htmin = 0,

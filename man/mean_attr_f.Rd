@@ -5,11 +5,11 @@
 \title{mean_attr_f}
 \usage{
 mean_attr_f(
-  attr = NULL,
+  attr,
   weight = NULL,
-  dbh = NULL,
-  ht = NULL,
-  species = NULL,
+  dbh,
+  ht,
+  species,
   dbhmin = 0,
   dbhmax = 999,
   htmin = 0,

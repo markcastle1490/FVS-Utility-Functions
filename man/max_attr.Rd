@@ -5,10 +5,10 @@
 \title{max_attr}
 \usage{
 max_attr(
-  attr = NULL,
-  dbh = NULL,
-  ht = NULL,
-  species = NULL,
+  attr,
+  dbh,
+  ht,
+  species,
   dbhmin = 0,
   dbhmax = 999,
   htmin = 0,

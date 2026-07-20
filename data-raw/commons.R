@@ -5,9 +5,13 @@
 #functions in the fvstools package.
 ################################################################################
 
-root <- "/home/mark/FVS_Tools/fvstools"
+if(.Platform$OS.type == 'windows') root <- "C:/FVS_Tools/fvstools"
+if(.Platform$OS.type == 'unix') root <- "/home/mark/FVS_Tools/fvstools"
 data_raw <- file.path(root, "data-raw")
 sysdata  <- file.path(root, "R")
+
+f_con <- 0.005454154
+r_slope <- 1.605
 
 variants <- c(
   "AK","BM","CA","CI","CR","CS","EC","EM","IE","KT",
@@ -44,6 +48,8 @@ pvcode_reg_list <- readRDS(file.path(data_raw, "pvcode_reg_list.rds"))
 pvref_list <- readRDS(file.path(data_raw, "pvref_list.rds"))
 
 save(
+  f_con,
+  r_slope,
   variants,
   fvs_species,
   fvs_locs,

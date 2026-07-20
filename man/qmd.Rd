@@ -5,10 +5,10 @@
 \title{qmd}
 \usage{
 qmd(
-  dbh = NULL,
-  expf = NULL,
-  ht = NULL,
-  species = NULL,
+  dbh,
+  expf,
+  ht,
+  species,
   dbhmin = 0,
   dbhmax = 999,
   htmin = 0,

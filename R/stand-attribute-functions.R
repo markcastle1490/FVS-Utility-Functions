@@ -41,10 +41,6 @@
 #SpeciesFVS are variables within the tree dataframe.
 ################################################################################
 
-#Constants for calculations
-f_con <- 0.005454154
-r_slope <- 1.605
-
 ################################################################################
 #' valid_vectors
 #' 
@@ -186,10 +182,10 @@ unequal_vector = function(...)
 ################################################################################
 
 #'@export
-ba = function(dbh = NULL,
-              expf = NULL,
-              ht = NULL,
-              species = NULL,
+ba = function(dbh,
+              expf,
+              ht,
+              species,
               dbhmin = 0,
               dbhmax = 999,
               htmin = 0,
@@ -198,9 +194,6 @@ ba = function(dbh = NULL,
 {
   
   ba_ <- 0
-  
-  #Exit if input vectors are invalid
-  if(!valid_vectors(dbh, expf, ht, species)) return(ba_)
   
   #Get species to include in calculations
   if(!is.null(select_species))
@@ -269,10 +262,10 @@ ba = function(dbh = NULL,
 #' @export
 ################################################################################
 
-tpa = function(expf = NULL,
-               dbh = NULL,
-               ht = NULL,
-               species = NULL,
+tpa = function(expf,
+               dbh,
+               ht,
+               species,
                dbhmin = 0,
                dbhmax = 999,
                htmin = 0,
@@ -281,9 +274,6 @@ tpa = function(expf = NULL,
 {
   
   tpa_ <- 0
-  
-  #Exit if input vectors are invalid
-  if(!valid_vectors(expf, dbh, ht, species)) return(tpa_)
   
   #Get species to include in calculations
   if(!is.null(select_species))
@@ -352,10 +342,10 @@ tpa = function(expf = NULL,
 #' @export
 ################################################################################
 
-qmd = function(dbh = NULL,
-               expf = NULL,
-               ht = NULL,
-               species = NULL,
+qmd = function(dbh,
+               expf,
+               ht,
+               species,
                dbhmin = 0,
                dbhmax = 999,
                htmin = 0,
@@ -364,9 +354,6 @@ qmd = function(dbh = NULL,
 {
   
   qmd_ <- 0
-  
-  #Exit if input vectors are invalid
-  if(!valid_vectors(dbh, expf, ht, species)) return(qmd_)
 
   #Get species to include in calculations
   if(!is.null(select_species))
@@ -438,10 +425,10 @@ qmd = function(dbh = NULL,
 ################################################################################
 
 #'@export
-gmd = function(dbh = NULL,
-               expf = NULL,
-               ht = NULL,
-               species = NULL,
+gmd = function(dbh,
+               expf,
+               ht,
+               species,
                dbhmin = 0,
                dbhmax = 999,
                htmin = 0,
@@ -450,9 +437,6 @@ gmd = function(dbh = NULL,
 {
   
   gmd_ <- 0
-  
-  #Exit if input vectors are invalid
-  if(!valid_vectors(dbh, expf, ht, species)) return(gmd_)
   
   #Get species to include in calculations
   if(!is.null(select_species))
@@ -511,17 +495,14 @@ gmd = function(dbh = NULL,
 #' @export
 ################################################################################
 
-top_dia = function(dbh = NULL,
-                   expf = NULL,
+top_dia = function(dbh,
+                   expf,
                    top_tpa = 40,
                    top_per = NULL,
                    dia_type = 1)
 {
   #Initialize top_dia_
   top_dia_ <- 0
-  
-  #Exit if vectors are invalid
-  if(!valid_vectors(dbh, expf)) return(top_dia_)
   
   #Validate top_tpa
   if(is.null(top_tpa) || top_tpa < 0) top_tpa <- 40
@@ -647,10 +628,10 @@ top_dia = function(dbh = NULL,
 #' @export
 ################################################################################
 
-lorey_dia = function(dbh = NULL,
-                     expf = NULL,
-                     ht = NULL,
-                     species = NULL,
+lorey_dia = function(dbh,
+                     expf,
+                     ht,
+                     species,
                      dbhmin = 0,
                      dbhmax = 999,
                      htmin = 0,
@@ -659,9 +640,6 @@ lorey_dia = function(dbh = NULL,
 {
   
   lorey_dia_ <- 0
-  
-  #Exit if vectors are invalid
-  if(!valid_vectors(dbh, expf, ht, species)) return(lorey_dia_)
   
   #Get species to include in calculations
   if(!is.null(select_species))
@@ -706,7 +684,7 @@ lorey_dia = function(dbh = NULL,
 #' @export
 ################################################################################
 
-rsdi = function(dbh = NULL,
+rsdi = function(dbh,
                 expf = NULL)
 {
   #Calculate TPA
@@ -774,10 +752,10 @@ rsdi = function(dbh = NULL,
 #' @export
 ################################################################################
 
-rsdi_stage = function(dbh = NULL,
-                     expf = NULL,
-                     ht = NULL,
-                     species = NULL,
+rsdi_stage = function(dbh,
+                     expf,
+                     ht,
+                     species,
                      dbhmin = 0,
                      dbhmax = 999,
                      htmin = 0,
@@ -785,9 +763,6 @@ rsdi_stage = function(dbh = NULL,
                      select_species = NULL)
 {
   rsdi_ <- 0
-  
-#Exit if vectors are invalid
-  if(!valid_vectors(dbh, expf, ht, species)) return(rsdi_)
   
   #Get species to include in calculations
   if(!is.null(select_species))
@@ -803,8 +778,13 @@ rsdi_stage = function(dbh = NULL,
   if(stand_tpa > 0)
   {
     #Initialize a and b parameters
-    a <- 10^(-r_slope) * (1-(r_slope/2)) * (dbhsq/stand_tpa)^(r_slope/2)
-    b <- 10^(-r_slope) * (r_slope/2) * (dbhsq/stand_tpa)^(r_slope/2 - 1)
+    a <- 10^(-r_slope) * 
+      (1-(r_slope/2)) * 
+      (dbhsq/stand_tpa)^(r_slope/2)
+    
+    b <- 10^(-r_slope) * 
+      (r_slope/2) * 
+      (dbhsq/stand_tpa)^(r_slope/2 - 1)
     
     #Identify records to include in calculation
     include <- (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
@@ -868,10 +848,10 @@ rsdi_stage = function(dbh = NULL,
 #' @export
 ################################################################################
 
-zsdi = function(dbh = NULL,
-                expf = NULL,
-                ht = NULL,
-                species = NULL,
+zsdi = function(dbh,
+                expf,
+                ht,
+                species,
                 dbhmin = 0,
                 dbhmax = 999,
                 htmin = 0,
@@ -880,9 +860,6 @@ zsdi = function(dbh = NULL,
 {
   
   zsdi_ <- 0
-  
-  #Exit if vectors are invalid
-  if(!valid_vectors(dbh, expf, ht, species)) return(zsdi_)
 
   #Get species to include in calculations
   if(!is.null(select_species))
@@ -955,11 +932,11 @@ zsdi = function(dbh = NULL,
 #' @export
 ################################################################################
 
-cc = function(crwidth = NULL,
-              expf = NULL,
-              dbh = NULL,
-              ht = NULL,
-              species = NULL,
+cc = function(crwidth,
+              expf,
+              dbh,
+              ht,
+              species,
               dbhmin = 0,
               dbhmax = 999,
               htmin = 0,
@@ -967,9 +944,6 @@ cc = function(crwidth = NULL,
               select_species = NULL)
 {
   cc_ <- 0
-  
-  #Exit if vectors are invalid
-  if(!valid_vectors(crwidth, expf, dbh, ht, species)) return(cc_)
   
   #Get species to include in calculations
   if(!is.null(select_species))
@@ -1051,13 +1025,10 @@ correct_cc = function(cc = 0)
 #' @export
 ################################################################################
 
-bal = function(dbh = NULL,
-               expf = NULL,
+bal = function(dbh,
+               expf,
                handle_ties = FALSE)
 {
-  #Return if dbh or expf is NULL or not of equal length
-  if(!valid_vectors(dbh, expf)) return(numeric(0))
-  
   #Get indices of sorted DBH in descending order
   dbh_order <- order(-dbh)
   
@@ -1143,10 +1114,10 @@ bal = function(dbh = NULL,
 ################################################################################
 
 #'@export
-lorey_ht = function(dbh = NULL,
-                    ht = NULL,
-                    expf = NULL,
-                    species = NULL,
+lorey_ht = function(dbh,
+                    ht,
+                    expf,
+                    species,
                     dbhmin = 0,
                     dbhmax = 999,
                     htmin = 0,
@@ -1155,9 +1126,6 @@ lorey_ht = function(dbh = NULL,
 {
   
   lorey_ht_ <- 0
-  
-#Exit if vectors are invalid
-  if(!valid_vectors(dbh, ht, expf, species)) return(lorey_ht_)
   
   #Get species to include in calculations
   if(!is.null(select_species))
@@ -1215,17 +1183,14 @@ lorey_ht = function(dbh = NULL,
 #' @export
 ################################################################################
 
-top_ht = function(dbh = NULL,
-                  expf = NULL,
-                  ht = NULL,
+top_ht = function(dbh,
+                  expf,
+                  ht,
                   top_tpa = 40,
                   top_per = NULL)
 {
   #Initialize top_ht_
   top_ht_ <- 0
-  
-  #Exit if vectors are invalid
-  if(!valid_vectors(dbh, expf, ht)) return(top_ht_)
   
   #Validate top_tpa
   if(is.null(top_tpa) || top_tpa < 0) top_tpa <- 40
@@ -1338,11 +1303,11 @@ top_ht = function(dbh = NULL,
 #' @export
 ################################################################################
 
-mean_attr = function(attr = NULL,
+mean_attr = function(attr,
                      weight = NULL,
-                     dbh = NULL,
-                     ht = NULL,
-                     species = NULL,
+                     dbh,
+                     ht,
+                     species,
                      dbhmin = 0,
                      dbhmax = 999,
                      htmin = 0,
@@ -1350,9 +1315,6 @@ mean_attr = function(attr = NULL,
                      select_species = NULL)
 {
   mean_attr_ <- 0
-  
-#Exit if vectors are invalid
-  if(!valid_vectors(attr, dbh, ht, species)) return(mean_attr_)
   
   #Assign weight of 1 if NULL or not equal to attr
   if(is.null(weight) || length(weight) != length(attr)) 
@@ -1432,11 +1394,11 @@ mean_attr = function(attr = NULL,
 ################################################################################
 
 #'@export
-expand_attr = function(attr = NULL,
-                       expf = NULL,
-                       dbh = NULL,
-                       ht = NULL,
-                       species = NULL,
+expand_attr = function(attr,
+                       expf,
+                       dbh,
+                       ht,
+                       species,
                        dbhmin = 0,
                        dbhmax = 999,
                        htmin = 0,
@@ -1445,9 +1407,6 @@ expand_attr = function(attr = NULL,
 {
   
   expand_attr_ <- 0
-  
-  #Exit if vectors are invalid
-  if(!valid_vectors(attr, expf, dbh, ht, species)) return(expand_attr_)
   
   #Get species to include in calculations
   if(!is.null(select_species))
@@ -1514,10 +1473,10 @@ expand_attr = function(attr = NULL,
 #' @export
 ################################################################################
 
-min_attr = function(attr = NULL,
-                    dbh = NULL,
-                    ht = NULL,
-                    species = NULL,
+min_attr = function(attr,
+                    dbh,
+                    ht,
+                    species,
                     dbhmin = 0,
                     dbhmax = 999,
                     htmin = 0,
@@ -1526,9 +1485,6 @@ min_attr = function(attr = NULL,
 {
   
   min_attr_ <- 0
-  
-  #Exit if vectors are invalid
-  if(!valid_vectors(attr, dbh, ht, species)) return(min_attr_)
   
   #Get species to include in calculations
   if(!is.null(select_species))
@@ -1596,10 +1552,10 @@ min_attr = function(attr = NULL,
 #' @export
 ################################################################################
 
-max_attr = function(attr = NULL,
-                    dbh = NULL,
-                    ht = NULL,
-                    species = NULL,
+max_attr = function(attr,
+                    dbh,
+                    ht,
+                    species,
                     dbhmin = 0,
                     dbhmax = 999,
                     htmin = 0,
@@ -1608,9 +1564,6 @@ max_attr = function(attr = NULL,
 {
   
   max_attr_ <- 0
-  
-#Exit if vectors are invalid
-  if(!valid_vectors(attr, dbh, ht, species)) return(max_attr_)
   
   #Get species to include in calculations
   if(!is.null(select_species))
@@ -1675,9 +1628,9 @@ max_attr = function(attr = NULL,
 #' @export
 ################################################################################
 
-count_rec = function(dbh = NULL,
-                      ht = NULL,
-                      species = NULL,
+count_rec = function(dbh,
+                      ht,
+                      species,
                       dbhmin = 0,
                       dbhmax = 999,
                       htmin = 0,
@@ -1686,9 +1639,6 @@ count_rec = function(dbh = NULL,
 {
   
   count_ <- 0
-  
-  #Exit if vectors are invalid
-  if(!valid_vectors(dbh, ht, species)) return(count_)
   
   #Get species to include in calculations
   if(!is.null(select_species))
@@ -1762,10 +1712,10 @@ count_rec = function(dbh = NULL,
 #' @export
 ################################################################################
 
-ba_f = function(dbh = NULL,
-                expf = NULL,
-                ht = NULL,
-                species = NULL,
+ba_f = function(dbh,
+                expf,
+                ht,
+                species,
                 dbhmin = 0,
                 dbhmax = 999,
                 htmin = 0,
@@ -1776,9 +1726,6 @@ ba_f = function(dbh = NULL,
 {
   
   ba_ <- 0
-  
-  #Exit if input vectors are invalid
-  if(!valid_vectors(dbh, expf, ht, species)) return(ba_)
   
   #Get number of trees
   ntree <- length(expf)
@@ -1865,10 +1812,10 @@ ba_f = function(dbh = NULL,
 #' @export
 ################################################################################
 
-tpa_f = function(expf = NULL,
-               dbh = NULL,
-               ht = NULL,
-               species = NULL,
+tpa_f = function(expf,
+               dbh,
+               ht,
+               species,
                dbhmin = 0,
                dbhmax = 999,
                htmin = 0,
@@ -1878,9 +1825,6 @@ tpa_f = function(expf = NULL,
 {
   
   tpa_ <- 0
-  
-  #Exit if input vectors are invalid
-  if(!valid_vectors(dbh, expf, ht, species)) return(tpa_)
   
   #Get number of trees
   ntree <- length(expf)
@@ -1967,10 +1911,10 @@ tpa_f = function(expf = NULL,
 #' @export
 ################################################################################
 
-qmd_f = function(dbh = NULL,
-               expf = NULL,
-               ht = NULL,
-               species = NULL,
+qmd_f = function(dbh,
+               expf,
+               ht,
+               species,
                dbhmin = 0,
                dbhmax = 999,
                htmin = 0,
@@ -1979,9 +1923,6 @@ qmd_f = function(dbh = NULL,
                naok = FALSE)
 {
   qmd_ <- 0
-  
-  #Exit if vectors are invalid
-  if(!valid_vectors(dbh, expf, ht, species)) return(qmd_)
   
   #Get number of trees
   ntree <- length(expf)
@@ -2068,10 +2009,10 @@ qmd_f = function(dbh = NULL,
 #' @export
 ################################################################################
 
-gmd_f = function(dbh = NULL,
-               expf = NULL,
-               ht = NULL,
-               species = NULL,
+gmd_f = function(dbh,
+               expf,
+               ht,
+               species,
                dbhmin = 0,
                dbhmax = 999,
                htmin = 0,
@@ -2081,9 +2022,6 @@ gmd_f = function(dbh = NULL,
 {
   
   gmd_ <- 0
-  
-  #Exit if vectors are invalid
-  if(!valid_vectors(dbh, expf, ht, species)) return(gmd_)
   
   #Get number of trees
   ntree <- length(expf)
@@ -2170,10 +2108,10 @@ gmd_f = function(dbh = NULL,
 #' @export
 ################################################################################
 
-lorey_dia_f = function(dbh = NULL,
-                     expf = NULL,
-                     ht = NULL,
-                     species = NULL,
+lorey_dia_f = function(dbh,
+                     expf,
+                     ht,
+                     species,
                      dbhmin = 0,
                      dbhmax = 999,
                      htmin = 0,
@@ -2183,9 +2121,6 @@ lorey_dia_f = function(dbh = NULL,
 {
   
   lorey_dia_ <- 0
-  
-  #Exit if vectors are invalid
-  if(!valid_vectors(dbh, expf, ht, species)) return(lorey_dia_)
   
   #Get number of trees
   ntree <- length(expf)
@@ -2261,8 +2196,8 @@ lorey_dia_f = function(dbh = NULL,
 ################################################################################
 
 #'@export
-top_dia_f = function(dbh = NULL,
-                    expf = NULL,
+top_dia_f = function(dbh,
+                    expf,
                     top_tpa = 40,
                     top_per = 0,
                     dia_type = 1,
@@ -2270,9 +2205,6 @@ top_dia_f = function(dbh = NULL,
 {
   #Initialize top_dia_
   top_dia_ <- 0
-  
-  #Exit if vectors are invalid
-  if(!valid_vectors(dbh, expf)) return(top_dia_)
   
   #Validate dia_type
   if(!dia_type %in% c(1, 2, 3)) dia_type <- 1
@@ -2361,10 +2293,10 @@ top_dia_f = function(dbh = NULL,
 #' @export
 ################################################################################
 
-rsdi_stage_f = function(dbh = NULL,
-                     expf = NULL,
-                     ht = NULL,
-                     species = NULL,
+rsdi_stage_f = function(dbh,
+                     expf,
+                     ht,
+                     species,
                      dbhmin = 0,
                      dbhmax = 999,
                      htmin = 0,
@@ -2373,9 +2305,6 @@ rsdi_stage_f = function(dbh = NULL,
                      naok = FALSE)
 {
   rsdi_ <- 0
-  
-  #Exit if vectors are invalid
-  if(!valid_vectors(dbh, expf, ht, species)) return(rsdi_)
   
   #Get number of trees
   ntree <- length(expf)
@@ -2462,10 +2391,10 @@ rsdi_stage_f = function(dbh = NULL,
 #' @export
 ################################################################################
 
-zsdi_f = function(dbh = NULL,
-                expf = NULL,
-                ht = NULL,
-                species = NULL,
+zsdi_f = function(dbh,
+                expf,
+                ht,
+                species,
                 dbhmin = 0,
                 dbhmax = 999,
                 htmin = 0,
@@ -2475,9 +2404,6 @@ zsdi_f = function(dbh = NULL,
 {
   
   zsdi_ <- 0
-  
-  #Exit if vectors are invalid
-  if(!valid_vectors(dbh, expf, ht, species)) return(zsdi_)
   
   #Get number of trees
   ntree <- length(expf)
@@ -2570,11 +2496,11 @@ zsdi_f = function(dbh = NULL,
 ################################################################################
 
 #'@export
-cc_f = function(crwidth = NULL,
-              expf = NULL,
-              dbh = NULL,
-              ht = NULL,
-              species = NULL,
+cc_f = function(crwidth,
+              expf,
+              dbh,
+              ht,
+              species,
               dbhmin = 0,
               dbhmax = 999,
               htmin = 0,
@@ -2583,9 +2509,6 @@ cc_f = function(crwidth = NULL,
               naok = FALSE)
 {
   cc_ <- 0
-  
-  #Exit if vectors are invalid
-  if(!valid_vectors(crwidth, expf, dbh, ht, species)) return(cc_)
   
   #Get number of trees
   ntree <- length(expf)
@@ -2673,10 +2596,10 @@ cc_f = function(crwidth = NULL,
 #' @export
 ################################################################################
 
-lorey_ht_f = function(dbh = NULL,
-                    ht = NULL,
-                    expf = NULL,
-                    species = NULL,
+lorey_ht_f = function(dbh,
+                    ht,
+                    expf,
+                    species,
                     dbhmin = 0,
                     dbhmax = 999,
                     htmin = 0,
@@ -2686,9 +2609,6 @@ lorey_ht_f = function(dbh = NULL,
 {
   
   lorey_ht_ <- 0
-  
-  #Exit if vectors are invalid
-  if(!valid_vectors(dbh, ht, expf, species)) return(lorey_ht_)
   
   #Get number of trees
   ntree <- length(expf)
@@ -2759,18 +2679,15 @@ lorey_ht_f = function(dbh = NULL,
 #' @export
 ################################################################################
 
-top_ht_f = function(dbh = NULL,
-                  expf = NULL,
-                  ht = NULL,
+top_ht_f = function(dbh,
+                  expf,
+                  ht,
                   top_tpa = 40,
                   top_per = 0,
                   naok = FALSE)
 {
   #Initialize top_ht_
   top_ht_ <- 0
-  
-  #Exit if vectors are invalid
-  if(!valid_vectors(dbh, expf, ht)) return(top_ht_)
   
   #Get order of DBH values in descending order
   dbh_order <- order(-dbh)
@@ -2831,14 +2748,11 @@ top_ht_f = function(dbh = NULL,
 #' @export
 ################################################################################
 
-bal_f = function(dbh = NULL,
-                 expf = NULL,
+bal_f = function(dbh,
+                 expf,
                  handle_ties = 0,
                  naok = FALSE)
 {
-  #Return if dbh or expf is NULL or not of equal length
-  if(!valid_vectors(dbh, expf)) return(0)
-  
   #Check handle_ties
   if(!handle_ties %in% c(0, 1)) handle_ties <- 0
 
@@ -2924,11 +2838,11 @@ bal_f = function(dbh = NULL,
 #' @export
 ################################################################################
 
-mean_attr_f = function(attr = NULL,
+mean_attr_f = function(attr,
                       weight = NULL,
-                      dbh = NULL,
-                      ht = NULL,
-                      species = NULL,
+                      dbh,
+                      ht,
+                      species,
                       dbhmin = 0,
                       dbhmax = 999,
                       htmin = 0,
@@ -2937,9 +2851,6 @@ mean_attr_f = function(attr = NULL,
                       naok = FALSE)
 {
   mean_attr_ <- 0
-  
-  #Exit if vectors are invalid
-  if(!valid_vectors(attr, dbh, ht, species)) return(mean_attr_)
   
   if(is.null(weight) || length(weight) != length(attr)) 
     weight <- rep(x = 1, times = length(attr))
@@ -3036,11 +2947,11 @@ mean_attr_f = function(attr = NULL,
 ################################################################################
 
 #'@export
-expand_attr_f = function(attr = NULL,
-                        expf = NULL,
-                        dbh = NULL,
-                        ht = NULL,
-                        species = NULL,
+expand_attr_f = function(attr,
+                        expf,
+                        dbh,
+                        ht,
+                        species,
                         dbhmin = 0,
                         dbhmax = 999,
                         htmin = 0,
@@ -3050,9 +2961,6 @@ expand_attr_f = function(attr = NULL,
 {
   
   expand_attr_ <- 0
-  
-  #Exit if vectors are invalid
-  if(!valid_vectors(attr, dbh, ht, species)) return(expand_attr_)
   
   #Get number of trees
   ntree <- length(attr)
@@ -3136,9 +3044,9 @@ expand_attr_f = function(attr = NULL,
 #' @export
 ################################################################################
 
-count_rec_f = function(dbh = NULL,
-                      ht = NULL,
-                      species = NULL,
+count_rec_f = function(dbh,
+                      ht,
+                      species,
                       dbhmin = 0,
                       dbhmax = 999,
                       htmin = 0,
@@ -3148,9 +3056,6 @@ count_rec_f = function(dbh = NULL,
 {
   
   count_ <- 0
-  
-  #Exit if vectors are invalid
-  if(!valid_vectors(dbh, ht, species)) return(count_)
 
   #Get number of trees
   ntree <- length(dbh)
@@ -3235,10 +3140,10 @@ count_rec_f = function(dbh = NULL,
 #' @export
 ################################################################################
 
-min_attr_f = function(attr = NULL,
-                    dbh = NULL,
-                    ht = NULL,
-                    species = NULL,
+min_attr_f = function(attr,
+                    dbh,
+                    ht,
+                    species,
                     dbhmin = 0,
                     dbhmax = 999,
                     htmin = 0,
@@ -3248,9 +3153,6 @@ min_attr_f = function(attr = NULL,
 {
   
   min_attr_ <- 0
-  
-  #Exit if vectors are invalid
-  if(!valid_vectors(attr, dbh, ht, species)) return(min_attr_)
   
   #Get number of trees
   ntree <- length(attr)
@@ -3336,10 +3238,10 @@ min_attr_f = function(attr = NULL,
 #' @export
 ################################################################################
 
-max_attr_f = function(attr = NULL,
-                    dbh = NULL,
-                    ht = NULL,
-                    species = NULL,
+max_attr_f = function(attr,
+                    dbh,
+                    ht,
+                    species,
                     dbhmin = 0,
                     dbhmax = 999,
                     htmin = 0,
@@ -3349,9 +3251,6 @@ max_attr_f = function(attr = NULL,
 {
   
   max_attr_ <- 0
-
-  #Exit if vectors are invalid
-  if(!valid_vectors(attr, dbh, ht, species)) return(max_attr_)
   
   #Get number of trees
   ntree <- length(attr)

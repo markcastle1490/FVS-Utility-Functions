@@ -4,7 +4,7 @@
 \alias{top_ht}
 \title{top_ht}
 \usage{
-top_ht(dbh = NULL, expf = NULL, ht = NULL, top_tpa = 40, top_per = NULL)
+top_ht(dbh, expf, ht, top_tpa = 40, top_per = NULL)
 }
 \arguments{
 \item{dbh}{Numeric vector containing diameter values.}

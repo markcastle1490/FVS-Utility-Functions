@@ -5,11 +5,11 @@
 \title{expand_attr}
 \usage{
 expand_attr(
-  attr = NULL,
-  expf = NULL,
-  dbh = NULL,
-  ht = NULL,
-  species = NULL,
+  attr,
+  expf,
+  dbh,
+  ht,
+  species,
   dbhmin = 0,
   dbhmax = 999,
   htmin = 0,
