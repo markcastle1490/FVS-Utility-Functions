@@ -703,7 +703,7 @@ lorey_dia = function(dbh,
 ################################################################################
 
 rsdi = function(dbh,
-                expf = NULL)
+                expf)
 {
   #Calculate TPA
   tpa_ <- tpa(dbh = dbh, expf = expf)
