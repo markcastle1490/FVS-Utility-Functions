@@ -4,7 +4,7 @@
 \alias{rsdi}
 \title{rsdi}
 \usage{
-rsdi(dbh, expf = NULL)
+rsdi(dbh, expf)
 }
 \arguments{
 \item{dbh}{Numeric vector containing diameter values.}

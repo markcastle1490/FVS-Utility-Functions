@@ -283,7 +283,7 @@ tpa = function(expf,
   
   #Get species to include in calculations
   if(!is.null(select_species) && !is.null(species))
-    species_in <- (species %in% select_species) * 1L
+    species_in <- species %in% select_species
   else
     species_in <- TRUE
   
@@ -1784,9 +1784,9 @@ ba_f = function(dbh,
   
   #Get species to include in calculations
   if(!is.null(select_species) && !is.null(species))
-    species_in <- (species %in% select_species) * 1L
+    species_in <- as.integer((species %in% select_species))
   else
-    species_in <- integer(ntree) + 1L
+    species_in <- rep(1L, ntree)
 
   #Call the ba subroutine
   ba_ <- dotCall64::.C64(
@@ -1887,9 +1887,9 @@ tpa_f = function(expf,
   
   #Get species to include in calculations
   if(!is.null(select_species) && !is.null(species))
-    species_in <- (species %in% select_species) * 1L
+    species_in <- as.integer((species %in% select_species))
   else
-    species_in <- integer(ntree) + 1L
+    species_in <- rep(1L, ntree)
 
   #Call the tpa subroutine
   tpa_ <- dotCall64::.C64(
@@ -1989,9 +1989,9 @@ qmd_f = function(dbh,
   
   #Get species to include in calculations
   if(!is.null(select_species) && !is.null(species))
-    species_in <- (species %in% select_species) * 1L
+    species_in <- as.integer((species %in% select_species))
   else
-    species_in <- integer(ntree) + 1L
+    species_in <- rep(1L, ntree)
 
   #Call the qmd subroutine
   qmd_ <- dotCall64::.C64(
@@ -2092,9 +2092,9 @@ gmd_f = function(dbh,
   
   #Get species to include in calculations
   if(!is.null(select_species) && !is.null(species))
-    species_in <- (species %in% select_species) * 1L
+    species_in <- as.integer((species %in% select_species))
   else
-    species_in <- integer(ntree) + 1L
+    species_in <- rep(1L, ntree)
   
   #Call the gmd subroutine
   gmd_ <- dotCall64::.C64(
@@ -2195,9 +2195,9 @@ lorey_dia_f = function(dbh,
   
   #Get species to include in calculations
   if(!is.null(select_species) && !is.null(species))
-    species_in <- (species %in% select_species) * 1L
+    species_in <- as.integer((species %in% select_species))
   else
-    species_in <- integer(ntree) + 1L
+    species_in <- rep(1L, ntree)
   
   #Call the lorey_dia subroutine
   lorey_dia_ <- dotCall64::.C64(
@@ -2383,9 +2383,9 @@ rsdi_stage_f = function(dbh,
   
   #Get species to include in calculations
   if(!is.null(select_species) && !is.null(species))
-    species_in <- (species %in% select_species) * 1L
+    species_in <- as.integer((species %in% select_species))
   else
-    species_in <- integer(ntree) + 1L
+    species_in <- rep(1L, ntree)
   
   #Call the rsdi_stage subroutine
   rsdi_stage_ <- dotCall64::.C64(
@@ -2486,9 +2486,9 @@ zsdi_f = function(dbh,
   
   #Get species to include in calculations
   if(!is.null(select_species) && !is.null(species))
-    species_in <- (species %in% select_species) * 1L
+    species_in <- as.integer((species %in% select_species))
   else
-    species_in <- integer(ntree) + 1L
+    species_in <- rep(1L, ntree)
   
   #Call the zsdi subroutine
   zsdi_ <- dotCall64::.C64(
@@ -2595,9 +2595,9 @@ cc_f = function(crwidth,
   
   #Get species to include in calculations
   if(!is.null(select_species) && !is.null(species))
-    species_in <- (species %in% select_species) * 1L
+    species_in <- as.integer((species %in% select_species))
   else
-    species_in <- integer(ntree) + 1L
+    species_in <- rep(1L, ntree)
   
   #Call the cc subroutine
   cc_ <- dotCall64::.C64(
@@ -2696,9 +2696,9 @@ lorey_ht_f = function(dbh,
   
   #Get species to include in calculations
   if(!is.null(select_species) && !is.null(species))
-    species_in <- (species %in% select_species) * 1L
+    species_in <- as.integer((species %in% select_species))
   else
-    species_in <- integer(ntree) + 1L
+    species_in <- rep(1L, ntree)
   
   #Call the lorey_ht subroutine
   lorey_ht_ <- dotCall64::.C64(
@@ -2947,9 +2947,9 @@ mean_attr_f = function(attr,
   
   #Get species to include in calculations
   if(!is.null(select_species) && !is.null(species))
-    species_in <- (species %in% select_species) * 1L
+    species_in <- as.integer((species %in% select_species))
   else
-    species_in <- integer(ntree) + 1L
+    species_in <- rep(1L, ntree)
 
   #Call the mean_attr subroutine
   mean_attr_ <- dotCall64::.C64(
@@ -3058,9 +3058,9 @@ expand_attr_f = function(attr,
   
   #Get species to include in calculations
   if(!is.null(select_species) && !is.null(species))
-    species_in <- (species %in% select_species) * 1L
+    species_in <- as.integer((species %in% select_species))
   else
-    species_in <- integer(ntree) + 1L
+    species_in <- rep(1L, ntree)
 
   #Call the expand_attr subroutine
   expand_attr_ <- dotCall64::.C64(
@@ -3157,9 +3157,9 @@ count_rec_f = function(dbh,
   
   #Get species to include in calculations
   if(!is.null(select_species) && !is.null(species))
-    species_in <- (species %in% select_species) * 1L
+    species_in <- as.integer((species %in% select_species))
   else
-    species_in <- integer(ntree) + 1L
+    species_in <- rep(1L, ntree)
 
   #Call the count_attr subroutine
   count_ <- dotCall64::.C64(
@@ -3258,9 +3258,9 @@ min_attr_f = function(attr,
   
   #Get species to include in calculations
   if(!is.null(select_species) && !is.null(species))
-    species_in <- (species %in% select_species) * 1L
+    species_in <- as.integer((species %in% select_species))
   else
-    species_in <- integer(ntree) + 1L
+    species_in <- rep(1L, ntree)
 
   #Call the min_attr subroutine
   min_attr_ <- dotCall64::.C64(
@@ -3360,9 +3360,9 @@ max_attr_f = function(attr,
   
   #Get species to include in calculations
   if(!is.null(select_species) && !is.null(species))
-    species_in <- (species %in% select_species) * 1L
+    species_in <- as.integer((species %in% select_species))
   else
-    species_in <- integer(ntree) + 1L
+    species_in <- rep(1L, ntree)
 
   #Call the max_attr subroutine
   max_attr_ <- dotCall64::.C64(
