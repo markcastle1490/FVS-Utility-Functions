@@ -11,7 +11,7 @@ top_ht(dbh, expf, ht, top_tpa = 40, top_per = NULL)
 
 \item{expf}{Numeric vector containing expansion factors values.}
 
-\item{ht}{Numeric vector of tree heights.}
+\item{ht}{Numeric vector containing total tree height values.}
 
 \item{top_tpa}{Numeric value corresponding to amount of TPA to include in top height
 calculation. Top 20 TPA, top 40 TPA, etc.}

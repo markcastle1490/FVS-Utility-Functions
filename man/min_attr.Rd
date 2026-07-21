@@ -7,8 +7,8 @@
 min_attr(
   attr,
   dbh,
-  ht,
-  species,
+  ht = NULL,
+  species = NULL,
   dbhmin = 0,
   dbhmax = 999,
   htmin = 0,
@@ -21,9 +21,10 @@ min_attr(
 
 \item{dbh}{Numeric vector containing diameter values.}
 
-\item{ht}{Numeric vector containing total tree height values.}
+\item{ht}{Optional numeric vector containing total tree height values.}
 
-\item{species}{Vector containing species codes.}
+\item{species}{Optional vector containing species codes. Will be used when select_species is
+not NULL.}
 
 \item{dbhmin}{Numeric value corresponding to lower DBH bound to calculate attribute in.
 This value is inclusive (>=).}

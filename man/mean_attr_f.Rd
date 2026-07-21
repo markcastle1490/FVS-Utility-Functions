@@ -8,8 +8,8 @@ mean_attr_f(
   attr,
   weight = NULL,
   dbh,
-  ht,
-  species,
+  ht = NULL,
+  species = NULL,
   dbhmin = 0,
   dbhmax = 999,
   htmin = 0,
@@ -23,13 +23,15 @@ mean_attr_f(
 
 \item{weight}{Optional numeric vector containing a weighting value. This could be an
 expansion factor, tree basal area, or other user defined weight. If this
-argument is left as NULL, then the arithmetic average will be returned..}
+argument is left as NULL, then the unweighted arithmetic average will be
+returned.}
 
 \item{dbh}{Numeric vector containing diameter values.}
 
-\item{ht}{Numeric vector containing total tree height values.}
+\item{ht}{Optional numeric vector containing total tree height values.}
 
-\item{species}{Vector containing species codes.}
+\item{species}{Optional vector containing species codes. Will be used when select_species is
+not NULL.}
 
 \item{dbhmin}{Numeric value corresponding to lower DBH bound to calculate attribute in.
 This value is inclusive (>=).}

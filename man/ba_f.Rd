@@ -7,8 +7,8 @@
 ba_f(
   dbh,
   expf,
-  ht,
-  species,
+  ht = NULL,
+  species = NULL,
   dbhmin = 0,
   dbhmax = 999,
   htmin = 0,
@@ -22,7 +22,7 @@ ba_f(
 
 \item{expf}{Numeric vector containing expansion factors.}
 
-\item{ht}{Numeric vector containing total tree height values.}
+\item{ht}{Optional numeric vector containing total tree height values.}
 
 \item{species}{Vector containing species codes}
 

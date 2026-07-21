@@ -7,7 +7,7 @@
 #attributes in this file can be calculated for custom size ranges (DBH and 
 #total tree height) and desired species.
 #
-#Usage notes:s
+#Usage notes:
 #Although these functions can be called within loops for subsets of data, they 
 #are best used in dplyr or data.table calculation sequences. Below are examples
 #of how one could calculate the following variables in a dplyr and data.table
@@ -22,19 +22,17 @@
 #dplyr example
 # fvs_sum = tree %>%
 #   group_by(StandID, Year) %>%
-#   summarize(BA_ = ba(dbh = DBH, expf = TPA, ht = Ht, species = SpeciesFVS),
-#             BA_GE5 = ba(dbh = DBH, expf = TPA, ht = Ht, species = SpeciesFVS, 
-#             dbhmin = 5),
-#             BA_PINE = ba(dbh = DBH, expf = TPA, ht = Ht, species = SpeciesFVS, 
+#   summarize(BA_ = ba(dbh = DBH, expf = TPA),
+#             BA_GE5 = ba(dbh = DBH, expf = TPA, dbhmin = 5),
+#             BA_PINE = ba(dbh = DBH, expf = TPA, species = SpeciesFVS, 
 #             dbhmin = 5, select_species = c('PP', 'LP')))
 #
 #data.table example
 # fvs_sum = tree[, .(
-#   BA_ = ba(dbh = DBH, expf = TPA, ht = Ht, species = SpeciesFVS),
-#   BA_GE5 = ba(dbh = DBH, expf = TPA, ht = Ht, species = SpeciesFVS, 
-#            dbhmin = 5),
-#   BA_PINE = ba(dbh = DBH, expf = TPA, ht = Ht, species = SpeciesFVS, 
-#             dbhmin = 5, select_species = c('PP', 'LP')),
+#   BA_ = ba(dbh = DBH, expf = TPA),
+#   BA_GE5 = ba(dbh = DBH, expf = TPA, dbhmin = 5),
+#   BA_PINE = ba(dbh = DBH, expf = TPA, species = SpeciesFVS, dbhmin = 5, 
+#   select_species = c('PP', 'LP')),
 #   by = .(StandID, Year)]
 #
 #Tree is an input dataframe or data.table. StandID, Year, DBH, TPA, Ht, and 
@@ -149,10 +147,11 @@ unequal_vector = function(...)
 #' Numeric vector containing expansion factors.
 #' 
 #' @param ht
-#' Numeric vector containing total tree height values.
+#' Optional numeric vector containing total tree height values.
 #' 
 #' @param species
-#' Vector containing species codes.
+#' Optional vector containing species codes. Will be used when select_species is
+#' not NULL.
 #' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
@@ -184,8 +183,8 @@ unequal_vector = function(...)
 #'@export
 ba = function(dbh,
               expf,
-              ht,
-              species,
+              ht = NULL,
+              species = NULL,
               dbhmin = 0,
               dbhmax = 999,
               htmin = 0,
@@ -195,8 +194,11 @@ ba = function(dbh,
   
   ba_ <- 0
   
+  #Set ht if null
+  if(is.null(ht)) ht <- numeric(length(expf))
+  
   #Get species to include in calculations
-  if(!is.null(select_species))
+  if(!is.null(select_species) && !is.null(species))
     species_in <- species %in% select_species
   else
     species_in <- TRUE
@@ -230,10 +232,11 @@ ba = function(dbh,
 #' Numeric vector containing diameter values.
 #' 
 #' @param ht
-#' Numeric vector containing total tree height values.
+#' Optional numeric vector containing total tree height values.
 #' 
 #' @param species
-#' Vector containing species codes.
+#' Optional vector containing species codes. Will be used when select_species is
+#' not NULL.
 #' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
@@ -264,8 +267,8 @@ ba = function(dbh,
 
 tpa = function(expf,
                dbh,
-               ht,
-               species,
+               ht = NULL,
+               species = NULL,
                dbhmin = 0,
                dbhmax = 999,
                htmin = 0,
@@ -275,8 +278,11 @@ tpa = function(expf,
   
   tpa_ <- 0
   
+  #Set ht if null
+  if(is.null(ht)) ht <- numeric(length(expf))
+  
   #Get species to include in calculations
-  if(!is.null(select_species))
+  if(!is.null(select_species) && !is.null(species))
     species_in <- (species %in% select_species) * 1L
   else
     species_in <- TRUE
@@ -310,10 +316,11 @@ tpa = function(expf,
 #' Numeric vector containing expansion factors.
 #' 
 #' @param ht
-#' Numeric vector containing total tree height values.
+#' Optional numeric vector containing total tree height values.
 #' 
 #' @param species
-#' Vector containing species codes.
+#' Optional vector containing species codes. Will be used when select_species is
+#' not NULL.
 #' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
@@ -344,8 +351,8 @@ tpa = function(expf,
 
 qmd = function(dbh,
                expf,
-               ht,
-               species,
+               ht = NULL,
+               species = NULL,
                dbhmin = 0,
                dbhmax = 999,
                htmin = 0,
@@ -354,9 +361,12 @@ qmd = function(dbh,
 {
   
   qmd_ <- 0
+  
+  #Set ht if null
+  if(is.null(ht)) ht <- numeric(length(expf))
 
   #Get species to include in calculations
-  if(!is.null(select_species))
+  if(!is.null(select_species) && !is.null(species))
     species_in <- species %in% select_species
   else
     species_in <- TRUE
@@ -395,7 +405,8 @@ qmd = function(dbh,
 #' Vector containing total tree height values.
 #' 
 #' @param species
-#' Vector containing species codes.
+#' Optional vector containing species codes. Will be used when select_species is
+#' not NULL.
 #' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
@@ -427,8 +438,8 @@ qmd = function(dbh,
 #'@export
 gmd = function(dbh,
                expf,
-               ht,
-               species,
+               ht = NULL,
+               species = NULL,
                dbhmin = 0,
                dbhmax = 999,
                htmin = 0,
@@ -438,8 +449,11 @@ gmd = function(dbh,
   
   gmd_ <- 0
   
+  #Set ht if null
+  if(is.null(ht)) ht <- numeric(length(expf))
+  
   #Get species to include in calculations
-  if(!is.null(select_species))
+  if(!is.null(select_species) && !is.null(species))
     species_in <- species %in% select_species
   else
     species_in <- TRUE
@@ -596,10 +610,11 @@ top_dia = function(dbh,
 #' Numeric vector containing expansion factors.
 #' 
 #' @param ht
-#' Numeric vector containing total tree height values.
+#' Optional numeric vector containing total tree height values.
 #' 
 #' @param species
-#' Vector containing species codes.
+#' Optional vector containing species codes. Will be used when select_species is
+#' not NULL.
 #' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
@@ -630,8 +645,8 @@ top_dia = function(dbh,
 
 lorey_dia = function(dbh,
                      expf,
-                     ht,
-                     species,
+                     ht = NULL,
+                     species = NULL,
                      dbhmin = 0,
                      dbhmax = 999,
                      htmin = 0,
@@ -641,8 +656,11 @@ lorey_dia = function(dbh,
   
   lorey_dia_ <- 0
   
+  #Set ht if null
+  if(is.null(ht)) ht <- numeric(length(expf))
+  
   #Get species to include in calculations
-  if(!is.null(select_species))
+  if(!is.null(select_species) && !is.null(species))
     species_in <- species %in% select_species
   else
     species_in <- TRUE
@@ -720,10 +738,11 @@ rsdi = function(dbh,
 #' Numeric vector containing expansion factors.
 #' 
 #' @param ht
-#' Numeric vector containing total tree height values.
+#' Optional numeric vector containing total tree height values.
 #' 
 #' @param species
-#' Vector containing species codes.
+#' Optional vector containing species codes. Will be used when select_species is
+#' not NULL.
 #' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
@@ -754,8 +773,8 @@ rsdi = function(dbh,
 
 rsdi_stage = function(dbh,
                      expf,
-                     ht,
-                     species,
+                     ht = NULL,
+                     species = NULL,
                      dbhmin = 0,
                      dbhmax = 999,
                      htmin = 0,
@@ -764,8 +783,11 @@ rsdi_stage = function(dbh,
 {
   rsdi_ <- 0
   
+  #Set ht if null
+  if(is.null(ht)) ht <- numeric(length(expf))
+  
   #Get species to include in calculations
-  if(!is.null(select_species))
+  if(!is.null(select_species) && !is.null(species))
     species_in <- species %in% select_species
   else
     species_in <- TRUE
@@ -778,13 +800,8 @@ rsdi_stage = function(dbh,
   if(stand_tpa > 0)
   {
     #Initialize a and b parameters
-    a <- 10^(-r_slope) * 
-      (1-(r_slope/2)) * 
-      (dbhsq/stand_tpa)^(r_slope/2)
-    
-    b <- 10^(-r_slope) * 
-      (r_slope/2) * 
-      (dbhsq/stand_tpa)^(r_slope/2 - 1)
+    a <- 10^(-r_slope) * (1-(r_slope/2)) * (dbhsq/stand_tpa)^(r_slope/2)
+    b <- 10^(-r_slope) * (r_slope/2) * (dbhsq/stand_tpa)^(r_slope/2 - 1)
     
     #Identify records to include in calculation
     include <- (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
@@ -816,10 +833,11 @@ rsdi_stage = function(dbh,
 #' Numeric vector containing expansion factors.
 #' 
 #' @param ht
-#' Numeric vector containing total tree height values.
+#' Optional numeric vector containing total tree height values.
 #' 
 #' @param species
-#' Vector containing species codes.
+#' Optional vector containing species codes. Will be used when select_species is
+#' not NULL.
 #' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. This 
@@ -850,8 +868,8 @@ rsdi_stage = function(dbh,
 
 zsdi = function(dbh,
                 expf,
-                ht,
-                species,
+                ht = NULL,
+                species = NULL,
                 dbhmin = 0,
                 dbhmax = 999,
                 htmin = 0,
@@ -860,9 +878,12 @@ zsdi = function(dbh,
 {
   
   zsdi_ <- 0
+  
+  #Set ht if null
+  if(is.null(ht)) ht <- numeric(length(expf))
 
   #Get species to include in calculations
-  if(!is.null(select_species))
+  if(!is.null(select_species) && !is.null(species))
     species_in <- species %in% select_species
   else
     species_in <- TRUE
@@ -900,10 +921,11 @@ zsdi = function(dbh,
 #' Numeric vector containing diameter values.
 #'
 #' @param ht
-#' Numeric vector containing total tree height values.
+#' Optional numeric vector containing total tree height values.
 #' 
 #' @param species
-#' Vector containing species codes.
+#' Optional vector containing species codes. Will be used when select_species is
+#' not NULL.
 #' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. This 
@@ -935,8 +957,8 @@ zsdi = function(dbh,
 cc = function(crwidth,
               expf,
               dbh,
-              ht,
-              species,
+              ht = NULL,
+              species = NULL,
               dbhmin = 0,
               dbhmax = 999,
               htmin = 0,
@@ -945,8 +967,11 @@ cc = function(crwidth,
 {
   cc_ <- 0
   
+  #Set ht if null
+  if(is.null(ht)) ht <- numeric(length(expf))
+  
   #Get species to include in calculations
-  if(!is.null(select_species))
+  if(!is.null(select_species) && !is.null(species))
     species_in <- species %in% select_species
   else
     species_in <- TRUE
@@ -1084,7 +1109,8 @@ bal = function(dbh,
 #' Numeric vector containing expansion factors.
 #' 
 #' @param species
-#' Vector containing species codes.
+#' Optional vector containing species codes. Will be used when select_species is
+#' not NULL.
 #' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
@@ -1117,7 +1143,7 @@ bal = function(dbh,
 lorey_ht = function(dbh,
                     ht,
                     expf,
-                    species,
+                    species = NULL,
                     dbhmin = 0,
                     dbhmax = 999,
                     htmin = 0,
@@ -1128,7 +1154,7 @@ lorey_ht = function(dbh,
   lorey_ht_ <- 0
   
   #Get species to include in calculations
-  if(!is.null(select_species))
+  if(!is.null(select_species) && !is.null(species))
     species_in <- species %in% select_species
   else
     species_in <- TRUE
@@ -1166,7 +1192,7 @@ lorey_ht = function(dbh,
 #' Numeric vector containing expansion factors values.
 #' 
 #' @param ht
-#' Numeric vector of tree heights.
+#' Numeric vector containing total tree height values.
 #' 
 #' @param top_tpa
 #' Numeric value corresponding to amount of TPA to include in top height 
@@ -1271,10 +1297,11 @@ top_ht = function(dbh,
 #' Numeric vector containing diameter values.
 #' 
 #' @param ht
-#' Numeric vector containing total tree height values.
+#' Optional numeric vector containing total tree height values.
 #' 
 #' @param species
-#' Vector containing species codes.
+#' Optional vector containing species codes. Will be used when select_species is
+#' not NULL.
 #' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
@@ -1306,8 +1333,8 @@ top_ht = function(dbh,
 mean_attr = function(attr,
                      weight = NULL,
                      dbh,
-                     ht,
-                     species,
+                     ht = NULL,
+                     species = NULL,
                      dbhmin = 0,
                      dbhmax = 999,
                      htmin = 0,
@@ -1316,12 +1343,18 @@ mean_attr = function(attr,
 {
   mean_attr_ <- 0
   
+  #Get ntree
+  ntree <- length(attr)
+  
+  #Set ht if null
+  if(is.null(ht)) ht <- numeric(ntree)
+  
   #Assign weight of 1 if NULL or not equal to attr
-  if(is.null(weight) || length(weight) != length(attr)) 
-    weight <- rep(x = 1, times = length(attr))
+  if(is.null(weight) || length(weight) != ntree) 
+    weight <- numeric(ntree)
   
   #Get species to include in calculations
-  if(!is.null(select_species))
+  if(!is.null(select_species) && !is.null(species))
     species_in <- species %in% select_species
   else
     species_in <- TRUE
@@ -1361,10 +1394,11 @@ mean_attr = function(attr,
 #' Numeric vector containing diameter values.
 #' 
 #' @param ht
-#' Numeric vector containing total tree height values.
+#' Optional numeric vector containing total tree height values.
 #'
 #' @param species
-#' Vector containing species codes.
+#' Optional vector containing species codes. Will be used when select_species is
+#' not NULL.
 #' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
@@ -1397,8 +1431,8 @@ mean_attr = function(attr,
 expand_attr = function(attr,
                        expf,
                        dbh,
-                       ht,
-                       species,
+                       ht = NULL,
+                       species = NULL,
                        dbhmin = 0,
                        dbhmax = 999,
                        htmin = 0,
@@ -1408,8 +1442,11 @@ expand_attr = function(attr,
   
   expand_attr_ <- 0
   
+  #Set ht if null
+  if(is.null(ht)) ht <- numeric(length(attr))
+  
   #Get species to include in calculations
-  if(!is.null(select_species))
+  if(!is.null(select_species) && !is.null(species))
     species_in <- species %in% select_species
   else
     species_in <- TRUE
@@ -1441,10 +1478,11 @@ expand_attr = function(attr,
 #' Numeric vector containing diameter values.
 #' 
 #' @param ht
-#' Numeric vector containing total tree height values.
+#' Optional numeric vector containing total tree height values.
 #' 
 #' @param species
-#' Vector containing species codes.
+#' Optional vector containing species codes. Will be used when select_species is
+#' not NULL.
 #' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
@@ -1475,8 +1513,8 @@ expand_attr = function(attr,
 
 min_attr = function(attr,
                     dbh,
-                    ht,
-                    species,
+                    ht = NULL,
+                    species = NULL,
                     dbhmin = 0,
                     dbhmax = 999,
                     htmin = 0,
@@ -1486,8 +1524,11 @@ min_attr = function(attr,
   
   min_attr_ <- 0
   
+  #Set ht if null
+  if(is.null(ht)) ht <- numeric(length(attr))
+  
   #Get species to include in calculations
-  if(!is.null(select_species))
+  if(!is.null(select_species) && !is.null(species))
     species_in <- species %in% select_species
   else
     species_in <- TRUE
@@ -1520,10 +1561,11 @@ min_attr = function(attr,
 #' Numeric vector containing diameter values.
 #' 
 #' @param ht
-#' Numeric vector containing total tree height values.
+#' Optional numeric vector containing total tree height values.
 #' 
 #' @param species
-#' Vector containing species codes.
+#' Optional vector containing species codes. Will be used when select_species is
+#' not NULL.
 #' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
@@ -1554,8 +1596,8 @@ min_attr = function(attr,
 
 max_attr = function(attr,
                     dbh,
-                    ht,
-                    species,
+                    ht = NULL,
+                    species = NULL,
                     dbhmin = 0,
                     dbhmax = 999,
                     htmin = 0,
@@ -1565,8 +1607,11 @@ max_attr = function(attr,
   
   max_attr_ <- 0
   
+  #Set ht if null
+  if(is.null(ht)) ht <- numeric(length(attr))
+  
   #Get species to include in calculations
-  if(!is.null(select_species))
+  if(!is.null(select_species) && !is.null(species))
     species_in <- species %in% select_species
   else
     species_in <- TRUE
@@ -1596,10 +1641,11 @@ max_attr = function(attr,
 #' Numeric vector containing diameter values.
 #' 
 #' @param ht
-#' Numeric vector containing total tree height values.
+#' Optional numeric vector containing total tree height values.
 #' 
 #' @param species
-#' Vector containing species codes.
+#' Optional vector containing species codes. Will be used when select_species is
+#' not NULL.
 #'
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
@@ -1629,19 +1675,22 @@ max_attr = function(attr,
 ################################################################################
 
 count_rec = function(dbh,
-                      ht,
-                      species,
-                      dbhmin = 0,
-                      dbhmax = 999,
-                      htmin = 0,
-                      htmax = 999,
-                      select_species = NULL)
+                     ht = NULL,
+                     species = NULL,
+                     dbhmin = 0,
+                     dbhmax = 999,
+                     htmin = 0,
+                     htmax = 999,
+                     select_species = NULL)
 {
   
   count_ <- 0
   
+  #Set ht if null
+  if(is.null(ht)) ht <- numeric(length(dbh))
+  
   #Get species to include in calculations
-  if(!is.null(select_species))
+  if(!is.null(select_species) && !is.null(species))
     species_in <- species %in% select_species
   else
     species_in <- TRUE
@@ -1674,7 +1723,7 @@ count_rec = function(dbh,
 #' Numeric vector containing expansion factors.
 #'
 #' @param ht
-#' Numeric vector containing total tree height values.
+#' Optional numeric vector containing total tree height values.
 #' 
 #' @param species
 #' Vector containing species codes
@@ -1714,8 +1763,8 @@ count_rec = function(dbh,
 
 ba_f = function(dbh,
                 expf,
-                ht,
-                species,
+                ht = NULL,
+                species = NULL,
                 dbhmin = 0,
                 dbhmax = 999,
                 htmin = 0,
@@ -1730,8 +1779,11 @@ ba_f = function(dbh,
   #Get number of trees
   ntree <- length(expf)
   
+  #Set ht if null
+  if(is.null(ht)) ht <- numeric(ntree)
+  
   #Get species to include in calculations
-  if(!is.null(select_species))
+  if(!is.null(select_species) && !is.null(species))
     species_in <- (species %in% select_species) * 1L
   else
     species_in <- integer(ntree) + 1L
@@ -1774,10 +1826,11 @@ ba_f = function(dbh,
 #' Numeric vector containing diameter values.
 #' 
 #' @param ht
-#' Numeric vector containing total tree height values.
+#' Optional numeric vector containing total tree height values.
 #' 
 #' @param species
-#' Vector containing species codes.
+#' Optional vector containing species codes. Will be used when select_species is
+#' not NULL.
 #' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
@@ -1814,8 +1867,8 @@ ba_f = function(dbh,
 
 tpa_f = function(expf,
                dbh,
-               ht,
-               species,
+               ht = NULL,
+               species = NULL,
                dbhmin = 0,
                dbhmax = 999,
                htmin = 0,
@@ -1829,8 +1882,11 @@ tpa_f = function(expf,
   #Get number of trees
   ntree <- length(expf)
   
+  #Set ht if null
+  if(is.null(ht)) ht <- numeric(ntree)
+  
   #Get species to include in calculations
-  if(!is.null(select_species))
+  if(!is.null(select_species) && !is.null(species))
     species_in <- (species %in% select_species) * 1L
   else
     species_in <- integer(ntree) + 1L
@@ -1873,10 +1929,11 @@ tpa_f = function(expf,
 #' Numeric vector containing expansion factors.
 #' 
 #' @param ht
-#' Numeric vector containing total tree height values.
+#' Optional numeric vector containing total tree height values.
 #' 
 #' @param species
-#' Vector containing species codes.
+#' Optional vector containing species codes. Will be used when select_species is
+#' not NULL.
 #' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
@@ -1913,8 +1970,8 @@ tpa_f = function(expf,
 
 qmd_f = function(dbh,
                expf,
-               ht,
-               species,
+               ht = NULL,
+               species = NULL,
                dbhmin = 0,
                dbhmax = 999,
                htmin = 0,
@@ -1927,8 +1984,11 @@ qmd_f = function(dbh,
   #Get number of trees
   ntree <- length(expf)
   
+  #Set ht if null
+  if(is.null(ht)) ht <- numeric(ntree)
+  
   #Get species to include in calculations
-  if(!is.null(select_species))
+  if(!is.null(select_species) && !is.null(species))
     species_in <- (species %in% select_species) * 1L
   else
     species_in <- integer(ntree) + 1L
@@ -1971,10 +2031,11 @@ qmd_f = function(dbh,
 #' Numeric vector containing expansion factors.
 #' 
 #' @param ht
-#' Numeric vector containing total tree height values.
+#' Optional numeric vector containing total tree height values.
 #'
 #' @param species
-#' Vector containing species codes.
+#' Optional vector containing species codes. Will be used when select_species is
+#' not NULL.
 #' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
@@ -2011,8 +2072,8 @@ qmd_f = function(dbh,
 
 gmd_f = function(dbh,
                expf,
-               ht,
-               species,
+               ht = NULL,
+               species = NULL,
                dbhmin = 0,
                dbhmax = 999,
                htmin = 0,
@@ -2026,8 +2087,11 @@ gmd_f = function(dbh,
   #Get number of trees
   ntree <- length(expf)
   
+  #Set ht if null
+  if(is.null(ht)) ht <- numeric(ntree)
+  
   #Get species to include in calculations
-  if(!is.null(select_species))
+  if(!is.null(select_species) && !is.null(species))
     species_in <- (species %in% select_species) * 1L
   else
     species_in <- integer(ntree) + 1L
@@ -2070,10 +2134,11 @@ gmd_f = function(dbh,
 #' Numeric vector containing expansion factors.
 #' 
 #' @param ht
-#' Numeric vector containing total tree height values.
+#' Optional numeric vector containing total tree height values.
 #' 
 #' @param species
-#' Vector containing species codes.
+#' Optional vector containing species codes. Will be used when select_species is
+#' not NULL.
 #' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
@@ -2110,8 +2175,8 @@ gmd_f = function(dbh,
 
 lorey_dia_f = function(dbh,
                      expf,
-                     ht,
-                     species,
+                     ht = NULL,
+                     species = NULL,
                      dbhmin = 0,
                      dbhmax = 999,
                      htmin = 0,
@@ -2125,8 +2190,11 @@ lorey_dia_f = function(dbh,
   #Get number of trees
   ntree <- length(expf)
   
+  #Set ht if null
+  if(is.null(ht)) ht <- numeric(ntree)
+  
   #Get species to include in calculations
-  if(!is.null(select_species))
+  if(!is.null(select_species) && !is.null(species))
     species_in <- (species %in% select_species) * 1L
   else
     species_in <- integer(ntree) + 1L
@@ -2256,10 +2324,11 @@ top_dia_f = function(dbh,
 #' Numeric vector containing expansion factors.
 #' 
 #' @param ht
-#' Numeric vector containing total tree height values.
+#' Optional numeric vector containing total tree height values.
 #' 
 #' @param species
-#' Vector containing species codes.
+#' Optional vector containing species codes. Will be used when select_species is
+#' not NULL.
 #' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
@@ -2295,8 +2364,8 @@ top_dia_f = function(dbh,
 
 rsdi_stage_f = function(dbh,
                      expf,
-                     ht,
-                     species,
+                     ht = NULL,
+                     species = NULL,
                      dbhmin = 0,
                      dbhmax = 999,
                      htmin = 0,
@@ -2309,8 +2378,11 @@ rsdi_stage_f = function(dbh,
   #Get number of trees
   ntree <- length(expf)
   
+  #Set ht if null
+  if(is.null(ht)) ht <- numeric(ntree)
+  
   #Get species to include in calculations
-  if(!is.null(select_species))
+  if(!is.null(select_species) && !is.null(species))
     species_in <- (species %in% select_species) * 1L
   else
     species_in <- integer(ntree) + 1L
@@ -2353,10 +2425,11 @@ rsdi_stage_f = function(dbh,
 #' Numeric vector containing expansion factors.
 #' 
 #' @param ht
-#' Numeric vector containing total tree height values.
+#' Optional numeric vector containing total tree height values.
 #'
 #' @param species
-#' Vector containing species codes.
+#' Optional vector containing species codes. Will be used when select_species is
+#' not NULL.
 #' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. This 
@@ -2393,8 +2466,8 @@ rsdi_stage_f = function(dbh,
 
 zsdi_f = function(dbh,
                 expf,
-                ht,
-                species,
+                ht = NULL,
+                species = NULL,
                 dbhmin = 0,
                 dbhmax = 999,
                 htmin = 0,
@@ -2408,8 +2481,11 @@ zsdi_f = function(dbh,
   #Get number of trees
   ntree <- length(expf)
   
+  #Set ht if null
+  if(is.null(ht)) ht <- numeric(ntree)
+  
   #Get species to include in calculations
-  if(!is.null(select_species))
+  if(!is.null(select_species) && !is.null(species))
     species_in <- (species %in% select_species) * 1L
   else
     species_in <- integer(ntree) + 1L
@@ -2457,10 +2533,11 @@ zsdi_f = function(dbh,
 #' Numeric vector containing diameter values.
 #' 
 #' @param ht
-#' Numeric vector containing total tree height values.
+#' Optional numeric vector containing total tree height values.
 #' 
 #' @param species
-#' Vector containing species codes.
+#' Optional vector containing species codes. Will be used when select_species is
+#' not NULL.
 #' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. This 
@@ -2499,8 +2576,8 @@ zsdi_f = function(dbh,
 cc_f = function(crwidth,
               expf,
               dbh,
-              ht,
-              species,
+              ht = NULL,
+              species = NULL,
               dbhmin = 0,
               dbhmax = 999,
               htmin = 0,
@@ -2513,8 +2590,11 @@ cc_f = function(crwidth,
   #Get number of trees
   ntree <- length(expf)
   
+  #Set ht if null
+  if(is.null(ht)) ht <- numeric(ntree)
+  
   #Get species to include in calculations
-  if(!is.null(select_species))
+  if(!is.null(select_species) && !is.null(species))
     species_in <- (species %in% select_species) * 1L
   else
     species_in <- integer(ntree) + 1L
@@ -2561,7 +2641,8 @@ cc_f = function(crwidth,
 #' Numeric vector containing expansion factors.
 #' 
 #' @param species
-#' Vector containing species codes.
+#' Optional vector containing species codes. Will be used when select_species is
+#' not NULL.
 #' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
@@ -2599,7 +2680,7 @@ cc_f = function(crwidth,
 lorey_ht_f = function(dbh,
                     ht,
                     expf,
-                    species,
+                    species = NULL,
                     dbhmin = 0,
                     dbhmax = 999,
                     htmin = 0,
@@ -2614,7 +2695,7 @@ lorey_ht_f = function(dbh,
   ntree <- length(expf)
   
   #Get species to include in calculations
-  if(!is.null(select_species))
+  if(!is.null(select_species) && !is.null(species))
     species_in <- (species %in% select_species) * 1L
   else
     species_in <- integer(ntree) + 1L
@@ -2656,7 +2737,7 @@ lorey_ht_f = function(dbh,
 #' Numeric vector containing expansion factors values.
 #' 
 #' @param ht
-#' Numeric vector of tree heights.
+#' Numeric vector containing total tree height values.
 #' 
 #' @param top_tpa
 #' Numeric value corresponding to TPA to include in top height calculation. 
@@ -2794,16 +2875,18 @@ bal_f = function(dbh,
 #' @param weight
 #' Optional numeric vector containing a weighting value. This could be an 
 #' expansion factor, tree basal area, or other user defined weight. If this 
-#' argument is left as NULL, then the arithmetic average will be returned..
+#' argument is left as NULL, then the unweighted arithmetic average will be 
+#' returned.
 #' 
 #' @param dbh
 #' Numeric vector containing diameter values.
 #' 
 #' @param ht
-#' Numeric vector containing total tree height values.
+#' Optional numeric vector containing total tree height values.
 #' 
 #' @param species
-#' Vector containing species codes.
+#' Optional vector containing species codes. Will be used when select_species is
+#' not NULL.
 #' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
@@ -2841,8 +2924,8 @@ bal_f = function(dbh,
 mean_attr_f = function(attr,
                       weight = NULL,
                       dbh,
-                      ht,
-                      species,
+                      ht = NULL,
+                      species = NULL,
                       dbhmin = 0,
                       dbhmax = 999,
                       htmin = 0,
@@ -2852,14 +2935,18 @@ mean_attr_f = function(attr,
 {
   mean_attr_ <- 0
   
-  if(is.null(weight) || length(weight) != length(attr)) 
-    weight <- rep(x = 1, times = length(attr))
-  
   #Get number of trees
   ntree <- length(attr)
   
+  #Set weight if null
+  if(is.null(weight) || length(weight) != ntree) 
+    weight <- numeric(ntree)
+  
+  #Set ht if null
+  if(is.null(ht)) ht <- numeric(ntree)
+  
   #Get species to include in calculations
-  if(!is.null(select_species))
+  if(!is.null(select_species) && !is.null(species))
     species_in <- (species %in% select_species) * 1L
   else
     species_in <- integer(ntree) + 1L
@@ -2908,10 +2995,11 @@ mean_attr_f = function(attr,
 #' Numeric vector containing diameter values.
 #' 
 #' @param ht
-#' Numeric vector containing total tree height values.
+#' Optional numeric vector containing total tree height values.
 #' 
 #' @param species
-#' Vector containing species codes.
+#' Optional vector containing species codes. Will be used when select_species is
+#' not NULL.
 #' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
@@ -2950,8 +3038,8 @@ mean_attr_f = function(attr,
 expand_attr_f = function(attr,
                         expf,
                         dbh,
-                        ht,
-                        species,
+                        ht = NULL,
+                        species = NULL,
                         dbhmin = 0,
                         dbhmax = 999,
                         htmin = 0,
@@ -2965,8 +3053,11 @@ expand_attr_f = function(attr,
   #Get number of trees
   ntree <- length(attr)
   
+  #Set ht if null
+  if(is.null(ht)) ht <- numeric(ntree)
+  
   #Get species to include in calculations
-  if(!is.null(select_species))
+  if(!is.null(select_species) && !is.null(species))
     species_in <- (species %in% select_species) * 1L
   else
     species_in <- integer(ntree) + 1L
@@ -3006,10 +3097,11 @@ expand_attr_f = function(attr,
 #' Numeric vector containing diameter values.
 #' 
 #' @param ht
-#' Numeric vector containing total tree height values.
+#' Optional numeric vector containing total tree height values.
 #' 
 #' @param species
-#' Vector containing species codes.
+#' Optional vector containing species codes. Will be used when select_species is
+#' not NULL.
 #' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
@@ -3045,8 +3137,8 @@ expand_attr_f = function(attr,
 ################################################################################
 
 count_rec_f = function(dbh,
-                      ht,
-                      species,
+                      ht = NULL,
+                      species = NULL,
                       dbhmin = 0,
                       dbhmax = 999,
                       htmin = 0,
@@ -3060,8 +3152,11 @@ count_rec_f = function(dbh,
   #Get number of trees
   ntree <- length(dbh)
   
+  #Set ht if null
+  if(is.null(ht)) ht <- numeric(ntree)
+  
   #Get species to include in calculations
-  if(!is.null(select_species))
+  if(!is.null(select_species) && !is.null(species))
     species_in <- (species %in% select_species) * 1L
   else
     species_in <- integer(ntree) + 1L
@@ -3102,10 +3197,11 @@ count_rec_f = function(dbh,
 #' Numeric vector containing diameter values.
 #' 
 #' @param ht
-#' Numeric vector containing total tree height values.
+#' Optional numeric vector containing total tree height values.
 #' 
 #' @param species
-#' Vector containing species codes.
+#' Optional vector containing species codes. Will be used when select_species is
+#' not NULL.
 #' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
@@ -3142,8 +3238,8 @@ count_rec_f = function(dbh,
 
 min_attr_f = function(attr,
                     dbh,
-                    ht,
-                    species,
+                    ht = NULL,
+                    species = NULL,
                     dbhmin = 0,
                     dbhmax = 999,
                     htmin = 0,
@@ -3157,8 +3253,11 @@ min_attr_f = function(attr,
   #Get number of trees
   ntree <- length(attr)
   
+  #Set ht if null
+  if(is.null(ht)) ht <- numeric(ntree)
+  
   #Get species to include in calculations
-  if(!is.null(select_species))
+  if(!is.null(select_species) && !is.null(species))
     species_in <- (species %in% select_species) * 1L
   else
     species_in <- integer(ntree) + 1L
@@ -3200,10 +3299,11 @@ min_attr_f = function(attr,
 #' Numeric vector containing diameter values.
 #' 
 #' @param ht
-#' Numeric vector containing total tree height values.
+#' Optional numeric vector containing total tree height values.
 #' 
 #' @param species
-#' Vector containing species codes.
+#' Optional vector containing species codes. Will be used when select_species is
+#' not NULL.
 #' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
@@ -3239,15 +3339,15 @@ min_attr_f = function(attr,
 ################################################################################
 
 max_attr_f = function(attr,
-                    dbh,
-                    ht,
-                    species,
-                    dbhmin = 0,
-                    dbhmax = 999,
-                    htmin = 0,
-                    htmax = 999,
-                    select_species = NULL,
-                    naok = FALSE)
+                      dbh,
+                      ht = NULL,
+                      species = NULL,
+                      dbhmin = 0,
+                      dbhmax = 999,
+                      htmin = 0,
+                      htmax = 999,
+                      select_species = NULL,
+                      naok = FALSE)
 {
   
   max_attr_ <- 0
@@ -3255,8 +3355,11 @@ max_attr_f = function(attr,
   #Get number of trees
   ntree <- length(attr)
   
+  #Set ht if null
+  if(is.null(ht)) ht <- numeric(ntree)
+  
   #Get species to include in calculations
-  if(!is.null(select_species))
+  if(!is.null(select_species) && !is.null(species))
     species_in <- (species %in% select_species) * 1L
   else
     species_in <- integer(ntree) + 1L
