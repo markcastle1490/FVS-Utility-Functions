@@ -2,9 +2,8 @@
 #' @name get_fiadb
 #' @title Retrieve and Extract FIA SQLite Databases
 #' @description This function is used to retrieve a state specific FIA database,
-#' set of state specific databases, or the master FIA SQLite database from the 
-#' FIA datamart. The downloaded database(s) are extracted and stored on a 
-#' specified local directory.
+#' set of state specific databases from the FIA datamart. The downloaded 
+#' database(s) are extracted and stored on a specified local directory.
 #' 
 #' @param output
 #' Character string pertaining to file path to output directory where FIA 
@@ -23,12 +22,9 @@
 #' "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", 
 #' "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", 
 #' "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
+#' "ENTIRE" (all states)
 #' 
 #' Defaults to NULL.
-#' 
-#' @param master_db
-#' Logical variable used to signify if master FIA database should be downloaded. 
-#' If TRUE, this will lead to long processing time. Defaults to FALSE.
 #' 
 #' @return
 #' None
@@ -38,7 +34,6 @@
 get_fiadb <- function(output = NULL,
                       url = "https://apps.fs.usda.gov/fia/datamart/Databases/",
                       states = NULL,
-                      master_db = FALSE,
                       verbose = FALSE)
 {
   #Check output
@@ -47,10 +42,12 @@ get_fiadb <- function(output = NULL,
   }
   
   #Check for input states options
-  if (is.null(states) && !master_db) {
-    stop("No states specified for download. Enter values in states argument or set master_db to TRUE.")
+  if (is.null(states)) {
+    stop("No states specified for download. Enter values in states argument.")
   }
   
+  #Modify slashes as needed
+  url <- chartr(old = "\\", new = "/", x = url)
   if (!endsWith(url, "/")) url <- paste0(url, "/")
 
   #Vector of state abbreviations
@@ -58,14 +55,11 @@ get_fiadb <- function(output = NULL,
                     "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
                     "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
                     "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
-                    "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY")
+                    "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY",
+                    "ENTIRE")
 
   #Determine target states to process
-  if (master_db) {
-    process_targets <- "ENTIRE"
-  } else {
-    process_targets <- unique(toupper(states))
-  }
+  process_targets <- unique(toupper(states))
   
   #Loop across process_targets
   for(i in seq_along(process_targets))
@@ -75,14 +69,13 @@ get_fiadb <- function(output = NULL,
     if(verbose) cat("Processing state:", target, "\n")
 
     #If state is not in  state_abbrev, skip
-    if (!master_db && !target %in% state_abbrev) {
+    if (!target %in% state_abbrev) {
       warning("Invalid state code")
       next
     }
     
     # Format target file structures using secure file system operators
-    filename <- if (master_db) "SQLite_FIADB_ENTIRE.zip" 
-    else paste0("SQLite_FIADB_", target, ".zip")
+    filename <- paste0("SQLite_FIADB_", target, ".zip")
     filename_url  <- paste0(url, filename)
     filename_disk <- file.path(output, filename)
 
@@ -116,8 +109,9 @@ get_fiadb <- function(output = NULL,
       stop(paste("Network transaction failed or data was not accessible:", e$message))
     })
     
-    # 3. Print status (httr2 structures its response metadata slightly differently)
-    if(verbose) cat("HTTP STATUS:", httr2::resp_status(http_response), "\n")
+    #Print status
+    if(verbose !is.null(http_response)) 
+      cat("HTTP STATUS:", httr2::resp_status(http_response), "\n")
 
     # Check if file exists and then extract and delete zipped folder.
     if (file.exists(filename_disk)) {
