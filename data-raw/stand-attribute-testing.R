@@ -156,6 +156,7 @@ tree <- tree |>
   mutate(N = max(PtIndex),
          .by = c(CaseID, StandID, Year)) |>
   mutate(PtBAL_dplyr = round(bal(dbh = DBH, expf = TPA * N), 0), 
+         PtBAL_dplyr_notie = round(bal(dbh = DBH, expf = TPA * N, handle_ties = TRUE), 0),
          .by = c(CaseID, StandID, ActPt, Year))
 
 all.equal(tree$PtBAL, tree$PtBAL_dplyr)
@@ -247,10 +248,13 @@ tree <- tree |>
   mutate(N = max(PtIndex),
          .by = c(CaseID, StandID, Year)) |>
   mutate(PtBAL_dplyr_f = round(bal_f(dbh = DBH, expf = TPA * N), 0), 
+         PtBAL_dplyr_f_notie = round(bal_f(dbh = DBH, expf = TPA * N,
+                                           handle_ties = TRUE), 0),
          .by = c(CaseID, StandID, ActPt, Year))
 
 #Compare R BAL calculation to Fortran BAL
 all.equal(tree$PtBAL_dplyr, tree$PtBAL_dplyr_f)
+all.equal(tree$PtBAL_dplyr_notie, tree$PtBAL_dplyr_f_notie)
 
 #===============================================================================
 #Testing sequence for plot variables using data.table
