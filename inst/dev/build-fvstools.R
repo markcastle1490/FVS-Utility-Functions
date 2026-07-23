@@ -16,7 +16,7 @@ if(.Platform$OS.type == 'unix'){
   pkg_root <- "/home/mark/FVS_Tools/fvstools"
   build_dir <- "/home/mark/FVS_Tools"
   r_lib <- "/home/mark/R/x86_64-pc-linux-gnu-library/4.5"
-  r_path    <- "/home/mark/R/x86_64-pc-linux-gnu-library/4.5/bin/R" 
+  r_path    <- "/usr/bin/R" 
 }
 
 #Package name
