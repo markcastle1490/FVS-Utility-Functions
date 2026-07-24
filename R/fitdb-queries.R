@@ -68,7 +68,6 @@ fia_tree_query <- function() {
     "  AND COND.COND_STATUS_CD = 1",
     "  AND PLOT.MEASYEAR IS NOT NULL",
     "  AND PLOT.CYCLE IS NOT NULL",
-    "  AND TREE.DIA IS NOT NULL",
     "  AND TREE.STATUSCD IN (1, 2)",
     "  AND TREE.TPA_UNADJ IS NOT NULL;"
   ), collapse = "\n")

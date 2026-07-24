@@ -144,8 +144,8 @@ build_fitdb <- function(dbin = NULL,
 }
 
 ################################################################################
+#' merge_inv
 #' @name merge_inv
-#' @title Pair Tree Re-measurement Observations by Interval
 #' @description This function accepts a list of dataframes containing information 
 #' that will be paired by a measurement interval (typically a cycle or year). 
 #' This function is called from the code that prepares a fitting database 
@@ -187,54 +187,105 @@ merge_inv <- function(data,
                       merge_id = "TREEMERGEID", 
                       interval_id = "CYCLE", 
                       verbose = TRUE)
-   {
-  
-  #Add copy of interval_id to data. This is done because data.table does not 
-  #create time1 and time 2 interval_id variables in non-equi join.
-  tmp_interval <- "_interval_id_"
-  data[, (tmp_interval) := get(interval_id)]
-  
+{
+
   #Sort the data
   data.table::setorderv(x = data, cols = c(plot_id, merge_id, interval_id))
-
-  # Define the non-equi join conditions dynamically
-  # This will act as a left join
-  on_cols <- c(plot_id, merge_id, paste0(interval_id, " > ", interval_id))
   
-  # Perform the self-join
+  #Create column for next consecutive cycle
+  data[, next_cycle_match := get(interval_id) + 1]
+  
+  #Do join
+  on_cols <- c(plot_id, merge_id, paste0(interval_id, " == next_cycle_match"))
+  
   df <- data[data, 
-             on = on_cols, 
-             nomatch = NA, 
-             allow.cartesian = TRUE]
+             on = on_cols,
+             nomatch = NA]
   
-  # Clean up missing values for trees that existed at time 1 but not time 2
-  int_lab_y <- paste0(interval_id)
-  int_lab_x <- paste0("i.", interval_id)
+  #Correct cycle 2 values
+  df[is.na(next_cycle_match), (interval_id) := NA]
   
-  df[is.na(get(int_lab_y)), (int_lab_y) := get(int_lab_x)] 
-
-  #Drop columns that are no longer needed
-  df[, c(unique_id, plot_id, interval_id) := NULL]
-
+  #Drop columns
+  cols_to_drop <- intersect(c(unique_id, 
+                              plot_id, 
+                              "next_cycle_match", 
+                              "i.next_cycle_match"), names(df))
+  df[, (cols_to_drop) := NULL]
+  
   #Rename time 1 unique id (.i)
   data.table::setnames(df, old = paste0("i.", unique_id), new = unique_id)
-
-  # Rename i. columns (time 1): strip "i." prefix and append "1"
+  
+  #Create time 1 columns. Strip "i." prefix and append "1".
   i_cols <- names(df)[grepl("^i\\.", names(df))]
   t1_names <- paste0(sub("^i\\.", "", i_cols), "1")
   data.table::setnames(df, i_cols, t1_names)
-
-  # Rename other columns (except plot_id, merge_id, unique_id, AND the renamed i_cols): append "2"
-  cols_to_rename <- names(df)[!names(df) %in% c(plot_id, merge_id, unique_id, t1_names)]
+  
+  #Create time 2 columns
+  cols_to_rename <- names(df)[!names(df) %in% 
+                                c(plot_id, merge_id, unique_id, t1_names)]
   t2_names <- paste0(cols_to_rename, "2")
   data.table::setnames(df, cols_to_rename, t2_names)
-
-  #Rename the temp intervals to what was carried in interval_id initially
-  data.table::setnames(df, paste0(tmp_interval, "1"), paste0(interval_id, "1"))
-  data.table::setnames(df, paste0(tmp_interval, "2"), paste0(interval_id, "2"))
-
+  
+  #Drop the temporary interval column
+  data[, next_cycle_match := NULL]
+  
   return(df)
 }
+
+# merge_inv <- function(data, 
+#                       unique_id = "UNIQUETREEID",
+#                       plot_id = "PLOTMERGEID", 
+#                       merge_id = "TREEMERGEID", 
+#                       interval_id = "CYCLE", 
+#                       verbose = TRUE)
+# {
+#   
+#   #Add copy of interval_id to data. This is done because data.table does not 
+#   #create time1 and time 2 interval_id variables in non-equi join.
+#   tmp_interval <- "_interval_id_"
+#   data[, (tmp_interval) := get(interval_id)]
+#   
+#   #Sort the data
+#   data.table::setorderv(x = data, cols = c(plot_id, merge_id, interval_id))
+#   
+#   # Define the non-equi join conditions dynamically
+#   # This will act as a left join
+#   on_cols <- c(plot_id, merge_id, paste0(interval_id, " > ", interval_id))
+#   
+#   # Perform the self-join
+#   df <- data[data, 
+#              on = on_cols, 
+#              nomatch = NA, 
+#              allow.cartesian = TRUE]
+#   
+#   # Clean up missing values for trees that existed at time 1 but not time 2
+#   int_lab_y <- paste0(interval_id)
+#   int_lab_x <- paste0("i.", interval_id)
+#   
+#   df[is.na(get(int_lab_y)), (int_lab_y) := get(int_lab_x)] 
+#   
+#   #Drop columns that are no longer needed
+#   df[, c(unique_id, plot_id, interval_id) := NULL]
+#   
+#   #Rename time 1 unique id (.i)
+#   data.table::setnames(df, old = paste0("i.", unique_id), new = unique_id)
+#   
+#   # Rename i. columns (time 1): strip "i." prefix and append "1"
+#   i_cols <- names(df)[grepl("^i\\.", names(df))]
+#   t1_names <- paste0(sub("^i\\.", "", i_cols), "1")
+#   data.table::setnames(df, i_cols, t1_names)
+#   
+#   # Rename other columns (except plot_id, merge_id, unique_id, AND the renamed i_cols): append "2"
+#   cols_to_rename <- names(df)[!names(df) %in% c(plot_id, merge_id, unique_id, t1_names)]
+#   t2_names <- paste0(cols_to_rename, "2")
+#   data.table::setnames(df, cols_to_rename, t2_names)
+#   
+#   #Rename the temp intervals to what was carried in interval_id initially
+#   data.table::setnames(df, paste0(tmp_interval, "1"), paste0(interval_id, "1"))
+#   data.table::setnames(df, paste0(tmp_interval, "2"), paste0(interval_id, "2"))
+#   
+#   return(df)
+# }
 
 ################################################################################
 #' @name write_fitdb

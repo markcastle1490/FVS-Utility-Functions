@@ -2,7 +2,7 @@
 % Please edit documentation in R/fitdb-build.R
 \name{merge_inv}
 \alias{merge_inv}
-\title{Pair Tree Re-measurement Observations by Interval}
+\title{merge_inv}
 \usage{
 merge_inv(
   data,
