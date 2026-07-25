@@ -19,23 +19,8 @@ sp_df <- function()
 #' name.
 #' 
 #' @param sp
-#' Species code as a character. This can be either an FIA species code, USDA 
-#' plant symbol, or species scientific name. Value will get cast to character if 
-#' needed. Defaults to "".
-#' 
-#' @param from
-#' Option integer value that tells what kind of value is held in sp argument. 
-#' Specifying a value from 1 - 3 will generally speed up look up times.
-#' 
-#' 0: FIA species code, USDA plant symbol, or scientific name.
-#' 
-#' 1: FIA species code
-#' 
-#' 2: USDA plant symbol
-#' 
-#' 3: Species scientific name
-#' 
-#' Defaults to 0.
+#' Species code as a character. This can be either an FIA species code or USDA 
+#' plant symbol. Value will get cast to character if needed.
 #' 
 #' @param to
 #' Integer value indicating the type of species information to look up.
@@ -67,20 +52,21 @@ sp_df <- function()
 ################################################################################
 
 sp_lookup <- function(sp,
-                      from = 0,
                       to = 2)
 {
   #Validate from and to
-  if (!to %in% 1:9 || !from %in% 0:3) 
-    stop("Invalid 'from' (0-3) or 'to' (1-9) parameters.")
+  if (!to %in% 1:9) 
+    stop("Invalid 'to' (1-9) parameters.")
+  
+  #Uppercase sp
+  sp <- toupper(sp)
   
   #Retrieve species index
-  sp_index <- sp_index(sp = sp, from = from)
+  sp_index <- sp_index(sp = sp)
   
   if(to == 9) sp_to <- sp_index
   else
   {
-    #Column map matching 1 to 8 positions
     cols <- c("SPCD",
               "SPECIES_SYMBOL",
               "GENUS",
@@ -112,54 +98,27 @@ sp_lookup <- function(sp,
 #' Species code. This can be either an FIA species code or UDSA plant symbol. 
 #' Defaults to NULL.
 #' 
-#' @param from
-#' Option integer value that tells what kind of value is held in sp argument.
-#' 
-#' 1: FIA species code
-#' 
-#' 2: USDA plant symbol
-#' 
-#' Defaults to 0.
-#' 
 #' @return
 #' Numeric row index value from support_sp dataframe.
-#' @export
 ################################################################################
 
-sp_index <- function(sp = NULL,
-                     from = 0)
+sp_index <- function(sp = NULL)
 {
+
+  #Define search columns
+  search_cols <- c("SPCD", "PLANT_SYMBOL")
+  
   #Initialize sp_index
   sp_index <- rep(NA_integer_, length(sp))
-  
-  #Check inputs
-  if(!from %in% 1:2) from <- 0
-  sp_upper <- toupper(sp)
-  
-  #Search FIA Codes
-  if (from == 1) {
-    sp_num <- suppressWarnings(as.integer(sp_upper))
-    sp_index <- match(sp_num, support_sp$SPCD)
-  }
-  
-  #Search USDA Plant Symbols
-  else if (from == 2) {
-    sp_index <- match(sp_upper, support_sp$SPECIES_SYMBOL)
-  }
-  
-  #Check both FIA and USDA Plant Symbols
-  else {
-    sp_num <- suppressWarnings(as.integer(sp_upper))
-    sp_index <- match(sp_num, support_sp$SPCD)
-    
-    # Identify which elements missed the FIA lookup
+
+  #Start the search
+  for (search in search_cols) {
     still_na <- is.na(sp_index)
-    
-    # Look up only the missing elements in the USDA column
-    if (any(still_na)) {
-      sp_index[still_na] <- match(sp_upper[still_na], support_sp$SPECIES_SYMBOL)
-    }
-  }
+    if (!any(still_na)) break
   
+    matches <- match(sp[still_na], support_sp[[search]])
+    sp_index[still_na] <- matches
+  }
+
   return(sp_index)
 }

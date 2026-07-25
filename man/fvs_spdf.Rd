@@ -2,7 +2,7 @@
 % Please edit documentation in R/fvs-species-functions.R
 \name{fvs_spdf}
 \alias{fvs_spdf}
-\title{Retrieve FVS Variant Species Codes}
+\title{fvs_spdf}
 \usage{
 fvs_spdf(var_code = NULL, all_var = FALSE)
 }

@@ -7,7 +7,7 @@
 cc(
   crwidth,
   expf,
-  dbh,
+  dbh = NULL,
   ht = NULL,
   species = NULL,
   dbhmin = 0,

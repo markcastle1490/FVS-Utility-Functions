@@ -1,6 +1,5 @@
 ################################################################################
 #' @name fortyp
-#' @title Retrieve FIA Forest Type Dataframe
 #' @description This function returns the fortyp_codes dataframe that contains FIA forest 
 #' type codes, descriptions, forest type groups and other information. See 
 #' fortyp_codes dataframe in commons.R for more information.
@@ -15,7 +14,6 @@ fortyp_get_df <- function()
 
 ################################################################################
 #' @name fortyp_lookup
-#' @title Look Up FIA Forest Type Information
 #' @description This function is used to look up a forest type code description 
 #' or forest type group code based on an input FIA forest type code.
 #' 
@@ -29,39 +27,61 @@ fortyp_get_df <- function()
 #' 
 #' 2 = FIA forest type group code
 #' 
+#' 3 = Index value of input forest type code
+#' 
 #' @return
 #' Value corresponding to output provided in to argument.
 #' @export
 ################################################################################
 
-fortyp_lookup <- function(fortyp = 999,
-                          to = 1)
+fortyp_lookup <- function(fortyp = NULL, to = 1) {
 
-{
-  #Initialize fortyp_attr
-  fortyp_attr <- NA
+  #Check to argument
+  if (!to %in% 1:3) stop("Invalid 'to' (1-3) parameters.")
   
-  #Check valid to and from values
-  if(!to %in% c(1:2))
-    return(fortyp_attr)
-  
-  #Initialize fortyp_index
-  fortyp_index <- NA
-  
-  #Lookup index of fortyp
-  fortyp_index <- match(fortyp, fortyp_codes$VALUE)
-  
-  #If fortyp_index is not NA, determine fortyp_attr
-  if(!is.na(fortyp_index))
-  {
-    #Forest type description (MEANING)
-    if(to == 1)
-      fortyp_attr <- fortyp_codes$MEANING[fortyp_index]
-    
-    #Forest type group code (TYPGRPCD)
-    else
-      fortyp_attr <- fortyp_codes$TYPGRPCD[fortyp_index]
+  #Get forest type indices
+  fortyp_index <- fortyp_index(fortyp = fortyp)
+
+  #Get the forest type information
+  if(to == 3) fortyp_to <- fortyp_index
+  else {
+    cols <- c("MEANING", "TYPGRPCD")
+    target_col <- cols[to]
+    fortyp_to <- fortyp_codes[[target_col]][fortyp_index]
   }
-  
-  return(fortyp_attr)
+
+  return(fortyp_to)
+}
+
+################################################################################
+#' @name fortyp_index
+#' @description This function returns the row index (indices) in the fortyp_codes 
+#' data frame corresponding to input FIA forest type code(s).
+#' 
+#' @param fortyp
+#' Numeric FIA forest type code(s).
+#' 
+#' @return
+#' Integer vector of row indices in fortyp_codes. Returns NA_integer_ for 
+#' unmatched codes.
+################################################################################
+
+fortyp_index <- function(fortyp = NULL) {
+
+  #Define search column
+  search_cols <- c("VALUE")
+
+  #Initialize forest type index vector
+  fortyp_index <- rep(NA_integer_, length(fortyp))
+
+  #Search for forest type
+  for (search in search_cols) {
+    still_na <- is.na(fortyp_index)
+    if (!any(still_na)) break
+    
+    matches <- match(fortyp[still_na], fortyp_codes[[search]])
+    fortyp_index[still_na] <- matches
+  }
+
+  return(fortyp_index)
 }

@@ -4,26 +4,13 @@
 \alias{fvs_sp_index}
 \title{Retrieve Row Index for FVS Species Lists}
 \usage{
-fvs_sp_index(var_code = "", sp = "", from = 0)
+fvs_sp_index(var_code = NULL, sp = NULL)
 }
 \arguments{
 \item{var_code}{Two character FVS variant code (e.g. CA). Defaults to "".}
 
 \item{sp}{Species code. This can be a FVS character code, FIA species code, or USDA
 plant symbol. Defaults to "".}
-
-\item{from}{Option integer value that tells what kind of value is held in sp argument.
-Specifying a value from 1 - 3 will generally speed up look up times.
-
-0: FVS species character code, FIA species code or USDA plant symbol
-
-1: FVS species character code
-
-2: FIA species code
-
-3: USDA plant symbol
-
-Defaults to 0.}
 }
 \value{
 Numeric row index value from species code list.
@@ -39,4 +26,7 @@ fvs_fia_list
 fvs_plants_list
 
 fvs_seq_list
+}
+\details{
+fvs_sp_index
 }

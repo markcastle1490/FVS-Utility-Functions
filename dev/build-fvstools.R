@@ -46,8 +46,6 @@ roxygen_cmd <- sprintf("roxygen2::roxygenise(package.dir = %s, clean = TRUE)", s
 system2(
   command = r_path,
   args    = c("--vanilla", "--quiet", "-e", shQuote(roxygen_cmd)),
-  stdout  = TRUE, 
-  stderr  = TRUE,
   env     = c(paste0("R_LIBS_USER=", r_lib), paste0("R_LIBS_SITE=", r_lib))
 )
 
@@ -55,8 +53,6 @@ system2(
 system2(
   command = r_path,
   args = c("CMD build", "fvstools", shQuote(pkg_root)),
-  stdout = TRUE,
-  stderr = TRUE,
   env = c(paste0("R_LIBS_USER=", r_lib), paste0("R_LIBS_SITE=", r_lib)))
 
 # Find actual tarball after installation
@@ -83,8 +79,6 @@ install_args <- c("CMD INSTALL",
 system2(
   command = r_path, 
   args = install_args,
-  stdout  = TRUE, 
-  stderr  = TRUE,
   env     = c(paste0("R_LIBS_USER=", r_lib), paste0("R_LIBS_SITE=", r_lib)))
 
 # Find the exact path where fvstools is installed

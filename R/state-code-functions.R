@@ -15,7 +15,6 @@ state_df <- function()
 
 ################################################################################
 #' @name state_lookup
-#' @title Look Up State Names, FIPS Codes, and Abbreviations
 #' @description This function takes in a US state name, FIA State code, or 
 #' State abbreviation and returns a US state name, FIA state code or state 
 #' abbreviation.
@@ -23,20 +22,6 @@ state_df <- function()
 #' @param state
 #' Character string of a US state name (e.g. "New York") or state abbreviation 
 #' (e.g "NY") or a FIPS state code (e.g. 36 for New York).
-#' 
-#' @param from
-#' Option integer value that tells what kind of value is held in state argument. 
-#' Specifying a value from 1 - 3, will generally speed up lookup times.
-#' 
-#' 0: State FIPS code, abbreviation, or name.
-#' 
-#' 1: State FIPS code
-#' 
-#' 2: State abbreviation
-#' 
-#' 3: State name
-#' 
-#' Defaults to 0.
 #' 
 #' @param to
 #' Integer value signifying the state identifier to convert to.
@@ -55,46 +40,34 @@ state_df <- function()
 ################################################################################
 
 #'@export
-state_lookup <-function(state = NULL,
-                        from = 0,
-                        to = 3)
+state_lookup <- function(state = NULL,
+                         to = 3)
 {
+  #Validate to
+  if (!to %in% 1:3) 
+    stop("Invalid 'to' (1-3) parameters.")
   
-  #Initialize state_attr
-  state_attr <- NA
-
-  #If to is not valid, set to 2
-  if(! to %in% c(1:3))
-    return(state_attr)
-
-  #Initialize state_index
-  state_index <- NA
+  #Uppercase state
+  state <- toupper(state)
   
-  #Get state_index
-  state_index <- state_index(state = state,
-                             from = from)
+  #Retrieve state index
+  state_index <- state_index(state = state)
   
-  #If state_index is not NA, get the state attribute based on argument to. If
-  #state_index is still NA, return.
-  if(!is.na(state_index))
-  {
-    if(to == 1)
-      state_attr <- state_codes$FIPS_CODE[state_index]
-
-    else if(to == 2)
-      state_attr <- state_codes$STATE_ABBRV[state_index]
-
-    else
-      state_attr <- state_codes$STATE_NAME[state_index]
-  }
-
+  #Column map
+  cols <- c("FIPS_CODE",
+            "STATE_ABBRV",
+            "STATE_NAME")
+  
+  target_col <- cols[to]
+  
+  #Determine and return state_attr
+  state_attr <- state_codes[[target_col]][state_index]
+  
   return(state_attr)
 }
 
 ################################################################################
-#' @name state_index
-#' @title Retrieve Row Index for State Codes List
-#' @description This a function that is used to obtain a row index value from 
+#' @name state_indexom 
 #' the state_codes dataframe (see commons.R) based on an incoming state value. 
 #' The state value can be a state FIPS code, state abbreviation, or state name.
 #' 
@@ -102,77 +75,30 @@ state_lookup <-function(state = NULL,
 #' State value to evaluate. This can be either a state FIPS code, state 
 #' abbreviation, or full state name. Defaults to NULL.
 #' 
-#' @param from
-#' Option integer value that tells what kind of value is held in state argument.
-#' 
-#' 1: State FIPS code
-#' 
-#' 2: State abbreviation
-#' 
-#' 3: State name
-#' 
-#' Defaults to 0.
-#' 
 #' @return
 #' Numeric row index value from state_codes dataframe.
-#' @export
 ################################################################################
 
-state_index <- function(state = NULL,
-                            from = 0)
+state_index <- function(state = NULL)
   
 {
+  #Define search columns
+  search_cols <- c("FIPS_CODE", "STATE_ABBRV", "STATE_NAME")
+ 
+  #Uppercase state input
+  state <- toupper(state)
+  
   #Initialize state_index
-  state_index <- NA
+  state_index <- rep(NA_integer_, length(state))
   
-  #Catch bad values
-  if(! from %in% c(1, 2, 3)) from <- 0
+  #Start the search
+  for (search in search_cols) {
+    still_na <- is.na(state_index)
+    if (!any(still_na)) break
   
-  #Search FIPS codes
-  if(from <= 1) 
-    state_index <- state_fips_index(state)
-  
-  #Search state abbreviations
-  if(from == 2 || is.na(state_index)) 
-  {
-    state = toupper(state)
-    state_index <- match(state, state_codes$STATE_ABBRV)
+    matches <- match(state[still_na], state_codes[[search]])
+    state_index[still_na] <- matches
   }
   
-  #Search state names
-  if(from == 3 || is.na(state_index))
-  {
-    state = toupper(state)
-    state_index <- match(state, state_codes$STATE_NAME)
-  }
-    
   return(state_index)
-}
-
-################################################################################
-#' @name state_fips_index
-#' @title Retrieve Row Index by Numeric State FIPS Code
-#' @description This function is used to obtain an index value (row number) from
-#' the states_code data frame that is returned from the get_states function.
-#' 
-#' @param fips
-#' Numeric fips code.
-#' 
-#' @return
-#' Numeric index value.
-#' @export
-################################################################################
-
-state_fips_index <- function(fips)
-{
-  #Initialize fips_index_ 
-  fips_index_ <- NA
-  
-  #Coerce fips to numeric
-  if(!is.numeric(fips)) fips <- suppressWarnings(as.numeric(fips))
-  
-  #If fips is not NA search for index
-  if(!is.na(fips)) fips_index_ <- match(fips, state_codes$FIPS_CODE)
-  
-  return(fips_index_)
 }

@@ -7,7 +7,7 @@
 mean_attr(
   attr,
   weight = NULL,
-  dbh,
+  dbh = NULL,
   ht = NULL,
   species = NULL,
   dbhmin = 0,

@@ -2,29 +2,17 @@
 % Please edit documentation in R/fvs-species-functions.R
 \name{fvs_sp_lookup}
 \alias{fvs_sp_lookup}
-\title{Look Up FVS and FIA Species Crosswalk Metadata}
+\title{fvs_sp_lookup}
 \usage{
-fvs_sp_lookup(var_code = "", sp = "", from = 0, to = 1)
+fvs_sp_lookup(var_code, sp, to = 1)
 }
 \arguments{
-\item{var_code}{Two character FVS variant code (e.g. CA). Defaults to "".}
+\item{var_code}{Character vector of FVS variant code (e.g. CA). Defaults to "".}
 
-\item{sp}{Incoming species code as a character string. This can be a FVS character code,
+\item{sp}{Character vector of species codes. This can be a FVS character code,
 FIA species code, or USDA plant symbol. Value will be cast to character value
-if needed. Defaults to "".}
-
-\item{from}{Option integer value that tells what kind of value is held in sp argument.
-Specifying a value from 1 - 3 will generally speed up look up times.
-
-0: FVS species character code, FIA species code or USDA plant symbol
-
-1: FVS species character code
-
-2: FIA species code
-
-3: USDA plant symbol
-
-Defaults to 0.}
+if needed. Sequence numbers will not be checked since they can overlap with
+FIA codes. Defaults to "".}
 
 \item{to}{Integer value indicating the type of species information to look up.
 

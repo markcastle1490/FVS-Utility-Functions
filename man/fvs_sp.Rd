@@ -2,7 +2,7 @@
 % Please edit documentation in R/fvs-species-functions.R
 \name{fvs_sp}
 \alias{fvs_sp}
-\title{Retrieve FVS Variant Species Code Vectors}
+\title{fvs_sp}
 \usage{
 fvs_sp(var_code = NULL, all_var = FALSE, type = 2)
 }

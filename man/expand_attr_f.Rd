@@ -7,7 +7,7 @@
 expand_attr_f(
   attr,
   expf,
-  dbh,
+  dbh = NULL,
   ht = NULL,
   species = NULL,
   dbhmin = 0,

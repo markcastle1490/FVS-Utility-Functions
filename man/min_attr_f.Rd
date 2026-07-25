@@ -6,7 +6,7 @@
 \usage{
 min_attr_f(
   attr,
-  dbh,
+  dbh = NULL,
   ht = NULL,
   species = NULL,
   dbhmin = 0,

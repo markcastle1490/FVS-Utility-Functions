@@ -6,7 +6,7 @@
 \usage{
 max_attr(
   attr,
-  dbh,
+  dbh = NULL,
   ht = NULL,
   species = NULL,
   dbhmin = 0,
