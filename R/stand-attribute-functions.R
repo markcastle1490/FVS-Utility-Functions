@@ -266,7 +266,7 @@ ba = function(dbh,
 ################################################################################
 
 tpa = function(expf,
-               dbh,
+               dbh = NULL,
                ht = NULL,
                species = NULL,
                dbhmin = 0,
@@ -277,6 +277,9 @@ tpa = function(expf,
 {
   
   tpa_ <- 0
+  
+  #Set dbh if null
+  if(is.null(dbh)) dbh <- numeric(length(expf))
   
   #Set ht if null
   if(is.null(ht)) ht <- numeric(length(expf))
@@ -956,7 +959,7 @@ zsdi = function(dbh,
 
 cc = function(crwidth,
               expf,
-              dbh,
+              dbh = NULL,
               ht = NULL,
               species = NULL,
               dbhmin = 0,
@@ -966,6 +969,9 @@ cc = function(crwidth,
               select_species = NULL)
 {
   cc_ <- 0
+  
+  #Set dbh if null
+  if(is.null(dbh)) dbh <- numeric(length(expf))
   
   #Set ht if null
   if(is.null(ht)) ht <- numeric(length(expf))
@@ -1332,7 +1338,7 @@ top_ht = function(dbh,
 
 mean_attr = function(attr,
                      weight = NULL,
-                     dbh,
+                     dbh = NULL,
                      ht = NULL,
                      species = NULL,
                      dbhmin = 0,
@@ -1345,6 +1351,9 @@ mean_attr = function(attr,
   
   #Get ntree
   ntree <- length(attr)
+  
+  #Set dbh if null
+  if(is.null(dbh)) dbh <- numeric(ntree)
   
   #Set ht if null
   if(is.null(ht)) ht <- numeric(ntree)
@@ -1430,7 +1439,7 @@ mean_attr = function(attr,
 #'@export
 expand_attr = function(attr,
                        expf,
-                       dbh,
+                       dbh = NULL,
                        ht = NULL,
                        species = NULL,
                        dbhmin = 0,
@@ -1441,6 +1450,9 @@ expand_attr = function(attr,
 {
   
   expand_attr_ <- 0
+  
+  #Set dbh if null
+  if(is.null(dbh)) dbh <- numeric(length(attr))
   
   #Set ht if null
   if(is.null(ht)) ht <- numeric(length(attr))
@@ -1512,7 +1524,7 @@ expand_attr = function(attr,
 ################################################################################
 
 min_attr = function(attr,
-                    dbh,
+                    dbh = NULL,
                     ht = NULL,
                     species = NULL,
                     dbhmin = 0,
@@ -1523,6 +1535,9 @@ min_attr = function(attr,
 {
   
   min_attr_ <- 0
+  
+  #Set dbh if null
+  if(is.null(dbh)) dbh <- numeric(length(attr))
   
   #Set ht if null
   if(is.null(ht)) ht <- numeric(length(attr))
@@ -1595,7 +1610,7 @@ min_attr = function(attr,
 ################################################################################
 
 max_attr = function(attr,
-                    dbh,
+                    dbh = NULL,
                     ht = NULL,
                     species = NULL,
                     dbhmin = 0,
@@ -1606,6 +1621,9 @@ max_attr = function(attr,
 {
   
   max_attr_ <- 0
+  
+  #Set dbh if null
+  if(is.null(dbh)) dbh <- numeric(length(attr))
   
   #Set ht if null
   if(is.null(ht)) ht <- numeric(length(attr))
@@ -1866,7 +1884,7 @@ ba_f = function(dbh,
 ################################################################################
 
 tpa_f = function(expf,
-               dbh,
+               dbh = NULL,
                ht = NULL,
                species = NULL,
                dbhmin = 0,
@@ -1881,6 +1899,9 @@ tpa_f = function(expf,
   
   #Get number of trees
   ntree <- length(expf)
+  
+  #Set dbh if null
+  if(is.null(dbh)) dbh <- numeric(ntree)
   
   #Set ht if null
   if(is.null(ht)) ht <- numeric(ntree)
@@ -2575,7 +2596,7 @@ zsdi_f = function(dbh,
 #'@export
 cc_f = function(crwidth,
               expf,
-              dbh,
+              dbh = NULL,
               ht = NULL,
               species = NULL,
               dbhmin = 0,
@@ -2589,6 +2610,9 @@ cc_f = function(crwidth,
   
   #Get number of trees
   ntree <- length(expf)
+  
+  #Set dbh if null
+  if(is.null(dbh)) dbh <- numeric(ntree)
   
   #Set ht if null
   if(is.null(ht)) ht <- numeric(ntree)
@@ -2923,7 +2947,7 @@ bal_f = function(dbh,
 
 mean_attr_f = function(attr,
                       weight = NULL,
-                      dbh,
+                      dbh = NULL,
                       ht = NULL,
                       species = NULL,
                       dbhmin = 0,
@@ -2941,6 +2965,9 @@ mean_attr_f = function(attr,
   #Set weight if null
   if(is.null(weight) || length(weight) != ntree) 
     weight <- numeric(ntree)
+  
+  #Set dbh if null
+  if(is.null(dbh)) dbh <- numeric(ntree)
   
   #Set ht if null
   if(is.null(ht)) ht <- numeric(ntree)
@@ -3037,7 +3064,7 @@ mean_attr_f = function(attr,
 #'@export
 expand_attr_f = function(attr,
                         expf,
-                        dbh,
+                        dbh = NULL,
                         ht = NULL,
                         species = NULL,
                         dbhmin = 0,
@@ -3052,6 +3079,9 @@ expand_attr_f = function(attr,
   
   #Get number of trees
   ntree <- length(attr)
+  
+  #Set dbh if null
+  if(is.null(dbh)) dbh <- numeric(ntree)
   
   #Set ht if null
   if(is.null(ht)) ht <- numeric(ntree)
@@ -3237,7 +3267,7 @@ count_rec_f = function(dbh,
 ################################################################################
 
 min_attr_f = function(attr,
-                    dbh,
+                    dbh = NULL,
                     ht = NULL,
                     species = NULL,
                     dbhmin = 0,
@@ -3252,6 +3282,9 @@ min_attr_f = function(attr,
   
   #Get number of trees
   ntree <- length(attr)
+  
+  #Set dbh if null
+  if(is.null(dbh)) dbh <- numeric(ntree)
   
   #Set ht if null
   if(is.null(ht)) ht <- numeric(ntree)
@@ -3339,7 +3372,7 @@ min_attr_f = function(attr,
 ################################################################################
 
 max_attr_f = function(attr,
-                      dbh,
+                      dbh = NULL,
                       ht = NULL,
                       species = NULL,
                       dbhmin = 0,
@@ -3354,6 +3387,9 @@ max_attr_f = function(attr,
   
   #Get number of trees
   ntree <- length(attr)
+  
+  #Set dbh if null
+  if(is.null(dbh)) dbh <- numeric(ntree)
   
   #Set ht if null
   if(is.null(ht)) ht <- numeric(ntree)

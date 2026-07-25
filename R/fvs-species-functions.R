@@ -1,6 +1,6 @@
 ################################################################################
+#'fvs_spdf
 #' @name fvs_spdf
-#' @title Retrieve FVS Variant Species Codes
 #' @description This function returns all species codes for a given FVS variant,
 #' set of FVS variants, or all FVS variants. The species codes included in the 
 #' returned dataframe are:
@@ -78,8 +78,8 @@ fvs_spdf <- function(var_code = NULL,
 }
 
 ################################################################################
+#' fvs_sp
 #' @name fvs_sp
-#' @title Retrieve FVS Variant Species Code Vectors
 #' @description This function returns a vector of species codes for a given 
 #' variant, set of variants, or all variants. The following species codes can be
 #' returned in a vector:
@@ -171,8 +171,8 @@ fvs_sp <- function(var_code = NULL,
 }
 
 ################################################################################
+#' fvs_sp_lookup
 #' @name fvs_sp_lookup
-#' @title Look Up FVS and FIA Species Crosswalk Metadata
 #' @description This function is used to look up a FVS sequence number, FVS 
 #' species character code, FIA code, or USDA plant code for a given variant 
 #' based on an input species code.
@@ -217,47 +217,39 @@ fvs_sp <- function(var_code = NULL,
 #' @export
 ################################################################################
 
-fvs_sp_lookup <- function(var_code = "",
-                          sp = "",
+fvs_sp_lookup <- function(var_code,
+                          sp,
                           from = 0,
                           to = 1)
 {
-  #Initialize sp_to
-  sp_to <- NA
+  #Check from and to
+  if (!to %in% 1:4 || !from %in% 0:3) {
+    stop("Invalid 'from' (0-3) or 'to' (1-4) parameters.")
+  }
   
-  #Return if inputs are invalid
-  if(!to %in% 1:4 || is.na(var_code) || is.na(sp))
-    return(sp_to)
+  #Extract row indices
+  sp_index <- fvs_sp_index(var_code = var_code, sp = sp, from = from)
   
-  #Determine which species codes to search through based on from code
-  sp_index <- fvs_sp_index(var_code = var_code,
-                           sp = sp,
-                           from = from)
+  #Upper case variant
+  var_upper <- toupper(var_code)
   
-  #If sp_index is not NA, determine sp_to
-  if(!is.na(sp_index))
-  {
-    #FVS character code
-    if(to == 1)
-      sp_to <- fvs_char_list[[var_code]][sp_index]
-    
-    #FIA species code
-    else if(to == 2)
-      sp_to <- fvs_fia_list[[var_code]][sp_index]
-    
-    #USDA plant symbol
-    else if(to == 3)
-      sp_to <- fvs_plant_list[[var_code]][sp_index]
-    
-    #FVS Sequence number
-    else if(to == 4)
-      sp_to <- fvs_seq_list[[var_code]][sp_index]
+  #Determine list to get based on to
+  cols <- c("FVS_CHAR", "SPCD", "SPECIES_SYMBOL", "FVS_SEQ")
+  target_col <- cols[to]
+  
+  #Extract species
+  sp_to <- fvs_species[[target_col]][sp_index]
+  
+  #Final type casting
+  if (to %in% c(4)) {
+    sp_to <- as.integer(sp_to)
   }
   
   return(sp_to)
 }  
 
 ################################################################################
+#' fvs_sp_index
 #' @name fvs_sp_index
 #' @title Retrieve Row Index for FVS Species Lists
 #' @description This a function that is used to obtain a row index value from 
@@ -304,7 +296,7 @@ fvs_sp_index <- function(var_code = "",
   #Initialize sp_index
   sp_index <- NA
   
-  #Uppercase var_code
+  #Uppercase var_code and sp
   var_code <- toupper(var_code)
   sp <- toupper(sp)
   
@@ -314,6 +306,9 @@ fvs_sp_index <- function(var_code = "",
   
   #Catch bad values
   if(!from %in% c(1, 2, 3)) from <- 0
+  
+  #Initialize sp_index
+  sp_index <- rep(NA_integer_, length(sp_upper))
   
   #Search FVS species codes
   if(from <= 1)

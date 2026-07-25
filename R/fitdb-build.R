@@ -193,7 +193,11 @@ merge_inv <- function(data,
   data.table::setorderv(x = data, cols = c(plot_id, merge_id, interval_id))
   
   #Create column for next consecutive cycle
-  data[, next_cycle_match := get(interval_id) + 1]
+  #data[, next_cycle_match := get(interval_id) + 1]
+  
+  # Create column for next consecutive cycle using shift logic
+  data[, next_cycle_match := data.table::shift(get(interval_id), type = "lead"), 
+     by = c(plot_id, merge_id)]
   
   #Do join
   on_cols <- c(plot_id, merge_id, paste0(interval_id, " == next_cycle_match"))
