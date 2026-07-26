@@ -1,6 +1,5 @@
 ################################################################################
 #' @name get_vbceq
-#' @title Retrieve NSVB Volume and Biomass Equation Number
 #' @description This function takes in an FIA species code, ecological division 
 #' code, stand origin code, and state code and returns a NVEL equation number 
 #' string.
@@ -125,7 +124,6 @@ get_vbceq <- function(spcd = 999,
 
 ################################################################################
 #' @name get_ecoregion
-#' @title Retrieve Ecological Province or Division by Subsection Code
 #' @description This function takes in an ecological subsection and returns an 
 #' ecological province or division.
 #' 
