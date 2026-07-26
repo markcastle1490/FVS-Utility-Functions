@@ -37,22 +37,13 @@
 ################################################################################
 
 get_vbceq <- function(spcd = 999,
-                     division = "130",
-                     stdorgcd = 0,
-                     statecd = 0)
-{
-  #if stdorgcd is NA, set to 0
-  if(is.na(stdorgcd)) stdorgcd <- 0
-  
-  #If spcd <= 10 or spcd > 999 set to 999. Doesn't need to be done in FORTRAN;
-  #just necessary for R function.
-  if(spcd <= 10 || spcd > 999) spcd <- 999
-  
-  #Initialize nvelEq, wdldSp, spIdx
-  nvelEq <- "          "
-  wdld <- FALSE
-  spIdx <- 0
-  
+                      division = "130",
+                      stdorgcd = 0,
+                      statecd = 0)
+{ 
+  #if stdorgcd is not 0 or 1, set to 0
+  stdorgcd <- ifelse(!stdorgcd %in% 1:2, 0, stdorgcd)
+
   #Vector (array) of ecological divisions
   divs <- c( "120", "130", "210", "220", "230",
              "240", "250", "260", "310", "320",
@@ -60,22 +51,22 @@ get_vbceq <- function(spcd = 999,
              "M220", "M230", "M240", "M260", "M310",
              "M330", "M340")
   
-  #Set division to '0000' if it is not found in divs.This is done already
-  #before call to nvbeqdef in FORTRAN. Just necessary for R function.
-  if(!division %in% divs) division <- '0000'
-  
+  #Get divisions
+  div_idx <- match(division, divs)
+  division <- divs[div_idx]
+
   #=============================================================================
   #Vector of woodland species that FVS recognizes
   #=============================================================================
   
-  woodSp <- c(62,  63,  65,  66,  69, 106, 133, 134, 143, 321,
+  wood_sp <- c(62,  63,  65,  66,  69, 106, 133, 134, 143, 321,
               322, 475, 803, 810, 814, 843)
   
   #Vector of default woodland equations that FVS recognizes
-  woodDef <- c("R03CHO0065", "R03CHO0066", "R03CHO0065", "R03CHO0066", 
-               "R03CHO0065", "R03CHO0106", "400DVEW133", "R03CHO0106",
-               "R03CHO0106", "200DVEW475", "200DVEW814", "200DVEW475",
-               "300DVEW800", "300DVEW800", "200DVEW814", "300DVEW800")
+  wood_def <- c("R03CHO0065", "R03CHO0066", "R03CHO0065", "R03CHO0066", 
+                "R03CHO0065", "R03CHO0106", "400DVEW133", "R03CHO0106",
+                "R03CHO0106", "200DVEW475", "200DVEW814", "200DVEW475",
+                "300DVEW800", "300DVEW800", "200DVEW814", "300DVEW800")
   
   #=============================================================================
   #Start equation selection process
@@ -86,56 +77,50 @@ get_vbceq <- function(spcd = 999,
   #2) If species is a woodland species, select relevant equation string.
   #=============================================================================
   
-  #Check if species is a woodland species
-  if(spcd %in% woodSp) wdld <- TRUE
+  #Check which species are wood
+  is_wdld <- spcd %in% wood_sp
+
+  #Adjust division
+  division <- sprintf("%4s", division)
+  division <- gsub(" ", "0", division)
+
+  #Initialize voleq vector
+  voleq <- character(length(spcd))
   
   #Build NVB equation for non-woodland species
-  if(!wdld)
+  if(any(!is_wdld))
   {
-    division <- trimws(sprintf("%04s", division))
-    if(nchar(division) < 4) division <- paste0("0", division)
-    
-    nvelEq <- paste0("NVB",
-                     sprintf("%04s", division),
-                     sprintf("%03d", spcd))
+    voleq[!is_wdld] <- paste0("NVB",
+                              division[!is_wdld], 
+                              sprintf("%03d", spcd[!is_wdld]))
     
     #Check if species 111 and 131 should have a 'P' added to equation string.
-    if(spcd %in% c(111, 131))
-    {
-      if((division == '0230' || division == '0000') && stdorgcd == 1) nvelEq <- paste0(nvelEq, "P") 
-    }
+    voleq[!is_wdld] <- ifelse(spcd[!is_wdld] %in% c(111, 131) & 
+                              division[!is_wdld] %in% c('0230', '0000') & 
+                              stdorgcd[!is_wdld] == 1, 
+                              paste0(voleq[!is_wdld], "P"), 
+                              voleq[!is_wdld])
   }
   
   #Get woodland equation
-  else
+  if(any(is_wdld))
   {
-    #If no NVB equation has been found, then check woodland species equations
-    spIdx <- match(spcd, woodSp)
-    if(is.na(spIdx)) spIdx <- 0
-    
-    #Make an initial woodland equation selection
-    if(spIdx > 0)
-    {
-      nvelEq <- woodDef[spIdx]
-    }
-    
+    wood_idx <- match(spcd[is_wdld], wood_sp)
+    voleq[is_wdld] <- wood_def[wood_idx]
+
     #Check if woodland equation selection should be adjusted based on state
     #California, Oregon, and Washington
-    if(statecd %in% c(6, 41, 53))
-    {
-      if(spcd %in% c(62, 65)) nvelEq <- "400DVEW065"
-      if(spcd %in% c(66)) nvelEq <- "200DVEW066"
-      if(spcd %in% c(322)) nvelEq <- "200DVEW475"
-    }
+    is_ca_or_wa <- is_wdld & statecd %in% c(6, 41, 53)
+    voleq[is_ca_or_wa & spcd %in% c(62, 65)] <- "400DVEW065"
+    voleq[is_ca_or_wa & spcd == 66] <- "200DVEW066"
+    voleq[is_ca_or_wa & spcd == 322] <- "200DVEW475"
     
     #Arizona and New Mexico
-    if(statecd %in% c(4, 35))
-    {
-      if(spcd %in% c(322, 814)) nvelEq <- "300DVEW800"
-    }
+    is_az_nm <- is_wdld & statecd %in% c(4, 35)
+    voleq[is_az_nm & spcd %in% c(322, 814)] <- "300DVEW800"
   }
   
-  return(nvelEq)
+  return(voleq)
 }
 
 ################################################################################
@@ -165,39 +150,25 @@ get_vbceq <- function(spcd = 999,
 get_ecoregion <- function(ecosubcd = "",
                           type = 1)
 {
-  #If ecosubcd is NA return
-  if(is.na(ecosubcd)) return(NA)
-  
+
   #Catch bad type values
-  if(type < 0 || type > 1) type <- 1
+  if(!type %in% 0:1) type <- 1
   
   #Make sure ecosubcd is uppercase
-  ecosubcd <- toupper(ecosubcd)
-  
-  #Remove blank spaces in ecosubcd
-  ecosubcd <- trimws(ecosubcd)
+  ecosubcd <- toupper(trimws(ecosubcd))
   
   #Get first 4 characters if ecosubcd starts with 'M' otherwise get the first 3
-  if(substring(ecosubcd, 1, 1) == 'M') 
-  {
-    eco <- substring(ecosubcd, 1, 4)
-  }
-  
-  else 
-  {
-    eco <- substring(ecosubcd, 1, 3)
-  }
+  eco <- ifelse(substring(ecosubcd, 1, 1) == "M", 
+                substring(ecosubcd, 1, 4),
+                substring(ecosubcd, 1, 3))
   
   #Set last character to 0, if type is 1 (ecodivision)
-  if(type == 1)
-  {
-    eco <- paste0(substring(eco, 1, nchar(eco) - 1),
-                  "0")
-  }
+  eco <- ifelse(type == 1,
+                paste0(substring(eco, 1, nchar(eco) - 1), "0"),
+                eco)
   
   return(eco)
 }
-
 
 ################################################################################
 #OLD version
