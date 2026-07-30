@@ -104,36 +104,11 @@ fia_fitdb <- function(dbin = NULL,
   #Create temporary HTCD for determining HT
   tree[, HTCD_TEMP := data.table::fcoalesce(HTCD, 1L)
   ][, ':=' (DATASOURCE = 'FIA',
-                  #Unique plot ID
-                  UNIQUEPLOTID = paste(STATECD,
-                                       INVYR,
-                                       UNITCD,
-                                       COUNTYCD,
-                                       PLOT,
-                                       sep = "_"),
-                  #Unique subplot ID
-                  UNIQUESUBPID = paste(STATECD,
-                                       INVYR,
-                                       UNITCD,
-                                       COUNTYCD,
-                                       PLOT,
-                                       SUBP,
-                                       sep = "_"),
-                  #Unique tree ID
-                  UNIQUETREEID = paste(STATECD,
-                                       INVYR,
-                                       UNITCD,
-                                       COUNTYCD,
-                                       PLOT,
-                                       SUBP,
-                                       TREE,
-                                       sep = "_"),
                   #Create broken top indicator with updated HT field
                   #Broken top indicator
                   #Need to verify if DAMAGE_AGENT_CD1 or ABNORMAL termination
                   #needs to be considered
-                  BT = data.table::fcase(ACTUALHT < HT, 1L,
-                              default = NA_integer_),
+                  BT = data.table::fifelse(ACTUALHT < HT, 1L, 0L),
                   #Get measured height value (only observations that were actually measured)
                   HT= data.table::fifelse(!is.na(ACTUALHT), ACTUALHT, HT),
                   #Grab PREVIA for dead trees if needed
@@ -193,26 +168,16 @@ fia_fitdb <- function(dbin = NULL,
 
   #Obtain variables that will be included in the merge_inv function
   merge_vars <- c(
-    "CYCLE", "MEASYEAR", "MEASMON", "MEASDAY", "DATE", "DIA", "HT", "CR",
+    "CYCLE", "MEASYEAR", "MEASMON", "MEASDAY", "DATE", "SPCD", "DIA", "HT", "CR",
     "STATUSCD", "AGENTCD", "DIACHECK", "HTDMP", "DESIGNCD", "TPA", "QMD",
-    "BA", "RSDI", "ZSDI", "BAL", "HTCD_TEMP")
-
-  #Call merge_inv function
-  # merge_df <- merge_inv(data = split(tree[, c("UNIQUETREEID",
-  #                            "PLOTMERGEID",
-  #                            "TREEMERGEID",
-  #                             merge_vars), with = FALSE],
-  #                             by = "CYCLE"),
-  #                          plot_id = "PLOTMERGEID",
-  #                          merge_id = "TREEMERGEID",
-  #                          interval_id = "CYCLE",
-  #                          verbose = verbose)
+    "BA", "RSDI", "ZSDI", "BAL", "HTCD", "HTCD_TEMP")
   
-  merge_df <- merge_inv(data = tree[, c("UNIQUETREEID",
-                                              "PLOTMERGEID",
-                                              "TREEMERGEID",
-                                              merge_vars), with = FALSE],
-                        unique_id = "UNIQUETREEID",
+  #Merge remeasurents
+  merge_df <- merge_inv(data = tree[, c("TREE_CN",
+                                        "PLOTMERGEID",
+                                        "TREEMERGEID",
+                                        merge_vars), with = FALSE],
+                        unique_id = "TREE_CN",
                         plot_id = "PLOTMERGEID",
                         merge_id = "TREEMERGEID",
                         interval_id = "CYCLE",
@@ -224,7 +189,7 @@ fia_fitdb <- function(dbin = NULL,
   #join merge_df to tree and then remove
   tree <- merge(x = merge_df,
                y = tree, 
-               by = c("UNIQUETREEID"),
+               by = c("TREE_CN"),
                all.x = TRUE)
 
   #Clean up
@@ -248,37 +213,47 @@ fia_fitdb <- function(dbin = NULL,
   tree[,  ':=' (MEASLEN = MEASYEAR2 - MEASYEAR1,
                 REMPER = round(((DATE2 - DATE1)/365.25), 1))]
 
-  #Calculate MORT, IDGRM, DI, IHGRM, HI, and HCB
-  tree[, ':=' (#Mortality observation
-                  MORT = data.table::fcase(
-                    STATUSCD1 == 1 & STATUSCD2 == 2 & MEASLEN > 0 & 
-                      !AGENTCD2 %in% c(80), 1L,
-                    STATUSCD1 == 1 & STATUSCD2 == 1 & MEASLEN > 0, 0L,
-                    default = NA_integer_),
-                  #Diameter growth observation indicator
-                  IDGRM = data.table::fifelse(
-                    DIA2 >= DIA1 & 
-                    STATUSCD1 == 1 & 
-                    STATUSCD2 == 1 & 
-                    HTDMP1 == 0 & 
-                    HTDMP2 == 0 & 
-                    DIASUM1 == 0 &
-                    DIASUM2 == 0 &
-                    MEASLEN > 0, 1L, NA_integer_),
-                  #Height growth observation indicator
-                  IHGRM = data.table::fifelse(
-                    HT2 >= HT1 & 
-                    STATUSCD1 == 1 & 
-                    STATUSCD2 == 1 & 
-                    HTCD_TEMP1 == 1 &
-                    HTCD_TEMP2 == 1 &
-                    MEASLEN > 0, 1L, NA_integer_),
-                  #Height to crown base
-                  HCB1 = HT1 - (HT1 * CR1/100),
-                  HCB2 = HT2 - (HT2 * CR2/100))]
+  #Calculate fitting indicator variables, MORT, and HCB
+  tree[, ':=' (#Height observation
+               IHTM = data.table::fifelse(
+                 HTCD_TEMP1 == 1 & 
+                   !is.na(HT1) &
+                   STATUSCD1 == 1 &
+                   BT != 1, 1L, 0L),
+               #Crown size observation
+               ICRM = data.table::fifelse(
+                   !is.na(CR1) &
+                   STATUSCD1 == 1 &
+                   BT != 1, 1L, 0L),
+               #Diameter growth observation indicator
+               IDGRM = data.table::fifelse(
+                 DIA2 >= DIA1 & 
+                   STATUSCD1 == 1 & 
+                   STATUSCD2 == 1 & 
+                   HTDMP1 == 0 & 
+                   HTDMP2 == 0 & 
+                   DIASUM1 == 0 &
+                   DIASUM2 == 0 &
+                   MEASLEN > 0, 1L, 0L),
+               #Height growth observation indicator
+               IHGRM = data.table::fifelse(
+                 HT2 >= HT1 & 
+                   STATUSCD1 == 1 & 
+                   STATUSCD2 == 1 & 
+                   HTCD_TEMP1 == 1 &
+                   HTCD_TEMP2 == 1 &
+                   MEASLEN > 0, 1L, 0L),
+               #Mortality response variable (0 or 1)
+               MORT = data.table::fcase(
+                 STATUSCD1 == 1 & STATUSCD2 == 2 & MEASLEN > 0, 1L,
+                 STATUSCD1 == 1 & STATUSCD2 == 1 & MEASLEN > 0, 0L,
+                 default = NA_integer_),
+               #Height to crown base
+               HCB1 = HT1 - (HT1 * CR1/100),
+               HCB2 = HT2 - (HT2 * CR2/100))]
   
   #Mortality observation indicator
-  tree[, IMRT := data.table::fifelse(MORT %in% c(0, 1), 1L, NA_integer_)]
+  tree[, IMRT := data.table::fifelse(MORT %in% c(0, 1), 1L, 0L)]
 
   #Upper case column names and get fitdb variables
   data.table::setnames(x = tree, toupper)

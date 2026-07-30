@@ -9,9 +9,7 @@
 #' @title Generate FIA Tree Level Extract Query
 #' @description This function constructs a SQL SELECT query used to extract 
 #' tree-level data and associated plot, condition, subplot, and taxonomic 
-#' metadata from an FIA SQLite database. It pairs core columns together via 
-#' explicit surrogate keys and applies quality-control filters to isolate 
-#' measurable, live or recently dead forest inventory records.
+#' data from an FIA SQLite database.
 #' 
 #' @return
 #' A character string containing the complete multi-table SQL join query, 
@@ -21,27 +19,29 @@
 
 fia_tree_query <- function() {
   # Variables from TREE table
-  tree <- paste0("TREE.", c("STATECD", "UNITCD", "COUNTYCD", "PLOT", "SUBP", "TREE", 
-                           "INVYR", "CYCLE", "SPCD", "DIA", "DIAHTCD", "TPA_UNADJ", 
-                           "STATUSCD", "HTCD", "HT", "ACTUALHT", "PREVDIA", 
-                           "DAMAGE_AGENT_CD1", "DAMAGE_AGENT_CD2", "DAMAGE_AGENT_CD3", 
-                           "BHAGE", "CONDID", "CR", "CULL", "DIACHECK", "AGENTCD", 
-                           "RECONCILECD", "HTDMP"))
+  tree <- paste0("TREE.", c("CN as TREE_CN", "STATECD", "UNITCD", "COUNTYCD",
+                            "PLOT", "SUBP", "TREE", "INVYR", "CYCLE", "SPCD", 
+                            "DIA", "DIAHTCD", "TPA_UNADJ",  "STATUSCD", "HTCD",
+                            "HT", "ACTUALHT", "PREVDIA", "DAMAGE_AGENT_CD1",
+                            "DAMAGE_AGENT_CD2", "DAMAGE_AGENT_CD3", 
+                            "BHAGE", "CONDID", "CCLCD", "CR", "CULL", "DIACHECK",
+                            "AGENTCD", "DECAYCD", "RECONCILECD", "HTDMP"))
   
   # Variables from COND table
-  cond <- paste0("COND.", c("COND_STATUS_CD", "FORTYPCD", "CONDPROP_UNADJ", "OWNCD", 
-                           "ADFORCD", "DSTRBCD1", "DSTRBCD2", "DSTRBCD3", "TRTCD1", 
-                           "TRTCD2", "TRTCD3", "STDORGCD"))
+  cond <- paste0("COND.", c("CN as COND_CN", "COND_STATUS_CD", "FORTYPCD", 
+                            "CONDPROP_UNADJ", "OWNCD", "DSTRBCD1", "DSTRBCD2",
+                            "DSTRBCD3", "TRTCD1", "TRTCD2", "TRTCD3", "STDORGCD"))
   
   # Variables from PLOT table
-  plot <- paste0("PLOT.", c("LAT", "LON", "ELEV", "MEASYEAR", "MEASMON", "MEASDAY", 
-                           "DESIGNCD", "KINDCD"))
+  plot <- paste0("PLOT.", c("CN as PLT_CN", "LAT", "LON", "ELEV", "MEASYEAR",
+                            "MEASMON", "MEASDAY", "DESIGNCD", "KINDCD"))
   
   # Variables from SUBPLOT table
-  subplot <- paste0("SUBPLOT.", c("SLOPE", "ASPECT"))
+  subplot <- paste0("SUBPLOT.", c("CN as SUBP_CN", "SLOPE", "ASPECT"))
   
   # Variables from REF_SPECIES table
-  ref_species <- paste0("REF_SPECIES.", c("SPECIES_SYMBOL", "WOODLAND", "GENUS", "SFTWD_HRDWD"))
+  ref_species <- paste0("REF_SPECIES.", c("SPECIES_SYMBOL", "WOODLAND", "GENUS",
+                                          "SFTWD_HRDWD"))
   
   # Combine variables into a single string
   fia_vars <- paste(c(tree, cond, plot, subplot, ref_species), collapse = ", ")

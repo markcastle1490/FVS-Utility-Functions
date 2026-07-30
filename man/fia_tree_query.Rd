@@ -13,7 +13,5 @@ matching variables from the TREE, COND, PLOT, SUBPLOT, and REF_SPECIES tables.
 \description{
 This function constructs a SQL SELECT query used to extract
 tree-level data and associated plot, condition, subplot, and taxonomic
-metadata from an FIA SQLite database. It pairs core columns together via
-explicit surrogate keys and applies quality-control filters to isolate
-measurable, live or recently dead forest inventory records.
+data from an FIA SQLite database.
 }
