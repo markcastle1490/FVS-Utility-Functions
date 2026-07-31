@@ -1,6 +1,6 @@
 ################################################################################
+#' fia_fitdb
 #' @name fia_fitdb
-#' @title Process FIA Database into an FVS Equation Fitting Format
 #' @description This function takes in a FIA SQLite database and writes 
 #' information to a database that is used for fitting equations for the Forest 
 #' Vegetation Simulator (FVS) fitdb-variables.R file. This function is called 
@@ -216,18 +216,20 @@ fia_fitdb <- function(dbin = NULL,
 
   #Calculate fitting indicator variables, MORT, and HCB
   tree[, ':=' (#Height observation
-               IHTM = data.table::fifelse(
+               IHTM = data.table::fcase(
                  HTCD_TEMP1 == 1 & 
                    !is.na(HT1) &
                    STATUSCD1 == 1 &
-                   BT != 1, 1L, 0L),
+                   BT != 1, 1L,
+                 default = 0L),
                #Crown size observation
-               ICRM = data.table::fifelse(
+               ICRM = data.table::fcase(
                    !is.na(CR1) &
                    STATUSCD1 == 1 &
-                   BT != 1, 1L, 0L),
+                   BT != 1, 1L, 
+                   default = 0L),
                #Diameter growth observation indicator
-               IDGRM = data.table::fifelse(
+               IDGRM = data.table::fcase(
                  DIA2 >= DIA1 & 
                    STATUSCD1 == 1 & 
                    STATUSCD2 == 1 & 
@@ -235,15 +237,17 @@ fia_fitdb <- function(dbin = NULL,
                    HTDMP2 == 0 & 
                    DIASUM1 == 0 &
                    DIASUM2 == 0 &
-                   REMPER > 0, 1L, 0L),
+                   REMPER > 0, 1L, 
+                   default = 0L),
                #Height growth observation indicator
-               IHGRM = data.table::fifelse(
+               IHGRM = data.table::fcase(
                  HT2 >= HT1 & 
                    STATUSCD1 == 1 & 
                    STATUSCD2 == 1 & 
                    HTCD_TEMP1 == 1 &
                    HTCD_TEMP2 == 1 &
-                   REMPER > 0, 1L, 0L),
+                   REMPER > 0, 1L, 
+                   default = 0L),
                #Mortality response variable (0 or 1)
                MORT = data.table::fcase(
                  STATUSCD1 == 1 & STATUSCD2 == 2 & REMPER > 0, 1L,
@@ -254,7 +258,8 @@ fia_fitdb <- function(dbin = NULL,
                HCB2 = HT2 - (HT2 * CR2/100))]
   
   #Mortality observation indicator
-  tree[, IMRT := data.table::fifelse(MORT %in% c(0, 1), 1L, 0L)]
+  tree[, IMRT := data.table::fcase(MORT %in% c(0, 1), 1L, 
+                                   default = 0L)]
 
   #Upper case column names and get fitdb variables
   data.table::setnames(x = tree, toupper)

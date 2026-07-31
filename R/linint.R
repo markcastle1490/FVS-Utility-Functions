@@ -1,6 +1,6 @@
 ################################################################################   
+#' linint
 #' @name linint
-#' @title FVS Event Monitor Linear Interpolation (LININT)
 #' @description This function is used to mimic the linint function from the FVS
 #' event monitor.
 #' 

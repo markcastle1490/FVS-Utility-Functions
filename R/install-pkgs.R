@@ -1,6 +1,6 @@
 ################################################################################
+#' install_pkgs
 #' @name install_pkgs
-#' @title Install Dependencies for fvstools Package
 #' @description This function is used to install the necessary and suggested 
 #' packages from CRAN for use with the fvstools package. Packages will only be 
 #' installed if they are not found in the version of R being used or if the 

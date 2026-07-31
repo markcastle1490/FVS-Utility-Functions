@@ -2,7 +2,7 @@
 % Please edit documentation in R/linint.R
 \name{linint}
 \alias{linint}
-\title{FVS Event Monitor Linear Interpolation (LININT)}
+\title{linint}
 \usage{
 linint(value = 0, x = NULL, y = NULL, verbose = FALSE)
 }

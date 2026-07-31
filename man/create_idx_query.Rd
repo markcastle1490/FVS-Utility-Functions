@@ -2,7 +2,7 @@
 % Please edit documentation in R/sql-query-functions.R
 \name{create_idx_query}
 \alias{create_idx_query}
-\title{Generate Create Index Query}
+\title{create_idx_query}
 \usage{
 create_idx_query(
   db_table = "FVS_STANDINIT",

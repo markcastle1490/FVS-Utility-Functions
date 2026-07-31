@@ -2,7 +2,7 @@
 % Please edit documentation in R/fitdb-queries.R
 \name{fia_si_query}
 \alias{fia_si_query}
-\title{Generate FIA Site Index Extract Query}
+\title{fia_si_query}
 \usage{
 fia_si_query()
 }

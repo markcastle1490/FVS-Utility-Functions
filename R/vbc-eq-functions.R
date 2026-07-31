@@ -1,4 +1,5 @@
 ################################################################################
+#' get_vbceq
 #' @name get_vbceq
 #' @description This function takes in an FIA species code, ecological division 
 #' code, stand origin code, and state code and returns a NVEL equation number 
@@ -123,6 +124,7 @@ get_vbceq <- function(spcd = 999,
 }
 
 ################################################################################
+#' ecoregion
 #' @name get_ecoregion
 #' @description This function takes in an ecological subsection and returns an 
 #' ecological province or division.
@@ -145,8 +147,8 @@ get_vbceq <- function(spcd = 999,
 #' @export
 ################################################################################
 
-get_ecoregion <- function(ecosubcd = "",
-                          type = 1)
+ecoregion <- function(ecosubcd = "",
+                      type = 1)
 {
 
   #Catch bad type values

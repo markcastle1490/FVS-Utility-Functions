@@ -2,7 +2,7 @@
 % Please edit documentation in R/run-key.R
 \name{run_key_rscript}
 \alias{run_key_rscript}
-\title{Generate R Script to Run an FVS Keyword File}
+\title{run_key_rscript}
 \usage{
 run_key_rscript(
   script_path = NULL,

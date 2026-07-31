@@ -2,7 +2,7 @@
 % Please edit documentation in R/state-code-functions.R
 \name{state_df}
 \alias{state_df}
-\title{Retrieve State Name and FIPS Code Dataframe}
+\title{state_df}
 \usage{
 state_df()
 }

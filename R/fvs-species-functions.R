@@ -238,7 +238,6 @@ fvs_sp_lookup <- function(var_code,
 ################################################################################
 #' fvs_sp_index
 #' @name fvs_sp_index
-#' @title Retrieve Row Index for FVS Species Lists
 #' @description This a function that is used to obtain a row index value from 
 #' one of the four following lists from commons.R:
 #' 

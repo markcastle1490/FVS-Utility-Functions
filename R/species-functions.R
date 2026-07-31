@@ -1,4 +1,5 @@
 ################################################################################
+#' sp_df
 #' @name sp_df
 #' @description This function returns the support_sp dataframe that contains 
 #' information from FIADB.SPECIES_REF for FIA species codes (SPCD) less than 
@@ -13,6 +14,7 @@ sp_df <- function()
   return(support_sp)
 
 ################################################################################
+#' sp_lookup
 #' @name sp_lookup
 #' @description This function is used to look up species specific information 
 #' given an input FIA species code, USDA plant symbol, or species scientific 
@@ -89,6 +91,7 @@ sp_lookup <- function(sp,
 }
 
 ################################################################################
+#' sp_index
 #' @name sp_index
 #' @description This a function that is used to obtain a row index value from
 #' the support_sp dataframe (see commons.R) based on an incoming species code. 

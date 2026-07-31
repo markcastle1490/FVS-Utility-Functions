@@ -1,6 +1,6 @@
 ################################################################################
-#' @name fvs_get_locs
-#' @title Retrieve Valid FVS Variant Location Codes
+#' fvs_locs
+#' @name fvs_locs
 #' @description This function returns a dataframe containing valid location 
 #' codes for specified FVS variants.
 #' 
@@ -12,7 +12,7 @@
 #' @export
 ################################################################################
 
-fvs_get_locs <- function(var_code = NULL)
+fvs_locs <- function(var_code = NULL)
 {
   #Initialize empty data.frame
   var_loc_df <- data.frame(VARIANT = character(),

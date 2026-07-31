@@ -1,18 +1,19 @@
 ################################################################################
-#' @name fortyp
-#' @description This function returns the fortyp_codes dataframe that contains FIA forest 
-#' type codes, descriptions, forest type groups and other information. See 
-#' fortyp_codes dataframe in commons.R for more information.
+#' fortyp_df
+#' @name fortyp_df
+#' @description Type codes, descriptions, forest type groups and other 
+#' information. See fortyp_codes dataframe in commons.R for more information.
 #' 
 #' @return
 #' Dataframe with FIA forest type information.
 #' @export
 ################################################################################
 
-fortyp_get_df <- function()
+fortyp_df <- function()
   return(fortyp_codes)
 
 ################################################################################
+#' fortyp_lookup
 #' @name fortyp_lookup
 #' @description This function is used to look up a forest type code description 
 #' or forest type group code based on an input FIA forest type code.
@@ -54,6 +55,7 @@ fortyp_lookup <- function(fortyp = NULL, to = 1) {
 }
 
 ################################################################################
+#' fortyp_index
 #' @name fortyp_index
 #' @description This function returns the row index (indices) in the fortyp_codes 
 #' data frame corresponding to input FIA forest type code(s).

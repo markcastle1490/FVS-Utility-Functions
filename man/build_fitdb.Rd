@@ -2,7 +2,7 @@
 % Please edit documentation in R/fitdb-build.R
 \name{build_fitdb}
 \alias{build_fitdb}
-\title{Build standardized equation fitting database (FITDB)}
+\title{build_fitdb}
 \usage{
 build_fitdb(
   dbin = NULL,

@@ -2,7 +2,7 @@
 % Please edit documentation in R/sql-query-functions.R
 \name{drop_idx_query}
 \alias{drop_idx_query}
-\title{Generate Drop Index Query}
+\title{drop_idx_query}
 \usage{
 drop_idx_query(idx_name = "TREE_PLOTQUERYID")
 }

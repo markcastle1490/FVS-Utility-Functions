@@ -1,6 +1,6 @@
 ################################################################################
+#' fvs_pvcodes_var
 #' @name fvs_pvcodes_var
-#' @title Retrieve FVS Plant Association and Habitat Type Codes
 #' @description This function is used to obtain dataframe that contains valid PV
 #' or habitat type codes for a given variant or set of variants.
 #' 
@@ -66,8 +66,8 @@ fvs_pvcodes_var <- function(var_code = NULL,
 }
 
 ################################################################################
+#' fvs_pvcodes_reg
 #' @name fvs_pvcodes_reg
-#' @title Retrieve FVS Regional Potential Vegetation and Reference Codes
 #' @description This function is used to obtain a dataframe that contains FS 
 #' REGION, SEQ, HABPVR, PVCODE, and PVREF code. The values in this data frame 
 #' correspond to those found in the pvref FORTRAN routines for a given FVS 
@@ -134,8 +134,8 @@ fvs_pvcodes_reg <- function(var_code = NULL,
 }
 
 ################################################################################
+#' fvs_pvlookup
 #' @name fvs_pvlookup
-#' @title Look Up FVS Potential Vegetation Index
 #' @description This function is used to lookup the index number of a PV code 
 #' for a specified FVS variant.
 #' 
@@ -178,8 +178,8 @@ fvs_pvlookup <- function(var_code = "IE",
 }
 
 ################################################################################
+#' fvs_pvlookup_reg
 #' @name fvs_pvlookup_reg
-#' @title Look Up Regional FVS Potential Vegetation Index
 #' @description This function is used to lookup the index number of a PV code 
 #' for a specified FVS variant and region number.
 #' 

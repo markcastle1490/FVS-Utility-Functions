@@ -2,7 +2,7 @@
 % Please edit documentation in R/fvs-pvcode-functions.R
 \name{fvs_pvlookup}
 \alias{fvs_pvlookup}
-\title{Look Up FVS Potential Vegetation Index}
+\title{fvs_pvlookup}
 \usage{
 fvs_pvlookup(var_code = "IE", pvcode = "")
 }

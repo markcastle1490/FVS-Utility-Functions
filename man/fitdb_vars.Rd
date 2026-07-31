@@ -2,7 +2,7 @@
 % Please edit documentation in R/fitdb-variables.R
 \name{fitdb_vars}
 \alias{fitdb_vars}
-\title{Define Fitting Database Schema Variables}
+\title{fitdb_vars}
 \usage{
 fitdb_vars()
 }
@@ -12,6 +12,6 @@ and the values correspond to their required SQL database formats (TEXT,
 INTEGER, or REAL).
 }
 \description{
-This function initializes and returns a comprehensive schema
-dictionary for a standardized equation fitting database (FITDB).
+This function initializes and returns a schema dictionary for a
+standardized equation fitting database (FITDB).
 }

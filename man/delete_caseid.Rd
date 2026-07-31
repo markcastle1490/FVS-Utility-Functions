@@ -2,7 +2,7 @@
 % Please edit documentation in R/run-key.R
 \name{delete_caseid}
 \alias{delete_caseid}
-\title{Delete Simulation Records by Case ID Attributes}
+\title{delete_caseid}
 \usage{
 delete_caseid(
   fvsout = NULL,

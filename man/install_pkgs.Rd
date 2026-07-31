@@ -2,7 +2,7 @@
 % Please edit documentation in R/install-pkgs.R
 \name{install_pkgs}
 \alias{install_pkgs}
-\title{Install Dependencies for fvstools Package}
+\title{install_pkgs}
 \usage{
 install_pkgs(override = FALSE)
 }

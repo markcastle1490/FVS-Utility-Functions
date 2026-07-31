@@ -2,7 +2,7 @@
 % Please edit documentation in R/sql-query-functions.R
 \name{placeholder_id}
 \alias{placeholder_id}
-\title{Generate SQL Parameter Placeholders}
+\title{placeholder_id}
 \usage{
 placeholder_id(ids = NULL)
 }

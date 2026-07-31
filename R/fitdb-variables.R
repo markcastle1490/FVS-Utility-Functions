@@ -1,8 +1,8 @@
 ################################################################################
+#' fitdb_vars
 #' @name fitdb_vars
-#' @title Define Fitting Database Schema Variables
-#' @description This function initializes and returns a comprehensive schema 
-#' dictionary for a standardized equation fitting database (FITDB).
+#' @description This function initializes and returns a schema dictionary for a 
+#' standardized equation fitting database (FITDB).
 #' 
 #' @return
 #' A named character vector where the names represent structural column headers 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/fvs-pvcode-functions.R
 \name{fvs_pvcodes_reg}
 \alias{fvs_pvcodes_reg}
-\title{Retrieve FVS Regional Potential Vegetation and Reference Codes}
+\title{fvs_pvcodes_reg}
 \usage{
 fvs_pvcodes_reg(var_code = NULL, all_var = FALSE)
 }

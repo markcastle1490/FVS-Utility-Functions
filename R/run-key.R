@@ -1,6 +1,6 @@
 ################################################################################
+#' run_key
 #' @name run_key
-#' @title Run a Single FVS Keyword File via rFVS
 #' @description This function is used to run a single FVS keyword file (.key) 
 #' with a specified FVS variant dll (.dll) using the rFVS API.
 #' 
@@ -104,8 +104,8 @@ run_key = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
 }
 
 ################################################################################
+#' run_key_rscript
 #' @name run_key_rscript
-#' @title Generate R Script to Run an FVS Keyword File
 #' @description This function is used to write a .R script that contains the code to run a 
 #' single keyword file using the run_key function.
 #' 
@@ -193,8 +193,8 @@ run_key_rscript = function(script_path = NULL,
 }
 
 ################################################################################
+#' run_key_callr
 #' @name run_key_callr
-#' @title Run a Single FVS Keyword File via callr
 #' @description This function is used to run a single FVS keyword file (.key) 
 #' with a specified FVS variant dll (.dll) using the rFVS API in a separate R 
 #' session with the callr R package. This function will produce the same results
@@ -306,8 +306,8 @@ run_key_callr = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
 }
 
 ################################################################################
+#' run_fvs
 #' @name run_fvs
-#' @title Low-Level FVS Variant DLL Execution Engine
 #' @description This function is called from run_key and run_key_callr and is 
 #' used to fulfill a simulation using input arguments corresponding to path 
 #' where FVS variant dlls are stored, a variant code, and keyword file name.
@@ -361,8 +361,8 @@ run_fvs = function(dll_path = "C:/FVS/FVSSoftware/FVSbin",
 }
 
 ################################################################################
+#' delete_caseid
 #' @name delete_caseid
-#' @title Delete Simulation Records by Case ID Attributes
 #' @description This function deletes desired rows in all database tables 
 #' containing a CaseID field from a specified output FVS database. The rows that
 #' are deleted are determined from a set of CaseID values associated with any of

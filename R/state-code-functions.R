@@ -1,6 +1,6 @@
 ################################################################################
+#' state_df
 #' @name state_df
-#' @title Retrieve State Name and FIPS Code Dataframe
 #' @description This function returns the state names, FIPS state codes, and two
 #' character state abbreviations in a dataframe (see state_codes dataframe in 
 #' commons.R).
@@ -14,6 +14,7 @@ state_df <- function()
   return(state_codes)
 
 ################################################################################
+#' state_lookup
 #' @name state_lookup
 #' @description This function takes in a US state name, FIA State code, or 
 #' State abbreviation and returns a US state name, FIA state code or state 
@@ -67,9 +68,10 @@ state_lookup <- function(state = NULL,
 }
 
 ################################################################################
-#' @name state_indexom 
-#' the state_codes dataframe (see commons.R) based on an incoming state value. 
-#' The state value can be a state FIPS code, state abbreviation, or state name.
+#' state_index
+#' @name state_index
+#' @description This function takes an input state FIPS code, State abbrevation,
+#' or state name and returns an indx from the the state_codes dataframe.
 #' 
 #' @param state
 #' State value to evaluate. This can be either a state FIPS code, state 

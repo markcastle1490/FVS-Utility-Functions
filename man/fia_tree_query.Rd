@@ -2,7 +2,7 @@
 % Please edit documentation in R/fitdb-queries.R
 \name{fia_tree_query}
 \alias{fia_tree_query}
-\title{Generate FIA Tree Level Extract Query}
+\title{fia_tree_query}
 \usage{
 fia_tree_query()
 }

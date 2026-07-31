@@ -2,7 +2,7 @@
 % Please edit documentation in R/fvs-pvcode-functions.R
 \name{fvs_pvcodes_var}
 \alias{fvs_pvcodes_var}
-\title{Retrieve FVS Plant Association and Habitat Type Codes}
+\title{fvs_pvcodes_var}
 \usage{
 fvs_pvcodes_var(var_code = NULL, all_var = FALSE)
 }

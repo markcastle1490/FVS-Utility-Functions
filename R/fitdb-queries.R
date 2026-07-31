@@ -5,8 +5,8 @@
 ################################################################################
 
 ################################################################################
+#' fia_tree_query
 #' @name fia_tree_query
-#' @title Generate FIA Tree Level Extract Query
 #' @description This function constructs a SQL SELECT query used to extract 
 #' tree-level data and associated plot, condition, subplot, and taxonomic 
 #' data from an FIA SQLite database.
@@ -83,8 +83,8 @@ fia_tree_query <- function() {
 }
 
 ################################################################################
+#' fia_si_query
 #' @name fia_si_query
-#' @title Generate FIA Site Index Extract Query
 #' @description This function constructs a standardized SQL SELECT query used to
 #' extract site tree data and associated tree parameters from the SITETREE table
 #' of an FIA SQLite database. It pulls core variables including aging metrics, 

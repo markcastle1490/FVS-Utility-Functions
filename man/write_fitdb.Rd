@@ -2,7 +2,7 @@
 % Please edit documentation in R/fitdb-build.R
 \name{write_fitdb}
 \alias{write_fitdb}
-\title{Write Fitting Dataset to SQLite Database}
+\title{write_fitdb}
 \usage{
 write_fitdb(fitdb, dbout, fitdb_name = "FITDB")
 }

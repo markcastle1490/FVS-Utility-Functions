@@ -1,6 +1,6 @@
 ################################################################################
+#' build_fitdb
 #' @name build_fitdb
-#' @title Build standardized equation fitting database (FITDB)
 #' @description This function processes a set of sqlite databases and creates a
 #' standardized output database than be used for fitting equation development 
 #' (FITDB). Currently this function is only equipped to build FITDB databases 
@@ -292,8 +292,8 @@ merge_inv <- function(data,
 # }
 
 ################################################################################
+#' write_fitdb
 #' @name write_fitdb
-#' @title Write Fitting Dataset to SQLite Database
 #' @description This function is used to write a data table or data.frame 
 #' containing a fitting dataset to a specified output SQLite database.
 #' 

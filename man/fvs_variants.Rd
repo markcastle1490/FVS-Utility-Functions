@@ -2,7 +2,7 @@
 % Please edit documentation in R/fvs-variants.R
 \name{fvs_variants}
 \alias{fvs_variants}
-\title{Retrieve All Valid FVS Variant Codes}
+\title{fvs_variants}
 \usage{
 fvs_variants()
 }

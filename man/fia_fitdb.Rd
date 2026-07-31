@@ -2,7 +2,7 @@
 % Please edit documentation in R/fitdb-fia.R
 \name{fia_fitdb}
 \alias{fia_fitdb}
-\title{Process FIA Database into an FVS Equation Fitting Format}
+\title{fia_fitdb}
 \usage{
 fia_fitdb(dbin = NULL, dbout = NULL, fitdb_name = NULL, verbose = FALSE)
 }

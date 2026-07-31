@@ -2,7 +2,7 @@
 % Please edit documentation in R/sql-query-functions.R
 \name{add_col_query}
 \alias{add_col_query}
-\title{Generate Add Column Query}
+\title{add_col_query}
 \usage{
 add_col_query(db_table = "TREE", db_field = "PLOTQUERYID", data_type = "TEXT")
 }

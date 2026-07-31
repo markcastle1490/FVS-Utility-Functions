@@ -1,6 +1,6 @@
 ################################################################################
+#' create_idx_query
 #' @name create_idx_query
-#' @title Generate Create Index Query
 #' @description This function takes in a database table name and field name and
 #' returns a query for setting an index with the specified table and field name.
 #' 
@@ -47,8 +47,8 @@ create_idx_query <- function(db_table = "FVS_STANDINIT",
 }
 
 ################################################################################
+#' add_col_query
 #' @name add_col_query
-#' @title Generate Add Column Query
 #' @description This function takes in a database table name, database field 
 #' name, and data type associated with database field name and returns a query 
 #' which creates a column in the specified database table.
@@ -87,8 +87,8 @@ add_col_query <- function(db_table = "TREE",
 }
 
 ################################################################################
+#' drop_idx_query
 #' @name drop_idx_query
-#' @title Generate Drop Index Query
 #' @description This function takes in a SQLite index name and returns a query 
 #' that will drop the index if it exists.
 #' 
@@ -109,8 +109,8 @@ drop_idx_query <- function(idx_name = "TREE_PLOTQUERYID")
 }
 
 ################################################################################
+#' Generate Drop Column Query
 #' @name drop_col_query
-#' @title Generate Drop Column Query
 #' @description This function takes in a database table name and column/field 
 #' and returns a query that will have the column dropped from database table.
 #' 
@@ -139,8 +139,8 @@ drop_col_query <- function(db_table = "TREE",
 }
 
 ################################################################################
+#' placeholder_id
 #' @name placeholder_id
-#' @title Generate SQL Parameter Placeholders
 #' @description This function takes in a vector of elements and creates a 
 #' character string with place holder values (?) surrounded by parentheses. The
 #' number of place holder values in the string corresponds to the length of the 

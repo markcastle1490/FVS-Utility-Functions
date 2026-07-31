@@ -2,7 +2,7 @@
 % Please edit documentation in R/fvs-species-functions.R
 \name{fvs_sp_index}
 \alias{fvs_sp_index}
-\title{Retrieve Row Index for FVS Species Lists}
+\title{fvs_sp_index}
 \usage{
 fvs_sp_index(var_code = NULL, sp = NULL)
 }
@@ -26,7 +26,4 @@ fvs_fia_list
 fvs_plants_list
 
 fvs_seq_list
-}
-\details{
-fvs_sp_index
 }
