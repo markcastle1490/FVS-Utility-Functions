@@ -125,7 +125,7 @@ get_vbceq <- function(spcd = 999,
 
 ################################################################################
 #' ecoregion
-#' @name get_ecoregion
+#' @name ecoregion
 #' @description This function takes in an ecological subsection and returns an 
 #' ecological province or division.
 #' 
