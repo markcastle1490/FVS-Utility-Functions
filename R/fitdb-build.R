@@ -207,7 +207,7 @@ merge_inv <- function(data,
              nomatch = NA]
   
   #Correct cycle 2 values
-  df[is.na(next_cycle_match), (interval_id) := NA]
+  #df[is.na(next_cycle_match), (interval_id) := NA]
   
   #Drop columns
   cols_to_drop <- intersect(c(unique_id, 

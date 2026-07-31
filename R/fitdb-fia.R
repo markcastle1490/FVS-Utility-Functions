@@ -32,19 +32,19 @@ fia_fitdb <- function(dbin = NULL,
                      verbose = FALSE)
  {
 
-   #=============================================================================
-   #Query for TREE, PLOT, COND, SUBPLOT, REF_SPECIES
-   #Query SITETREE
-   #=============================================================================
+  #=============================================================================
+  #Query for TREE, PLOT, PLOTGEOM, COND, SUBPLOT, REF_SPECIES
+  #Query SITETREE
+  #=============================================================================
 
-   if(verbose)
-     cat("Querying FIA data...", "\n")
+  if(verbose)
+    cat("Querying FIA data...", "\n")
 
-   #Connect to dbin
-   con <- RSQLite::dbConnect(RSQLite::SQLite(),
+  #Connect to dbin
+  con <- RSQLite::dbConnect(RSQLite::SQLite(),
                              dbin)
 
-   on.exit(
+  on.exit(
      expr = try(if(RSQLite::dbIsValid(con)) RSQLite::dbDisconnect(con),
                 silent = TRUE))
 
@@ -65,29 +65,21 @@ fia_fitdb <- function(dbin = NULL,
   if(verbose)
     cat("Summarizing site index...", "\n")
 
-  #Calculate site index for each FIA plot (not subplot or condition) by species
-  #Drop site trees that are replicated across inventory years
-  #Average site index is calculated across years
-  site_sum <- unique(site, 
-                     by = c("STATECD", "UNITCD", "COUNTYCD", "PLOT",
-                            "SUBP", "TREE", "SPCD"))[
+  #Calculate site index and base age by PLT_CN and SPCD
+  site_sum <- site[
     , 
     list( 
       SI_FIA = round(mean(SITREE[VALIDCD == 1], na.rm = TRUE), 0),
       SIBASE_FIA = round(mean(SIBASE[VALIDCD == 1], na.rm = TRUE), 0),
       SI_FVS     = round(mean(SITREE_FVS[VALIDCD == 1], na.rm = TRUE), 0),
-      SIBASE_FVS = round(mean(SIBASE_FVS[VALIDCD == 1], na.rm = TRUE), 0)
-    ),
-    by = list(STATECD, UNITCD, COUNTYCD, PLOT, SPCD)
+      SIBASE_FVS = round(mean(SIBASE_FVS[VALIDCD == 1], na.rm = TRUE), 0)),
+    by = list(PLT_CN, SPCD)
   ]
 
   #Join site index summary to site_sum
   tree <- merge(x = tree,
                 y = site_sum,
-                by = c("STATECD",
-                       "UNITCD",
-                       "COUNTYCD",
-                       "PLOT",
+                by = c("PLT_CN",
                        "SPCD"),
                 all.x = TRUE)
 
@@ -145,18 +137,28 @@ fia_fitdb <- function(dbin = NULL,
   cat("Calculating competition and density measures...", "\n")
 
   #Calculate temporary variables for plot calculations
-  #EXPF could be scaled to plot level or condition here..
   tree[, ':=' (TEXPF = data.table::fifelse(STATUSCD == 2, 0.0, EXPF),
                TDIA = data.table::fifelse(STATUSCD == 2, 0.0, DIA))]   
   
-  #.by statement can change based on how plot variables should be calculated
+  #Calculate plot level values
   tree[, ':=' (BA = ba(dbh = TDIA, expf = TEXPF),
                TPA = tpa(expf = TEXPF, dbh = TDIA),
                QMD = qmd(dbh = TDIA, expf = TEXPF),
-               RSDI = rsdi_stage(dbh = TDIA, expf = TEXPF),
                ZSDI = zsdi(dbh = TDIA, expf = TEXPF),
                BAL = bal(dbh = TDIA, expf = TEXPF)),
-        by = .(STATECD, INVYR, UNITCD, COUNTYCD, PLOT)]
+        by = .(PLT_CN)]
+  
+  #Calculate temporary variables for subplot calculations
+  #Not yet 100% sure 4 can be globally applied here
+  tree[, TEXPF := TEXPF * 4]   
+  
+  #Calculate subplot level values
+  tree[, ':=' (PBA = ba(dbh = TDIA, expf = TEXPF),
+               PTPA = tpa(expf = TEXPF, dbh = TDIA),
+               PQMD = qmd(dbh = TDIA, expf = TEXPF),
+               PZSDI = zsdi(dbh = TDIA, expf = TEXPF),
+               PBAL = bal(dbh = TDIA, expf = TEXPF)),
+       by = .(SUBP_CN)]
   
   #=============================================================================
   # Align time 1 and time 2 variables together and then merge with other
@@ -169,8 +171,8 @@ fia_fitdb <- function(dbin = NULL,
   #Obtain variables that will be included in the merge_inv function
   merge_vars <- c(
     "CYCLE", "MEASYEAR", "MEASMON", "MEASDAY", "DATE", "SPCD", "DIA", "HT", "CR",
-    "STATUSCD", "AGENTCD", "DIACHECK", "HTDMP", "DESIGNCD", "TPA", "QMD",
-    "BA", "RSDI", "ZSDI", "BAL", "HTCD", "HTCD_TEMP")
+    "STATUSCD", "AGENTCD", "DIACHECK", "HTDMP", "DESIGNCD", "HTCD_TEMP", "HTCD",
+    "TPA", "QMD", "BA", "ZSDI", "BAL", "PTPA", "PQMD", "PBA", "PZSDI", "PBAL")
   
   #Merge remeasurents
   merge_df <- merge_inv(data = tree[, c("TREE_CN",
@@ -209,9 +211,8 @@ fia_fitdb <- function(dbin = NULL,
                DIASUM2 = sum(DIACHECK2, na.rm = TRUE)),
                by = TREEMERGEID]
   
-  #Compute measurement interval length and REMPER
-  tree[,  ':=' (MEASLEN = MEASYEAR2 - MEASYEAR1,
-                REMPER = round(((DATE2 - DATE1)/365.25), 1))]
+  #Compute REMPER
+  tree[,  REMPER := round(((DATE2 - DATE1)/365.25), 1)]
 
   #Calculate fitting indicator variables, MORT, and HCB
   tree[, ':=' (#Height observation
@@ -234,7 +235,7 @@ fia_fitdb <- function(dbin = NULL,
                    HTDMP2 == 0 & 
                    DIASUM1 == 0 &
                    DIASUM2 == 0 &
-                   MEASLEN > 0, 1L, 0L),
+                   REMPER > 0, 1L, 0L),
                #Height growth observation indicator
                IHGRM = data.table::fifelse(
                  HT2 >= HT1 & 
@@ -242,11 +243,11 @@ fia_fitdb <- function(dbin = NULL,
                    STATUSCD2 == 1 & 
                    HTCD_TEMP1 == 1 &
                    HTCD_TEMP2 == 1 &
-                   MEASLEN > 0, 1L, 0L),
+                   REMPER > 0, 1L, 0L),
                #Mortality response variable (0 or 1)
                MORT = data.table::fcase(
-                 STATUSCD1 == 1 & STATUSCD2 == 2 & MEASLEN > 0, 1L,
-                 STATUSCD1 == 1 & STATUSCD2 == 1 & MEASLEN > 0, 0L,
+                 STATUSCD1 == 1 & STATUSCD2 == 2 & REMPER > 0, 1L,
+                 STATUSCD1 == 1 & STATUSCD2 == 1 & REMPER > 0, 0L,
                  default = NA_integer_),
                #Height to crown base
                HCB1 = HT1 - (HT1 * CR1/100),

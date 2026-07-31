@@ -34,7 +34,10 @@ fia_tree_query <- function() {
   
   # Variables from PLOT table
   plot <- paste0("PLOT.", c("CN as PLT_CN", "LAT", "LON", "ELEV", "MEASYEAR",
-                            "MEASMON", "MEASDAY", "DESIGNCD", "KINDCD"))
+                             "MEASMON", "MEASDAY", "DESIGNCD", "KINDCD"))
+  
+  #Variables from PLOTGEOM
+  plot_geom <- paste0("PLOTGEOM.", c("CN", "ECOSUBCD"))
   
   # Variables from SUBPLOT table
   subplot <- paste0("SUBPLOT.", c("CN as SUBP_CN", "SLOPE", "ASPECT"))
@@ -44,7 +47,8 @@ fia_tree_query <- function() {
                                           "SFTWD_HRDWD"))
   
   # Combine variables into a single string
-  fia_vars <- paste(c(tree, cond, plot, subplot, ref_species), collapse = ", ")
+  fia_vars <- paste(c(tree, cond, plot, plot_geom, subplot, ref_species), 
+                    collapse = ", ")
   
   # Define query using explicit surrogate keys
   query <- paste(c(
@@ -56,6 +60,9 @@ fia_tree_query <- function() {
     
     #Join PLOT using the primary visit control number (CN)
     "LEFT JOIN PLOT ON TREE.PLT_CN = PLOT.CN",
+    
+    #Join PLOTGEOM using the primary visit control number (CN)
+    "LEFT JOIN PLOTGEOM ON TREE.PLT_CN = PLOTGEOM.CN",
     
     #Join SUBPLOT using the plot visit ID and subplot number
     "LEFT JOIN SUBPLOT ON TREE.PLT_CN = SUBPLOT.PLT_CN AND TREE.SUBP = SUBPLOT.SUBP",
@@ -94,9 +101,9 @@ fia_si_query = function()
 {
   #Variables from SITETREE table
   sitree <- paste0("SITETREE.",
-                 c("STATECD", "UNITCD", "COUNTYCD", "PLOT", "INVYR", "SUBP",
-                   "CONDID", "SPCD", "TREE", "AGEDIA", "HT", "SITREE", "SIBASE",
-                   "VALIDCD", "SITREE_FVS", "SIBASE_FVS"))
+                 c("PLT_CN", "STATECD", "UNITCD", "COUNTYCD", "PLOT", "INVYR",
+                   "SUBP", "CONDID", "SPCD", "TREE", "AGEDIA", "HT", "SITREE",
+                   "SIBASE", "VALIDCD", "SITREE_FVS", "SIBASE_FVS"))
   
   #Collapse variables
   fia_si_vars <- paste(sitree, collapse = ", ")
