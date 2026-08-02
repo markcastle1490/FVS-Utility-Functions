@@ -6,8 +6,7 @@
 \usage{
 merge_inv(
   data,
-  unique_id = "UNIQUETREEID",
-  plot_id = "PLOTMERGEID",
+  unique_id = "TREE_CN",
   merge_id = "TREEMERGEID",
   interval_id = "CYCLE",
   verbose = TRUE
@@ -18,10 +17,7 @@ merge_inv(
 paired based on a measurement interval.}
 
 \item{unique_id}{Character string of column name used to represent a unique tree ID.
-Defaults to "UNIQUETREEID".}
-
-\item{plot_id}{Character string of column name used to represent a unique plot ID.
-Defaults to "PLOTMERGEID".}
+Defaults to "TREE_CN".}
 
 \item{merge_id}{Character string of column name used to merge re-measurement periods together
 at the tree level. Defaults to "TREEMERGEID".}
@@ -37,7 +33,7 @@ are printed to the console. Defaults to TRUE.}
 Data table with paired remeasurement data.
 }
 \description{
-This function accepts a list of dataframes containing information
+This function accepts a data.frame containing information
 that will be paired by a measurement interval (typically a cycle or year).
 This function is called from the code that prepares a fitting database
 specific to a data source (e.g. fia_fitdb).

@@ -146,7 +146,7 @@ build_fitdb <- function(dbin = NULL,
 ################################################################################
 #' merge_inv
 #' @name merge_inv
-#' @description This function accepts a list of dataframes containing information 
+#' @description This function accepts a data.frame containing information 
 #' that will be paired by a measurement interval (typically a cycle or year). 
 #' This function is called from the code that prepares a fitting database 
 #' specific to a data source (e.g. fia_fitdb).
@@ -157,11 +157,7 @@ build_fitdb <- function(dbin = NULL,
 #' 
 #' @param unique_id
 #' Character string of column name used to represent a unique tree ID. 
-#' Defaults to "UNIQUETREEID".
-#' 
-#' @param plot_id
-#' Character string of column name used to represent a unique plot ID. 
-#' Defaults to "PLOTMERGEID".
+#' Defaults to "TREE_CN".
 #' 
 #' @param merge_id
 #' Character string of column name used to merge re-measurement periods together 
@@ -182,58 +178,33 @@ build_fitdb <- function(dbin = NULL,
 ################################################################################
 
 merge_inv <- function(data, 
-                      unique_id = "UNIQUETREEID",
-                      plot_id = "PLOTMERGEID", 
+                      unique_id = "TREE_CN", 
                       merge_id = "TREEMERGEID", 
                       interval_id = "CYCLE", 
                       verbose = TRUE)
 {
 
-  #Sort the data
-  data.table::setorderv(x = data, cols = c(plot_id, merge_id, interval_id))
+  #Sort data by merge_id and interval_id
+  data.table::setorderv(data, cols = c(merge_id, interval_id))
+
+  #Create column for next consecutive cycle using shift logic
+  data[, next_cycle := data.table::shift(get(interval_id), type = "lead"), 
+     by = c(merge_id)]
   
-  #Create column for next consecutive cycle
-  #data[, next_cycle_match := get(interval_id) + 1]
-  
-  # Create column for next consecutive cycle using shift logic
-  data[, next_cycle_match := data.table::shift(get(interval_id), type = "lead"), 
-     by = c(plot_id, merge_id)]
-  
-  #Do join
-  on_cols <- c(plot_id, merge_id, paste0(interval_id, " == next_cycle_match"))
-  
-  df <- data[data, 
-             on = on_cols,
-             nomatch = NA]
-  
-  #Correct cycle 2 values
-  #df[is.na(next_cycle_match), (interval_id) := NA]
-  
-  #Drop columns
-  cols_to_drop <- intersect(c(unique_id, 
-                              plot_id, 
-                              "next_cycle_match", 
-                              "i.next_cycle_match"), names(df))
-  df[, (cols_to_drop) := NULL]
-  
-  #Rename time 1 unique id (.i)
-  data.table::setnames(df, old = paste0("i.", unique_id), new = unique_id)
-  
-  #Create time 1 columns. Strip "i." prefix and append "1".
-  i_cols <- names(df)[grepl("^i\\.", names(df))]
-  t1_names <- paste0(sub("^i\\.", "", i_cols), "1")
-  data.table::setnames(df, i_cols, t1_names)
-  
-  #Create time 2 columns
-  cols_to_rename <- names(df)[!names(df) %in% 
-                                c(plot_id, merge_id, unique_id, t1_names)]
-  t2_names <- paste0(cols_to_rename, "2")
-  data.table::setnames(df, cols_to_rename, t2_names)
-  
-  #Drop the temporary interval column
-  data[, next_cycle_match := NULL]
-  
-  return(df)
+  #Left join the data
+  merged <- merge(data, 
+                  data, 
+                  by.x = c(merge_id, "next_cycle"),
+                  by.y = c(merge_id, interval_id),
+                  all.x = TRUE,
+                  suffixes = c("1", "2"))
+
+  #Rename columns
+  data.table::setnames(merged, 
+                       old = c(paste0(unique_id, "1"), interval_id, "next_cycle"), 
+                       new = c(unique_id, paste0(interval_id, "1"), paste0(interval_id, "2")))
+
+  return(merged)
 }
 
 # merge_inv <- function(data, 

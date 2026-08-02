@@ -124,10 +124,7 @@ fia_fitdb <- function(dbin = NULL,
                                         PLOT,
                                         SUBP,
                                         TREE))
-  ][, PLOTMERGEID := .GRP, by = .(paste(STATECD,
-                                        UNITCD,
-                                        COUNTYCD,
-                                        PLOT))]  
+  ]
   
   #=============================================================================
   #Calculate competition and density metrics prior to merging
@@ -176,17 +173,15 @@ fia_fitdb <- function(dbin = NULL,
   
   #Merge remeasurents
   merge_df <- merge_inv(data = tree[, c("TREE_CN",
-                                        "PLOTMERGEID",
                                         "TREEMERGEID",
                                         merge_vars), with = FALSE],
                         unique_id = "TREE_CN",
-                        plot_id = "PLOTMERGEID",
                         merge_id = "TREEMERGEID",
                         interval_id = "CYCLE",
                         verbose = verbose)
 
   #Isolate tree level variables not needed in merge_inv function
-  tree <- tree[, !c("TREEMERGEID", "PLOTMERGEID", merge_vars), with = FALSE]
+  tree <- tree[, !c("TREEMERGEID", merge_vars), with = FALSE]
 
   #join merge_df to tree and then remove
   tree <- merge(x = merge_df,
