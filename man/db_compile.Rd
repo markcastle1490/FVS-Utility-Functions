@@ -10,6 +10,7 @@ db_compile(
   db_tables = NULL,
   delete_input = FALSE,
   keep_casing = TRUE,
+  overwrite = TRUE,
   verbose = FALSE
 )
 }
@@ -43,6 +44,10 @@ databases specified in dbin. Defaults to FALSE.}
 \item{keep_casing}{Logical variable used to determine if the database table names and fields in
 dbin should retain original casing. When FALSE, the database table names and
 fields in each table written to dbout will be capitalized. Defaults to TRUE.}
+
+\item{overwrite}{Logical variable used to determine if currently existing dbout file should be
+deleted. If this argument is left as FALSE, data will be appended to existing
+file specified in dbout. Defaults to FALSE.}
 
 \item{verbose}{Logical variable used to determine if compilation milestones, folder extraction
 paths, and table progress updates are printed to the console. Defaults to

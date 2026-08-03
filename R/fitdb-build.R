@@ -92,6 +92,13 @@ build_fitdb <- function(dbin = NULL,
   #Test if dbout file extension is valid
   if(!tools::file_ext(dbout) %in% c("db", "sqlite"))
     stop("dbout argument is not a valid database type.")
+  
+  #=============================================================================
+  #Check if any of the items in dbin are the same as dbout
+  #=============================================================================
+  
+  if(any(dbin %in% dbout))
+    stop("At least one element in dbin is the same as dbout.")
 
   #=============================================================================
   #Do checks on other arugments

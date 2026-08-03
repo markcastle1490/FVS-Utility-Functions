@@ -260,7 +260,9 @@ db_collect_paths <- function(dbin = character(0),
   )
   
   #Combine all paths
-  final_paths <- normalizePath(c(db_files, extracted_db_files), mustWork = FALSE)
+  final_paths <- chartr(old = "\\", 
+                        new = "/", 
+                        x = c(db_files, extracted_db_files))
   
   #Return paths and unzipdir as list
   return(list(final_paths, unzip_root))
@@ -618,6 +620,11 @@ db_add_fields <- function(conn,
 #' dbin should retain original casing. When FALSE, the database table names and 
 #' fields in each table written to dbout will be capitalized. Defaults to TRUE.
 #' 
+#' @param overwrite
+#' Logical variable used to determine if currently existing dbout file should be 
+#' deleted. If this argument is left as FALSE, data will be appended to existing 
+#' file specified in dbout. Defaults to FALSE.
+#' 
 #' @param verbose
 #' Logical variable used to determine if compilation milestones, folder extraction 
 #' paths, and table progress updates are printed to the console. Defaults to 
@@ -633,6 +640,7 @@ db_compile <- function(dbin = NULL,
                        db_tables = NULL,
                        delete_input = FALSE,
                        keep_casing = TRUE,
+                       overwrite = TRUE,
                        verbose = FALSE)
 {
   
@@ -649,13 +657,10 @@ db_compile <- function(dbin = NULL,
   dbin <- chartr(old = "\\", new = "/", x = dbin)
   dbout <- chartr(old = "\\", new = "/", x = dbout)
   
-  #Loop through dbin and test if any of the files don't exist. If a file does
-  #not exist then error message is reported.
-  for(i in seq_along(dbin))
-  {
-    if(!file.exists(dbin[i])) stop(paste("File:", dbin[i], "does not exist."))
-  }
-  
+  #Check files in dbin.
+  if(!all(file.exists(dbin)))
+    stop("One or more files in dbin does not exist.")
+
   #Test if dbout file path is valid.
   outpath <- gsub("/[^/]+$", "", dbout)
   if (outpath != dbout && !(file.exists(outpath))){
@@ -674,16 +679,6 @@ db_compile <- function(dbin = NULL,
                "\n"))
   }
   
-  #If dbout already exists, delete it
-  if(file.exists(dbout))
-  {
-    if(verbose) cat("Deleting preexisting dbout", "\n")
-    ret <- unlink(dbout)
-    if(ret == 1) stop(paste("Failed to delete:", dbout))
-  }
-  
-  if(verbose) cat("Output database:", dbout, "\n","\n")
-  
   #Get database paths and unzip dir
   results <- db_collect_paths(dbin = dbin, verbose = verbose)
   dbin_update <- results[[1]]
@@ -699,7 +694,21 @@ db_compile <- function(dbin = NULL,
   #If dbin_update does not have any databases, then stop with error message and
   #delete unzip directory if it exists.
   if(length(dbin_update) <= 0)
-    stop("No valid SQLite database files are available for processing.")
+    stop("No valid database files are available for processing.")
+  
+  #Check if any of the items in dbin are the same as dbout
+  if(any(dbin_update %in% dbout))
+    stop("At least one element in dbin is the same as dbout.")
+  
+  #If dbout already exists, delete it
+  if(file.exists(dbout) && overwrite)
+  {
+    if(verbose) cat("Deleting preexisting dbout", "\n")
+    ret <- unlink(dbout)
+    if(ret == 1) stop(paste("Failed to delete:", dbout))
+  }
+  
+  if(verbose) cat("Output database:", dbout, "\n","\n")
   
   #Remove duplicate values in dbin_update and print database file paths
   dbin_update <- unique(dbin_update)
@@ -756,12 +765,12 @@ db_compile <- function(dbin = NULL,
   if (delete_input) {
     if(verbose)
     {
-      cat("Argument delete_input is TRUE. Purging source input paths from disk...\n")
+      cat("Argument delete_input is TRUE. Removing source input paths from disk...\n")
     }
 
     unlink(x = dbin, recursive = FALSE)
     
-    # Cross-verify files were actually dropped safely
+    #Verify if files were dropped
     remaining_files <- dbin[file.exists(dbin)]
     if (length(remaining_files) > 0) {
       warning("Failed to delete one or more source databases from dbin when delete_input is TRUE.\n")

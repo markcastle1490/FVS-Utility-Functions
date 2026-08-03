@@ -68,12 +68,12 @@ fia_fitdb <- function(dbin = NULL,
   #Calculate site index and base age by PLT_CN and SPCD
   site_sum <- site[
     , 
-    list( 
+    .( 
       SI_FIA = round(mean(SITREE[VALIDCD == 1], na.rm = TRUE), 0),
       SIBASE_FIA = round(mean(SIBASE[VALIDCD == 1], na.rm = TRUE), 0),
       SI_FVS     = round(mean(SITREE_FVS[VALIDCD == 1], na.rm = TRUE), 0),
       SIBASE_FVS = round(mean(SIBASE_FVS[VALIDCD == 1], na.rm = TRUE), 0)),
-    by = list(PLT_CN, SPCD)
+    by = .(PLT_CN, SPCD)
   ]
 
   #Join site index summary to site_sum
@@ -93,11 +93,10 @@ fia_fitdb <- function(dbin = NULL,
   if(verbose)
     cat("Preparing variables before inventory remeasurement pairing...", "\n")
 
-  #Create temporary HTCD for determining HT
+  #Create temporary HTCD with null values filled in (1)
   tree[, HTCD_TEMP := data.table::fcoalesce(HTCD, 1L)
   ][, ':=' (DATASOURCE = 'FIA',
-                  #Create broken top indicator with updated HT field
-                  #Broken top indicator
+                  #Create broken top indicator
                   #Need to verify if DAMAGE_AGENT_CD1 or ABNORMAL termination
                   #needs to be considered
                   BT = data.table::fifelse(ACTUALHT < HT, 1L, 0L),
@@ -105,6 +104,7 @@ fia_fitdb <- function(dbin = NULL,
                   HT= data.table::fifelse(!is.na(ACTUALHT), ACTUALHT, HT),
                   #Grab PREVIA for dead trees if needed
                   DIA = data.table::fifelse(is.na(DIA) & STATUSCD == 2, PREVDIA, DIA),
+                  #Set EXPF
                   EXPF = data.table::fcoalesce(TPA_UNADJ, 0.0),
                   #Fill in missing HTDMP values and allow for tolerance of
                   #values (0.0 = valid HTDMP)
@@ -113,7 +113,10 @@ fia_fitdb <- function(dbin = NULL,
                                 default = HTDMP),
                   #Assume 1 for missing DIAHTCD values
                   DIAHTCD = data.table::fcoalesce(DIAHTCD, 1L),
+                  #Assume 0 for missing DIACHECK values
+                  DIACHECK = data.table::fcoalesce(DIACHECK, 0L),
                   CRTYPE = 0L,
+                  #Create date for REMPER calculation
                   DATE = as.Date(sprintf("%04d-%02d-%02d", MEASYEAR, MEASMON, MEASDAY),
                   format = "%Y-%m-%d",
                   na.strings = "NA-NA-NA"))
@@ -200,14 +203,8 @@ fia_fitdb <- function(dbin = NULL,
   if(verbose)
     cat("Calculating variables post remeasurement pairing...", "\n")
   
-  #Sum DIACHECK value by TREEMERGEID. These values will be used to determine
-  #if DIA measurement location changed during a remeasurement interval.
-  tree[, ':=' (DIASUM1 = sum(DIACHECK1, na.rm = TRUE),
-               DIASUM2 = sum(DIACHECK2, na.rm = TRUE)),
-               by = TREEMERGEID]
-  
   #Compute REMPER
-  tree[,  REMPER := round(((DATE2 - DATE1)/365.25), 1)]
+  tree[, REMPER := round(((DATE2 - DATE1)/365.25), 1)]
 
   #Calculate fitting indicator variables, MORT, and HCB
   tree[, ':=' (#Height observation
@@ -230,8 +227,8 @@ fia_fitdb <- function(dbin = NULL,
                    STATUSCD2 == 1 & 
                    HTDMP1 == 0 & 
                    HTDMP2 == 0 & 
-                   DIASUM1 == 0 &
-                   DIASUM2 == 0 &
+                   DIACHECK1 == 0 &
+                   DIACHECK2 == 0 &
                    REMPER > 0, 1L, 
                    default = 0L),
                #Height growth observation indicator
@@ -264,7 +261,7 @@ fia_fitdb <- function(dbin = NULL,
   tree <- tree[, ..keep_cols]  
 
   #=============================================================================
-  # Write tree (fitdb) dataframe to output database
+  # Write tree (fitdb) data.table to output database
   #=============================================================================
 
   if(verbose)
