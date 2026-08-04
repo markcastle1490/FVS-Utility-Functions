@@ -696,8 +696,8 @@ time_keys <- function(invyear = NULL,
                                                 "0", 
                                                 as.character(cycle_length))))
   
-  #Create add_timeint vector
-  add_timeint <- vector(mode = "character", length(max_cycles))
+  #Create add_timeint list
+  add_timeint <- list()
   add_insert <- 1
   
   #Initialize cycle_num to keep track of number of cycles.
@@ -730,9 +730,6 @@ time_keys <- function(invyear = NULL,
       add_insert <- add_insert + 1
     }
   }
-
-  #Drop empty values from add_timeint
-  add_timeint <- add_timeint[add_timeint != ""]
 
   #Combine keywords
   time_keys_ <- c(timeint_all,
