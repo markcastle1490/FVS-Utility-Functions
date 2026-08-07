@@ -1744,7 +1744,8 @@ count_rec = function(dbh,
 #' Optional numeric vector containing total tree height values.
 #' 
 #' @param species
-#' Vector containing species codes
+#' Optional vector containing species codes. Will be used when select_species is
+#' not NULL.
 #' 
 #' @param dbhmin
 #' Numeric value corresponding to lower DBH bound to calculate attribute in. 
