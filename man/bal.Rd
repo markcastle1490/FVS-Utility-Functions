@@ -4,19 +4,19 @@
 \alias{bal}
 \title{bal}
 \usage{
-bal(dbh, expf, handle_ties = FALSE)
+bal(dbh, expf, no_ties = TRUE)
 }
 \arguments{
 \item{dbh}{Numeric vector containing diameter values.}
 
 \item{expf}{Numeric vector containing expansion factors.}
 
-\item{handle_ties}{Logical variable used to determine if dbh values with equivalent values get
+\item{no_ties}{Logical variable used to determine if dbh values with equivalent values get
 the same BAL return. If this value is TRUE, then trees with equivalent DBH
-values will have the same BAL value (e.g. 3 trees with 10 inch DBH will all
-have the same BAL). If this value is FALSE, then trees with equivalent DBH
 values will have a different BAL (3 trees with 10 inch DBH will each have a
-different BAL).}
+different BAL). If this value is FALSE, then trees with equivalent DBH
+values will have the same BAL value (e.g. 3 trees with 10 inch DBH will all
+have the same BAL).}
 }
 \value{
 Numeric vector containing BAL values

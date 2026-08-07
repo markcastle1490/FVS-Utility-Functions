@@ -613,11 +613,11 @@ end subroutine top_ht
 !input vectors containing DBH and expansion factors. 
 !###############################################################################
 
-subroutine bal(dbh, sorted_idx, expf, handle_ties, ntree, bal_arr)
+subroutine bal(dbh, sorted_idx, expf, no_ties, ntree, bal_arr)
 use constants
 implicit none 
 
-integer, intent(in) :: ntree, sorted_idx(ntree), handle_ties
+integer, intent(in) :: ntree, sorted_idx(ntree), no_ties
 real(real64), intent(in) :: dbh(ntree), expf(ntree)
 real(real64), intent(out) :: bal_arr(ntree)
 real(real64) :: dbh_, expf_, temp_dbh, temp_bal, bal_sum, ba_tree
@@ -637,11 +637,11 @@ do i = 1, ntree, 1
     expf_ = expf(idx)
     ba_tree = dbh_**2.0_REAL64 * expf_ * f_con
 
-    !Update BAL based on value of handle_ties
-    select case(handle_ties)
+    !Update BAL based on value of no_ties
+    select case(no_ties)
 
     !Deal with ties in DBH values
-    case(1)
+    case(0)
         !DBH values are not equal
         if(dbh_ < temp_dbh) then
             bal_arr(idx) = bal_sum

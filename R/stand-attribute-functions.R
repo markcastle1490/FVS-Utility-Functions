@@ -1043,13 +1043,13 @@ correct_cc = function(cc = 0)
 #' @param expf
 #' Numeric vector containing expansion factors.
 #' 
-#' @param handle_ties
+#' @param no_ties
 #' Logical variable used to determine if dbh values with equivalent values get 
 #' the same BAL return. If this value is TRUE, then trees with equivalent DBH 
-#' values will have the same BAL value (e.g. 3 trees with 10 inch DBH will all 
-#' have the same BAL). If this value is FALSE, then trees with equivalent DBH 
 #' values will have a different BAL (3 trees with 10 inch DBH will each have a 
-#' different BAL).
+#' different BAL). If this value is FALSE, then trees with equivalent DBH 
+#' values will have the same BAL value (e.g. 3 trees with 10 inch DBH will all 
+#' have the same BAL).
 #' 
 #' @return
 #' Numeric vector containing BAL values
@@ -1058,7 +1058,7 @@ correct_cc = function(cc = 0)
 
 bal = function(dbh,
                expf,
-               handle_ties = FALSE)
+               no_ties = TRUE)
 {
   #Get indices of sorted DBH in descending order
   dbh_order <- order(-dbh)
@@ -1074,7 +1074,7 @@ bal = function(dbh,
   dbh <- dbh[dbh_order]
   
   #Don't handle ties.
-  if(!handle_ties)
+  if(no_ties)
   {
     #Do a cumulative sum of basal area and then subtract ba of tree from each 
     #record.
@@ -2834,13 +2834,13 @@ top_ht_f = function(dbh,
 #' @param expf
 #' Numeric vector containing expansion factors.
 #' 
-#' @param handle_ties
+#' @param no_ties
 #' Integer variable used to determine if dbh values with equivalent values get 
 #' the same BAL return. If this value is 1, then trees with equivalent DBH 
-#' values will have the same BAL value (e.g. 3 trees with 10 inch DBH will all 
-#' have the same BAL). If this value is 0, then trees with equivalent DBH 
 #' values will have a different BAL (3 trees with 10 inch DBH will each have a 
-#' different BAL).
+#' different BAL). If this value is 0, then trees with equivalent DBH values 
+#' will have the same BAL value (e.g. 3 trees with 10 inch DBH will all have the
+#' same BAL).
 #' 
 #' @param naok
 #' Logical variable where if FALSE, an error will be thrown if input vectors 
@@ -2855,11 +2855,11 @@ top_ht_f = function(dbh,
 
 bal_f = function(dbh,
                  expf,
-                 handle_ties = 0,
+                 no_ties = 1,
                  naok = FALSE)
 {
-  #Check handle_ties
-  if(!handle_ties %in% c(0, 1)) handle_ties <- 0
+  #Check no_ties
+  if(!no_ties %in% c(0, 1)) no_ties <- 0
 
   #Get order of DBH values in descending order
   dbh_order <- order(-dbh)
@@ -2874,7 +2874,7 @@ bal_f = function(dbh,
     dbh = dbh,
     sorted_idx = dbh_order,
     expf = expf,
-    handle_ties = handle_ties,
+    no_ties = no_ties,
     ntree = ntree,
     bal_ = double(ntree),
     INTENT = c("r", "r", "r", "r", "r", "rw"),
