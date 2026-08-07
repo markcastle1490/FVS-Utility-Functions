@@ -73,7 +73,7 @@ fia_fitdb <- function(dbin = NULL,
       SIBASE_FIA = round(mean(SIBASE[VALIDCD == 1], na.rm = TRUE), 0),
       SI_FVS     = round(mean(SITREE_FVS[VALIDCD == 1], na.rm = TRUE), 0),
       SIBASE_FVS = round(mean(SIBASE_FVS[VALIDCD == 1], na.rm = TRUE), 0)),
-    by = .(PLT_CN, SPCD)
+    by = .(PLT_CN, STATECD, INVYR, UNITCD, COUNTYCD, PLOT, SPCD)
   ]
 
   #Join site index summary to site_sum
@@ -99,7 +99,7 @@ fia_fitdb <- function(dbin = NULL,
                   #Create broken top indicator
                   #Need to verify if DAMAGE_AGENT_CD1 or ABNORMAL termination
                   #needs to be considered
-                  BT = data.table::fifelse(ACTUALHT < HT, 1L, 0L),
+                  BT = data.table::fcase(ACTUALHT < HT, 1L, default = 0L),
                   #Get measured height value (only observations that were actually measured)
                   HT= data.table::fifelse(!is.na(ACTUALHT), ACTUALHT, HT),
                   #Grab PREVIA for dead trees if needed
@@ -191,7 +191,7 @@ fia_fitdb <- function(dbin = NULL,
                y = tree, 
                by = c("TREE_CN"),
                all.x = TRUE)
-
+  
   #Clean up
   rm(merge_df); gc()
 

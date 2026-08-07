@@ -156,8 +156,10 @@ tree <- tree |>
   mutate(N = max(PtIndex),
          .by = c(CaseID, StandID, Year)) |>
   mutate(PtBAL_dplyr = round(bal(dbh = DBH, expf = TPA * N), 0), 
-         PtBAL_dplyr_notie = round(bal(dbh = DBH, expf = TPA * N, handle_ties = TRUE), 0),
+         PtBAL_dplyr_notie = round(bal(dbh = DBH, expf = TPA * N, no_ties = TRUE), 0),
          .by = c(CaseID, StandID, ActPt, Year))
+
+help(bal)
 
 all.equal(tree$PtBAL, tree$PtBAL_dplyr)
 
@@ -249,7 +251,7 @@ tree <- tree |>
          .by = c(CaseID, StandID, Year)) |>
   mutate(PtBAL_dplyr_f = round(bal_f(dbh = DBH, expf = TPA * N), 0), 
          PtBAL_dplyr_f_notie = round(bal_f(dbh = DBH, expf = TPA * N,
-                                           handle_ties = TRUE), 0),
+                                           no_ties = TRUE), 0),
          .by = c(CaseID, StandID, ActPt, Year))
 
 #Compare R BAL calculation to Fortran BAL

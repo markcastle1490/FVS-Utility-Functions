@@ -24,7 +24,8 @@ ba_f(
 
 \item{ht}{Optional numeric vector containing total tree height values.}
 
-\item{species}{Vector containing species codes}
+\item{species}{Optional vector containing species codes. Will be used when select_species is
+not NULL.}
 
 \item{dbhmin}{Numeric value corresponding to lower DBH bound to calculate attribute in.
 This value is inclusive (>=).}

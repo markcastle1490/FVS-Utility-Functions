@@ -1,8 +1,5 @@
 library(fvstools)
 
-db_compile(dbin = c("C:/FIA_Data/SQLite_FIADB_AK.db"),
-           dbout = c("C:/FIA_Data/FIADB_AK.db"))
-
 #Setup input and output names
 db_in <- "SQLite_FIADB_AK.db"
 db_out <- "AK_GST.db"
@@ -18,10 +15,14 @@ if(.Platform$OS.type == 'windows'){
 
 if(file.exists(fit_db)) unlink(fit_db)
 
-system.time(fia_fitdb(dbin = fia_db,
+#60302
+
+test <- fia_fitdb(dbin = fia_db,
           dbout = fit_db,
           fitdb_name = "TEST",
-          verbose = TRUE))
+          verbose = TRUE)
+
+test[test$PLOT == '60302', ]
 gc()
 
 
