@@ -73,7 +73,7 @@ fia_fitdb <- function(dbin = NULL,
       SIBASE_FIA = round(mean(SIBASE[VALIDCD == 1], na.rm = TRUE), 0),
       SI_FVS     = round(mean(SITREE_FVS[VALIDCD == 1], na.rm = TRUE), 0),
       SIBASE_FVS = round(mean(SIBASE_FVS[VALIDCD == 1], na.rm = TRUE), 0)),
-    by = .(PLT_CN, STATECD, INVYR, UNITCD, COUNTYCD, PLOT, SPCD)
+    by = .(PLT_CN, SPCD)
   ]
 
   #Join site index summary to site_sum
