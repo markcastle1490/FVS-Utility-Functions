@@ -995,4 +995,3 @@ ak_sm_dg <- function(species,
   
   return(result) 
 }
-

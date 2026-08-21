@@ -37,6 +37,7 @@ support_sp <- read.csv(file.path(data_raw, "support_sp.csv"))
 state_codes <- read.csv(file.path(data_raw, "state_codes.csv"))
 fortyp_codes <- read.csv(file.path(data_raw, "fortyp_codes.csv"))
 shaw_sdi <- read.csv(file.path(data_raw, "shaw_sdi.csv"))
+colnames(shaw_sdi) <- c("SPCD", "COMMON", "N", "LOWER", "SDIMAX", "UPPER")
 
 fvs_seq_list <- readRDS(file.path(data_raw, "fvs_seq_list.rds"))
 fvs_char_list <- readRDS(file.path(data_raw, "fvs_char_list.rds"))
