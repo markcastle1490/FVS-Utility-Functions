@@ -584,7 +584,7 @@ ak_hg <- function(species,
 ################################################################################
 #' Alaska variant survival function
 #' @name ak_surv
-#' @Description
+#' @description
 #' Estimates individual tree survival probability and calculates using
 #' functional form from FVS-AK variant.
 #' 

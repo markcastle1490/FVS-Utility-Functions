@@ -2,12 +2,12 @@
 % Please edit documentation in R/forest-type-functions.R, R/sdi-functions.R
 \name{fortyp_lookup}
 \alias{fortyp_lookup}
-\alias{shaw_sdi_lookup}
+\alias{sdi_lookup}
 \title{fortyp_lookup}
 \usage{
 fortyp_lookup(fortyp = NULL, to = 1)
 
-shaw_sdi_lookup(spcd = NULL)
+sdi_lookup(spcd = NULL)
 }
 \arguments{
 \item{fortyp}{Numeric FIA forest type code.}
@@ -20,7 +20,7 @@ shaw_sdi_lookup(spcd = NULL)
 
 3 = Index value of input forest type code}
 
-\item{species}{Numeric FIA forest type code.}
+\item{species}{Numeric FIA species code.}
 }
 \value{
 Value corresponding to output provided in to argument.

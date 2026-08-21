@@ -40,5 +40,6 @@ over the specified \code{fint} interval for each tree record.
 @export
 }
 \description{
-Alaska variant survival function
+Estimates individual tree survival probability and calculates using
+functional form from FVS-AK variant.
 }

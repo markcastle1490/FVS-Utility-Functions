@@ -2,9 +2,10 @@
 % Please edit documentation in R/sdi-functions.R
 \name{shaw_sdi_df}
 \alias{shaw_sdi_df}
-\title{shaw_sdi_df}
+\alias{sdi_df}
+\title{sdi_df}
 \usage{
-shaw_sdi_df()
+sdi_df()
 }
 \value{
 Dataframe with SDI max information.

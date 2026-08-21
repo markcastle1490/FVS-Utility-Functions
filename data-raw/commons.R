@@ -36,8 +36,8 @@ pv_codes_regions <- read.csv(file.path(data_raw, "pv_codes_regions.csv"))
 support_sp <- read.csv(file.path(data_raw, "support_sp.csv"))
 state_codes <- read.csv(file.path(data_raw, "state_codes.csv"))
 fortyp_codes <- read.csv(file.path(data_raw, "fortyp_codes.csv"))
-shaw_sdi <- read.csv(file.path(data_raw, "shaw_sdi.csv"))
-colnames(shaw_sdi) <- c("SPCD", "COMMON", "N", "LOWER", "SDIMAX", "UPPER")
+sdimax_df <- read.csv(file.path(data_raw, "shaw_sdi.csv"))
+colnames(sdimax_df) <- c("SPCD", "COMMON", "N", "LOWER", "SDIMAX", "UPPER")
 
 fvs_seq_list <- readRDS(file.path(data_raw, "fvs_seq_list.rds"))
 fvs_char_list <- readRDS(file.path(data_raw, "fvs_char_list.rds"))
@@ -436,7 +436,7 @@ save(
   
   #Vectors and lists of control values
   variants, fvs_species, fvs_locs, pv_codes, pv_codes_regions, 
-  support_sp, state_codes, fortyp_codes, shaw_sdi, fvs_seq_list, fvs_char_list, 
+  support_sp, state_codes, fortyp_codes, sdimax_df, fvs_seq_list, fvs_char_list, 
   fvs_fia_list, fvs_plant_list, fvs_loc_list, pvcode_list, habpvr_list, 
   pvcode_reg_list, pvref_list,
   

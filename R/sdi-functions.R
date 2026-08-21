@@ -1,5 +1,5 @@
 ################################################################################
-#' shaw_sdi_df
+#' sdi_df
 #' @name shaw_sdi_df
 #' @description Returns dataframe containing FIA species codes, species common
 #' names, number of subplots used to derive SDI, lower SDI max, SDI max, and 
@@ -10,11 +10,11 @@
 #' @export
 ################################################################################
 
-shaw_sdi_df <- function()
-  return(shaw_sdi)
+sdi_df <- function()
+  return(sdimax_df)
 
 ################################################################################
-#' shaw_sdi_lookup
+#' sdi_lookup
 #' @name fortyp_lookup
 #' @description Returns maximum SDI value from incoming FIA species code.
 #' 
@@ -26,13 +26,13 @@ shaw_sdi_df <- function()
 #' @export
 ################################################################################
 
-shaw_sdi_lookup <- function(spcd = NULL) {
+sdi_lookup <- function(spcd = NULL) {
   
   #Get SDI max indices
-  matches <- match(spcd, shaw_sdi[["SPCD"]])
+  matches <- match(spcd, sdimax_df[["SPCD"]])
   
   #Get SDI max values
-  sdi_max <- shaw_sdi[["SDIMAX"]][matches]
+  sdi_max <- sdimax_df[["SDIMAX"]][matches]
   
   return(sdi_max)
 }
