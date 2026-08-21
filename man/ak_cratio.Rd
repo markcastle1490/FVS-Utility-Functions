@@ -2,7 +2,7 @@
 % Please edit documentation in R/ak-equations.R
 \name{ak_cratio}
 \alias{ak_cratio}
-\title{Alaska variant crown ratio function}
+\title{ak_cratio}
 \usage{
 ak_cratio(species, dbh, ht, hdbh = NA, rd, qmd, fcr = 0)
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/ak-equations.R
 \name{ak_si}
 \alias{ak_si}
-\title{Alaska variant site index wrapper function}
+\title{ak_si}
 \usage{
 ak_si(species, ht, age, baseage = 100, si, type = 0)
 }
@@ -22,9 +22,13 @@ passed down to the underlying Hegyi function. Defaults to 100.}
 \item{si:}{A numeric vector specifying the site index baseline height in feet. Used as
 an input when type is 2 or when type is 0.}
 
-\item{type:}{An integer or numeric vector specifying the calculation branch. Use 1 to
-calculate site index from height and age, 2 to calculate height from site index
-and age, or any other value to calculate age from site index and height.}
+\item{type:}{An integer or numeric value specifying the calculation branch.
+
+1 = Calculate site index from height
+
+2 = Calculate height from site index
+
+3 = Calculate age from site index and height}
 }
 \value{
 A numeric vector representing either the calculated site index (in

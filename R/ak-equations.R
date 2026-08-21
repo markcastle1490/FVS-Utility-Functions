@@ -1,6 +1,6 @@
 ################################################################################
-#' Alaska variant bark ratio function
-#'
+#' ak_bratio
+#' @name ak_bratio
 #' @description
 #' Calculates the bark ratio for individual trees to convert between outside-bark
 #' and inside-bark dimensions using species-specific coefficients from the
@@ -57,11 +57,11 @@ ak_bratio <- function(species, dbh) {
 }
 
 ################################################################################
-#' Alaska variant Chapman Richards height-diameter function
-#'
+#' ak_htd_cr
+#' @name ak_htd_cr
 #' @description
 #' Calculates total tree height from diameter, or estimates diameter from total
-#' tree height, using the Curtis-Arney functional form from the FVS-AK
+#' tree height, using the Chapman Richards functional form from the FVS-AK
 #' variant.
 #'
 #' @param species:
@@ -86,7 +86,7 @@ ak_bratio <- function(species, dbh) {
 #' @export
 ################################################################################
 
-ak_htd_cr <- function(species, dbh, ht, type) { 
+ak_htd_cr <- function(species, dbh, ht, type = 1) { 
   
   #Handle invalid species values (default to 23) Safely 
   species[!is.numeric(species) | species < 1 | species > 23 | is.na(species)] <- 23 
@@ -115,8 +115,9 @@ ak_htd_cr <- function(species, dbh, ht, type) {
 }
 
 ###############################################################################
-#' Alaska variant Wykoff height-diameter function
-#'
+#' ak_htd_wy
+#' @name ak_htd_wy
+#' 
 #' @description
 #' Calculates total tree height from diameter, or estimates diameter from total
 #' tree height, using the Wykoff exponential functional form from the FVS-AK
@@ -144,7 +145,7 @@ ak_htd_cr <- function(species, dbh, ht, type) {
 #' @export
 ################################################################################
 
-ak_htd_wy <- function(species, dbh, ht, type) {
+ak_htd_wy <- function(species, dbh, ht, type = 1) {
   
   #Handle invalid species values safely (default to 23) 
   species[!is.numeric(species) | species < 1 | species > 23 | is.na(species)] <- 23 
@@ -173,8 +174,8 @@ ak_htd_wy <- function(species, dbh, ht, type) {
   return(result) 
 }
 ################################################################################
-#' Alaska variant crown width function
-#'
+#' ak_cwcalc
+#' @name ak_cwcalc
 #' @description
 #' Calculates the projected crown width for individual trees based on dimensions,
 #' local stand basal area, and site elevation using functional form from FVS-AK
@@ -232,8 +233,8 @@ ak_cwcalc <- function(species, dbh, ht, cl, ba, elev) {
 }
 
 ################################################################################
-#' Alaska variant crown competition factor function
-#'
+#' ak_ccf
+#' @name ak_ccf
 #' @description
 #' Calculates the crown competition factor (CCF) contributions for individual
 #' trees, accounting for maximum crown width variations across species using
@@ -280,8 +281,8 @@ ak_ccf <- function(species, dbh, expf) {
 }
 
 ################################################################################
-#' Alaska variant crown ratio function
-#'
+#' ak_cratio
+#' @name ak_cratio
 #' @description
 #' Calculates the projected crown ratio for individual trees using a logistic
 #' model structure based on the functional form from the FVS-AK variant.
@@ -340,8 +341,8 @@ ak_cratio <- function(species, dbh, ht, hdbh = NA, rd, qmd, fcr = 0) {
 }
 
 ################################################################################
-#' Alaska variant diameter growth function
-#'
+#' ak_dg
+#' @name ak_dg
 #' @description
 #' Calculates the projected diameter increment for individual trees over a
 #' specified growth period, adjusting for permafrost constraints and accounting
@@ -476,9 +477,9 @@ ak_dg <- function(type = 1,
   } 
 }
 
-###z############################################################################
-#' Alaska variant height growth function
-#'
+################################################################################
+#' ak_hg
+#' @name ak_hg
 #' @description
 #' Calculates the projected height increment for individual trees over a 
 #' specified growth period using functional form from FVS-AK variant.
@@ -582,7 +583,7 @@ ak_hg <- function(species,
 }
 
 ################################################################################
-#' Alaska variant survival function
+#' ak_surv
 #' @name ak_surv
 #' @description
 #' Estimates individual tree survival probability and calculates using
@@ -624,7 +625,7 @@ ak_hg <- function(species,
 #'
 #' @return A numeric vector representing the compounded probability of survival
 #'  over the specified `fint` interval for each tree record. 
-#'  @export
+#' @export
 ################################################################################
 
 ak_surv <- function(type = 1, 
@@ -667,8 +668,8 @@ ak_surv <- function(type = 1,
 }
 
 ################################################################################
-#' Alaska variant Hegyi site index function
-#'
+#' ak_hegyi
+#' @name ak_hegyi
 #' @description
 #' Calculates site index from tree height and age, total tree height from site 
 #' index and age, or tree age from site index and height using the Hegyi 
@@ -739,8 +740,8 @@ ak_hegyi <- function(species, ht, age, baseage = 100, si, type = 0) {
 }
 
 ################################################################################
-#' Alaska variant Paya site index function
-#'
+#' ak_paya
+#' @name ak_paya
 #' @description
 #' Calculates site index from tree height and age, total tree height from site
 #' index and age, or tree age from site index and height using the Paya
@@ -807,8 +808,8 @@ ak_paya <- function(species,
 }
 
 ################################################################################
-#' Alaska variant site index wrapper function
-#'
+#' ak_si
+#' @name ak_si
 #' @description
 #' Evaluates tree attributes and routes calculations automatically between the
 #' Payandeh or Hegyi model structures based on species codes and age constraints
@@ -835,9 +836,13 @@ ak_paya <- function(species,
 #' an input when type is 2 or when type is 0.
 #'
 #' @param type:
-#' An integer or numeric vector specifying the calculation branch. Use 1 to
-#' calculate site index from height and age, 2 to calculate height from site index
-#' and age, or any other value to calculate age from site index and height.
+#' An integer or numeric value specifying the calculation branch. 
+#' 
+#' 1 = Calculate site index from height
+#' 
+#' 2 = Calculate height from site index
+#' 
+#' 3 = Calculate age from site index and height
 #'
 #' @return A numeric vector representing either the calculated site index (in
 #' feet), tree height (in feet), or tree age (in years) depending on the selected
@@ -877,11 +882,11 @@ ak_si <- function(species,
 }
 
 ################################################################################
-#' Alaska variant small tree height growth scaling function
-#'
+#' ak_smhg
+#' @name ak_smhg
 #' @description
-#' Calculates the dynamically weighted height increment for smaller trees by
-#' blending small-tree growth predictions and large-tree predictions using a
+#' Calculates the weighted height increment for smaller trees by blending 
+#' small-tree growth predictions and large-tree predictions using a 
 #' diameter-based transition scale from the FVS-AK variant.
 #'
 #' @param species:
@@ -895,11 +900,11 @@ ak_si <- function(species,
 #'
 #' @param htgr:
 #' A numeric vector specifying the unweighted height growth prediction derived
-#' from the small tree base sub-model components.
+#' from the small tree base model.
 #'
 #' @param lthg:
 #' A numeric vector specifying the alternate height growth prediction derived
-#' from the large tree potential model components.
+#' from the large tree model.
 #'
 #' @return A numeric vector representing the blended and scaled height growth
 #' increment (in feet) for each tree record.
@@ -926,10 +931,10 @@ ak_smhg <- function(species,
 }
 
 ################################################################################
-#' Alaska variant small tree diameter growth scaling function
-#'
+#' ak_smdg
+#' @name ak_smdg
 #' @description
-#' Calculates the dynamically weighted diameter increment for smaller trees by
+#' Calculates the weighted diameter increment for smaller trees by
 #' blending back-transformed small-tree growth predictions and large-tree
 #' predictions using a diameter-based transition scale from the FVS-AK variant.
 #'
@@ -952,7 +957,7 @@ ak_smhg <- function(species,
 #'
 #' @param ltdg:
 #' A numeric vector specifying the alternate large tree model diameter growth
-#' increment prediction.
+#' prediction.
 #'
 #' @param bark:
 #' A numeric vector specifying the bark ratio factor for the individual tree

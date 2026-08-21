@@ -2,7 +2,7 @@
 % Please edit documentation in R/ak-equations.R
 \name{ak_bratio}
 \alias{ak_bratio}
-\title{Alaska variant bark ratio function}
+\title{ak_bratio}
 \usage{
 ak_bratio(species, dbh)
 }

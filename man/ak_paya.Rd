@@ -2,7 +2,7 @@
 % Please edit documentation in R/ak-equations.R
 \name{ak_paya}
 \alias{ak_paya}
-\title{Alaska variant Paya site index function}
+\title{ak_paya}
 \usage{
 ak_paya(species, ht, age, si, type = 0, debug = FALSE)
 }

@@ -2,9 +2,9 @@
 % Please edit documentation in R/ak-equations.R
 \name{ak_htd_cr}
 \alias{ak_htd_cr}
-\title{Alaska variant Chapman Richards height-diameter function}
+\title{ak_htd_cr}
 \usage{
-ak_htd_cr(species, dbh, ht, type)
+ak_htd_cr(species, dbh, ht, type = 1)
 }
 \arguments{
 \item{species:}{An integer or numeric vector of species codes (1 to 23). Invalid, missing
@@ -26,6 +26,6 @@ feet) or the predicted diameters (in inches) for each tree record.
 }
 \description{
 Calculates total tree height from diameter, or estimates diameter from total
-tree height, using the Curtis-Arney functional form from the FVS-AK
+tree height, using the Chapman Richards functional form from the FVS-AK
 variant.
 }

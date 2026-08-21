@@ -2,7 +2,7 @@
 % Please edit documentation in R/ak-equations.R
 \name{ak_hg}
 \alias{ak_hg}
-\title{Alaska variant height growth function}
+\title{ak_hg}
 \usage{
 ak_hg(species, dbh, ht = 4.5, elev, si = 70, dg = 0.1, yr = 10, perm)
 }

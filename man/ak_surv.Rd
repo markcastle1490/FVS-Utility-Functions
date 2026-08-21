@@ -2,7 +2,7 @@
 % Please edit documentation in R/ak-equations.R
 \name{ak_surv}
 \alias{ak_surv}
-\title{Alaska variant survival function}
+\title{ak_surv}
 \usage{
 ak_surv(type = 1, species, dbh, bal, p = 1, fint = 10)
 }
@@ -37,7 +37,6 @@ period in years. Defaults to \code{10}.}
 \value{
 A numeric vector representing the compounded probability of survival
 over the specified \code{fint} interval for each tree record.
-@export
 }
 \description{
 Estimates individual tree survival probability and calculates using

@@ -2,7 +2,7 @@
 % Please edit documentation in R/ak-equations.R
 \name{ak_cwcalc}
 \alias{ak_cwcalc}
-\title{Alaska variant crown width function}
+\title{ak_cwcalc}
 \usage{
 ak_cwcalc(species, dbh, ht, cl, ba, elev)
 }

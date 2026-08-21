@@ -2,9 +2,9 @@
 % Please edit documentation in R/ak-equations.R
 \name{ak_htd_wy}
 \alias{ak_htd_wy}
-\title{Alaska variant Wykoff height-diameter function}
+\title{ak_htd_wy}
 \usage{
-ak_htd_wy(species, dbh, ht, type)
+ak_htd_wy(species, dbh, ht, type = 1)
 }
 \arguments{
 \item{species:}{An integer or numeric vector of species codes (1 to 23). Invalid, missing

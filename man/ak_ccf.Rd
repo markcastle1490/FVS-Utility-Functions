@@ -2,7 +2,7 @@
 % Please edit documentation in R/ak-equations.R
 \name{ak_ccf}
 \alias{ak_ccf}
-\title{Alaska variant crown competition factor function}
+\title{ak_ccf}
 \usage{
 ak_ccf(species, dbh, expf)
 }

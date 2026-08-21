@@ -2,7 +2,7 @@
 % Please edit documentation in R/ak-equations.R
 \name{ak_smhg}
 \alias{ak_smhg}
-\title{Alaska variant small tree height growth scaling function}
+\title{ak_smhg}
 \usage{
 ak_smhg(species, dbh, htgr, lthg)
 }
@@ -15,17 +15,17 @@ ak_smhg(species, dbh, htgr, lthg)
 inches.}
 
 \item{htgr:}{A numeric vector specifying the unweighted height growth prediction derived
-from the small tree base sub-model components.}
+from the small tree base model.}
 
 \item{lthg:}{A numeric vector specifying the alternate height growth prediction derived
-from the large tree potential model components.}
+from the large tree model.}
 }
 \value{
 A numeric vector representing the blended and scaled height growth
 increment (in feet) for each tree record.
 }
 \description{
-Calculates the dynamically weighted height increment for smaller trees by
-blending small-tree growth predictions and large-tree predictions using a
+Calculates the weighted height increment for smaller trees by blending
+small-tree growth predictions and large-tree predictions using a
 diameter-based transition scale from the FVS-AK variant.
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/ak-equations.R
 \name{ak_dg}
 \alias{ak_dg}
-\title{Alaska variant diameter growth function}
+\title{ak_dg}
 \usage{
 ak_dg(
   type = 1,

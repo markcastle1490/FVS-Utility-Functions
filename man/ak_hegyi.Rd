@@ -2,7 +2,7 @@
 % Please edit documentation in R/ak-equations.R
 \name{ak_hegyi}
 \alias{ak_hegyi}
-\title{Alaska variant Hegyi site index function}
+\title{ak_hegyi}
 \usage{
 ak_hegyi(species, ht, age, baseage = 100, si, type = 0)
 }
