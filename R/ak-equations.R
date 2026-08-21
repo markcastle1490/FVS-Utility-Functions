@@ -23,36 +23,33 @@
 
 ak_bratio <- function(species, dbh) {
   
-  #Handle invalid species values (default to 23)
+  # Handle invalid species values safely (default to 23)
   species[!is.numeric(species) | species < 1 | species > 23 | is.na(species)] <- 23
   
-  #Get species and coefficients
+  #Get matrix of coefficients
   v <- bratio_coeffs[species, , drop = FALSE]
-  type_vec <- v[, 1]
-  b1   <- v[, 2]
-  b2   <- v[, 3]
   
   # Pre-allocate the result vector to match input size
   bratio <- numeric(length(dbh))
   
-  #Targeted calculation based on math type
-  idx1 <- (type_vec == 1)
-  idx2 <- (type_vec == 2)
-  idx3 <- (type_vec == 3)
+  # Targeted calculation based on math type (v[, 1] is type_vec)
+  idx1 <- (v[, 1] == 1)
+  idx2 <- (v[, 1] == 2)
+  idx3 <- (v[, 1] == 3)
   
-  #Type 1
+  # Type 1
   if (any(idx1)) {
-    bratio[idx1] <- (dbh[idx1] - (b1[idx1] * dbh[idx1] ^ b2[idx1])) / dbh[idx1]
+    bratio[idx1] <- (dbh[idx1] - (v[idx1, 2] * dbh[idx1] ^ v[idx1, 3])) / dbh[idx1]
   }
   
-  #Type 2
+  # Type 2
   if (any(idx2)) {
-    bratio[idx2] <- (b1[idx2] + b2[idx2] * dbh[idx2]) / dbh[idx2]
+    bratio[idx2] <- (v[idx2, 2] + v[idx2, 3] * dbh[idx2]) / dbh[idx2]
   }
   
-  #Type 3
+  # Type 3
   if (any(idx3)) {
-    bratio[idx3] <- (b1[idx3] * dbh[idx3] ^ b2[idx3]) / dbh[idx3]
+    bratio[idx3] <- (v[idx3, 2] * dbh[idx3] ^ v[idx3, 3]) / dbh[idx3]
   }
   
   #Bratio boundary setting
@@ -89,38 +86,32 @@ ak_bratio <- function(species, dbh) {
 #' @export
 ################################################################################
 
-ak_htd_cr <- function(species, dbh, ht, type) {
+ak_htd_cr <- function(species, dbh, ht, type) { 
   
-  #Handle invalid species values (default to 23) Safely
-  species[!is.numeric(species) | species < 1 | species > 23 | is.na(species)] <- 23
+  #Handle invalid species values (default to 23) Safely 
+  species[!is.numeric(species) | species < 1 | species > 23 | is.na(species)] <- 23 
   
-  #Get species and coefficients
-  v <- htd_cr_coeffs[species, , drop = FALSE]
-  b1 <- v[, 1]
-  b2 <- v[, 2]
-  b3 <- v[, 3]
+  #Get species and coefficients 
+  v <- htd_cr_coeffs[species, , drop = FALSE] 
   
-  #Height calculation
-  if (type == 1) {
-    ht_base <- 4.5 + b1 * (1 - exp(b2 * dbh))^b3
+  #Height calculation 
+  if (type == 1) { 
+    ht_base <- 4.5 + v[, 1] * (1 - exp(v[, 2] * dbh))^v[, 3] 
     
-    #Determine multipliers for each species (most have 1)
-    mult <- rep(1.0, length(ht_base))
-    mult[species %in% c(14, 21, 23)] <- 0.45
-    mult[species == 22]              <- 0.65
-    
-    result <- ht_base * mult
-    
+    #Determine multipliers for each species (most have 1) 
+    mult <- rep(1.0, length(ht_base)) 
+    mult[species %in% c(14, 21, 23)] <- 0.45 
+    mult[species == 22] <- 0.65 
+    result <- ht_base * mult 
   } 
-  #Calculate DBH from Ht
-  else {
-    
-    suppressWarnings({
-      result <- (1 / b2 * log(1 - ((ht - 4.5) / b1)^(1 / b3)))
-    })
-  }
   
-  return(result)
+  #Calculate DBH from Ht 
+  else { 
+    suppressWarnings({ 
+      result <- (1 / v[, 2] * log(1 - ((ht - 4.5) / v[, 1])^(1 / v[, 3]))) 
+    }) 
+  } 
+  return(result) 
 }
 
 ###############################################################################
@@ -155,37 +146,32 @@ ak_htd_cr <- function(species, dbh, ht, type) {
 
 ak_htd_wy <- function(species, dbh, ht, type) {
   
-  #Handle invalid species values safely (default to 23)
-  species[!is.numeric(species) | species < 1 | species > 23 | is.na(species)] <- 23
+  #Handle invalid species values safely (default to 23) 
+  species[!is.numeric(species) | species < 1 | species > 23 | is.na(species)] <- 23 
   
-  #Get species and coefficients
-  v <- htd_wy_coeffs[species, , drop = FALSE]
-  b1 <- v[, 1]
-  b2 <- v[, 2]
+  #Get species and coefficients 
+  v <- htd_wy_coeffs[species, , drop = FALSE] 
   
-  #Calculate Ht from DBH
-  if (type == 1) {
+  #Calculate Ht from DBH 
+  if (type == 1) { 
+    ht_base <- 4.5 + exp(v[, 1] + v[, 2] / (dbh + 1)) 
     
-    ht_base <- 4.5 + exp(b1 + b2 / (dbh + 1))
-    
-    #Set multipliers
-    mult <- rep(1.0, length(ht_base))
-    mult[species %in% c(14, 21, 23)] <- 0.45
-    mult[species == 22]              <- 0.65
-    
-    return(ht_base * mult)
-  }
+    #Set multipliers 
+    mult <- rep(1.0, length(ht_base)) 
+    mult[species %in% c(14, 21, 23)] <- 0.45 
+    mult[species == 22] <- 0.65 
+    return(ht_base * mult) 
+  } 
   
-  #Calculate DBH from Ht
-  else {
-    suppressWarnings({
-      return((b2 / (log(ht - 4.5) - b1)) - 1.0)
-    })
-  }
+  #Calculate DBH from Ht 
+  else { 
+    suppressWarnings({ 
+      return((v[, 2] / (log(ht - 4.5) - v[, 1])) - 1.0) 
+    }) 
+  } 
   
-  return(result)
+  return(result) 
 }
-
 ################################################################################
 #' Alaska variant crown width function
 #'
@@ -220,38 +206,29 @@ ak_htd_wy <- function(species, dbh, ht, type) {
 #' @export
 ################################################################################
 
-ak_cwcalc <- function(species, dbh, ht, cl, ba, elev) {
+ak_cwcalc <- function(species, dbh, ht, cl, ba, elev) { 
   
-  #Handle invalid species values safely (default to 23)
-  species[!is.numeric(species) | species < 1 | species > 23 | is.na(species)] <- 23
+  #Handle invalid species values safely (default to 23) 
+  species[!is.numeric(species) | species < 1 | species > 23 | is.na(species)] <- 23 
   
-  #Get species and coefficients
-  v <- cwcalc_coeffs[species, , drop = FALSE]
-  omind_vec  <- v[, 1]
-  b1     <- v[, 2]
-  b2     <- v[, 3]
-  b3     <- v[, 4]
-  b4    <- v[, 5]
-  b5     <- v[, 6]
-  b6     <- v[, 7]
-  elmin  <- v[, 8]
-  elmax  <- v[, 9]
+  #Get species and coefficients 
+  v <- cwcalc_coeffs[species, , drop = FALSE] 
   
-  #Constrain elevation vector element-by-element
-  no_constraint <- (elmin <= 0.0 & elmax <= 0.0)
-  v_elev <- ifelse(no_constraint, elev, pmin(pmax(elev, elmin), elmax))
+  #Constrain elevation vector element-by-element 
+  no_constraint <- (v[, 8] <= 0.0 & v[, 9] <= 0.0) 
+  v_elev <- ifelse(no_constraint, elev, pmin(pmax(elev, v[, 8]), v[, 9])) 
   
-  #Pre-compute crown width options based on dbh comparison
-  cw_standard <- 
-    b1 * dbh^b2 * ht^b3 * cl^b4 * (ba + 1)^b5 * exp(v_elev)^b6
+  #Pre-compute crown width options based on dbh comparison 
+  cw_standard <- v[, 2] * dbh^v[, 3] * ht^v[, 4] * cl^v[, 5] * (ba + 1)^v[, 6] *
+    exp(v_elev)^v[, 7] 
   
-  cw_adjusted <-  
-    (b1 * v_omind^b2 * ht^b3 * cl^b4 * (ba + 1)^b5 * exp(v_elev)^b6) * (dbh / v_omind)
+  cw_adjusted <- (v[, 2] * v[, 1]^v[, 3] * ht^v[, 4] * cl^v[, 5] * 
+                    (ba + 1)^v[, 6] * exp(v_elev)^v[, 7]) * (dbh / v[, 1]) 
   
-  #Select calculation vector branch
-  result <- ifelse(dbh >= v_omind, cw_standard, cw_adjusted)
+  #Select calculation vector branch 
+  result <- ifelse(dbh >= v[, 1], cw_standard, cw_adjusted) 
   
-  return(result)
+  return(result) 
 }
 
 ################################################################################
@@ -280,29 +257,26 @@ ak_cwcalc <- function(species, dbh, ht, cl, ba, elev) {
 #' @export
 ################################################################################
 
-ak_ccf <- function(species, dbh, expf) {
+ak_ccf <- function(species, dbh, expf) { 
   
-  #Handle invalid species values safely (default to 23)
-  species[!is.numeric(species) | species < 1 | species > 23 | is.na(species)] <- 23
+  #Handle invalid species values safely (default to 23) 
+  species[!is.numeric(species) | species < 1 | species > 23 | is.na(species)] <- 23 
   
-  #Get species and coefficients
-  v <- ccf_coeffs[species, , drop = FALSE]
-  b1     <- v[, 1]
-  b2     <- v[, 2]
-  v_form <- v[, 3]
+  #Get species and coefficients 
+  v <- ccf_coeffs[species, , drop = FALSE] 
   
-  #Pre-compute both equation branches for Max Crown Width (MCW)
-  mcw_form1 <- b1 + b2 * dbh
-  mcw_form2 <- (b1 * dbh^b2) * 3.28
+  #Pre-compute both equation branches for Max Crown Width (MCW) 
+  mcw_form1 <- v[, 1] + v[, 2] * dbh 
+  mcw_form2 <- (v[, 1] * dbh^v[, 2]) * 3.28 
   
-  # Select the proper MCW for each individual element
-  v_mcw <- ifelse(v_form == 1, mcw_form1, mcw_form2)
+  # Select the proper MCW for each individual element 
+  v_mcw <- ifelse(v[, 3] == 1, mcw_form1, mcw_form2) 
   
-  # Run remaining calculations across the vectors
-  v_mca  <- pi * (v_mcw / 2)^2
-  result <- (v_mca / 43560) * 100 * expf
+  # Run remaining calculations across the vectors 
+  v_mca <- pi * (v_mcw / 2)^2 
+  result <- (v_mca / 43560) * 100 * expf 
   
-  return(result)
+  return(result) 
 }
 
 ################################################################################
@@ -346,33 +320,23 @@ ak_ccf <- function(species, dbh, expf) {
 #' @export
 ################################################################################
 
-ak_cratio <- function(species,
-                      dbh, 
-                      ht, 
-                      hdbh = NA,
-                      rd, 
-                      qmd,
-                      fcr = 0) {
+ak_cratio <- function(species, dbh, ht, hdbh = NA, rd, qmd, fcr = 0) { 
   
-  #Handle invalid species values safely (default to 23)
-  species[!is.numeric(species) | species < 1 | species > 23 | is.na(species)] <- 23
+  #Handle invalid species values safely (default to 23) 
+  species[!is.numeric(species) | species < 1 | species > 23 | is.na(species)] <- 23 
   
-  #Get species and coefficients
-  v <- cratio_coeffs[species, , drop = FALSE]
-  b1 <- v[, 1]
-  b2 <- v[, 2]
-  b3 <- v[, 3]
-  b4 <- v[, 4]
+  #Get species and coefficients 
+  v <- cratio_coeffs[species, , drop = FALSE] 
   
-  #Determine HDR
-  hdr_calc <- (ht * 12) / dbh
-  v_hdr <- ifelse(is.na(hdbh), hdr_calc, hdbh)
+  #Determine HDR 
+  hdr_calc <- (ht * 12) / dbh 
+  v_hdr <- ifelse(is.na(hdbh), hdr_calc, hdbh) 
   
-  #Calculate crown ratio
-  v_x <- b1 + b2 * log(v_hdr) + b3 * rd + b4 * dbh / qmd
-  result <- 1 / (1 + exp(v_x + fcr))
+  #Calculate crown ratio 
+  v_x <- v[, 1] + v[, 2] * log(v_hdr) + v[, 3] * rd + v[, 4] * dbh / qmd 
+  result <- 1 / (1 + exp(v_x + fcr)) 
   
-  return(result)
+  return(result) 
 }
 
 ################################################################################
@@ -399,10 +363,6 @@ ak_cratio <- function(species,
 #' @param dbh:
 #' A numeric vector specifying the tree Diameter at Breast Height (DBH) in
 #' inches.
-#' 
-#' @param expf:
-#' Optional numeric vector containing expansion factors. If this value is not
-#' NULL, then bal and rd will be calculated with dbh and expf values.
 #'
 #' @param bal:
 #' A numeric vector specifying the Basal Area in Large trees (BAL) in square feet
@@ -446,98 +406,77 @@ ak_cratio <- function(species,
 ak_dg <- function(type = 1,
                   species, 
                   dbh, 
-                  expf = NULL,
-                  bal, 
+                  bal,
                   rd, 
                   cr, 
-                  elev, 
-                  slope, 
-                  aspect, 
-                  perm = 0, 
+                  elev,
+                  slope,
+                  aspect,
+                  perm = 0,
                   si = 70, 
                   yr = 10, 
-                  perm_off = TRUE) {
+                  perm_off = TRUE) { 
   
-  #Handle invalid species values safely (default to 23)
-  species[!is.numeric(species) | species < 1 | species > 23 | is.na(species)] <- 23
+  #Handle invalid species values safely (default to 23) 
+  species[!is.numeric(species) | species < 1 | species > 23 | is.na(species)] <- 23 
   
-  #Calculate bal if expansion factors are provided
-  if(!is.null(expf))
-  {
-    bal <- fvstools::bal(dbh = dbh, expf = expf)
-    zsdi <- fvstools::zsdi(dbh = dbh, expf = expf)
-    maxsdi <- fvstools::max
-    rd <- zsdi / maxsdi
-  }
+  #Get species and coefficients 
+  v_base <- dg_base_coeffs[species, , drop = FALSE] 
   
-  #Get species and coefficients
-  v_base <- dg_base_coeffs[species, , drop = FALSE]
-  b1  <- v_base[, 1]
-  b2  <- v_base[, 2]
-  b3  <- v_base[, 3]
-  b4  <- v_base[, 4]
-  b5  <- v_base[, 5]
-  b6  <- v_base[, 6]
-  v_b7 <- v_base[, 7]
-  v_b8 <- v_base[, 8]
-  v_b9 <- v_base[, 9]
-  b10 <- v_base[, 10]
+  #Calculate vectorized annual base diameter increment 
+  basedg <- exp(v_base[, 1] + v_base[, 2]*dbh^2 + v_base[, 3]*log(dbh) + 
+                  v_base[, 4]*bal + v_base[, 5]*rd + v_base[, 6]*log(cr) + 
+                  v_base[, 7]*elev + v_base[, 8]*slope + 
+                  v_base[, 9]*slope*cos(aspect) + v_base[, 10]*log(si)) 
   
-  #Calculate vectorized annual base diameter increment
-  basedg <- exp(b1 + b2*dbh^2 + b3*log(dbh) + b4*bal + b5*rd + b6*log(cr) + 
-                  v_b7*elev + v_b8*slope + v_b9*slope*cos(aspect) + b10*log(si))
+  #Scalar values for permafrost equations 
+  pb2 <- -0.002711 
+  pb6 <- 0.736013 
+  pb7 <- -0.000137 
+  pb8 <- 0.001702 
+  pb9 <- -0.001819 
+  pb01 <- -0.349215 
   
-  #Scalar values for permafrost equations
-  pb2  <- -0.002711
-  pb6  <-  0.736013
-  pb7  <- -0.000137
-  pb8  <-  0.001702
-  pb9  <- -0.001819
-  pb01 <- -0.349215
+  #Get permaforst coefficients 
+  v_perm <- dg_perm_coeffs[species, , drop = FALSE] 
   
-  #Get permaforst coefficients
-  v_perm <- dg_perm_coeffs[species, , drop = FALSE]
-  v_pb1 <- v_perm[, 1]
-  v_pb3 <- v_perm[, 2]
-  v_pb4 <- v_perm[, 3]
-  v_pb5 <- v_perm[, 4]
+  # Evaluate Permafrost Modifier Logic across vectors 
+  pf_present <- exp(v_perm[, 1] + pb01 + pb2*dbh^2 + v_perm[, 2]*log(dbh) + 
+                      v_perm[, 3]*bal + v_perm[, 4]*rd + pb6*log(cr) + 
+                      pb7*elev + pb8*slope + pb9*slope*cos(aspect)) / basedg 
   
-  # Evaluate Permafrost Modifier Logic across vectors
-  pf_present <- exp(v_pb1 + pb01 + pb2*dbh^2 + v_pb3*log(dbh) + v_pb4*bal + 
-                      v_pb5*rd + pb6*log(cr) + pb7*elev + pb8*slope + 
-                      pb9*slope*cos(aspect)) / basedg
+  pf_absent <- exp(v_perm[, 1] + pb2*dbh^2 + v_perm[, 2]*log(dbh) + 
+                     v_perm[, 3]*bal + v_perm[, 4]*rd + pb6*log(cr) + 
+                     pb7*elev + pb8*slope + pb9*slope*cos(aspect)) / basedg 
   
-  pf_absent  <- exp(v_pb1 + pb2*dbh^2 + v_pb3*log(dbh) + v_pb4*bal + v_pb5*rd +
-                      pb6*log(cr) + pb7*elev + pb8*slope + 
-                      pb9*slope*cos(aspect)) / basedg
+  pf_present <- pmin(pf_present, 1.0) 
+  pf_absent <- pmax(pf_absent, 1.0) 
   
-  pf_present <- pmin(pf_present, 1.0)
-  pf_absent  <- pmax(pf_absent, 1.0)
+  affected_species <- species %in% c(4:7, 13, 16:23) 
+  pfmod <- ifelse(affected_species, ifelse(perm >= 1.0, pf_present, pf_absent), 1.0) 
+  pfmod <- ifelse(perm_off, 1.0, pfmod) 
   
-  affected_species <- species %in% c(4:7, 13, 16:23)
-  pfmod <- ifelse(affected_species, ifelse(perm >= 1.0, pf_present, pf_absent), 1.0)
-  pfmod <- ifelse(perm_off, 1.0, pfmod)
+  # Apply final scaling and species multiplication adjustments 
+  di_base <- yr * basedg * pfmod 
+  di_base <- ifelse(species %in% c(14, 21, 23), 
+                    di_base * 0.45, 
+                    ifelse(species == 22, di_base * 0.65, di_base)) 
   
-  # Apply final scaling and species multiplication adjustments
-  di_base <- yr * basedg * pfmod
-  di_base <- ifelse(species %in% c(14, 21, 23), di_base * 0.45, 
-                    ifelse(species == 22, di_base * 0.65, di_base))
+  #Bark ratio and DDS calculation 
+  br <- ak_bratio(species, dbh) 
+  d1 <- dbh * br 
+  d2 <- (dbh + di_base) * br 
+  dds <- log(d2^2 - d1^2) 
   
-  #Bark ratio and DDS calculation
-  br <- ak_bratio(species, dbh)
-  d1 <- dbh * br
-  d2 <- (dbh + di_base) * br
-  dds <- log(d2^2 - d1^2)
-  
-  # Type parameter scalar conditional return
-  if (type == 1) {
-    return(di_base)
-  } else {
-    return(dds)
-  }
+  # Type parameter scalar conditional return 
+  if (type == 1) { 
+    return(di_base) 
+  } else { 
+    return(dds) 
+  } 
 }
 
-################################################################################
+###z############################################################################
 #' Alaska variant height growth function
 #'
 #' @description
@@ -582,77 +521,64 @@ ak_dg <- function(type = 1,
 ################################################################################
 
 ak_hg <- function(species,
-                  dbh,
+                  dbh, 
                   ht = 4.5,
-                  elev, 
+                  elev,
                   si = 70,
                   dg = 0.1,
                   yr = 10,
-                  perm) {
+                  perm) { 
   
-  #Handle invalid species values safely (default to 23)
-  species[!is.numeric(species) | species < 1 | species > 23 | is.na(species)] <- 23
+  #Handle invalid species values safely (default to 23) 
+  species[!is.numeric(species) | species < 1 | species > 23 | is.na(species)] <- 23 
   
-  #Get species, coefficients, and height bounding values
-  v_base <- hg_base_coeffs[species, , drop = FALSE]
-  v_htlo <- v_base[, 1]
-  v_hthi <- v_base[, 2]
-  b1     <- v_base[, 3]
-  b2     <- v_base[, 4]
-  b3     <- v_base[, 5]
-  b4     <- v_base[, 6]
-  b5     <- v_base[, 7]
-  b6     <- v_base[, 8]
-  hgmod  <- v_base[, 9]
+  #Get species, coefficients, and height bounding values 
+  v_base <- hg_base_coeffs[species, , drop = FALSE] 
   
-  # Calculate annual base height increment
-  basehg <- exp(b1 + b2*dbh^2 + b3*log(dbh) + b4*elev + b5*log(si) + 
-                  b6*log(dg)) * hgmod
+  # Calculate annual base height increment 
+  basehg <- exp(v_base[, 3] + v_base[, 4]*dbh^2 + v_base[, 5]*log(dbh) + 
+                  v_base[, 6]*elev + v_base[, 7]*log(si) + 
+                  v_base[, 8]*log(dg)) * v_base[, 9] 
   
-  #Get permaforst coefficients
-  v_perm  <- hg_perm_coeffs[species, , drop = FALSE]
-  v_pb1   <- v_perm[, 1]
-  v_pb01  <- v_perm[, 2]
-  v_pb2   <- v_perm[, 3]
-  v_pb3   <- v_perm[, 4]
-  v_pb4   <- v_perm[, 5]
-  v_pb5   <- v_perm[, 6]
+  #Get permaforst coefficients 
+  v_perm <- hg_perm_coeffs[species, , drop = FALSE] 
   
-  # Evaluate Permafrost Logic across vectors
-  pf_present <- exp(v_pb1 + v_pb01 + v_pb2*dbh^2 + v_pb3*log(dbh) + v_pb4*elev +
-                      v_pb5*log(dg)) / basehg
+  # Evaluate Permafrost Logic across vectors 
+  pf_present <- exp(v_perm[, 1] + v_perm[, 2] + v_perm[, 3]*dbh^2 + 
+                      v_perm[, 4]*log(dbh) + v_perm[, 5]*elev +
+                      v_perm[, 6]*log(dg)) / basehg 
   
-  pf_absent  <- exp(v_pb1 + v_pb2*dbh^2 + v_pb3*log(dbh) + v_pb4*elev + 
-                      v_pb5*log(dg)) / basehg
+  pf_absent <- exp(v_perm[, 1] + v_perm[, 3]*dbh^2 + v_perm[, 4]*log(dbh) + 
+                     v_perm[, 5]*elev + v_perm[, 6]*log(dg)) / basehg 
   
-  pf_present <- pmin(pf_present, 1.0)
-  pf_absent  <- pmax(pf_absent, 1.0)
+  pf_present <- pmin(pf_present, 1.0) 
+  pf_absent <- pmax(pf_absent, 1.0) 
   
-  affected_species <- species %in= c(4:7, 13, 16:23)
-  pfhmod <- ifelse(affected_species, ifelse(perm >= 1.0, pf_present, pf_absent), 1.0)
+  affected_species <- species %in% c(4:7, 13, 16:23) 
+  pfhmod <- ifelse(affected_species, ifelse(perm >= 1.0, pf_present, pf_absent), 1.0) 
   
-  # Apply final scaling and species multiplication adjustments
-  hi_base <- basehg * yr * pfhmod
+  # Apply final scaling and species multiplication adjustments 
+  hi_base <- basehg * yr * pfhmod 
   hi <- ifelse(species %in% c(14, 21, 23), hi_base * 0.45, 
-               ifelse(species == 22, hi_base * 0.65, hi_base))
+               ifelse(species == 22, hi_base * 0.65, hi_base)) 
   
-  # Apply Height Bounding Logic
-  bnd_scale <- 1.0 - ((ht - v_htlo) / (v_hthi - v_htlo))
-  bnd_scale <- pmax(bnd_scale, 0.1) # Capping if less than 0.1
+  # Apply Height Bounding Logic 
+  bnd_scale <- 1.0 - ((ht - v_base[, 1]) / (v_base[, 2] - v_base[, 1])) 
+  bnd_scale <- pmax(bnd_scale, 0.1) # Capping if less than 0.1 
   
-  # Select the correct bounding factor based on ht tiers
-  hgbnd <- ifelse(ht >= v_htlo & ht < v_hthi, bnd_scale, 
-                  ifelse(ht < v_htlo, 1.0, 0.1))
+  # Select the correct bounding factor based on ht tiers 
+  hgbnd <- ifelse(ht >= v_base[, 1] & ht < v_base[, 2], bnd_scale, 
+                  ifelse(ht < v_base[, 1], 1.0, 0.1)) 
   
-  # Apply bounded reduction factor
-  hi <- hi * hgbnd
+  # Apply bounded reduction factor 
+  hi <- hi * hgbnd 
   
-  # Apply Final Constraints Checks
-  hi <- ifelse(hi <= 0.1, 0.1, hi)
-  hi <- ifelse(dg <= 0.04, 0.1, hi)
+  # Apply Final Constraints Checks 
+  hi <- ifelse(hi <= 0.1, 0.1, hi) 
+  hi <- ifelse(dg <= 0.04, 0.1, hi) 
+  result <- hi 
   
-  result <- hi
-  return(result)
+  return(result) 
 }
 
 ################################################################################
@@ -701,56 +627,43 @@ ak_hg <- function(species,
 #'  @export
 ################################################################################
 
-ak_surv <- function(type = 1,
-                    species,
-                    dbh,
-                    expf = NULL,
-                    bal,
+ak_surv <- function(type = 1, 
+                    species, 
+                    dbh, 
+                    bal, 
                     p = 1,
-                    fint = 10) {
+                    fint = 10) { 
   
-  # Handle invalid species values safely (default to 23)
-  species[!is.numeric(species) | species < 1 | species > 23 | is.na(species)] <- 23
+  # Handle invalid species values safely (default to 23) 
+  species[!is.numeric(species) | species < 1 | species > 23 | is.na(species)] <- 23 
   
-  #Calculate bal if expansion factors are provided
-  if(!is.null(expf))
-  {
-    bal <- fvstools::bal(dbh = dbh, expf = expf)
-  }
+  #Get coefficients 
+  v <- surv_coeffs[species, , drop = FALSE] 
   
-  #Get coefficients
-  v <- surv_coeffs[species, , drop = FALSE]
-  b1       <- v[, 1]
-  b2       <- v[, 2]
-  b3       <- v[, 3]
-  b4       <- v[, 4]
-  b5       <- v[, 5]
-  v_dsurv  <- v[, 6]
+  #Determine diameter to use in calculation 
+  dtemp <- pmax(dbh, v[, 6]) 
   
-  #Determine diameter to use in calculation
-  dtemp <- pmax(dbh, v_dsurv)
+  #Calculate annual survival 
+  v_x <- v[, 1] + v[, 2] * dtemp + v[, 3] * dtemp^2 + v[, 4] * bal + 
+    v[, 5] * bal / dtemp 
+  prob_surv <- exp(v_x) / (1 + exp(v_x)) 
   
-  #Calculate annual survival
-  v_x <- b1 + b2 * dtemp + b3 * dtemp^2 + b4 * bal + b5 * bal / dtemp
-  prob_surv <- exp(v_x) / (1 + exp(v_x))
+  #Scale survival to fint length 
+  surv <- prob_surv^fint 
   
-  #Scale survival to fint length
-  surv <- prob_surv^fint
+  #Return survival 
+  if (type == 1) { 
+    return(surv) 
+  } 
   
-  #Return survival
-  if (type == 1) {
-    return(surv)
-  }
+  #Return mortality 
+  mort <- (1 - surv) 
+  if (type == 2) { 
+    return(mort) 
+  } 
   
-  #Return mortality
-  mort <- (1 - surv)
-  if (type == 2) {
-    return(mort)
-  }
-  
-  #Return mortality as amount of TPA killed
-  return(mort * p)
-  
+  #Return mortality as amount of TPA killed 
+  return(mort * p) 
 }
 
 ################################################################################
@@ -798,40 +711,31 @@ ak_surv <- function(type = 1,
 #' @export
 ################################################################################
 
-ak_hegyi <- function(species, 
-                     ht,
-                     age,
-                     baseage = 100,
-                     si, 
-                     type = 0) {
+ak_hegyi <- function(species, ht, age, baseage = 100, si, type = 0) { 
   
-  #Handle invalid species values safely (default to 23)
-  species[!is.numeric(species) | species < 1 | species > 23 | is.na(species)] <- 23
+  #Handle invalid species values safely (default to 23) 
+  species[!is.numeric(species) | species < 1 | species > 23 | is.na(species)] <- 23 
   
-  #Get species
-  v <- hegyi_coeffs[species, , drop = FALSE]
+  #Get species 
+  v <- hegyi_coeffs[species, , drop = FALSE] 
   
-  #Get coefficients
-  b1 <- if (baseage < 100) v[, 4] else v[, 1]
-  b2 <- v[, 2]
-  b3 <- v[, 3]
+  #Get coefficients 
+  b1 <- if (baseage < 100) v[, 4] else v[, 1] 
   
-  #Site Index from Height & Age
-  if (type == 1) {
+  #Site Index from Height & Age 
+  if (type == 1) { 
+    return(ht / (b1 * (1 - exp(v[, 2] * age))^v[, 3])) 
     
-    return(ht / (b1 * (1 - exp(b2 * age))^b3))
+    #Height from Site Index & Age 
+  } else if (type == 2) { 
+    return(b1 * si * (1 - exp(v[, 2] * age))^v[, 3]) 
     
-    #Height from Site Index & Age
-  } else if (type == 2) {
-    
-    return(b1 * si * (1 - exp(b2 * age))^b3)
-   
     #Age from Height & Site Index 
-  } else {
-    suppressWarnings({
-      return(1 / b2 * log(1 - (ht / b1 / si)^(1 / b3)))
-    })
-  }
+  } else { 
+    suppressWarnings({ 
+      return(1 / v[, 2] * log(1 - (ht / b1 / si)^(1 / v[, 3]))) 
+    }) 
+  } 
 }
 
 ################################################################################
@@ -875,53 +779,31 @@ ak_hegyi <- function(species,
 ################################################################################
 
 ak_paya <- function(species,
-                    ht,
+                    ht, 
                     age,
-                    si,
-                    type = 0,
-                    debug = FALSE) {
+                    si, 
+                    type = 0, 
+                    debug = FALSE) { 
   
-  # 1. Handle invalid species values safely (default to 11)
-  species[!species %in% c(8, 11, 12) | is.na(species)] <- 11
+  #Handle invalid species values safely (default to 11) 
+  species[!species %in% c(8, 11, 12) | is.na(species)] <- 11 
   
-  #Calculate Site Index
-  if (type == 1) {
-    
-    b1 <- 0.520027
-    b2 <- 0.999937
-    b3 <- -0.00625
-    b4 <- -0.899461
-    b5 <- -0.011825
-    
-    return(b1 * ht^b2 * (1 - exp(b3 * age))^(b4 * ht^b5))
-    
-  }
-  
-  #Calculate Height
-  else if (type == 2) {
-    b1 <- 1.5469
-    b2 <- 1.0018
-    b3 <- -0.0114
-    b4 <- 1.0883
-    b5 <- 0.0072
-    
-    return(b1 * si^b2 * (1 - exp(b3 * age))^(b4 * si^b5))
-    
+  #Calculate Site Index 
+  if (type == 1) { 
+    return(0.520027 * ht^0.999937 * (1 - exp(-0.00625 * age))^(-0.899461 * ht^-0.011825)) 
   } 
   
-  #Calculate Age
-  else {
-
-    b1 <- 1.5469
-    b2 <- 1.0018
-    b3 <- -0.0114
-    b4 <- 1.0883
-    b5 <- 0.0072
+  #Calculate Height 
+  else if (type == 2) { 
+    return(1.5469 * si^1.0018 * (1 - exp(-0.0114 * age))^(1.0883 * si^0.0072)) 
+  } 
   
-    suppressWarnings({
-      return(1 / b3 * (log(1 - (ht / b1 / si^b2)^(1 / (b4 * si^b5)))))
-    })
-  }
+  #Calculate Age 
+  else { 
+    suppressWarnings({ 
+      return(1 / -0.0114 * (log(1 - (ht / 1.5469 / si^1.0018)^(1 / (1.0883 * si^0.0072))))) 
+    }) 
+  } 
 }
 
 ################################################################################
@@ -1027,22 +909,20 @@ ak_si <- function(species,
 ak_smhg <- function(species,
                     dbh,
                     htgr,
-                    lthg) 
-  {
-  #Get minimum and maximum diameters
-  v <- smhg_coeffs[species, , drop = FALSE]
-  v_xmin <- v[, 1]
-  v_xmax <- v[, 2]
+                    lthg) { 
   
-  #Calculate weighting for small and large tree growth
-  d_clamped <- pmin(pmax(dbh, v_xmin), v_xmax)
-  xwt       <- (d_clamped - v_xmin) / (v_xmax - v_xmin)
+  #Get minimum and maximum diameters 
+  v <- smhg_coeffs[species, , drop = FALSE] 
   
-  #Calculate height growth
-  htgr_avg <- (htgr + lthg) / 2
-  result   <- htgr_avg * (1.0 - xwt) + xwt * lthg
+  #Calculate weighting for small and large tree growth 
+  d_clamped <- pmin(pmax(dbh, v[, 1]), v[, 2]) 
+  xwt <- (d_clamped - v[, 1]) / (v[, 2] - v[, 1]) 
   
-  return(result)
+  #Calculate height growth 
+  htgr_avg <- (htgr + lthg) / 2 
+  result <- htgr_avg * (1.0 - xwt) + xwt * lthg 
+  
+  return(result) 
 }
 
 ################################################################################
@@ -1087,34 +967,32 @@ ak_smhg <- function(species,
 #' @export
 ################################################################################
 
-ak_sm_dg <- function(species, 
-                     dbh, 
+ak_sm_dg <- function(species,
+                     dbh,
                      d1, 
                      d2, 
-                     ltdg, 
+                     ltdg,
                      bark, 
-                     scale = 1, 
-                     debug = FALSE) {
+                     scale = 1) { 
   
-  #Handle invalid species values safely (default to 23)
-  species[!is.numeric(species) | species < 1 | species > 23 | is.na(species)] <- 23
+  #Handle invalid species values safely (default to 23) 
+  species[!is.numeric(species) | species < 1 | species > 23 | is.na(species)] <- 23 
   
-  #Get coefficients
-  v <- sm_dg_coeffs[species, , drop = FALSE]
-  v_xmin <- v[, 1]
-  v_xmax <- v[, 2]
+  #Get coefficients 
+  v <- sm_dg_coeffs[species, , drop = FALSE] 
   
-  #Calculate weighting for small and large tree growth
-  d_clamped <- pmin(pmax(dbh, v_xmin), v_xmax)
-  xwt       <- (d_clamped - v_xmin) / (v_xmax - v_xmin)
+  #Calculate weighting for small and large tree growth 
+  d_clamped <- pmin(pmax(dbh, v[, 1]), v[, 2]) 
+  xwt <- (d_clamped - v[, 1]) / (v[, 2] - v[, 1]) 
   
-  #Core small tree diameter change calculations
-  smdg_raw <- (d2 - d1) * bark
-  v_dds    <- smdg_raw * (2.0 * bark * dbh + smdg_raw) * scale
-  smdg     <- sqrt((dbh * bark)^2.0 + v_dds) - bark * dbh
+  #Core small tree diameter change calculations 
+  smdg_raw <- (d2 - d1) * bark 
+  v_dds <- smdg_raw * (2.0 * bark * dbh + smdg_raw) * scale 
+  smdg <- sqrt((dbh * bark)^2.0 + v_dds) - bark * dbh 
   
-  #Weight the growth results
-  result <- smdg * (1.0 - xwt) + xwt * ltdg
+  #Weight the growth results 
+  result <- smdg * (1.0 - xwt) + xwt * ltdg 
   
-  return(result)
+  return(result) 
 }
+
