@@ -19,7 +19,7 @@ shaw_sdi_df <- function()
 #' @description Returns maximum SDI value from incoming FIA species code.
 #' 
 #' @param species
-#' Numeric FIA forest type code.
+#' Numeric FIA species code.
 #' 
 #' @return
 #' Numeric maximum SDI value or NA values if species does not have an SDI max.
