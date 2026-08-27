@@ -3,8 +3,5 @@
 .Rhistory
 *.exe
 data-raw/shaw_sdi.csv
-R/fitdb-build.R
-R/fitdb-fia.R
-R/fitdb-queries.R
-R/fitdb-variables.R
+
 
