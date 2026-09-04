@@ -9,6 +9,7 @@ build_fitdb(
   dbout = NULL,
   fitdb_name = "FITDB",
   fitdb_type = 1,
+  merge_type = 1,
   overwrite = FALSE,
   verbose = FALSE
 )
@@ -28,6 +29,10 @@ argument. Defaults to "FITDB".}
 1 = FITDB built from FIA data
 
 Defaults to 1.}
+
+\item{merge_type}{Integer value corresponding to merging strategy to execute.
+1 - uses TREE_CN
+2 - uses merge_id and interval_id}
 
 \item{overwrite}{Logical variable used to determine if currently existing dbout file should be
 deleted. If this argument is left as FALSE, data will be appended to existing

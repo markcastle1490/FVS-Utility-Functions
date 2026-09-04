@@ -3,7 +3,7 @@
 # Define paths
 #===============================================================================
 
-#Windows
+#Windows: ctrl + shift + F10
 if(.Platform$OS.type == 'windows'){
   pkg_root <- "C:/FVS_Tools/fvstools"
   build_dir <- "C:/FVS_Tools"

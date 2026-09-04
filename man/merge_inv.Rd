@@ -7,9 +7,10 @@
 merge_inv(
   data,
   unique_id = "TREE_CN",
+  prev_unique_id = "PREV_TRE_CN",
   merge_id = "TREEMERGEID",
   interval_id = "CYCLE",
-  verbose = TRUE
+  merge_type = 1
 )
 }
 \arguments{
@@ -19,15 +20,21 @@ paired based on a measurement interval.}
 \item{unique_id}{Character string of column name used to represent a unique tree ID.
 Defaults to "TREE_CN".}
 
+\item{prev_unique_id}{Character string of column name used to represent a unique tree ID from
+previous inventory. Defaults to "PREV_TRE_CN". Only used when type argument
+is 1.}
+
 \item{merge_id}{Character string of column name used to merge re-measurement periods together
-at the tree level. Defaults to "TREEMERGEID".}
+at the tree level. Defaults to "TREEMERGEID". Only used when type argument is
+2.}
 
 \item{interval_id}{Character string of column name used to specify a measurement year or cycle.
-This variable is used to pair re-measurement observations.
-Defaults to "CYCLE".}
+This variable is used to pair re-measurement observations. Defaults to
+"CYCLE". Only used when type argument is 2.}
 
-\item{verbose}{Logical variable used to determine if tracking milestones and processing logs
-are printed to the console. Defaults to TRUE.}
+\item{merge_type}{Integer value corresponding to merging strategy to execute.
+1 - uses TREE_CN
+2 - uses merge_id and interval_id}
 }
 \value{
 Data table with paired remeasurement data.

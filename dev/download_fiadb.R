@@ -37,4 +37,3 @@ results = lapply(futures, value)
 #                           "/home/mark/FIA_Data/SQLite_FIADB_HI.db",
 #             dbout = file.path(fia_dir, "ALL_FITDB.db")))
 
-any(c("TEST1", "TEST2") == 'TEST3')
