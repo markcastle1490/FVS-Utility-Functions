@@ -34,7 +34,8 @@ fia_tree_query <- function() {
   
   # Variables from PLOT table
   plot <- paste0("PLOT.", c("CN as PLT_CN", "LAT", "LON", "ELEV", "MEASYEAR",
-                             "MEASMON", "MEASDAY", "DESIGNCD", "KINDCD"))
+                             "MEASMON", "MEASDAY", "DESIGNCD", "KINDCD",
+                            "PLOT_STATUS_CD"))
   
   #Variables from PLOTGEOM
   plot_geom <- paste0("PLOTGEOM.", c("CN", "ECOSUBCD"))
@@ -70,12 +71,13 @@ fia_tree_query <- function() {
     #Join REF_SPECIES via the species code
     "LEFT JOIN REF_SPECIES ON TREE.SPCD = REF_SPECIES.SPCD",
     
-    #Filters
+    #Filters. May need different criteria for isolating annual versus periodic
+    #observations.
     "WHERE PLOT.KINDCD IN (1, 2, 3)",
-    "  AND COND.COND_STATUS_CD = 1",
+    "  AND PLOT.PLOT_STATUS_CD = 1",
     "  AND PLOT.MEASYEAR IS NOT NULL",
     "  AND PLOT.CYCLE IS NOT NULL",
-    "  AND TREE.STATUSCD IN (1, 2)",
+    "  AND TREE.STATUSCD IN (1, 2, 3)",
     "  AND TREE.TPA_UNADJ IS NOT NULL;"
   ), collapse = "\n")
   

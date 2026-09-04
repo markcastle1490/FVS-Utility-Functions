@@ -21,8 +21,9 @@ information will be written to. Defaults to NULL.}
 \item{fitdb_name}{Character string corresponding to name of database table written to dbout
 argument. Defaults to NULL.}
 
-\item{merge_type}{Integer value corresponding to merging strategy to execute.
-1 - uses TREE_CN
+\item{merge_type}{Integer value corresponding to merging strategy to use for aligning
+#remeasurements
+1 - uses unique_id
 2 - uses merge_id and interval_id}
 
 \item{verbose}{Logical variable where if TRUE, progress messages will be output to the

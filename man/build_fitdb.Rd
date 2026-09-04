@@ -30,8 +30,9 @@ argument. Defaults to "FITDB".}
 
 Defaults to 1.}
 
-\item{merge_type}{Integer value corresponding to merging strategy to execute.
-1 - uses TREE_CN
+\item{merge_type}{Integer value corresponding to merging strategy to use for aligning
+remeasurements
+1 - uses unique_id
 2 - uses merge_id and interval_id}
 
 \item{overwrite}{Logical variable used to determine if currently existing dbout file should be

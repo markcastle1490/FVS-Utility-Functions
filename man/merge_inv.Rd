@@ -32,8 +32,9 @@ at the tree level. Defaults to "TREEMERGEID". Only used when type argument is
 This variable is used to pair re-measurement observations. Defaults to
 "CYCLE". Only used when type argument is 2.}
 
-\item{merge_type}{Integer value corresponding to merging strategy to execute.
-1 - uses TREE_CN
+\item{merge_type}{Integer value corresponding to merging strategy to use for aligning
+remeasurements
+1 - uses unique_id
 2 - uses merge_id and interval_id}
 }
 \value{

@@ -108,20 +108,23 @@ fia_fitdb <- function(dbin = NULL,
                   #needs to be considered
                   BT = data.table::fcase(ACTUALHT < HT, 1L, default = 0L),
                   #Get measured height value (only observations that were actually measured)
-                  HT= data.table::fifelse(!is.na(ACTUALHT), ACTUALHT, HT),
+                  #HT= data.table::fifelse(!is.na(ACTUALHT), ACTUALHT, HT),
                   #Grab PREVIA for dead trees if needed
                   DIA = data.table::fifelse(is.na(DIA) & STATUSCD == 2, PREVDIA, DIA),
                   #Set EXPF
                   EXPF = data.table::fcoalesce(TPA_UNADJ, 0.0),
                   #Fill in missing HTDMP values and allow for tolerance of
                   #values (0.0 = valid HTDMP)
-                  HTDMP = data.table::fcase(is.na(HTDMP), 0.0,
-                                HTDMP >= 4 & HTDMP < 5, 0.0,
-                                default = HTDMP),
+                  #Add this in if code gets used.
+                  # HTDMP = data.table::fcase(is.na(HTDMP), 0.0,
+                  #               HTDMP >= 4 & HTDMP < 5, 0.0,
+                  #               default = HTDMP),
                   #Assume 1 for missing DIAHTCD values
+                  #Add this in if code gets used.
                   DIAHTCD = data.table::fcoalesce(DIAHTCD, 1L),
                   #Assume 0 for missing DIACHECK values
-                  DIACHECK = data.table::fcoalesce(DIACHECK, 0L),
+                  #Add this in if this code gets used. 
+                  #DIACHECK = data.table::fcoalesce(DIACHECK, 0L),
                   CRTYPE = 0L,
                   #Create date for REMPER calculation
                   DATE = as.Date(sprintf("%04d-%02d-%02d", MEASYEAR, MEASMON, MEASDAY),
@@ -177,9 +180,10 @@ fia_fitdb <- function(dbin = NULL,
 
   #Obtain variables that will be included in the merge_inv function
   merge_vars <- c(
-    "CYCLE", "MEASYEAR", "MEASMON", "MEASDAY", "DATE", "SPCD", "DIA", "HT", "CR",
-    "STATUSCD", "AGENTCD", "DIACHECK", "HTDMP", "DESIGNCD", "HTCD_TEMP", "HTCD",
-    "TPA", "QMD", "BA", "ZSDI", "BAL", "PTPA", "PQMD", "PBA", "PZSDI", "PBAL")
+    "CYCLE", "MEASYEAR", "MEASMON", "MEASDAY", "DATE", "SPCD", "DIA", "ACTUALHT",
+    "HT", "BT", "CR", "STATUSCD", "AGENTCD", "DIACHECK", "HTDMP", "DESIGNCD",
+    "HTCD_TEMP", "HTCD", "TPA", "QMD", "BA", "ZSDI", "BAL", "PTPA", "PQMD",
+    "PBA", "PZSDI", "PBAL")
   
   #Merge measurements. May need to use different merge for Alaska (can be set
   #by merge_type)
@@ -223,13 +227,13 @@ fia_fitdb <- function(dbin = NULL,
                  HTCD_TEMP1 == 1 & 
                    !is.na(HT1) &
                    STATUSCD1 == 1 &
-                   BT != 1, 1L,
+                   BT1 != 1, 1L,
                  default = 0L),
                #Crown size observation
                ICRM = data.table::fcase(
                    !is.na(CR1) &
                    STATUSCD1 == 1 &
-                   BT != 1, 1L, 
+                   BT1 != 1, 1L, 
                    default = 0L),
                #Diameter growth observation indicator
                IDGRM = data.table::fcase(
