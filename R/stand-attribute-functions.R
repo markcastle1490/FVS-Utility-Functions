@@ -208,7 +208,7 @@ ba = function(dbh,
     species_in
   
   #Calculate BA over DBH, HT, and species
-  ba_ <- sum((dbh^2 * expf * f_con)[include], na.rm = TRUE)
+  ba_ <- sum((dbh*dbh * expf * f_con)[include], na.rm = TRUE)
   
   #Capture bad values
   if(is.na(ba_)) ba_ <- 0
@@ -379,7 +379,7 @@ qmd = function(dbh,
     species_in
   
   #Calculate QMD over DBH, HT, and species
-  dbhsq <- sum((dbh^2*expf)[include], na.rm = TRUE)
+  dbhsq <- sum((dbh*dbh*expf)[include], na.rm = TRUE)
   tpa_ <- sum(expf[include], na.rm = TRUE)
   if(tpa_ > 0) qmd_ <- sqrt(dbhsq/tpa_)
 
@@ -573,7 +573,7 @@ top_dia = function(dbh,
     #Quadratic Mean Diameter (QMD)
     if(dia_type == 1) {
       dbh_sum <- if(top_exceed > 1) 
-        sum((dbh^2 * expf)[1:(top_exceed - 1)], na.rm = TRUE) else 0
+        sum((dbh*dbh * expf)[1:(top_exceed - 1)], na.rm = TRUE) else 0
       dbh_sum <- dbh_sum + (dbh[top_exceed]^2 * remainder_expf)
       if(tpa_sum > 0) top_dia_ <- sqrt(dbh_sum / tpa_sum)
     } 
@@ -669,7 +669,7 @@ lorey_dia = function(dbh,
     species_in <- TRUE
   
   #Calculate treeba
-  treeba <- dbh^2 * expf * f_con 
+  treeba <- dbh*dbh * expf * f_con 
   
   #Identify records to include in calculation
   include <- (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &
@@ -797,7 +797,7 @@ rsdi_stage = function(dbh,
 
   #Calculate stand level tpa and dbhsq.
   stand_tpa <- sum(expf)
-  dbhsq <- sum(dbh^2 * expf)
+  dbhsq <- sum(dbh*dbh * expf)
   
   #Do calculation if stand_tpa > 0
   if(stand_tpa > 0)
@@ -811,7 +811,7 @@ rsdi_stage = function(dbh,
       species_in
     
     #Calculate RSDI over DBH, HT, and species
-    rsdi_ <- sum((a * expf + b * dbh^2 * expf)[include], na.rm = TRUE)
+    rsdi_ <- sum((a * expf + b * dbh*dbh * expf)[include], na.rm = TRUE)
     
     #Capture bad values
     if(is.na(rsdi_)) rsdi_ <- 0
@@ -1067,7 +1067,7 @@ bal = function(dbh,
   orig_order <- 1:length(dbh)
   
   #Get tree basal area
-  tree_ba <- (dbh^2) * expf * f_con
+  tree_ba <- (dbh*dbh) * expf * f_con
   
   #Sort vectors
   tree_ba <- tree_ba[dbh_order]
@@ -1166,7 +1166,7 @@ lorey_ht = function(dbh,
     species_in <- TRUE
   
   #Calculate treeba
-  treeba <- dbh^2 * expf * f_con 
+  treeba <- dbh*dbh * expf * f_con 
   
   #Identify records to include in calculation
   include <- (dbh >= dbhmin & dbh < dbhmax) & (ht >= htmin & ht < htmax) &

@@ -33,7 +33,7 @@ do i = 1, ntree, 1
     if(ht_ < htmin .or. ht_ >= htmax) cycle
     if(species_ < 1) cycle
 
-    ba_ = ba_ + (dbh_**2 * expf_ * f_con)
+    ba_ = ba_ + (dbh_*dbh_ * expf_ * f_con)
 
 end do
 end subroutine ba
@@ -116,7 +116,7 @@ do i = 1, ntree, 1
     if(ht_ < htmin .or. ht_ >= htmax) cycle
     if(species_ < 1) cycle
 
-    dbhsq = dbhsq + dbh_**2 * expf_
+    dbhsq = dbhsq + dbh_*dbh_ * expf_
     tpa_ = tpa_ + expf_
 
 end do
@@ -207,7 +207,7 @@ do i = 1, ntree, 1
     expf_ = expf(i)
     ht_ = ht(i)
     species_ = species(i)
-    ba_tree = dbh_**2 * expf_ * f_con
+    ba_tree = dbh_*dbh_ * expf_ * f_con
 
     !Determine if tree should be skipped in calculation
     if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
@@ -293,7 +293,7 @@ if(tpa_ > 0.0_REAL64) then
         !Update dbh_sum based on dia_type
         select case (dia_type)
         case(1)
-            dbh_sum = dbh_sum + dbh_**2.0_REAL64 * expf_temp
+            dbh_sum = dbh_sum + dbh_*dbh_ * expf_temp
         case(2)
             dbh_sum = dbh_sum + dbh_ * expf_temp
         case default 
@@ -371,7 +371,7 @@ if(tpa_ > 0 ) then
         if(ht_ < htmin .or. ht_ >= htmax) cycle
         if(species_ < 1) cycle
 
-        rsdi_ = rsdi_ + (a * expf_ + b * dbh_**2.0_REAL64 * expf_)
+        rsdi_ = rsdi_ + (a * expf_ + b * dbh_*dbh_ * expf_)
     end do
 end if
 
@@ -517,7 +517,7 @@ do i = 1, ntree, 1
     expf_ = expf(i)
     ht_ = ht(i)
     species_ = species(i)
-    ba_tree = dbh_**2.0_REAL64 * expf_ * f_con
+    ba_tree = dbh_*dbh_ * expf_ * f_con
 
     !Determine if tree should be skipped in calculation
     if(dbh_ < dbhmin .or. dbh_ >= dbhmax) cycle
@@ -635,7 +635,7 @@ do i = 1, ntree, 1
     idx = sorted_idx(i)
     dbh_ = dbh(idx)
     expf_ = expf(idx)
-    ba_tree = dbh_**2.0_REAL64 * expf_ * f_con
+    ba_tree = dbh_*dbh_ * expf_ * f_con
 
     !Update BAL based on value of no_ties
     select case(no_ties)

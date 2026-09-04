@@ -159,8 +159,6 @@ tree <- tree |>
          PtBAL_dplyr_notie = round(bal(dbh = DBH, expf = TPA * N, no_ties = TRUE), 0),
          .by = c(CaseID, StandID, ActPt, Year))
 
-help(bal)
-
 all.equal(tree$PtBAL, tree$PtBAL_dplyr)
 
 #Mistmatches are related to differences in tree ordering between Fortran and R.
@@ -430,3 +428,4 @@ all.equal(tree2$PtBAL_dt, tree2$PtBAL_dt_f)
 
 #Clean up
 rm(list=ls()); gc()
+
